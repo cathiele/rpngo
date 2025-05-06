@@ -3,6 +3,7 @@ package functions
 
 import (
 	"errors"
+	"math/cmplx"
 	"mattwach/rpngo/rpn"
 )
 
@@ -15,7 +16,7 @@ func Add(s *rpn.Stack) error {
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Float: a.Float + b.Float})
+	return s.Push(rpn.Frame{Complex: a.Complex + b.Complex})
 }
 
 func Subtract(s *rpn.Stack) error {
@@ -23,7 +24,7 @@ func Subtract(s *rpn.Stack) error {
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Float: a.Float - b.Float})
+	return s.Push(rpn.Frame{Complex: a.Complex - b.Complex})
 }
 
 func Multiply(s *rpn.Stack) error {
@@ -31,7 +32,7 @@ func Multiply(s *rpn.Stack) error {
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Float: a.Float * b.Float})
+	return s.Push(rpn.Frame{Complex: a.Complex * b.Complex})
 }
 
 func Divide(s *rpn.Stack) error {
@@ -39,8 +40,16 @@ func Divide(s *rpn.Stack) error {
 	if err != nil {
 		return err
 	}
-	if b.Float == 0 {
+	if b.Complex == 0 {
 		return errDivideByZero
 	}
-	return s.Push(rpn.Frame{Float: a.Float / b.Float})
+	return s.Push(rpn.Frame{Complex: a.Complex / b.Complex})
+}
+
+func SquareRoot(s *rpn.Stack) error {
+	a, err := s.Pop()
+	if err != nil {
+		return err
+	}
+	return s.Push(rpn.Frame{Complex: cmplx.Sqrt(a.Complex)})
 }

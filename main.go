@@ -19,7 +19,7 @@ func run() error {
 	}
 
 	r.Stack.IterFrames(func(sf rpn.Frame) {
-		fmt.Printf("%f\n", sf.Float)
+		fmt.Println(sf.String())
 	})
 
 	return nil

@@ -1,7 +1,10 @@
 // RPNStack holds stack information for an RPNCalc
 package rpn
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	errStackEmpty           = errors.New("stack empty")
@@ -10,7 +13,30 @@ var (
 
 // Frame Defines a single stack frame
 type Frame struct {
-	Float float64
+	Complex complex128
+}
+
+func (f *Frame) String() string {
+	if imag(f.Complex) == 0 {
+		return fmt.Sprintf("%g", real(f.Complex))
+	}
+	if real(f.Complex) == 0 {
+		return complexString(imag(f.Complex))
+	}
+	if imag(f.Complex) < 0 {
+		return fmt.Sprintf("%g%s", real(f.Complex), complexString(imag(f.Complex)))
+	}
+	return fmt.Sprintf("%g+%s", real(f.Complex), complexString(imag(f.Complex)))
+}
+
+func complexString(v float64) string {
+	if v == 1 {
+		return "i"
+	}
+	if v == -1 {
+		return "-i"
+	}
+	return fmt.Sprintf("%gi", v)
 }
 
 // Stak defines a full stack frame

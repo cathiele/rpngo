@@ -7,4 +7,5 @@ func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register("-", Subtract)
 	rpn.Register("*", Multiply)
 	rpn.Register("/", Divide)
+	rpn.Register("sqrt", SquareRoot)
 }
