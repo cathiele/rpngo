@@ -1,7 +1,9 @@
-// ncurses implementation for IO
+// Package ncurses implementation for IO
 package curses
 
-import "github.com/gbin/goncurses"
+import (
+	"github.com/gbin/goncurses"
+)
 
 type Curses struct {
 	window *goncurses.Window
@@ -16,7 +18,7 @@ func Init() (*Curses, error) {
 }
 
 func (c *Curses) End() {
-	c.End()
+	goncurses.End()
 }
 
 func (c *Curses) ReadByte() (byte, error) {
@@ -24,11 +26,16 @@ func (c *Curses) ReadByte() (byte, error) {
 }
 
 func (c *Curses) Clear() error {
-	return c.window.Clear()
+	if err := c.window.Clear(); err != nil {
+		return err
+	}
+	c.window.Refresh()
+	return nil
 }
 
 func (c *Curses) Write(b []byte) error {
 	c.window.Print(string(b))
+	c.window.Refresh()
 	return nil
 }
 
