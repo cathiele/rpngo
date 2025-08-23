@@ -2,6 +2,10 @@
 // from the API.
 package io
 
+import (
+	"mattwach/rpngo/rpn"
+)
+
 // Input gets input from the keyboard/keypad
 type Input interface {
 	ReadByte() (byte, error)
@@ -12,8 +16,8 @@ type TextDisplay interface {
 	// Clear the display
 	Clear() error
 
-	// Write charaacters to the display, \n causes a newline, characters
-	// that exceed therigth margin will be wrapped
+	// Write charaacters to the display, newlines and scrolling
+	// have to be handled by the client
 	Write([]byte) error
 
 	// Returns the dimensions of the screen
@@ -25,4 +29,16 @@ type TextDisplay interface {
 	Y() uint
 	SetX(uint)
 	SetY(uint)
+}
+
+func Loop(rpn *rpn.RPN, input Input, txtd TextDisplay) error {
+	for {
+		line, err := getLine(input, txtd)
+		if err != nil {
+			return err
+		}
+		if line == "exit" {
+			return nil
+		}
+	}
 }

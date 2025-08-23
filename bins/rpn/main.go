@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"mattwach/rpngo/functions"
+	"mattwach/rpngo/io"
 	"mattwach/rpngo/io/curses"
 	"mattwach/rpngo/rpn"
 	"os"
@@ -41,18 +42,7 @@ func interactive(r *rpn.RPN) error {
 		return err
 	}
 	defer c.End()
-	if err := c.Clear(); err != nil {
-		return err
-	}
-	if err := c.Write([]byte("Hello World!\n")); err != nil {
-		return err
-	}
-
-	_, err = c.ReadByte()
-	if err != nil {
-		return err
-	}
-	return nil
+	return io.Loop(r, c, c)
 }
 
 func main() {
