@@ -34,6 +34,8 @@ type TextDisplay interface {
 func Loop(rpn *rpn.RPN, input Input, txtd TextDisplay) error {
 	for {
 		line, err := getLine(input, txtd)
+		print(txtd, string(line))
+		newLine(txtd)
 		if err != nil {
 			return err
 		}

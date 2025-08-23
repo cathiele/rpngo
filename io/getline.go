@@ -8,11 +8,11 @@ func getLine(input Input, txtd TextDisplay) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		txtd.Write([]byte{b})
-		line = append(line, b)
+		puts(txtd, b)
 		if b == '\n' {
 			break
 		}
+		line = append(line, b)
 	}
 	return string(line), nil
 }
