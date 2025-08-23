@@ -25,6 +25,13 @@ func puts(txtd TextDisplay, b byte) {
 }
 
 func newLine(txtd TextDisplay) {
-	txtd.SetY(txtd.Y() + 1)
+	y := txtd.Y()
+	h := txtd.Height()
+	if y >= (h - 1) {
+		txtd.Scroll(1)
+		txtd.SetY(h - 1)
+	} else {
+		txtd.SetY(y + 1)
+	}
 	txtd.SetX(0)
 }

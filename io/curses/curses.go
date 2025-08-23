@@ -81,3 +81,8 @@ func (c *Curses) SetX(x uint) {
 func (c *Curses) SetY(y uint) {
 	c.window.Move(int(y), int(c.X()))
 }
+
+func (c *Curses) Scroll(n int) {
+	c.window.ScrollOk(true)
+	c.window.Scroll(n)
+}

@@ -29,6 +29,9 @@ type TextDisplay interface {
 	Y() uint
 	SetX(uint)
 	SetY(uint)
+
+	// Scroll the display up or down
+	Scroll(int)
 }
 
 func Loop(rpn *rpn.RPN, input Input, txtd TextDisplay) error {
