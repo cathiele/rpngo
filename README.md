@@ -96,3 +96,65 @@ the code that uses the library:
     0b1101 # binary
     0i123  # integer
 
+## Windows
+
+The RPN calculator has differerent optoional display windows, including:
+
+- Input
+- Stack Display (in various formats)
+- Graphics
+
+Every display window (other than Input) can have multiple instances.  This allows
+for multiple graphs, seeing hex along decimal values, etc.
+
+The layout of these windows follows a window-group -> window tree with the window
+group `root` always at the top.
+
+Window groups can contain window or other wiundow groups.  They have either a
+horizontal or vertical tile orientation. Each child in a window group gets
+a default "weight" of 100. Relative weights determine how much space
+a window group child is given relative to it's siblings.
+
+For example, say we want the following:
+
+```
++--------------------------------------------------------------+---------------+
+|                                                              |               |
+|                                                              |               |
+|                                                              |               |
+|                                                              |               |
+|                                                              |               |
+|                                                              |               |
+|                                                              |               |
+|                   GRAPH (g1)                                 |  STACK (s1)   |
+|                                                              |               |
+|                                                              |               |
+|                                                              |               |
+|                                                              |               |
+|                                                              |               |
+|                                                              |               |
++--------------------------------------------------------------+               |
+|                                                              |               |
+|                                                              |               |
+|                   INPUT (i)                                  |               |
+|                                                              |               |
+|                                                              |               |
++--------------------------------------------------------------+---------------+
+```
+
+We would get this using the following commands:
+
+```
+resetwg              # reset any existing wnidow groups, leading to 'root' with 'i'
+'root' vertwg        # set root window group orientation to vertical 
+'gr1' 'root' newwg   # create a left window group and add it to root
+'g1' 'gr1' newgraph  # create a graph window and add it to 'gr1'
+'i' 'gr1' movewg     # move window 'i' from 'root' to 'gr1'
+'i' 30 weight        # change the weight of the 'i' window to 30 so it takes less space
+'s1' 'root' newstack # create a new stack window
+'s1' 25 weight       # change the weight of the 's1' window so it takes less space
+```
+
+Normally, you would not use these commands on the fly but instead have precooked
+macros that can change the window layout to your preferences.
+
