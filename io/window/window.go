@@ -2,6 +2,9 @@ package window
 
 // TextWindow is output for a screen that displays monospaced text
 type TextWindow interface {
+	// Resize the window
+	Resize(x, y, w, h int)
+
 	// Clear the display
 	Clear() error
 
@@ -23,12 +26,12 @@ type TextWindow interface {
 	XY() (int, int)
 	SetX(int)
 	SetY(int)
-	SetXY(int, int)
+	SetXY(x, y int)
 
 	// Change the foreground and background colors (approximately) to the given
 	// r, g, b values. each value ranges from 0 to 32 (foreground, then background)
 	// If the display does not support color, these commands do nothing.
-	Color(int, int, int, int, int, int) error
+	Color(fr, fg, fb, br, bg, bb int) error
 
 	// Scroll the display up or down
 	Scroll(int)

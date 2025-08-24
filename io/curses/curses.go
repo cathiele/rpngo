@@ -35,6 +35,11 @@ func (c *Curses) End() {
 	goncurses.End()
 }
 
+func (c *Curses) Resize(x, y, w, h int) {
+	c.window.Move(y, x)
+	c.window.Resize(h, w)
+}
+
 var charMap = map[goncurses.Key]input.Key{
 	goncurses.KEY_LEFT:      input.KEY_LEFT,
 	goncurses.KEY_RIGHT:     input.KEY_RIGHT,
