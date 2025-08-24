@@ -1,5 +1,12 @@
 package window
 
+type Screen interface {
+	NewTextWindow(x, y, w, h int) TextWindow
+
+	// Refresh the display
+	Refresh()
+}
+
 // TextWindow is output for a screen that displays monospaced text
 type TextWindow interface {
 	// Resize the window
@@ -7,9 +14,6 @@ type TextWindow interface {
 
 	// Clear the display
 	Clear() error
-
-	// Refresh the display
-	Refresh()
 
 	// Write a charaacter to the display, wrap, newlines, and
 	// scrolling should all be supported.

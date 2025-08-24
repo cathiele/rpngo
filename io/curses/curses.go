@@ -31,6 +31,17 @@ func Init() (*Curses, error) {
 	}, nil
 }
 
+func (c *Curses) NewTextWindow(x, y, w, h int) *Curses {
+	return &Curses{
+		window:    c.window.Sub(h, w, y, x),
+		rgbToPair: c.rgbToPair,
+	}
+}
+
+func (c *Curses) Refresh() {
+	c.window.Refresh()
+}
+
 func (c *Curses) End() {
 	goncurses.End()
 }
@@ -64,10 +75,6 @@ func (c *Curses) GetChar() (input.Key, error) {
 
 func (c *Curses) Clear() error {
 	return c.window.Clear()
-}
-
-func (c *Curses) Refresh() {
-	c.window.Refresh()
 }
 
 func (c *Curses) Write(b byte) error {
