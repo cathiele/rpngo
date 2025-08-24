@@ -27,18 +27,20 @@ func (c *Curses) End() {
 	goncurses.End()
 }
 
+var charMap = map[goncurses.Key]key.Key{
+	goncurses.KEY_LEFT:      key.KEY_LEFT,
+	goncurses.KEY_RIGHT:     key.KEY_RIGHT,
+	goncurses.KEY_BACKSPACE: key.KEY_BACKSPACE,
+	goncurses.KEY_DC:        key.KEY_DEL,
+}
+
 func (c *Curses) GetChar() (key.Key, error) {
 	ch := c.window.GetChar()
-	switch ch {
-	case goncurses.KEY_LEFT:
-		return key.KEY_LEFT, nil
-	case goncurses.KEY_RIGHT:
-		return key.KEY_RIGHT, nil
-	case goncurses.KEY_BACKSPACE:
-		return key.KEY_BACKSPACE, nil
-	default:
-		return key.Key(ch), nil
+	k, ok := charMap[ch]
+	if ok {
+		return k, nil
 	}
+	return key.Key(ch), nil
 }
 
 func (c *Curses) Clear() error {
