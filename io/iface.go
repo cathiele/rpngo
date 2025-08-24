@@ -5,6 +5,7 @@ package io
 import (
 	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/rpn"
+	"strings"
 )
 
 // Input gets input from the keyboard/keypad
@@ -45,13 +46,40 @@ func Loop(rpn *rpn.RPN, input Input, txtd TextDisplay) error {
 	gl := initGetLine(input, txtd)
 	for {
 		line, err := gl.get()
-		print(txtd, string(line))
-		putByte(txtd, '\n')
 		if err != nil {
-			return err
+			printErr(txtd, err)
+			continue
 		}
 		if line == "exit" {
 			return nil
 		}
+		action, err := parseLine(rpn, line)
+		if err != nil {
+			printErr(txtd, err)
+			continue
+		}
+		if action {
+			frame, err := rpn.Stack.Peek()
+			if err != nil {
+				printErr(txtd, err)
+			} else {
+				print(txtd, frame.String())
+				putByte(txtd, '\n')
+			}
+		}
 	}
+}
+
+func parseLine(rpn *rpn.RPN, line string) (bool, error) {
+	line = strings.TrimSpace(line)
+	if len(line) == 0 {
+		return false, nil
+	}
+	fields := strings.Fields(line)
+	for _, arg := range fields {
+		if err := rpn.Exec(arg); err != nil {
+			return false, err
+		}
+	}
+	return true, nil
 }

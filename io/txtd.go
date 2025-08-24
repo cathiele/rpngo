@@ -4,6 +4,12 @@ func print(txtd TextDisplay, msg string) {
 	printBytes(txtd, []byte(msg))
 }
 
+func printErr(txtd TextDisplay, err error) {
+	print(txtd, "ERROR: ")
+	print(txtd, err.Error())
+	putByte(txtd, '\n')
+}
+
 func printBytes(txtd TextDisplay, msg []byte) {
 	for _, b := range msg {
 		if err := txtd.Write(b); err != nil {
