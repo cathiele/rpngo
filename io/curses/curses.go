@@ -30,6 +30,8 @@ func (c *Curses) End() {
 var charMap = map[goncurses.Key]key.Key{
 	goncurses.KEY_LEFT:      key.KEY_LEFT,
 	goncurses.KEY_RIGHT:     key.KEY_RIGHT,
+	goncurses.KEY_UP:        key.KEY_UP,
+	goncurses.KEY_DOWN:      key.KEY_DOWN,
 	goncurses.KEY_BACKSPACE: key.KEY_BACKSPACE,
 	goncurses.KEY_DC:        key.KEY_DEL,
 	goncurses.KEY_IC:        key.KEY_INS,

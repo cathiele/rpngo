@@ -42,7 +42,7 @@ type TextDisplay interface {
 }
 
 func Loop(rpn *rpn.RPN, input Input, txtd TextDisplay) error {
-	gl := getLine{insertMode: true, input: input, txtd: txtd}
+	gl := initGetLine(input, txtd)
 	for {
 		line, err := gl.get()
 		print(txtd, string(line))
