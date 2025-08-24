@@ -38,11 +38,20 @@ type TextDisplay interface {
 	SetY(int)
 	SetXY(int, int)
 
+	// Change the foreground and background colors (approximately) to the given
+	// r, g, b values. each value ranges from 0 to 32 (foreground, then background)
+	// If the display does not support color, these commands do nothing.
+	Color(int, int, int, int, int, int) error
+
 	// Scroll the display up or down
 	Scroll(int)
 }
 
 func Loop(rpn *rpn.RPN, input Input, txtd TextDisplay) error {
+	if err := txtd.Color(31, 31, 31, 0, 0, 0); err != nil {
+		return err
+	}
+
 	gl := initGetLine(input, txtd)
 	for {
 		line, err := gl.get()

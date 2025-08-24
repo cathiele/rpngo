@@ -5,9 +5,11 @@ func print(txtd TextDisplay, msg string) {
 }
 
 func printErr(txtd TextDisplay, err error) {
+	txtd.Color(31, 0, 0, 0, 0, 0)
 	print(txtd, "ERROR: ")
 	print(txtd, err.Error())
 	putByte(txtd, '\n')
+	txtd.Color(31, 31, 31, 0, 0, 0)
 }
 
 func printBytes(txtd TextDisplay, msg []byte) {

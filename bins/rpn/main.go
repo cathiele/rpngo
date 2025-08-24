@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/io"
 	"mattwach/rpngo/io/curses"
@@ -11,6 +12,13 @@ import (
 )
 
 func run() error {
+	logFile, err := os.OpenFile("/tmp/rpngo.log", os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer logFile.Close()
+	log.SetOutput(logFile)
+	log.Println("Application started")
 	var r rpn.RPN
 	r.Init()
 	functions.RegisterAll(&r)
