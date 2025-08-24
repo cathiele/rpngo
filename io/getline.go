@@ -33,6 +33,13 @@ func getLine(input Input, txtd TextDisplay) (string, error) {
 				putByte(txtd, ' ')
 				shift(txtd, -(len(line) - idx + 1))
 			}
+		case key.KEY_DEL:
+			if idx < len(line) {
+				line = delete(line, idx)
+				printBytes(txtd, line[idx:])
+				putByte(txtd, ' ')
+				shift(txtd, -(len(line) - idx + 1))
+			}
 		default:
 			b := byte(c)
 			if b == '\n' {
