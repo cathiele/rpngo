@@ -2,6 +2,7 @@
 package curses
 
 import (
+	"mattwach/rpngo/io/key"
 	"strings"
 
 	"github.com/gbin/goncurses"
@@ -17,6 +18,9 @@ func Init() (*Curses, error) {
 		return nil, err
 	}
 	goncurses.Echo(false)
+	if err := window.Keypad(true); err != nil {
+		return nil, err
+	}
 	return &Curses{window: window}, nil
 }
 
@@ -24,8 +28,14 @@ func (c *Curses) End() {
 	goncurses.End()
 }
 
-func (c *Curses) ReadByte() (byte, error) {
-	return byte(c.window.GetChar()), nil
+func (c *Curses) GetChar() (key.Key, error) {
+	ch := c.window.GetChar()
+	switch ch {
+	case goncurses.KEY_LEFT:
+		return key.KEY_LEFT, nil
+	default:
+		return key.Key(ch), nil
+	}
 }
 
 func (c *Curses) Clear() error {

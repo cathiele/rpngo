@@ -3,12 +3,13 @@
 package io
 
 import (
+	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/rpn"
 )
 
 // Input gets input from the keyboard/keypad
 type Input interface {
-	ReadByte() (byte, error)
+	GetChar() (key.Key, error)
 }
 
 // TextDisplay is output for a screen that displays monospaced text

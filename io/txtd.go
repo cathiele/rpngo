@@ -16,7 +16,7 @@ func print(txtd TextDisplay, msg string) {
 	txtd.Write([]byte(msg))
 }
 
-func puts(txtd TextDisplay, b byte) {
+func putbyte(txtd TextDisplay, b byte) {
 	if b == '\n' {
 		newLine(txtd)
 		return
