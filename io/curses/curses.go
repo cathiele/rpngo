@@ -3,7 +3,7 @@ package curses
 
 import (
 	"errors"
-	"mattwach/rpngo/io/key"
+	"mattwach/rpngo/io/input"
 
 	"github.com/gbin/goncurses"
 )
@@ -35,26 +35,26 @@ func (c *Curses) End() {
 	goncurses.End()
 }
 
-var charMap = map[goncurses.Key]key.Key{
-	goncurses.KEY_LEFT:      key.KEY_LEFT,
-	goncurses.KEY_RIGHT:     key.KEY_RIGHT,
-	goncurses.KEY_UP:        key.KEY_UP,
-	goncurses.KEY_DOWN:      key.KEY_DOWN,
-	goncurses.KEY_BACKSPACE: key.KEY_BACKSPACE,
-	goncurses.KEY_DC:        key.KEY_DEL,
-	goncurses.KEY_IC:        key.KEY_INS,
-	goncurses.KEY_END:       key.KEY_END,
-	goncurses.KEY_HOME:      key.KEY_HOME,
-	4:                       key.KEY_EOF,
+var charMap = map[goncurses.Key]input.Key{
+	goncurses.KEY_LEFT:      input.KEY_LEFT,
+	goncurses.KEY_RIGHT:     input.KEY_RIGHT,
+	goncurses.KEY_UP:        input.KEY_UP,
+	goncurses.KEY_DOWN:      input.KEY_DOWN,
+	goncurses.KEY_BACKSPACE: input.KEY_BACKSPACE,
+	goncurses.KEY_DC:        input.KEY_DEL,
+	goncurses.KEY_IC:        input.KEY_INS,
+	goncurses.KEY_END:       input.KEY_END,
+	goncurses.KEY_HOME:      input.KEY_HOME,
+	4:                       input.KEY_EOF,
 }
 
-func (c *Curses) GetChar() (key.Key, error) {
+func (c *Curses) GetChar() (input.Key, error) {
 	ch := c.window.GetChar()
 	k, ok := charMap[ch]
 	if ok {
 		return k, nil
 	}
-	return key.Key(ch), nil
+	return input.Key(ch), nil
 }
 
 func (c *Curses) Clear() error {

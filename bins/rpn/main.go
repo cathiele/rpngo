@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"mattwach/rpngo/functions"
-	"mattwach/rpngo/io"
 	"mattwach/rpngo/io/curses"
+	"mattwach/rpngo/io/input"
 	"mattwach/rpngo/rpn"
 	"os"
 )
@@ -50,7 +50,7 @@ func interactive(r *rpn.RPN) error {
 		return err
 	}
 	defer c.End()
-	return io.Loop(r, c, c)
+	return input.Loop(r, c, c)
 }
 
 func main() {
