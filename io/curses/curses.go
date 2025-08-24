@@ -39,11 +39,11 @@ func (c *Curses) GetChar() (key.Key, error) {
 }
 
 func (c *Curses) Clear() error {
-	if err := c.window.Clear(); err != nil {
-		return err
-	}
+	return c.window.Clear()
+}
+
+func (c *Curses) Refresh() {
 	c.window.Refresh()
-	return nil
 }
 
 func (c *Curses) Write(b []byte) error {
@@ -60,36 +60,49 @@ func (c *Curses) Write(b []byte) error {
 		return c.Write(b[idx+1:])
 	}
 	c.window.Print(s)
-	c.window.Refresh()
 	return nil
 }
 
-func (c *Curses) Width() uint {
+func (c *Curses) Width() int {
 	_, x := c.window.MaxYX()
-	return uint(x)
+	return x
 }
 
-func (c *Curses) Height() uint {
+func (c *Curses) Height() int {
 	y, _ := c.window.MaxYX()
-	return uint(y)
+	return y
 }
 
-func (c *Curses) X() uint {
+func (c *Curses) Size() (int, int) {
+	y, x := c.window.MaxYX()
+	return x, y
+}
+
+func (c *Curses) X() int {
 	_, x := c.window.CursorYX()
-	return uint(x)
+	return x
 }
 
-func (c *Curses) Y() uint {
+func (c *Curses) Y() int {
 	y, _ := c.window.CursorYX()
-	return uint(y)
+	return y
 }
 
-func (c *Curses) SetX(x uint) {
-	c.window.Move(int(c.Y()), int(x))
+func (c *Curses) XY() (int, int) {
+	y, x := c.window.CursorYX()
+	return x, y
 }
 
-func (c *Curses) SetY(y uint) {
-	c.window.Move(int(y), int(c.X()))
+func (c *Curses) SetX(x int) {
+	c.window.Move(c.Y(), x)
+}
+
+func (c *Curses) SetY(y int) {
+	c.window.Move(y, c.X())
+}
+
+func (c *Curses) SetXY(x int, y int) {
+	c.window.Move(y, x)
 }
 
 func (c *Curses) Scroll(n int) {

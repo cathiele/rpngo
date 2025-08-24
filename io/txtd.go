@@ -35,3 +35,16 @@ func newLine(txtd TextDisplay) {
 	}
 	txtd.SetX(0)
 }
+
+func shift(txtd TextDisplay, n int) {
+	x, y := txtd.XY()
+	x += n
+	if x < 0 {
+		x += txtd.Width()
+		y -= 1
+		if y < 0 {
+			y = 0
+		}
+	}
+	txtd.SetXY(x, y)
+}

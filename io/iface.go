@@ -17,19 +17,25 @@ type TextDisplay interface {
 	// Clear the display
 	Clear() error
 
+	// Refresh the display
+	Refresh()
+
 	// Write charaacters to the display, newlines and scrolling
 	// have to be handled by the client
 	Write([]byte) error
 
 	// Returns the dimensions of the screen
-	Width() uint
-	Height() uint
+	Width() int
+	Height() int
+	Size() (int, int)
 
 	// Get and set the character position
-	X() uint
-	Y() uint
-	SetX(uint)
-	SetY(uint)
+	X() int
+	Y() int
+	XY() (int, int)
+	SetX(int)
+	SetY(int)
+	SetXY(int, int)
 
 	// Scroll the display up or down
 	Scroll(int)
