@@ -6,4 +6,5 @@ type Key int
 const (
 	KEY_LEFT Key = iota + 256
 	KEY_RIGHT
+	KEY_BACKSPACE
 )

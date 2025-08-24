@@ -24,6 +24,15 @@ func getLine(input Input, txtd TextDisplay) (string, error) {
 				idx++
 				shift(txtd, 1)
 			}
+		case key.KEY_BACKSPACE:
+			if idx > 0 {
+				idx--
+				line = delete(line, idx)
+				shift(txtd, -1)
+				printBytes(txtd, line[idx:])
+				putByte(txtd, ' ')
+				shift(txtd, -(len(line) - idx + 1))
+			}
 		default:
 			b := byte(c)
 			if b == '\n' {
@@ -49,4 +58,8 @@ func addOrInsert(line []byte, idx int, b byte, txtd TextDisplay) []byte {
 		shift(txtd, -(len(line) - idx - 1))
 	}
 	return line
+}
+
+func delete(line []byte, idx int) []byte {
+	return append(line[:idx], line[idx+1:]...)
 }

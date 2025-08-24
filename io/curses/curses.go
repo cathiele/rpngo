@@ -34,6 +34,8 @@ func (c *Curses) GetChar() (key.Key, error) {
 		return key.KEY_LEFT, nil
 	case goncurses.KEY_RIGHT:
 		return key.KEY_RIGHT, nil
+	case goncurses.KEY_BACKSPACE:
+		return key.KEY_BACKSPACE, nil
 	default:
 		return key.Key(ch), nil
 	}

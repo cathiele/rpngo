@@ -1,19 +1,11 @@
 package io
 
-import "strings"
-
 func print(txtd TextDisplay, msg string) {
-	if len(msg) == 0 {
-		return
-	}
-	idx := strings.Index(msg, "\n")
-	if idx >= 0 {
-		print(txtd, msg[0:idx])
-		putByte(txtd, '\n')
-		print(txtd, msg[idx+1:])
-		return
-	}
-	for _, b := range []byte(msg) {
+	printBytes(txtd, []byte(msg))
+}
+
+func printBytes(txtd TextDisplay, msg []byte) {
+	for _, b := range msg {
 		if err := txtd.Write(b); err != nil {
 			return
 		}
