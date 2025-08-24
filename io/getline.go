@@ -4,12 +4,18 @@ import (
 	"mattwach/rpngo/io/key"
 )
 
-func getLine(input Input, txtd TextDisplay) (string, error) {
-	print(txtd, "> ")
+type getLine struct {
+	insertMode bool
+	input      Input
+	txtd       TextDisplay
+}
+
+func (gl *getLine) get() (string, error) {
+	print(gl.txtd, "> ")
 	var line []byte
 	idx := 0
 	for {
-		c, err := input.GetChar()
+		c, err := gl.input.GetChar()
 		if err != nil {
 			return "", err
 		}
@@ -17,52 +23,57 @@ func getLine(input Input, txtd TextDisplay) (string, error) {
 		case key.KEY_LEFT:
 			if idx > 0 {
 				idx--
-				shift(txtd, -1)
+				shift(gl.txtd, -1)
 			}
 		case key.KEY_RIGHT:
 			if idx < len(line) {
 				idx++
-				shift(txtd, 1)
+				shift(gl.txtd, 1)
 			}
 		case key.KEY_BACKSPACE:
 			if idx > 0 {
 				idx--
 				line = delete(line, idx)
-				shift(txtd, -1)
-				printBytes(txtd, line[idx:])
-				putByte(txtd, ' ')
-				shift(txtd, -(len(line) - idx + 1))
+				shift(gl.txtd, -1)
+				printBytes(gl.txtd, line[idx:])
+				putByte(gl.txtd, ' ')
+				shift(gl.txtd, -(len(line) - idx + 1))
 			}
 		case key.KEY_DEL:
 			if idx < len(line) {
 				line = delete(line, idx)
-				printBytes(txtd, line[idx:])
-				putByte(txtd, ' ')
-				shift(txtd, -(len(line) - idx + 1))
+				printBytes(gl.txtd, line[idx:])
+				putByte(gl.txtd, ' ')
+				shift(gl.txtd, -(len(line) - idx + 1))
 			}
+		case key.KEY_INS:
+			gl.insertMode = !gl.insertMode
 		default:
 			b := byte(c)
 			if b == '\n' {
-				putByte(txtd, b)
+				putByte(gl.txtd, b)
 				return string(line), nil
 			}
-			line = addOrInsert(line, idx, b, txtd)
+			line = gl.addChar(line, idx, b)
 			idx++
 		}
-		txtd.Refresh()
+		gl.txtd.Refresh()
 	}
 }
 
-func addOrInsert(line []byte, idx int, b byte, txtd TextDisplay) []byte {
+func (gl *getLine) addChar(line []byte, idx int, b byte) []byte {
 	if idx >= len(line) {
 		line = append(line, b)
-		putByte(txtd, b)
-	} else {
+		putByte(gl.txtd, b)
+	} else if gl.insertMode {
 		line = append(line, 0) // grow the buffer
 		copy(line[idx+1:], line[idx:])
 		line[idx] = b
-		print(txtd, string(line[idx:]))
-		shift(txtd, -(len(line) - idx - 1))
+		print(gl.txtd, string(line[idx:]))
+		shift(gl.txtd, -(len(line) - idx - 1))
+	} else {
+		line[idx] = b
+		putByte(gl.txtd, b)
 	}
 	return line
 }

@@ -32,6 +32,7 @@ var charMap = map[goncurses.Key]key.Key{
 	goncurses.KEY_RIGHT:     key.KEY_RIGHT,
 	goncurses.KEY_BACKSPACE: key.KEY_BACKSPACE,
 	goncurses.KEY_DC:        key.KEY_DEL,
+	goncurses.KEY_IC:        key.KEY_INS,
 }
 
 func (c *Curses) GetChar() (key.Key, error) {

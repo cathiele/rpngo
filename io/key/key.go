@@ -8,4 +8,5 @@ const (
 	KEY_RIGHT
 	KEY_BACKSPACE
 	KEY_DEL
+	KEY_INS
 )
