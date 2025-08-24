@@ -3,16 +3,14 @@ package curses
 
 import (
 	"errors"
-	"log"
 	"mattwach/rpngo/io/key"
 
 	"github.com/gbin/goncurses"
 )
 
 type Curses struct {
-	window     *goncurses.Window
-	rgbToPair  map[uint32]int16 // maps rgbrgb values to a pair.
-	rgbToColor map[uint16]int16 // maps rgb to a color index
+	window    *goncurses.Window
+	rgbToPair map[uint32]int16 // maps color,color values to a pair.
 }
 
 func Init() (*Curses, error) {
@@ -28,9 +26,9 @@ func Init() (*Curses, error) {
 		return nil, err
 	}
 	return &Curses{
-		window:     window,
-		rgbToPair:  make(map[uint32]int16),
-		rgbToColor: make(map[uint16]int16)}, nil
+		window:    window,
+		rgbToPair: make(map[uint32]int16),
+	}, nil
 }
 
 func (c *Curses) End() {
@@ -151,19 +149,17 @@ func (c *Curses) Color(fr, fg, fb, br, bg, bb int) error {
 	}
 	ch := goncurses.ColorPair(pairIdx)
 	c.window.AttrSet(ch)
-	log.Printf("AttrSet: pairIdx=%v ch=%v", pairIdx, ch)
 	return nil
 }
 
 func (c *Curses) colorPairFor(fr, fg, fb, br, bg, bb int) (int16, error) {
-	fc := (uint32(fr) << 10) | (uint32(fg) << 5) | uint32(fb)
-	bc := (uint32(br) << 10) | (uint32(bg) << 5) | uint32(bb)
-	pc := (fc << 15) | bc
+	fc := colorIndexFor(fr, fg, fb)
+	bc := colorIndexFor(br, bg, bb)
+	pc := (uint32(fc) << 15) | uint32(bc)
 	pidx, ok := c.rgbToPair[pc]
 	if !ok {
-		var err error
-		pidx, err = c.createNewPair(fr, fg, fb, br, bg, bb)
-		if err != nil {
+		pidx = int16(len(c.rgbToPair) + 1) // zero is the default so start at 1
+		if err := goncurses.InitPair(pidx, fc, bc); err != nil {
 			return 0, err
 		}
 		c.rgbToPair[pc] = pidx
@@ -171,47 +167,30 @@ func (c *Curses) colorPairFor(fr, fg, fb, br, bg, bb int) (int16, error) {
 	return pidx, nil
 }
 
-func (c *Curses) createNewPair(fr, fg, fb, br, bg, bb int) (int16, error) {
-	fIdx, err := c.colorIndexFor(fr, fg, fb)
-	if err != nil {
-		return 0, err
-	}
-	bIdx, err := c.colorIndexFor(br, bg, bb)
-	if err != nil {
-		return 0, err
-	}
-	pIdx := int16(len(c.rgbToPair) + 1) // zero is the default so start at 1
-	err = goncurses.InitPair(pIdx, fIdx, bIdx)
-	log.Printf("initPair: pidx=%v, fidx=%v, bidx=%v", pIdx, fIdx, bIdx)
-	if err != nil {
-		return 0, err
-	}
-	return pIdx, nil
+var idxToCol = map[uint8]int16{
+	0: goncurses.C_BLACK,
+	1: goncurses.C_BLUE,
+	2: goncurses.C_GREEN,
+	3: goncurses.C_CYAN,
+	4: goncurses.C_RED,
+	5: goncurses.C_MAGENTA,
+	6: goncurses.C_YELLOW,
+	7: goncurses.C_WHITE,
 }
 
-func (c *Curses) colorIndexFor(r, g, b int) (int16, error) {
-	key := (uint16(r) << 10) | (uint16(g) << 5) | uint16(b)
-	idx, ok := c.rgbToColor[key]
-	if !ok {
-		idx = int16(len(c.rgbToColor)) + 50
-		err := goncurses.InitColor(
-			idx,
-			int16(r*1000/31),
-			int16(g*1000/31),
-			int16(b*1000/31),
-		)
-		log.Printf("InitColor: idx=%v, r=%v, g=%v, b=%v",
-			idx,
-			int16(r*1000/31),
-			int16(g*1000/31),
-			int16(b*1000/31),
-		)
-		if err != nil {
-			return 0, err
-		}
-		c.rgbToColor[key] = idx
+func colorIndexFor(r, g, b int) int16 {
+	var v uint8 = 0
+	if r > 15 {
+		v |= 4
 	}
-	return idx, nil
+	if g > 15 {
+		v |= 2
+	}
+	if b > 15 {
+		v |= 1
+	}
+	col := idxToCol[v]
+	return col
 }
 
 func checkColorRange(r, g, b int) error {
