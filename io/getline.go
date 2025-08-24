@@ -48,6 +48,12 @@ func (gl *getLine) get() (string, error) {
 			}
 		case key.KEY_INS:
 			gl.insertMode = !gl.insertMode
+		case key.KEY_END:
+			shift(gl.txtd, len(line)-idx)
+			idx = len(line)
+		case key.KEY_HOME:
+			shift(gl.txtd, -idx)
+			idx = 0
 		default:
 			b := byte(c)
 			if b == '\n' {

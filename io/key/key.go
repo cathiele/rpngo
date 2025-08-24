@@ -9,4 +9,6 @@ const (
 	KEY_BACKSPACE
 	KEY_DEL
 	KEY_INS
+	KEY_END
+	KEY_HOME
 )
