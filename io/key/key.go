@@ -11,4 +11,5 @@ const (
 	KEY_INS
 	KEY_END
 	KEY_HOME
+	KEY_EOF
 )

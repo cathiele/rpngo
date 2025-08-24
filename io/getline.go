@@ -54,6 +54,8 @@ func (gl *getLine) get() (string, error) {
 		case key.KEY_HOME:
 			shift(gl.txtd, -idx)
 			idx = 0
+		case key.KEY_EOF:
+			return "exit", nil
 		default:
 			b := byte(c)
 			if b == '\n' {
