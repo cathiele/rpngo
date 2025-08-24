@@ -16,8 +16,13 @@ func getLine(input Input, txtd TextDisplay) (string, error) {
 		switch c {
 		case key.KEY_LEFT:
 			if idx > 0 {
-				idx = idx - 1
+				idx--
 				shift(txtd, -1)
+			}
+		case key.KEY_RIGHT:
+			if idx < len(line) {
+				idx++
+				shift(txtd, 1)
 			}
 		default:
 			b := byte(c)
