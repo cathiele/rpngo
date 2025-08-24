@@ -20,9 +20,9 @@ type TextDisplay interface {
 	// Refresh the display
 	Refresh()
 
-	// Write charaacters to the display, newlines and scrolling
-	// have to be handled by the client
-	Write([]byte) error
+	// Write a charaacter to the display, wrap, newlines, and
+	// scrolling should all be supported.
+	Write(byte) error
 
 	// Returns the dimensions of the screen
 	Width() int
@@ -45,7 +45,7 @@ func Loop(rpn *rpn.RPN, input Input, txtd TextDisplay) error {
 	for {
 		line, err := getLine(input, txtd)
 		print(txtd, string(line))
-		newLine(txtd)
+		putByte(txtd, '\n')
 		if err != nil {
 			return err
 		}

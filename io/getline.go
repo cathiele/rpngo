@@ -22,7 +22,7 @@ func getLine(input Input, txtd TextDisplay) (string, error) {
 		default:
 			b := byte(c)
 			if b == '\n' {
-				newLine(txtd)
+				putByte(txtd, b)
 				return string(line), nil
 			}
 			line = addOrInsert(line, idx, b, txtd)
@@ -35,7 +35,7 @@ func getLine(input Input, txtd TextDisplay) (string, error) {
 func addOrInsert(line []byte, idx int, b byte, txtd TextDisplay) []byte {
 	if idx >= len(line) {
 		line = append(line, b)
-		putbyte(txtd, b)
+		putByte(txtd, b)
 	} else {
 		line = append(line, 0) // grow the buffer
 		copy(line[idx+1:], line[idx:])

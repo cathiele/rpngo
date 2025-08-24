@@ -3,7 +3,6 @@ package curses
 
 import (
 	"mattwach/rpngo/io/key"
-	"strings"
 
 	"github.com/gbin/goncurses"
 )
@@ -46,20 +45,24 @@ func (c *Curses) Refresh() {
 	c.window.Refresh()
 }
 
-func (c *Curses) Write(b []byte) error {
-	if len(b) == 0 {
-		return nil
+func (c *Curses) Write(b byte) error {
+	if b == '\n' {
+		return c.newLine()
 	}
-	s := string(b)
-	// filter out \n so that we emulate a dumb screen
-	idx := strings.Index(s, "\n")
-	if idx >= 0 {
-		if err := c.Write(b[:idx]); err != nil {
-			return err
-		}
-		return c.Write(b[idx+1:])
+	c.window.AddChar(goncurses.Char((b)))
+	return nil
+}
+
+func (c *Curses) newLine() error {
+	y := c.Y()
+	h := c.Height()
+	if y < (h - 1) {
+		y++
+	} else {
+		y = h - 1
+		c.Scroll(1)
 	}
-	c.window.Print(s)
+	c.SetXY(0, y)
 	return nil
 }
 

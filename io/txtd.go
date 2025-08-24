@@ -9,31 +9,19 @@ func print(txtd TextDisplay, msg string) {
 	idx := strings.Index(msg, "\n")
 	if idx >= 0 {
 		print(txtd, msg[0:idx])
-		newLine(txtd)
+		putByte(txtd, '\n')
 		print(txtd, msg[idx+1:])
 		return
 	}
-	txtd.Write([]byte(msg))
+	for _, b := range []byte(msg) {
+		if err := txtd.Write(b); err != nil {
+			return
+		}
+	}
 }
 
-func putbyte(txtd TextDisplay, b byte) {
-	if b == '\n' {
-		newLine(txtd)
-		return
-	}
-	txtd.Write([]byte{b})
-}
-
-func newLine(txtd TextDisplay) {
-	y := txtd.Y()
-	h := txtd.Height()
-	if y >= (h - 1) {
-		txtd.Scroll(1)
-		txtd.SetY(h - 1)
-	} else {
-		txtd.SetY(y + 1)
-	}
-	txtd.SetX(0)
+func putByte(txtd TextDisplay, b byte) {
+	txtd.Write(b)
 }
 
 func shift(txtd TextDisplay, n int) {
