@@ -7,11 +7,13 @@ import (
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/io/curses"
 	"mattwach/rpngo/io/input"
+	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
 	"os"
 )
 
 func run() error {
+	os.RemoveAll("/tmp/rpngo.log")
 	logFile, err := os.OpenFile("/tmp/rpngo.log", os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
@@ -50,13 +52,12 @@ func interactive(r *rpn.RPN) error {
 		return err
 	}
 	defer screen.End()
-	//root := window.NewWindowGroup()
-	//w, h := screen.Size()
-	//log.Printf("screen size w=%v, h=%v", w, h)
-	//root.Resize(0, 0, w, h)
-	inw := screen.NewTextWindow(0, 0, 80, 24)
-	//root.AddTextWindowChild(inw, "i", 100)
-	return input.Loop(r, screen, inw, screen)
+	root := window.NewWindowGroup()
+	w, h := screen.Size()
+	root.Resize(0, 0, w, h)
+	inw := screen.NewTextWindow(0, 0, w, h)
+	root.AddTextWindowChild(inw, "i", 100)
+	return input.Loop(r, inw.(*curses.Curses), root, screen)
 }
 
 func main() {

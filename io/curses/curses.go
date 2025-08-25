@@ -24,9 +24,9 @@ func Init() (*Curses, error) {
 		goncurses.StartColor()
 	}
 	goncurses.Echo(false)
-	//if err := window.Keypad(true); err != nil {
-	//	return nil, err
-	//}
+	if err := window.Keypad(true); err != nil {
+		return nil, err
+	}
 	tw := &Curses{
 		window:    window,
 		rgbToPair: make(map[uint32]int16),
@@ -44,7 +44,7 @@ func (c *Curses) NewTextWindow(x, y, w, h int) window.TextWindow {
 }
 
 func (c *Curses) Refresh() {
-	c.window.Refresh()
+	goncurses.Update()
 }
 
 func (c *Curses) End() {

@@ -2,13 +2,13 @@ package window
 
 type Screen interface {
 	NewTextWindow(x, y, w, h int) TextWindow
+
+	// Refresh the display
+	Refresh()
 }
 
 // TextWindow is output for a screen that displays monospaced text
 type TextWindow interface {
-	// Refresh the display
-	Refresh()
-
 	// Resize the window
 	Resize(x, y, w, h int)
 
