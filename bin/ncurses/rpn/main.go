@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"mattwach/rpngo/functions"
-	"mattwach/rpngo/io/curses"
+	"mattwach/rpngo/io/drivers/curses"
 	"mattwach/rpngo/io/input"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
