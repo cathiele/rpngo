@@ -29,7 +29,11 @@ type Input interface {
 	GetChar() (Key, error)
 }
 
-func Loop(rpn *rpn.RPN, input Input, txtd window.TextWindow) error {
+func Loop(rpn *rpn.RPN, input Input, txtd window.TextWindow, screen window.TextWindow) error {
+	//txtd := root.FindTextWindow("i")
+	//if txtd == nil {
+	//	return errors.New("could not find window 'i'")
+	//}
 	if err := txtd.Color(31, 31, 31, 0, 0, 0); err != nil {
 		return err
 	}
@@ -58,6 +62,8 @@ func Loop(rpn *rpn.RPN, input Input, txtd window.TextWindow) error {
 				window.PutByte(txtd, '\n')
 			}
 		}
+		txtd.Refresh()
+		screen.Refresh()
 	}
 }
 

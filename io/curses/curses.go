@@ -3,7 +3,9 @@ package curses
 
 import (
 	"errors"
+	"log"
 	"mattwach/rpngo/io/input"
+	"mattwach/rpngo/io/window"
 
 	"github.com/gbin/goncurses"
 )
@@ -22,20 +24,23 @@ func Init() (*Curses, error) {
 		goncurses.StartColor()
 	}
 	goncurses.Echo(false)
-	if err := window.Keypad(true); err != nil {
-		return nil, err
-	}
-	return &Curses{
+	//if err := window.Keypad(true); err != nil {
+	//	return nil, err
+	//}
+	tw := &Curses{
 		window:    window,
 		rgbToPair: make(map[uint32]int16),
-	}, nil
+	}
+	return tw, nil
 }
 
-func (c *Curses) NewTextWindow(x, y, w, h int) *Curses {
-	return &Curses{
+func (c *Curses) NewTextWindow(x, y, w, h int) window.TextWindow {
+	log.Printf("NewTextWindow: x=%v, y=%v, w=%v, h=%v", x, y, w, h)
+	tw := &Curses{
 		window:    c.window.Sub(h, w, y, x),
 		rgbToPair: c.rgbToPair,
 	}
+	return tw
 }
 
 func (c *Curses) Refresh() {

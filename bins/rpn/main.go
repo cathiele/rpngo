@@ -45,12 +45,18 @@ func cli(r *rpn.RPN) error {
 }
 
 func interactive(r *rpn.RPN) error {
-	c, err := curses.Init()
+	screen, err := curses.Init()
 	if err != nil {
 		return err
 	}
-	defer c.End()
-	return input.Loop(r, c, c)
+	defer screen.End()
+	//root := window.NewWindowGroup()
+	//w, h := screen.Size()
+	//log.Printf("screen size w=%v, h=%v", w, h)
+	//root.Resize(0, 0, w, h)
+	inw := screen.NewTextWindow(0, 0, 80, 24)
+	//root.AddTextWindowChild(inw, "i", 100)
+	return input.Loop(r, screen, inw, screen)
 }
 
 func main() {
