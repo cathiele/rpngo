@@ -2,12 +2,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/io/drivers/curses"
-	"mattwach/rpngo/io/input"
 	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/io/window/input"
 	"mattwach/rpngo/rpn"
 	"os"
 )
@@ -52,12 +53,27 @@ func interactive(r *rpn.RPN) error {
 		return err
 	}
 	defer screen.End()
-	root := window.NewWindowGroup()
+	root := window.NewWindowGroup(true)
 	w, h := screen.Size()
 	root.Resize(0, 0, w, h)
-	inw := screen.NewTextWindow(0, 0, w, h)
-	root.AddTextWindowChild(inw, "i", 100)
-	return input.Loop(r, inw.(*curses.Curses), root, screen)
+	txtw, err := screen.NewTextWindow(0, 0, w, h)
+	if err != nil {
+		return err
+	}
+	iw, err := input.Init(txtw.(*curses.Curses), txtw)
+	if err != nil {
+		return err
+	}
+	root.AddWindowChild(iw, "i", 100)
+	for {
+		if err := root.Update(r); err != nil {
+			if errors.Is(err, input.ErrExit) {
+				return nil
+			}
+			return err
+		}
+		screen.Refresh()
+	}
 }
 
 func main() {

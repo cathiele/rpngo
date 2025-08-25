@@ -1,11 +1,21 @@
 package window
 
+import (
+	"errors"
+	"mattwach/rpngo/rpn"
+)
+
+type Window interface {
+	Update(*rpn.RPN) error
+	Resize(x, y, w, h int)
+}
+
 type windowGroupEntry struct {
 	name   string
 	weight int
 	// Only one of the following should be non-nil
-	group *WindowGroup
-	txtw  TextWindow
+	group  *WindowGroup
+	window Window
 }
 
 func (wge *windowGroupEntry) resize(x, y, w, h int) {
@@ -13,12 +23,13 @@ func (wge *windowGroupEntry) resize(x, y, w, h int) {
 		wge.group.Resize(x, y, w, h)
 		return
 	}
-	if wge.txtw != nil {
-		wge.txtw.Resize(x, y, w, h)
+	if wge.window != nil {
+		wge.window.Resize(x, y, w, h)
 	}
 }
 
 type WindowGroup struct {
+	isRoot     bool
 	isVertical bool
 	// Coordinates are in global screen coordinates
 	x        int
@@ -28,19 +39,19 @@ type WindowGroup struct {
 	children []*windowGroupEntry
 }
 
-func NewWindowGroup() *WindowGroup {
-	return &WindowGroup{}
+func NewWindowGroup(isRoot bool) *WindowGroup {
+	return &WindowGroup{isRoot: isRoot}
 }
 
-func (wg *WindowGroup) FindTextWindow(name string) TextWindow {
+func (wg *WindowGroup) FindWindow(name string) Window {
 	for _, c := range wg.children {
 		if c.name == name {
-			return c.txtw
+			return c.window
 		}
 		if c.group != nil {
-			txtw := c.group.FindTextWindow(name)
-			if txtw != nil {
-				return txtw
+			window := c.group.FindWindow(name)
+			if window != nil {
+				return window
 			}
 		}
 	}
@@ -52,8 +63,8 @@ func (wg *WindowGroup) AddWindowGroupChild(group *WindowGroup, name string, weig
 	wg.adjustChildren()
 }
 
-func (wg *WindowGroup) AddTextWindowChild(txtw TextWindow, name string, weight int) {
-	wg.children = append(wg.children, &windowGroupEntry{name: name, weight: weight, txtw: txtw})
+func (wg *WindowGroup) AddWindowChild(window Window, name string, weight int) {
+	wg.children = append(wg.children, &windowGroupEntry{name: name, weight: weight, window: window})
 	wg.adjustChildren()
 }
 
@@ -98,4 +109,34 @@ func (wg *WindowGroup) adjustChildrenHorizontal(totalWeight int) {
 		c.resize(wg.x, wg.y, wg.w, y2-y1)
 		y1 = y2
 	}
+}
+
+// Calls update on all contained windows
+func (wg *WindowGroup) Update(rpn *rpn.RPN) error {
+	if wg.isRoot {
+		// Update the input window first
+		input := wg.FindWindow("i")
+		if input == nil {
+			return errors.New("could not find window 'i' for input")
+		}
+		if err := input.Update(rpn); err != nil {
+			return err
+		}
+	}
+
+	for _, c := range wg.children {
+		if c.name == "i" {
+			continue
+		}
+		if c.window != nil {
+			if err := c.window.Update(rpn); err != nil {
+				return err
+			}
+			continue
+		}
+		if err := c.group.Update(rpn); err != nil {
+			return err
+		}
+	}
+	return nil
 }

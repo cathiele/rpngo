@@ -4,7 +4,7 @@ package curses
 import (
 	"errors"
 	"log"
-	"mattwach/rpngo/io/input"
+	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
 
 	"github.com/gbin/goncurses"
@@ -24,9 +24,6 @@ func Init() (*Curses, error) {
 		goncurses.StartColor()
 	}
 	goncurses.Echo(false)
-	if err := window.Keypad(true); err != nil {
-		return nil, err
-	}
 	tw := &Curses{
 		window:    window,
 		rgbToPair: make(map[uint32]int16),
@@ -34,13 +31,16 @@ func Init() (*Curses, error) {
 	return tw, nil
 }
 
-func (c *Curses) NewTextWindow(x, y, w, h int) window.TextWindow {
+func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
 	log.Printf("NewTextWindow: x=%v, y=%v, w=%v, h=%v", x, y, w, h)
 	tw := &Curses{
 		window:    c.window.Sub(h, w, y, x),
 		rgbToPair: c.rgbToPair,
 	}
-	return tw
+	if err := tw.window.Keypad(true); err != nil {
+		return nil, err
+	}
+	return tw, nil
 }
 
 func (c *Curses) Refresh() {
@@ -56,26 +56,26 @@ func (c *Curses) Resize(x, y, w, h int) {
 	c.window.Resize(h, w)
 }
 
-var charMap = map[goncurses.Key]input.Key{
-	goncurses.KEY_LEFT:      input.KEY_LEFT,
-	goncurses.KEY_RIGHT:     input.KEY_RIGHT,
-	goncurses.KEY_UP:        input.KEY_UP,
-	goncurses.KEY_DOWN:      input.KEY_DOWN,
-	goncurses.KEY_BACKSPACE: input.KEY_BACKSPACE,
-	goncurses.KEY_DC:        input.KEY_DEL,
-	goncurses.KEY_IC:        input.KEY_INS,
-	goncurses.KEY_END:       input.KEY_END,
-	goncurses.KEY_HOME:      input.KEY_HOME,
-	4:                       input.KEY_EOF,
+var charMap = map[goncurses.Key]key.Key{
+	goncurses.KEY_LEFT:      key.KEY_LEFT,
+	goncurses.KEY_RIGHT:     key.KEY_RIGHT,
+	goncurses.KEY_UP:        key.KEY_UP,
+	goncurses.KEY_DOWN:      key.KEY_DOWN,
+	goncurses.KEY_BACKSPACE: key.KEY_BACKSPACE,
+	goncurses.KEY_DC:        key.KEY_DEL,
+	goncurses.KEY_IC:        key.KEY_INS,
+	goncurses.KEY_END:       key.KEY_END,
+	goncurses.KEY_HOME:      key.KEY_HOME,
+	4:                       key.KEY_EOF,
 }
 
-func (c *Curses) GetChar() (input.Key, error) {
+func (c *Curses) GetChar() (key.Key, error) {
 	ch := c.window.GetChar()
 	k, ok := charMap[ch]
 	if ok {
 		return k, nil
 	}
-	return input.Key(ch), nil
+	return key.Key(ch), nil
 }
 
 func (c *Curses) Clear() error {

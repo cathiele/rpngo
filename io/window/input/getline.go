@@ -1,6 +1,7 @@
 package input
 
 import (
+	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
 )
 
@@ -31,21 +32,22 @@ func (gl *getLine) get() (string, error) {
 	historyIdx := 0
 	for {
 		c, err := gl.input.GetChar()
+    log.Printf("Got char: %v", c)
 		if err != nil {
 			return "", err
 		}
 		switch c {
-		case KEY_LEFT:
+		case key.KEY_LEFT:
 			if idx > 0 {
 				idx--
 				window.Shift(gl.txtd, -1)
 			}
-		case KEY_RIGHT:
+		case key.KEY_RIGHT:
 			if idx < len(line) {
 				idx++
 				window.Shift(gl.txtd, 1)
 			}
-		case KEY_UP:
+		case key.KEY_UP:
 			if historyIdx < gl.historyCount && historyIdx <= MAX_HISTORY_LINES {
 				historyIdx++
 				line = gl.replaceLineWithHistory(
@@ -54,7 +56,7 @@ func (gl *getLine) get() (string, error) {
 					idx)
 				idx = len(line)
 			}
-		case KEY_DOWN:
+		case key.KEY_DOWN:
 			if historyIdx > 0 {
 				historyIdx--
 				line = gl.replaceLineWithHistory(
@@ -63,7 +65,7 @@ func (gl *getLine) get() (string, error) {
 					idx)
 				idx = len(line)
 			}
-		case KEY_BACKSPACE:
+		case key.KEY_BACKSPACE:
 			if idx > 0 {
 				idx--
 				line = delete(line, idx)
@@ -72,22 +74,22 @@ func (gl *getLine) get() (string, error) {
 				window.PutByte(gl.txtd, ' ')
 				window.Shift(gl.txtd, -(len(line) - idx + 1))
 			}
-		case KEY_DEL:
+		case key.KEY_DEL:
 			if idx < len(line) {
 				line = delete(line, idx)
 				window.PrintBytes(gl.txtd, line[idx:])
 				window.PutByte(gl.txtd, ' ')
 				window.Shift(gl.txtd, -(len(line) - idx + 1))
 			}
-		case KEY_INS:
+		case key.KEY_INS:
 			gl.insertMode = !gl.insertMode
-		case KEY_END:
+		case key.KEY_END:
 			window.Shift(gl.txtd, len(line)-idx)
 			idx = len(line)
-		case KEY_HOME:
+		case key.KEY_HOME:
 			window.Shift(gl.txtd, -idx)
 			idx = 0
-		case KEY_EOF:
+		case key.KEY_EOF:
 			return "exit", nil
 		default:
 			b := byte(c)
