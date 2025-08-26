@@ -68,7 +68,7 @@ func (wg *WindowGroup) AddWindowChild(window Window, name string, weight int) {
 	wg.adjustChildren()
 }
 
-func (wg *WindowGroup) setVertical(v bool) {
+func (wg *WindowGroup) SetVertical(v bool) {
 	wg.isVertical = v
 	wg.adjustChildren()
 }
@@ -97,7 +97,7 @@ func (wg *WindowGroup) adjustChildrenVertical(totalWeight int) {
 	x1 := wg.x
 	for _, c := range wg.children {
 		x2 := x1 + (wg.w * c.weight / totalWeight)
-		c.resize(wg.x, wg.y, x2-x1, wg.h)
+		c.resize(x1, wg.y, x2-x1, wg.h)
 		x1 = x2
 	}
 }

@@ -74,12 +74,12 @@ func (s *Stack) Pop2() (a Frame, b Frame, err error) {
 	return
 }
 
-func (s *Stack) Peek() (sf Frame, err error) {
-	if len(s.frames) == 0 {
+func (s *Stack) Peek(framesBack int) (sf Frame, err error) {
+	if len(s.frames)-framesBack <= 0 {
 		err = errStackEmpty
 		return
 	}
-	sf = s.frames[len(s.frames)-1]
+	sf = s.frames[len(s.frames)-1-framesBack]
 	return
 }
 
@@ -87,4 +87,8 @@ func (s *Stack) IterFrames(fn func(Frame)) {
 	for _, sf := range s.frames {
 		fn(sf)
 	}
+}
+
+func (s *Stack) Size() int {
+	return len(s.frames)
 }

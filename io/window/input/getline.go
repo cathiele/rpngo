@@ -32,7 +32,6 @@ func (gl *getLine) get() (string, error) {
 	historyIdx := 0
 	for {
 		c, err := gl.input.GetChar()
-    log.Printf("Got char: %v", c)
 		if err != nil {
 			return "", err
 		}

@@ -12,8 +12,8 @@ type TextWindow interface {
 	// Resize the window
 	Resize(x, y, w, h int)
 
-	// Clear the display
-	Clear() error
+	// Erase the display
+	Erase()
 
 	// Write a charaacter to the display, wrap, newlines, and
 	// scrolling should all be supported.

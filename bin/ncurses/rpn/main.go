@@ -9,6 +9,7 @@ import (
 	"mattwach/rpngo/io/drivers/curses"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/io/window/input"
+	"mattwach/rpngo/io/window/stackwin"
 	"mattwach/rpngo/rpn"
 	"os"
 )
@@ -54,6 +55,7 @@ func interactive(r *rpn.RPN) error {
 	}
 	defer screen.End()
 	root := window.NewWindowGroup(true)
+	root.SetVertical(true)
 	w, h := screen.Size()
 	root.Resize(0, 0, w, h)
 	txtw, err := screen.NewTextWindow(0, 0, w, h)
@@ -65,6 +67,15 @@ func interactive(r *rpn.RPN) error {
 		return err
 	}
 	root.AddWindowChild(iw, "i", 100)
+	stackw, err := screen.NewTextWindow(50, 0, w-50, h)
+	if err != nil {
+		return err
+	}
+	sw, err := stackwin.Init(stackw)
+	if err != nil {
+		return err
+	}
+	root.AddWindowChild(sw, "s1", 25)
 	for {
 		if err := root.Update(r); err != nil {
 			if errors.Is(err, input.ErrExit) {

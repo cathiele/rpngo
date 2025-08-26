@@ -52,8 +52,10 @@ func (c *Curses) End() {
 }
 
 func (c *Curses) Resize(x, y, w, h int) {
-	c.window.Move(y, x)
 	c.window.Resize(h, w)
+	c.window.MoveWindow(y, x)
+	c.window.Refresh()
+	log.Printf("Resize called on %v: x=%v y=%v w=%v h=%v", c, x, y, w, h)
 }
 
 var charMap = map[goncurses.Key]key.Key{
@@ -78,8 +80,8 @@ func (c *Curses) GetChar() (key.Key, error) {
 	return key.Key(ch), nil
 }
 
-func (c *Curses) Clear() error {
-	return c.window.Clear()
+func (c *Curses) Erase() {
+	c.window.Erase()
 }
 
 func (c *Curses) Write(b byte) error {
