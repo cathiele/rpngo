@@ -46,6 +46,14 @@ func Divide(s *rpn.Stack) error {
 	return s.Push(rpn.Frame{Complex: a.Complex / b.Complex})
 }
 
+func Square(s *rpn.Stack) error {
+	a, err := s.Pop()
+	if err != nil {
+		return err
+	}
+	return s.Push(rpn.Frame{Complex: a.Complex * a.Complex})
+}
+
 func SquareRoot(s *rpn.Stack) error {
 	a, err := s.Pop()
 	if err != nil {
