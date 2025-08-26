@@ -97,7 +97,7 @@ func (wg *WindowGroup) adjustChildrenVertical(totalWeight int) {
 	x1 := wg.x
 	for _, c := range wg.children {
 		x2 := x1 + (wg.w * c.weight / totalWeight)
-		c.resize(x1, wg.y, x2-x1, wg.h)
+		c.resize(x1, wg.y, x2-x1-1, wg.h)
 		x1 = x2
 	}
 }
@@ -106,7 +106,7 @@ func (wg *WindowGroup) adjustChildrenHorizontal(totalWeight int) {
 	y1 := wg.y
 	for _, c := range wg.children {
 		y2 := y1 + (wg.h * c.weight / totalWeight)
-		c.resize(wg.x, wg.y, wg.w, y2-y1)
+		c.resize(wg.x, y1, wg.w, y2-y1-1)
 		y1 = y2
 	}
 }

@@ -1,7 +1,7 @@
 package window
 
 type Screen interface {
-	NewTextWindow(x, y, w, h int) TextWindow
+	NewTextWindow(x, y, w, h int) (TextWindow, error)
 }
 
 // TextWindow is output for a screen that displays monospaced text

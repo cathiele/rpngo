@@ -54,28 +54,10 @@ func interactive(r *rpn.RPN) error {
 		return err
 	}
 	defer screen.End()
-	root := window.NewWindowGroup(true)
-	root.SetVertical(true)
-	w, h := screen.Size()
-	root.Resize(0, 0, w, h)
-	txtw, err := screen.NewTextWindow(0, 0, w, h)
+	root, err := buildUI(screen)
 	if err != nil {
 		return err
 	}
-	iw, err := input.Init(txtw.(*curses.Curses), txtw)
-	if err != nil {
-		return err
-	}
-	root.AddWindowChild(iw, "i", 100)
-	stackw, err := screen.NewTextWindow(50, 0, w-50, h)
-	if err != nil {
-		return err
-	}
-	sw, err := stackwin.Init(stackw)
-	if err != nil {
-		return err
-	}
-	root.AddWindowChild(sw, "s1", 25)
 	for {
 		if err := root.Update(r); err != nil {
 			if errors.Is(err, input.ErrExit) {
@@ -84,6 +66,47 @@ func interactive(r *rpn.RPN) error {
 			return err
 		}
 	}
+}
+
+func buildUI(screen *curses.Curses) (*window.WindowGroup, error) {
+	root := window.NewWindowGroup(true)
+	w, h := screen.Size()
+	root.Resize(0, 0, w, h)
+
+	if err := addStackWindow(screen, root); err != nil {
+		return nil, err
+	}
+
+	if err := addInputWindow(screen, root); err != nil {
+		return nil, err
+	}
+	return root, nil
+}
+
+func addStackWindow(screen window.Screen, root *window.WindowGroup) error {
+	stackw, err := screen.NewTextWindow(0, 0, 10, 10)
+	if err != nil {
+		return err
+	}
+	sw, err := stackwin.Init(stackw)
+	if err != nil {
+		return err
+	}
+	root.AddWindowChild(sw, "s1", 25)
+	return nil
+}
+
+func addInputWindow(screen window.Screen, root *window.WindowGroup) error {
+	txtw, err := screen.NewTextWindow(0, 0, 10, 10)
+	if err != nil {
+		return err
+	}
+	iw, err := input.Init(txtw.(*curses.Curses), txtw)
+	if err != nil {
+		return err
+	}
+	root.AddWindowChild(iw, "i", 100)
+	return nil
 }
 
 func main() {
