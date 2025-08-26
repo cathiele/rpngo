@@ -19,15 +19,32 @@ type windowGroupEntry struct {
 	window Window
 }
 
-func (wge *windowGroupEntry) resize(x, y, w, h int, rb, bb bool) {
+func (wge *windowGroupEntry) resize(x, y, w, h int) {
 	if wge.group != nil {
 		wge.group.Resize(x, y, w, h)
-		return
-	}
-	if wge.window != nil {
-		wge.window.ShowBorder(false, bb, false, rb)
+	} else if wge.window != nil {
 		wge.window.Resize(x, y, w, h)
 	}
+}
+
+func (wge *windowGroupEntry) showBorder(isColumn, isFinal bool) error {
+	if wge.group != nil {
+		for i, c := range wge.group.children {
+			if err := c.showBorder(
+				isColumn, i == (len(wge.group.children)-1)); err != nil {
+				return err
+			}
+		}
+	} else if wge.window != nil {
+		if err := wge.window.ShowBorder(
+			false,
+			!isColumn && !isFinal,
+			false,
+			isColumn && !isFinal); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type WindowGroup struct {
@@ -75,15 +92,15 @@ func (wg *WindowGroup) UseColumnLayout(v bool) {
 	wg.adjustChildren()
 }
 
-func (wg *WindowGroup) Resize(x, y, w, h int) {
+func (wg *WindowGroup) Resize(x, y, w, h int) error {
 	wg.x = x
 	wg.y = y
 	wg.w = w
 	wg.h = h
-	wg.adjustChildren()
+	return wg.adjustChildren()
 }
 
-func (wg *WindowGroup) adjustChildren() {
+func (wg *WindowGroup) adjustChildren() error {
 	totalWeight := 0
 	for _, c := range wg.children {
 		totalWeight += c.weight
@@ -93,13 +110,14 @@ func (wg *WindowGroup) adjustChildren() {
 	} else {
 		wg.adjustChildrenRow(totalWeight)
 	}
+	return wg.redrawChildBorders()
 }
 
 func (wg *WindowGroup) adjustChildrenColumn(totalWeight int) {
 	x1 := wg.x
 	for _, c := range wg.children {
 		x2 := x1 + (wg.w * c.weight / totalWeight)
-		c.resize(x1, wg.y, x2-x1, wg.h, x2 < wg.w, false)
+		c.resize(x1, wg.y, x2-x1, wg.h)
 		x1 = x2
 	}
 }
@@ -108,9 +126,19 @@ func (wg *WindowGroup) adjustChildrenRow(totalWeight int) {
 	y1 := wg.y
 	for _, c := range wg.children {
 		y2 := y1 + (wg.h * c.weight / totalWeight)
-		c.resize(wg.x, y1, wg.w, y2-y1, false, y2 < wg.h)
+		c.resize(wg.x, y1, wg.w, y2-y1)
 		y1 = y2
 	}
+}
+
+func (wg *WindowGroup) redrawChildBorders() error {
+	for i, c := range wg.children {
+		if err := c.showBorder(
+			wg.isColumn, i == (len(wg.children)-1)); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Calls update on all contained windows

@@ -42,25 +42,33 @@ func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
 }
 
 func (c *Curses) ShowBorder(top, bottom, left, right bool) error {
-	ls := '*'
-	rs := '*'
-	ts := '*'
-	bs := '*'
-	tl := '*'
-	tr := '*'
-	bl := '*'
-	br := '*'
+	ls := ' '
+	rs := ' '
+	ts := ' '
+	bs := ' '
+	tl := ' '
+	tr := ' '
+	bl := ' '
+	br := ' '
 	if top {
 		ts = '-'
+		tr = '-'
+		tl = '-'
 	}
 	if bottom {
 		bs = '-'
+		br = '-'
+		bl = '-'
 	}
 	if left {
 		ls = '|'
+		tl = '|'
+		bl = '|'
 	}
 	if right {
 		rs = '|'
+		tr = '|'
+		br = '|'
 	}
 	if top && left {
 		tl = '+'
@@ -100,6 +108,7 @@ func (c *Curses) End() {
 
 func (c *Curses) Resize(x, y, w, h int) error {
 	if c.border != nil {
+		// erase the contents so that artifacts do no collect on the screen
 		c.border.Erase()
 		c.border.Refresh()
 		if err := c.border.Delete(); err != nil {
@@ -114,9 +123,6 @@ func (c *Curses) Resize(x, y, w, h int) error {
 	var err error
 	c.border, err = goncurses.NewWindow(h, w, y, x)
 	if err != nil {
-		return err
-	}
-	if err := c.ShowBorder(false, false, false, false); err != nil {
 		return err
 	}
 	c.window, err = goncurses.NewWindow(h-2, w-2, y+1, x+1)

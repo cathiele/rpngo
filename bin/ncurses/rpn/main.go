@@ -71,7 +71,9 @@ func interactive(r *rpn.RPN) error {
 func buildUI(screen *curses.Curses) (*window.WindowGroup, error) {
 	root := window.NewWindowGroup(true)
 	w, h := screen.Size()
-	root.Resize(0, 0, w, h)
+	if err := root.Resize(0, 0, w, h); err != nil {
+		return nil, err
+	}
 
 	if err := addStackWindow(screen, root); err != nil {
 		return nil, err
@@ -84,7 +86,7 @@ func buildUI(screen *curses.Curses) (*window.WindowGroup, error) {
 }
 
 func addStackWindow(screen window.Screen, root *window.WindowGroup) error {
-	stackw, err := screen.NewTextWindow(0, 0, 10, 10)
+	stackw, err := screen.NewTextWindow(0, 0, 5, 10)
 	if err != nil {
 		return err
 	}
@@ -97,7 +99,7 @@ func addStackWindow(screen window.Screen, root *window.WindowGroup) error {
 }
 
 func addInputWindow(screen window.Screen, root *window.WindowGroup) error {
-	txtw, err := screen.NewTextWindow(0, 0, 10, 10)
+	txtw, err := screen.NewTextWindow(0, 0, 10, 5)
 	if err != nil {
 		return err
 	}
