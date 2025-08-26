@@ -48,5 +48,6 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 		}
 		window.Print(sw.txtw, s)
 	}
+	sw.txtw.Refresh()
 	return nil
 }

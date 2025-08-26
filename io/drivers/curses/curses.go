@@ -3,7 +3,6 @@ package curses
 
 import (
 	"errors"
-	"log"
 	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
 
@@ -32,9 +31,12 @@ func Init() (*Curses, error) {
 }
 
 func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
-	log.Printf("NewTextWindow: x=%v, y=%v, w=%v, h=%v", x, y, w, h)
+	window, err := goncurses.NewWindow(h, w, y, x)
+	if err != nil {
+		return nil, err
+	}
 	tw := &Curses{
-		window:    c.window.Sub(h, w, y, x),
+		window:    window,
 		rgbToPair: c.rgbToPair,
 	}
 	if err := tw.window.Keypad(true); err != nil {
@@ -44,7 +46,7 @@ func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
 }
 
 func (c *Curses) Refresh() {
-	goncurses.Update()
+	c.window.Refresh()
 }
 
 func (c *Curses) End() {
@@ -54,8 +56,6 @@ func (c *Curses) End() {
 func (c *Curses) Resize(x, y, w, h int) {
 	c.window.Resize(h, w)
 	c.window.MoveWindow(y, x)
-	c.window.Refresh()
-	log.Printf("Resize called on %v: x=%v y=%v w=%v h=%v", c, x, y, w, h)
 }
 
 var charMap = map[goncurses.Key]key.Key{

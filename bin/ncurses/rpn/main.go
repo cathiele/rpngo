@@ -83,7 +83,6 @@ func interactive(r *rpn.RPN) error {
 			}
 			return err
 		}
-		screen.Refresh()
 	}
 }
 

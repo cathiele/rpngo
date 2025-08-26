@@ -58,6 +58,7 @@ func (iw *InputWindow) Update(rpn *rpn.RPN) error {
 			window.PutByte(iw.txtw, '\n')
 		}
 	}
+	iw.txtw.Refresh()
 	return nil
 }
 
