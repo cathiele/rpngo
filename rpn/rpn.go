@@ -25,6 +25,9 @@ func (rpn *RPN) Exec(arg string) error {
 	if (len(arg) >= 2) && (arg[0] == '"') && (arg[len(arg)-1] == '"') {
 		return rpn.Stack.PushString(arg[1 : len(arg)-1])
 	}
+	if (len(arg) >= 2) && (arg[0] == '\'') && (arg[len(arg)-1] == '\'') {
+		return rpn.Stack.PushString(arg[1 : len(arg)-1])
+	}
 	return rpn.pushComplex(arg)
 }
 
