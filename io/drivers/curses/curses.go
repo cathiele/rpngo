@@ -10,6 +10,7 @@ import (
 )
 
 type Curses struct {
+	border    *goncurses.Window
 	window    *goncurses.Window
 	rgbToPair map[uint32]int16 // maps color,color values to a pair.
 }
@@ -31,18 +32,62 @@ func Init() (*Curses, error) {
 }
 
 func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
-	window, err := goncurses.NewWindow(h, w, y, x)
-	if err != nil {
-		return nil, err
-	}
 	tw := &Curses{
-		window:    window,
 		rgbToPair: c.rgbToPair,
 	}
-	if err := tw.window.Keypad(true); err != nil {
+	if err := tw.Resize(x, y, w, h); err != nil {
 		return nil, err
 	}
 	return tw, nil
+}
+
+func (c *Curses) ShowBorder(top, bottom, left, right bool) error {
+	ls := '*'
+	rs := '*'
+	ts := '*'
+	bs := '*'
+	tl := '*'
+	tr := '*'
+	bl := '*'
+	br := '*'
+	if top {
+		ts = '-'
+	}
+	if bottom {
+		bs = '-'
+	}
+	if left {
+		ls = '|'
+	}
+	if right {
+		rs = '|'
+	}
+	if top && left {
+		tl = '+'
+	}
+	if top && right {
+		tr = '+'
+	}
+	if bottom && left {
+		bl = '+'
+	}
+	if bottom && right {
+		br = '+'
+	}
+	if err := c.border.Border(
+		goncurses.Char(ls),
+		goncurses.Char(rs),
+		goncurses.Char(ts),
+		goncurses.Char(bs),
+		goncurses.Char(tl),
+		goncurses.Char(tr),
+		goncurses.Char(bl),
+		goncurses.Char(br),
+	); err != nil {
+		return err
+	}
+	c.border.Refresh()
+	return nil
 }
 
 func (c *Curses) Refresh() {
@@ -53,9 +98,35 @@ func (c *Curses) End() {
 	goncurses.End()
 }
 
-func (c *Curses) Resize(x, y, w, h int) {
-	c.window.Resize(h, w)
-	c.window.MoveWindow(y, x)
+func (c *Curses) Resize(x, y, w, h int) error {
+	if c.border != nil {
+		c.border.Erase()
+		c.border.Refresh()
+		if err := c.border.Delete(); err != nil {
+			return err
+		}
+	}
+	if c.window != nil {
+		if err := c.window.Delete(); err != nil {
+			return err
+		}
+	}
+	var err error
+	c.border, err = goncurses.NewWindow(h, w, y, x)
+	if err != nil {
+		return err
+	}
+	if err := c.ShowBorder(false, false, false, false); err != nil {
+		return err
+	}
+	c.window, err = goncurses.NewWindow(h-2, w-2, y+1, x+1)
+	if err != nil {
+		return err
+	}
+	if err := c.window.Keypad(true); err != nil {
+		return err
+	}
+	return nil
 }
 
 var charMap = map[goncurses.Key]key.Key{

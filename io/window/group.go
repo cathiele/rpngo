@@ -7,7 +7,8 @@ import (
 
 type Window interface {
 	Update(*rpn.RPN) error
-	Resize(x, y, w, h int)
+	Resize(x, y, w, h int) error
+	ShowBorder(top, bottom, left, right bool) error
 }
 
 type windowGroupEntry struct {
@@ -18,19 +19,20 @@ type windowGroupEntry struct {
 	window Window
 }
 
-func (wge *windowGroupEntry) resize(x, y, w, h int) {
+func (wge *windowGroupEntry) resize(x, y, w, h int, rb, bb bool) {
 	if wge.group != nil {
 		wge.group.Resize(x, y, w, h)
 		return
 	}
 	if wge.window != nil {
+		wge.window.ShowBorder(false, bb, false, rb)
 		wge.window.Resize(x, y, w, h)
 	}
 }
 
 type WindowGroup struct {
-	isRoot     bool
-	isVertical bool
+	isRoot   bool
+	isColumn bool
 	// Coordinates are in global screen coordinates
 	x        int
 	y        int
@@ -68,8 +70,8 @@ func (wg *WindowGroup) AddWindowChild(window Window, name string, weight int) {
 	wg.adjustChildren()
 }
 
-func (wg *WindowGroup) SetVertical(v bool) {
-	wg.isVertical = v
+func (wg *WindowGroup) UseColumnLayout(v bool) {
+	wg.isColumn = v
 	wg.adjustChildren()
 }
 
@@ -86,27 +88,27 @@ func (wg *WindowGroup) adjustChildren() {
 	for _, c := range wg.children {
 		totalWeight += c.weight
 	}
-	if wg.isVertical {
-		wg.adjustChildrenVertical(totalWeight)
+	if wg.isColumn {
+		wg.adjustChildrenColumn(totalWeight)
 	} else {
-		wg.adjustChildrenHorizontal(totalWeight)
+		wg.adjustChildrenRow(totalWeight)
 	}
 }
 
-func (wg *WindowGroup) adjustChildrenVertical(totalWeight int) {
+func (wg *WindowGroup) adjustChildrenColumn(totalWeight int) {
 	x1 := wg.x
 	for _, c := range wg.children {
 		x2 := x1 + (wg.w * c.weight / totalWeight)
-		c.resize(x1, wg.y, x2-x1-1, wg.h)
+		c.resize(x1, wg.y, x2-x1, wg.h, x2 < wg.w, false)
 		x1 = x2
 	}
 }
 
-func (wg *WindowGroup) adjustChildrenHorizontal(totalWeight int) {
+func (wg *WindowGroup) adjustChildrenRow(totalWeight int) {
 	y1 := wg.y
 	for _, c := range wg.children {
 		y2 := y1 + (wg.h * c.weight / totalWeight)
-		c.resize(wg.x, y1, wg.w, y2-y1-1)
+		c.resize(wg.x, y1, wg.w, y2-y1, false, y2 < wg.h)
 		y1 = y2
 	}
 }

@@ -62,8 +62,12 @@ func (iw *InputWindow) Update(rpn *rpn.RPN) error {
 	return nil
 }
 
-func (iw *InputWindow) Resize(x, y, w, h int) {
-	iw.txtw.Resize(x, y, w, h)
+func (iw *InputWindow) Resize(x, y, w, h int) error {
+	return iw.txtw.Resize(x, y, w, h)
+}
+
+func (sw *InputWindow) ShowBorder(t, b, l, r bool) error {
+	return sw.txtw.ShowBorder(t, b, l, r)
 }
 
 func parseLine(rpn *rpn.RPN, line string) (bool, error) {

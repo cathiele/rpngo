@@ -10,10 +10,13 @@ type TextWindow interface {
 	Refresh()
 
 	// Resize the window
-	Resize(x, y, w, h int)
+	Resize(x, y, w, h int) error
 
 	// Erase the display
 	Erase()
+
+	// Activate / remove display borders
+	ShowBorder(top, bottom, left, right bool) error
 
 	// Write a charaacter to the display, wrap, newlines, and
 	// scrolling should all be supported.
