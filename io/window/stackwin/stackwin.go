@@ -41,7 +41,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 		return nil
 	}
 	for i := 0; i < framesBack; i++ {
-		f, err := rpn.Stack.Peek(i)
+		f, err := rpn.Stack.PeekFrame(i)
 		if err != nil {
 			return err
 		}

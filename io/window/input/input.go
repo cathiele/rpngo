@@ -50,7 +50,7 @@ func (iw *InputWindow) Update(rpn *rpn.RPN) error {
 		return nil
 	}
 	if action {
-		frame, err := rpn.Stack.Peek(0)
+		frame, err := rpn.Stack.PeekFrame(0)
 		if err != nil {
 			window.PrintErr(iw.txtw, err)
 		} else {

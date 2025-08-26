@@ -12,52 +12,52 @@ var (
 )
 
 func Add(s *rpn.Stack) error {
-	a, b, err := s.Pop2()
+	a, b, err := s.Pop2Complex()
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Complex: a.Complex + b.Complex})
+	return s.PushComplex(a + b)
 }
 
 func Subtract(s *rpn.Stack) error {
-	a, b, err := s.Pop2()
+	a, b, err := s.Pop2Complex()
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Complex: a.Complex - b.Complex})
+	return s.PushComplex(a - b)
 }
 
 func Multiply(s *rpn.Stack) error {
-	a, b, err := s.Pop2()
+	a, b, err := s.Pop2Complex()
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Complex: a.Complex * b.Complex})
+	return s.PushComplex(a * b)
 }
 
 func Divide(s *rpn.Stack) error {
-	a, b, err := s.Pop2()
+	a, b, err := s.Pop2Complex()
 	if err != nil {
 		return err
 	}
-	if b.Complex == 0 {
+	if b == 0 {
 		return errDivideByZero
 	}
-	return s.Push(rpn.Frame{Complex: a.Complex / b.Complex})
+	return s.PushComplex(a / b)
 }
 
 func Square(s *rpn.Stack) error {
-	a, err := s.Pop()
+	a, err := s.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Complex: a.Complex * a.Complex})
+	return s.PushComplex(a * a)
 }
 
 func SquareRoot(s *rpn.Stack) error {
-	a, err := s.Pop()
+	a, err := s.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Complex: cmplx.Sqrt(a.Complex)})
+	return s.PushComplex(cmplx.Sqrt(a))
 }

@@ -6,25 +6,25 @@ import (
 )
 
 func Sin(s *rpn.Stack) error {
-	a, err := s.Pop()
+	a, err := s.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Complex: cmplx.Sin(a.Complex)})
+	return s.PushComplex(cmplx.Sin(a))
 }
 
 func Cos(s *rpn.Stack) error {
-	a, err := s.Pop()
+	a, err := s.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Complex: cmplx.Cos(a.Complex)})
+	return s.PushComplex(cmplx.Cos(a))
 }
 
 func Tan(s *rpn.Stack) error {
-	a, err := s.Pop()
+	a, err := s.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.Push(rpn.Frame{Complex: cmplx.Tan(a.Complex)})
+	return s.PushComplex(cmplx.Tan(a))
 }

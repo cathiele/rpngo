@@ -22,6 +22,9 @@ func (rpn *RPN) Exec(arg string) error {
 	if fn := rpn.functions[arg]; fn != nil {
 		return fn(&rpn.Stack)
 	}
+	if (len(arg) >= 2) && (arg[0] == '"') && (arg[len(arg)-1] == '"') {
+		return rpn.Stack.PushString(arg[1 : len(arg)-1])
+	}
 	return rpn.pushComplex(arg)
 }
 
@@ -70,5 +73,5 @@ func (rpn *RPN) pushComplex(arg string) error {
 		}
 		v = complex(fv, 0)
 	}
-	return rpn.Stack.Push(Frame{Complex: v})
+	return rpn.Stack.PushComplex(v)
 }
