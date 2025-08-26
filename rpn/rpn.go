@@ -39,36 +39,13 @@ func (rpn *RPN) Register(name string, fn func(f *Stack) error) {
 // Pushes a float onto the stack
 func (rpn *RPN) pushComplex(arg string) error {
 	var v complex128
+	var err error
 
 	if strings.HasSuffix(arg, "i") {
-		var a string
-		var b string
-		for i, c := range arg {
-			if c == '+' || (c == '-' && i > 0) {
-				a = arg[:i]
-				b = arg[i : len(arg)-1]
-				break
-			}
-		}
-		if a == "" {
-			a = "0"
-			b = arg[:len(arg)-1]
-		}
-		b = strings.TrimPrefix(b, "+")
-		if b == "" {
-			b = "1"
-		} else if b == "-" {
-			b = "-1"
-		}
-		fa, err := strconv.ParseFloat(a, 64)
+		v, err = parseComplexWithI(arg)
 		if err != nil {
 			return err
 		}
-		fb, err := strconv.ParseFloat(b, 64)
-		if err != nil {
-			return err
-		}
-		v = complex(fa, fb)
 	} else {
 		fv, err := strconv.ParseFloat(arg, 64)
 		if err != nil {
@@ -77,4 +54,40 @@ func (rpn *RPN) pushComplex(arg string) error {
 		v = complex(fv, 0)
 	}
 	return rpn.Stack.PushComplex(v)
+}
+
+// parses a complex string that contains an i
+func parseComplexWithI(arg string) (complex128, error) {
+	// a is the "real" part and b is the "imag" part: a + bi
+	var a string
+	var b string
+	for i, c := range arg {
+		if c == '+' || (c == '-' && i > 0) {
+			a = arg[:i]
+			b = arg[i : len(arg)-1]
+			break
+		}
+	}
+	if a == "" {
+		// no real part was given.  e.g. 5i
+		a = "0"
+		b = arg[:len(arg)-1]
+	}
+	b = strings.TrimPrefix(b, "+")
+	if b == "" {
+		// the user specified just i
+		b = "1"
+	} else if b == "-" {
+		// the user specified just -i
+		b = "-1"
+	}
+	fa, err := strconv.ParseFloat(a, 64)
+	if err != nil {
+		return 0, err
+	}
+	fb, err := strconv.ParseFloat(b, 64)
+	if err != nil {
+		return 0, err
+	}
+	return complex(fa, fb), nil
 }
