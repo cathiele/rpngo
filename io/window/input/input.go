@@ -6,6 +6,7 @@ import (
 	"errors"
 	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 	"strings"
 )
@@ -75,7 +76,10 @@ func parseLine(rpn *rpn.RPN, line string) (bool, error) {
 	if len(line) == 0 {
 		return false, nil
 	}
-	fields := strings.Fields(line)
+	fields, err := parse.Fields(line)
+	if err != nil {
+		return false, err
+	}
 	for _, arg := range fields {
 		if err := rpn.Exec(arg); err != nil {
 			return false, err
