@@ -8,7 +8,7 @@ import (
 
 var (
 	errExpectedANumber      = errors.New("expected a number")
-	errStackEmpty           = errors.New("stack empty")
+	ErrStackEmpty           = errors.New("stack empty")
 	errNotEnoughStackFrames = errors.New("not enough stack frames")
 )
 
@@ -50,6 +50,10 @@ func (f *Frame) complexString() string {
 	return fmt.Sprintf("%g+%s", real(f.Complex), complexString(imag(f.Complex)))
 }
 
+func (f *Frame) Copy() Frame {
+	return Frame{f.Type, f.Str, f.Complex}
+}
+
 func complexString(v float64) string {
 	if v == 1 {
 		return "i"
@@ -86,7 +90,7 @@ func (s *Stack) PushFrame(f Frame) error {
 
 func (s *Stack) PopFrame() (sf Frame, err error) {
 	if len(s.frames) == 0 {
-		err = errStackEmpty
+		err = ErrStackEmpty
 		return
 	}
 	sf = s.frames[len(s.frames)-1]
@@ -137,7 +141,7 @@ func (s *Stack) Pop2Complex() (a complex128, b complex128, err error) {
 
 func (s *Stack) PeekFrame(framesBack int) (sf Frame, err error) {
 	if len(s.frames)-framesBack <= 0 {
-		err = errStackEmpty
+		err = ErrStackEmpty
 		return
 	}
 	sf = s.frames[len(s.frames)-1-framesBack]

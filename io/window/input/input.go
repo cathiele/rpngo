@@ -36,7 +36,7 @@ func Init(input Input, txtw window.TextWindow) (*InputWindow, error) {
 	return iw, nil
 }
 
-func (iw *InputWindow) Update(rpn *rpn.RPN) error {
+func (iw *InputWindow) Update(r *rpn.RPN) error {
 	line, err := iw.gl.get()
 	if err != nil {
 		window.PrintErr(iw.txtw, err)
@@ -45,18 +45,18 @@ func (iw *InputWindow) Update(rpn *rpn.RPN) error {
 	if line == "exit" {
 		return ErrExit
 	}
-	action, err := parseLine(rpn, line)
+	action, err := parseLine(r, line)
 	if err != nil {
 		window.PrintErr(iw.txtw, err)
 		return nil
 	}
 	if action {
-		frame, err := rpn.Stack.PeekFrame(0)
-		if err != nil {
-			window.PrintErr(iw.txtw, err)
-		} else {
+		frame, err := r.Stack.PeekFrame(0)
+		if err == nil {
 			window.Print(iw.txtw, frame.String())
 			window.PutByte(iw.txtw, '\n')
+		} else if !errors.Is(err, rpn.ErrStackEmpty) {
+			window.PrintErr(iw.txtw, err)
 		}
 	}
 	iw.txtw.Refresh()
@@ -71,7 +71,7 @@ func (sw *InputWindow) ShowBorder(t, b, l, r bool) error {
 	return sw.txtw.ShowBorder(t, b, l, r)
 }
 
-func parseLine(rpn *rpn.RPN, line string) (bool, error) {
+func parseLine(r *rpn.RPN, line string) (bool, error) {
 	line = strings.TrimSpace(line)
 	if len(line) == 0 {
 		return false, nil
@@ -81,7 +81,7 @@ func parseLine(rpn *rpn.RPN, line string) (bool, error) {
 		return false, err
 	}
 	for _, arg := range fields {
-		if err := rpn.Exec(arg); err != nil {
+		if err := r.Exec(arg); err != nil {
 			return false, err
 		}
 	}

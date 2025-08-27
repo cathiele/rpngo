@@ -1,6 +1,7 @@
 package rpn
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -8,6 +9,7 @@ import (
 // RPN is the main structure
 type RPN struct {
 	Stack     Stack
+	variables map[string]Frame
 	functions map[string]func(*Stack) error
 }
 
@@ -15,6 +17,7 @@ type RPN struct {
 func (rpn *RPN) Init() {
 	rpn.Stack.Clear()
 	rpn.functions = make(map[string]func(*Stack) error)
+	rpn.variables = make(map[string]Frame)
 }
 
 // Exec executes a single instruction
@@ -22,11 +25,21 @@ func (rpn *RPN) Exec(arg string) error {
 	if fn := rpn.functions[arg]; fn != nil {
 		return fn(&rpn.Stack)
 	}
-	if (len(arg) >= 2) && (arg[0] == '"') && (arg[len(arg)-1] == '"') {
-		return rpn.Stack.PushString(arg[1 : len(arg)-1])
+	if len(arg) > 1 {
+		if arg[len(arg)-1] == '=' {
+			return rpn.setVariable(arg[:len(arg)-1])
+		}
+		if arg[0] == '$' {
+			return rpn.getVariable(arg[1:])
+		}
 	}
-	if (len(arg) >= 2) && (arg[0] == '\'') && (arg[len(arg)-1] == '\'') {
-		return rpn.Stack.PushString(arg[1 : len(arg)-1])
+	if len(arg) >= 2 {
+		if (arg[0] == '"') && (arg[len(arg)-1] == '"') {
+			return rpn.Stack.PushString(arg[1 : len(arg)-1])
+		}
+		if (arg[0] == '\'') && (arg[len(arg)-1] == '\'') {
+			return rpn.Stack.PushString(arg[1 : len(arg)-1])
+		}
 	}
 	return rpn.pushComplex(arg)
 }
@@ -34,6 +47,25 @@ func (rpn *RPN) Exec(arg string) error {
 // Register adds a new function
 func (rpn *RPN) Register(name string, fn func(f *Stack) error) {
 	rpn.functions[name] = fn
+}
+
+// Sets a variable
+func (rpn *RPN) setVariable(name string) error {
+	f, err := rpn.Stack.PopFrame()
+	if err != nil {
+		return err
+	}
+	rpn.variables[name] = f
+	return nil
+}
+
+// Gets a variable
+func (rpn *RPN) getVariable(name string) error {
+	f, ok := rpn.variables[name]
+	if !ok {
+		return fmt.Errorf("unknown variable: $%s", name)
+	}
+	return rpn.Stack.PushFrame(f)
 }
 
 // Pushes a float onto the stack
