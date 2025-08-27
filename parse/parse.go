@@ -44,6 +44,8 @@ func (p *parseData) whitespace(c rune) {
 		p.s = COMMENT
 		return
 	}
+	p.t = p.t[:1]
+	p.t[0] = c
 	if isQuote(c) {
 		p.s = STRING
 	} else {
@@ -97,7 +99,7 @@ func (p *parseData) comment(c rune) {
 }
 
 func Fields(m string) ([]string, error) {
-	var p parseData
+	var p parseData = parseData{t: make([]rune, 'x')}
 	for _, c := range m {
 		switch p.s {
 		case WHITESPACE:
