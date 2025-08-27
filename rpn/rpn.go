@@ -9,9 +9,11 @@ import (
 
 // RPN is the main structure
 type RPN struct {
-	Stack     Stack
-	Variables map[string]Frame
-	functions map[string]func(*Stack) error
+	Stack       Stack
+	Variables   map[string]Frame
+	functions   map[string]func(*Stack) error
+	CommandHelp map[string]string
+	ConceptHelp map[string]string
 }
 
 // Init initializes an RPNCalc object
@@ -19,6 +21,7 @@ func (rpn *RPN) Init() {
 	rpn.Stack.Clear()
 	rpn.functions = make(map[string]func(*Stack) error)
 	rpn.Variables = make(map[string]Frame)
+	rpn.initHelp()
 }
 
 // Exec executes a single instruction
@@ -49,8 +52,9 @@ func (rpn *RPN) Exec(arg string) error {
 }
 
 // Register adds a new function
-func (rpn *RPN) Register(name string, fn func(f *Stack) error) {
+func (rpn *RPN) Register(name string, fn func(f *Stack) error, help string) {
 	rpn.functions[name] = fn
+	rpn.CommandHelp[name] = help
 }
 
 // Sets a variable
@@ -112,6 +116,26 @@ func (rpn *RPN) pushComplex(arg string) error {
 		v = complex(fv, 0)
 	}
 	return rpn.Stack.PushComplex(v)
+}
+
+func (rpn *RPN) initHelp() {
+	rpn.ConceptHelp = map[string]string{
+		"complex": "Enter a complex value as i, -i, 3+i or 3-i\n" +
+			"Do not use spaces.",
+
+		"macros": "Execute a variable as @name\n" +
+			"Example:\n" +
+			"'. 3.14159 * *' cirarea=\n" +
+			"5 @cirarea -> 78.53975" +
+			"See Also: variables",
+
+		"strings": "Enter a string value as 'example 1' or \"example 2\"",
+
+		"variables": "Set a variable as name=\n" +
+			"Use a variable with $name\n" +
+			"Example: 5 x= $x $x * -> 25\n" +
+			"See Also: macros",
+	}
 }
 
 // parses a complex string that contains an i
