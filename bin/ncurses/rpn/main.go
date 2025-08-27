@@ -10,6 +10,7 @@ import (
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/io/window/input"
 	"mattwach/rpngo/io/window/stackwin"
+	"mattwach/rpngo/io/window/varwin"
 	"mattwach/rpngo/rpn"
 	"os"
 )
@@ -75,14 +76,27 @@ func buildUI(screen *curses.Curses) (*window.WindowGroup, error) {
 		return nil, err
 	}
 
-	if err := addStackWindow(screen, root); err != nil {
-		return nil, err
-	}
-
 	if err := addInputWindow(screen, root); err != nil {
 		return nil, err
 	}
+
+	if err := addInfoGroup(screen, root); err != nil {
+		return nil, err
+	}
 	return root, nil
+}
+
+func addInfoGroup(screen window.Screen, root *window.WindowGroup) error {
+	info := window.NewWindowGroup(false)
+	info.UseColumnLayout(true)
+	root.AddWindowGroupChild(info, "info", 20)
+	if err := addStackWindow(screen, info); err != nil {
+		return err
+	}
+	if err := addVarWindow(screen, info); err != nil {
+		return err
+	}
+	return nil
 }
 
 func addStackWindow(screen window.Screen, root *window.WindowGroup) error {
@@ -94,7 +108,20 @@ func addStackWindow(screen window.Screen, root *window.WindowGroup) error {
 	if err != nil {
 		return err
 	}
-	root.AddWindowChild(sw, "s1", 25)
+	root.AddWindowChild(sw, "s1", 100)
+	return nil
+}
+
+func addVarWindow(screen window.Screen, root *window.WindowGroup) error {
+	w, err := screen.NewTextWindow(0, 0, 5, 10)
+	if err != nil {
+		return err
+	}
+	vw, err := varwin.Init(w)
+	if err != nil {
+		return err
+	}
+	root.AddWindowChild(vw, "v1", 100)
 	return nil
 }
 

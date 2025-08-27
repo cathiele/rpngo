@@ -10,7 +10,7 @@ import (
 // RPN is the main structure
 type RPN struct {
 	Stack     Stack
-	variables map[string]Frame
+	Variables map[string]Frame
 	functions map[string]func(*Stack) error
 }
 
@@ -18,7 +18,7 @@ type RPN struct {
 func (rpn *RPN) Init() {
 	rpn.Stack.Clear()
 	rpn.functions = make(map[string]func(*Stack) error)
-	rpn.variables = make(map[string]Frame)
+	rpn.Variables = make(map[string]Frame)
 }
 
 // Exec executes a single instruction
@@ -59,22 +59,22 @@ func (rpn *RPN) setVariable(name string) error {
 	if err != nil {
 		return err
 	}
-	rpn.variables[name] = f
+	rpn.Variables[name] = f
 	return nil
 }
 
 // Gets a variable
 func (rpn *RPN) getVariable(name string) error {
-	f, ok := rpn.variables[name]
+	f, ok := rpn.Variables[name]
 	if !ok {
 		return fmt.Errorf("unknown variable: $%s", name)
 	}
 	return rpn.Stack.PushFrame(f)
 }
 
-// Executes a variables as a macro
+// Executes a Variables as a macro
 func (rpn *RPN) execVariableAsMacro(name string) error {
-	f, ok := rpn.variables[name]
+	f, ok := rpn.Variables[name]
 	if !ok {
 		return fmt.Errorf("unknown variable: @%s", name)
 	}
