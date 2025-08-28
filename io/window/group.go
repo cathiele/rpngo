@@ -142,8 +142,8 @@ func (wg *WindowGroup) redrawChildBorders() error {
 }
 
 // Calls update on all contained windows
-func (wg *WindowGroup) Update(rpn *rpn.RPN) error {
-	if wg.isRoot {
+func (wg *WindowGroup) Update(rpn *rpn.RPN, updateInput bool) error {
+	if wg.isRoot && updateInput {
 		// Update the input window first
 		input := wg.FindWindow("i")
 		if input == nil {
@@ -164,7 +164,7 @@ func (wg *WindowGroup) Update(rpn *rpn.RPN) error {
 			}
 			continue
 		}
-		if err := c.group.Update(rpn); err != nil {
+		if err := c.group.Update(rpn, false); err != nil {
 			return err
 		}
 	}
