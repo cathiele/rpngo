@@ -80,10 +80,7 @@ func interactive(r *rpn.RPN) error {
 func buildUI(screen *curses.Curses) (*window.WindowGroup, error) {
 	root := window.NewWindowGroup(true)
 	w, h := screen.Size()
-	if err := root.Resize(0, 0, w, h); err != nil {
-		return nil, err
-	}
-
+	root.Resize(0, 0, w, h)
 	if err := addInputWindow(screen, root); err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package window
 
 import (
 	"errors"
+	"fmt"
 	"mattwach/rpngo/rpn"
 )
 
@@ -48,8 +49,9 @@ func (wge *windowGroupEntry) showBorder(isColumn, isFinal bool) error {
 }
 
 type WindowGroup struct {
-	isRoot   bool
-	isColumn bool
+	isRoot       bool
+	isColumn     bool
+	adjustNeeded bool
 	// Coordinates are in global screen coordinates
 	x        int
 	y        int
@@ -62,19 +64,27 @@ func NewWindowGroup(isRoot bool) *WindowGroup {
 	return &WindowGroup{isRoot: isRoot}
 }
 
-func (wg *WindowGroup) FindWindow(name string) Window {
+func (wg *WindowGroup) findWindowGroupEntry(name string) *windowGroupEntry {
 	for _, c := range wg.children {
 		if c.name == name {
-			return c.window
+			return c
 		}
 		if c.group != nil {
-			window := c.group.FindWindow(name)
-			if window != nil {
-				return window
+			wge := c.group.findWindowGroupEntry(name)
+			if wge != nil {
+				return wge
 			}
 		}
 	}
 	return nil
+}
+
+func (wg *WindowGroup) FindWindow(name string) Window {
+	wge := wg.findWindowGroupEntry(name)
+	if wge == nil {
+		return nil
+	}
+	return wge.window
 }
 
 func (wg *WindowGroup) RemoveAllChildren() {
@@ -87,27 +97,43 @@ func (wg *WindowGroup) RemoveAllChildren() {
 	wg.children = make([]*windowGroupEntry, 0)
 }
 
+func (wg *WindowGroup) SetWindowWeight(name string, w int) error {
+	if w < 1 {
+		return fmt.Errorf("weight must be >= 1: %d", w)
+	}
+	if w > 10000 {
+		return fmt.Errorf("weight must be <= 10000: %d", w)
+	}
+	wge := wg.findWindowGroupEntry(name)
+	if wge == nil {
+		return fmt.Errorf("window not found: %s", name)
+	}
+	wge.weight = w
+	wg.adjustNeeded = true
+	return nil
+}
+
 func (wg *WindowGroup) AddWindowGroupChild(group *WindowGroup, name string, weight int) {
 	wg.children = append(wg.children, &windowGroupEntry{name: name, weight: weight, group: group})
-	wg.adjustChildren()
+	wg.adjustNeeded = true
 }
 
 func (wg *WindowGroup) AddWindowChild(window Window, name string, weight int) {
 	wg.children = append(wg.children, &windowGroupEntry{name: name, weight: weight, window: window})
-	wg.adjustChildren()
+	wg.adjustNeeded = true
 }
 
 func (wg *WindowGroup) UseColumnLayout(v bool) {
 	wg.isColumn = v
-	wg.adjustChildren()
+	wg.adjustNeeded = true
 }
 
-func (wg *WindowGroup) Resize(x, y, w, h int) error {
+func (wg *WindowGroup) Resize(x, y, w, h int) {
 	wg.x = x
 	wg.y = y
 	wg.w = w
 	wg.h = h
-	return wg.adjustChildren()
+	wg.adjustNeeded = true
 }
 
 func (wg *WindowGroup) adjustChildren() error {
@@ -153,6 +179,17 @@ func (wg *WindowGroup) redrawChildBorders() error {
 
 // Calls update on all contained windows
 func (wg *WindowGroup) Update(rpn *rpn.RPN, updateInput bool) error {
+	if wg.adjustNeeded {
+		if err := wg.adjustChildren(); err != nil {
+			return err
+		}
+		wg.adjustNeeded = false
+		// We want to give screens other than the input screen a chance to
+		// redraw before getting locked into the input screen
+		if err := wg.Update(rpn, false); err != nil {
+			return err
+		}
+	}
 	if wg.isRoot && updateInput {
 		// Update the input window first
 		input := wg.FindWindow("i")

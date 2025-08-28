@@ -21,6 +21,7 @@ func InitWindowCommands(root *window.WindowGroup, screen window.Screen) *WindowC
 func (wc *WindowCommands) Register(r *rpn.RPN) {
 	r.Register("wnewstack", wc.WNewStack, WNewStackHelp)
 	r.Register("wreset", wc.WReset, WResetHelp)
+	r.Register("wweight", wc.WWeight, WWeightHelp)
 }
 
 const WResetHelp = "Resets window configuration to just a single input window"
@@ -56,5 +57,28 @@ func (wc *WindowCommands) WNewStack(r *rpn.Stack) error {
 		return err
 	}
 	wc.root.AddWindowChild(sw, name, 100)
+	return nil
+}
+
+const WWeightHelp = "Changes the weight of a window or window group causing it\n" +
+	"to take more or less screen space. The default value is 100.\n" +
+	"Example: 's1' 20 wweight"
+
+func (wc *WindowCommands) WWeight(r *rpn.Stack) error {
+	cw, err := r.PopComplex()
+	if err != nil {
+		return err
+	}
+	w := int(real(cw))
+	name, err := r.PopString()
+	if err != nil {
+		r.PushComplex(cw)
+		return err
+	}
+	if err := wc.root.SetWindowWeight(name, w); err != nil {
+		r.PushString(name)
+		r.PushComplex(cw)
+		return err
+	}
 	return nil
 }
