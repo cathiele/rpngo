@@ -87,6 +87,17 @@ func (wg *WindowGroup) FindWindow(name string) Window {
 	return wge.window
 }
 
+func (wg *WindowGroup) FindWindowGroup(name string) (*WindowGroup, error) {
+	wge := wg.findWindowGroupEntry(name)
+	if wge == nil {
+		return nil, fmt.Errorf("window group not found: %s", name)
+	}
+	if wge.group == nil {
+		return nil, fmt.Errorf("not a window group: %s", name)
+	}
+	return wge.group, nil
+}
+
 func (wg *WindowGroup) RemoveAllChildren() {
 	for i, c := range wg.children {
 		if c.group != nil {

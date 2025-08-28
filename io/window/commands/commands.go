@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/io/window/stackwin"
+	"mattwach/rpngo/io/window/varwin"
 	"mattwach/rpngo/rpn"
 )
 
@@ -19,9 +20,12 @@ func InitWindowCommands(root *window.WindowGroup, screen window.Screen) *WindowC
 }
 
 func (wc *WindowCommands) Register(r *rpn.RPN) {
-	r.Register("wnewstack", wc.WNewStack, WNewStackHelp)
-	r.Register("wreset", wc.WReset, WResetHelp)
-	r.Register("wweight", wc.WWeight, WWeightHelp)
+	r.Register("w.columns", wc.WColumns, WColumnsHelp)
+	r.Register("w.new.group", wc.WNewGroup, WNewGroupHelp)
+	r.Register("w.new.stack", wc.WNewStack, WNewStackHelp)
+	r.Register("w.new.var", wc.WNewVar, WNewVarHelp)
+	r.Register("w.reset", wc.WReset, WResetHelp)
+	r.Register("w.weight", wc.WWeight, WWeightHelp)
 }
 
 const WResetHelp = "Resets window configuration to just a single input window"
@@ -36,19 +40,36 @@ func (wc *WindowCommands) WReset(r *rpn.Stack) error {
 	return nil
 }
 
-const WNewStackHelp = "Creates a new stack window with the given name and\n" +
-	"adds it to the root window. Example: 's1' wnewstack"
+const WColumnsHelp = "Sets a window group layout to column mode\n" +
+	"Example: 'g1' w.columns"
 
-func (wc *WindowCommands) WNewStack(r *rpn.Stack) error {
-	name, err := r.PopString()
+func (wc *WindowCommands) WColumns(r *rpn.Stack) error {
+	group, err := wc.findWindowGroup(r)
 	if err != nil {
 		return err
 	}
-	existing := wc.root.FindWindow(name)
-	if existing != nil {
-		return fmt.Errorf("window already exits: %s", name)
+	group.UseColumnLayout(true)
+	return nil
+}
+
+const WNewGroupHelp = "Creates a new window group with the given name and\n" +
+	"adds it to the root window. Example: 'g1' w.new.group"
+
+func (wc *WindowCommands) WNewGroup(r *rpn.Stack) error {
+	name, err := wc.newWindowNameFromStack(r)
+	if err != nil {
+		return err
 	}
-	txtw, err := wc.screen.NewTextWindow(0, 0, 10, 5)
+	newwg := window.NewWindowGroup(false)
+	wc.root.AddWindowGroupChild(newwg, name, 100)
+	return nil
+}
+
+const WNewStackHelp = "Creates a new stack window with the given name and\n" +
+	"adds it to the root window. Example: 's1' w.new.stack"
+
+func (wc *WindowCommands) WNewStack(r *rpn.Stack) error {
+	txtw, name, err := wc.newTextWindow(r)
 	if err != nil {
 		return err
 	}
@@ -60,9 +81,54 @@ func (wc *WindowCommands) WNewStack(r *rpn.Stack) error {
 	return nil
 }
 
+const WNewVarHelp = "Creates a new variable window with the given name and\n" +
+	"adds it to the root window. Example: 'v1' w.new.var"
+
+func (wc *WindowCommands) WNewVar(r *rpn.Stack) error {
+	txtw, name, err := wc.newTextWindow(r)
+	if err != nil {
+		return err
+	}
+	sw, err := varwin.Init(txtw)
+	if err != nil {
+		return err
+	}
+	wc.root.AddWindowChild(sw, name, 100)
+	return nil
+}
+
+func (wc *WindowCommands) newTextWindow(r *rpn.Stack) (window.TextWindow, string, error) {
+	name, err := wc.newWindowNameFromStack(r)
+	if err != nil {
+		return nil, "", err
+	}
+	txtw, err := wc.screen.NewTextWindow(0, 0, 10, 5)
+	return txtw, name, err
+}
+
+func (wc *WindowCommands) newWindowNameFromStack(r *rpn.Stack) (string, error) {
+	name, err := r.PopString()
+	if err != nil {
+		return "", err
+	}
+	existing := wc.root.FindWindow(name)
+	if existing != nil {
+		return "", fmt.Errorf("window already exits: %s", name)
+	}
+	return name, nil
+}
+
+func (wc *WindowCommands) findWindowGroup(r *rpn.Stack) (*window.WindowGroup, error) {
+	name, err := r.PopString()
+	if err != nil {
+		return nil, err
+	}
+	return wc.root.FindWindowGroup(name)
+}
+
 const WWeightHelp = "Changes the weight of a window or window group causing it\n" +
 	"to take more or less screen space. The default value is 100.\n" +
-	"Example: 's1' 20 wweight"
+	"Example: 's1' 20 w.weight"
 
 func (wc *WindowCommands) WWeight(r *rpn.Stack) error {
 	cw, err := r.PopComplex()
