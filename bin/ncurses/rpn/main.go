@@ -59,7 +59,7 @@ func interactive(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	wc := commands.InitWindowCommands(root)
+	wc := commands.InitWindowCommands(root, screen)
 	wc.Register(r)
 	if err := io.OSStartup(r); err != nil {
 		return err

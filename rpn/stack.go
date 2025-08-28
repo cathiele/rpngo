@@ -8,6 +8,7 @@ import (
 
 var (
 	errExpectedANumber      = errors.New("expected a number")
+	errExpectedAString      = errors.New("expected a string")
 	ErrStackEmpty           = errors.New("stack empty")
 	errNotEnoughStackFrames = errors.New("not enough stack frames")
 )
@@ -106,6 +107,36 @@ func (s *Stack) Pop2Frames() (a Frame, b Frame, err error) {
 	a = s.frames[len(s.frames)-2]
 	b = s.frames[len(s.frames)-1]
 	s.frames = s.frames[:len(s.frames)-2]
+	return
+}
+
+func (s *Stack) PopString() (str string, err error) {
+	f, err := s.PopFrame()
+	if err != nil {
+		return
+	}
+	if f.Type != STRING_FRAME {
+		s.PushFrame(f)
+		err = errExpectedAString
+		return
+	}
+	str = f.Str
+	return
+}
+
+func (s *Stack) Pop2Strings() (a string, b string, err error) {
+	as, bs, err := s.Pop2Frames()
+	if err != nil {
+		return
+	}
+	if as.Type != STRING_FRAME || bs.Type != STRING_FRAME {
+		s.PushFrame(as)
+		s.PushFrame(bs)
+		err = errExpectedAString
+		return
+	}
+	a = as.Str
+	b = bs.Str
 	return
 }
 

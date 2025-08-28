@@ -3,19 +3,23 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/io/window/stackwin"
 	"mattwach/rpngo/rpn"
 )
 
 type WindowCommands struct {
-	root *window.WindowGroup
+	root   *window.WindowGroup
+	screen window.Screen
 }
 
-func InitWindowCommands(root *window.WindowGroup) *WindowCommands {
-	return &WindowCommands{root: root}
+func InitWindowCommands(root *window.WindowGroup, screen window.Screen) *WindowCommands {
+	return &WindowCommands{root: root, screen: screen}
 }
 
 func (wc *WindowCommands) Register(r *rpn.RPN) {
+	r.Register("wnewstack", wc.WNewStack, WNewStackHelp)
 	r.Register("wreset", wc.WReset, WResetHelp)
 }
 
@@ -28,5 +32,29 @@ func (wc *WindowCommands) WReset(r *rpn.Stack) error {
 	}
 	wc.root.RemoveAllChildren()
 	wc.root.AddWindowChild(iw, "i", 100)
+	return nil
+}
+
+const WNewStackHelp = "Creates a new stack window with the given name and\n" +
+	"adds it to the root window. Example: 's1' wnewstack"
+
+func (wc *WindowCommands) WNewStack(r *rpn.Stack) error {
+	name, err := r.PopString()
+	if err != nil {
+		return err
+	}
+	existing := wc.root.FindWindow(name)
+	if existing != nil {
+		return fmt.Errorf("window already exits: %s", name)
+	}
+	txtw, err := wc.screen.NewTextWindow(0, 0, 10, 5)
+	if err != nil {
+		return err
+	}
+	sw, err := stackwin.Init(txtw)
+	if err != nil {
+		return err
+	}
+	wc.root.AddWindowChild(sw, name, 100)
 	return nil
 }
