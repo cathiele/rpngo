@@ -77,6 +77,16 @@ func (wg *WindowGroup) FindWindow(name string) Window {
 	return nil
 }
 
+func (wg *WindowGroup) RemoveAllChildren() {
+	for i, c := range wg.children {
+		if c.group != nil {
+			c.group.RemoveAllChildren()
+		}
+		wg.children[i] = nil
+	}
+	wg.children = make([]*windowGroupEntry, 0)
+}
+
 func (wg *WindowGroup) AddWindowGroupChild(group *WindowGroup, name string, weight int) {
 	wg.children = append(wg.children, &windowGroupEntry{name: name, weight: weight, group: group})
 	wg.adjustChildren()

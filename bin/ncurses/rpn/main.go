@@ -9,6 +9,7 @@ import (
 	"mattwach/rpngo/io"
 	"mattwach/rpngo/io/drivers/curses"
 	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/io/window/commands"
 	"mattwach/rpngo/io/window/input"
 	"mattwach/rpngo/rpn"
 	"os"
@@ -58,6 +59,8 @@ func interactive(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
+	wc := commands.InitWindowCommands(root)
+	wc.Register(r)
 	if err := io.OSStartup(r); err != nil {
 		return err
 	}
