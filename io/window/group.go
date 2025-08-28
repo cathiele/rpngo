@@ -64,6 +64,18 @@ func NewWindowGroup(isRoot bool) *WindowGroup {
 	return &WindowGroup{isRoot: isRoot}
 }
 
+func (wg *WindowGroup) removeChild(c *windowGroupEntry) {
+	idx := -1
+	for i, rc := range wg.children {
+		if rc == c {
+			idx = i
+			break
+		}
+	}
+	// idx may be -1 here, which will crash, but that is what we want
+	wg.children = append(wg.children[:idx], wg.children[idx+1:]...)
+}
+
 func (wg *WindowGroup) findWindowGroupEntry(name string) *windowGroupEntry {
 	for _, c := range wg.children {
 		if c.name == name {
@@ -77,6 +89,21 @@ func (wg *WindowGroup) findWindowGroupEntry(name string) *windowGroupEntry {
 		}
 	}
 	return nil
+}
+
+func (wg *WindowGroup) findWindowGroupEntryAndParent(name string) (*WindowGroup, *windowGroupEntry) {
+	for _, c := range wg.children {
+		if c.name == name {
+			return wg, c
+		}
+		if c.group != nil {
+			g, wge := c.group.findWindowGroupEntryAndParent(name)
+			if wge != nil {
+				return g, wge
+			}
+		}
+	}
+	return nil, nil
 }
 
 func (wg *WindowGroup) FindWindow(name string) Window {
@@ -106,6 +133,38 @@ func (wg *WindowGroup) RemoveAllChildren() {
 		wg.children[i] = nil
 	}
 	wg.children = make([]*windowGroupEntry, 0)
+}
+
+func (wg *WindowGroup) MoveWindowOrGroup(src string, dst string, beginning bool) error {
+	if src == "root" {
+		return errors.New("can not move root window")
+	}
+	srcpg, srcwge := wg.findWindowGroupEntryAndParent(src)
+	if srcwge == nil {
+		return fmt.Errorf("source window not found: %s", src)
+	}
+	if srcwge.group != nil {
+		check := srcwge.group.findWindowGroupEntry(dst)
+		if check != nil {
+			return fmt.Errorf("moving %s to %s would detach from root", src, dst)
+		}
+	}
+	dstpg := wg
+	if dst != "root" {
+		var err error
+		dstpg, err = wg.FindWindowGroup(dst)
+		if err != nil {
+			return err
+		}
+	}
+	srcpg.removeChild(srcwge)
+	if beginning {
+		dstpg.children = append([]*windowGroupEntry{srcwge}, dstpg.children...)
+	} else {
+		dstpg.children = append(dstpg.children, srcwge)
+	}
+	wg.adjustNeeded = true
+	return nil
 }
 
 func (wg *WindowGroup) SetWindowWeight(name string, w int) error {

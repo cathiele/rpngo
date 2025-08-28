@@ -21,6 +21,8 @@ func InitWindowCommands(root *window.WindowGroup, screen window.Screen) *WindowC
 
 func (wc *WindowCommands) Register(r *rpn.RPN) {
 	r.Register("w.columns", wc.WColumns, WColumnsHelp)
+	r.Register("w.move.beg", wc.WMoveBeg, WMoveBegHelp)
+	r.Register("w.move.end", wc.WMoveEnd, WMoveEndHelp)
 	r.Register("w.new.group", wc.WNewGroup, WNewGroupHelp)
 	r.Register("w.new.stack", wc.WNewStack, WNewStackHelp)
 	r.Register("w.new.var", wc.WNewVar, WNewVarHelp)
@@ -50,6 +52,28 @@ func (wc *WindowCommands) WColumns(r *rpn.Stack) error {
 	}
 	group.UseColumnLayout(true)
 	return nil
+}
+
+const WMoveBegHelp = "Moves a window or group to the beginning of a window group\n" +
+	"Example: 's1' 'root' w.move.beg"
+
+func (wc *WindowCommands) WMoveBeg(r *rpn.Stack) error {
+	src, dst, err := r.Pop2Strings()
+	if err != nil {
+		return err
+	}
+	return wc.root.MoveWindowOrGroup(src, dst, true)
+}
+
+const WMoveEndHelp = "Moves a window or group to the end of a window group\n" +
+	"Example: 's1' 'root' w.move.end"
+
+func (wc *WindowCommands) WMoveEnd(r *rpn.Stack) error {
+	src, dst, err := r.Pop2Strings()
+	if err != nil {
+		return err
+	}
+	return wc.root.MoveWindowOrGroup(src, dst, false)
 }
 
 const WNewGroupHelp = "Creates a new window group with the given name and\n" +
