@@ -42,15 +42,12 @@ func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
 }
 
 func (c *Curses) ShowBorder(screenw, screenh int) error {
-	ch, err := c.colorPairFor(31, 31, 31, 0, 0, 31)
+	ch, err := c.colorPairFor(31, 0, 31, 0, 0, 9)
 	if err != nil {
 		return err
 	}
 	c.border.AttrSet(ch)
-	//if err := c.border.Border('|', '|', '-', '-', '+', '+', '+', '+'); err != nil {
-	//	return err
-	//}
-	if err := c.border.Border(' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '); err != nil {
+	if err := c.border.Border('|', '|', '-', '-', '+', '+', '+', '+'); err != nil {
 		return err
 	}
 	c.border.Refresh()
