@@ -1,5 +1,10 @@
 package rpn
 
+import (
+	"fmt"
+	"sort"
+)
+
 func (rpn *RPN) initHelp() {
 	rpn.ConceptHelp = map[string]string{
 		"basics": "- Enter numbers to push them to the stack\n" +
@@ -24,4 +29,55 @@ func (rpn *RPN) initHelp() {
 			"See Also: macros",
 	}
 	rpn.CommandHelp = make(map[string]string)
+}
+
+func (r *RPN) PushHelp(topic string, windoww int) error {
+	if len(topic) == 0 {
+		r.listCommands(windoww)
+		return nil
+	}
+	help, ok := r.ConceptHelp[topic]
+	if !ok {
+		help, ok = r.CommandHelp[topic]
+	}
+	if !ok {
+		return fmt.Errorf("no help found for %s. Use ? to list all", topic)
+	}
+	r.PushMessage("")
+	r.PushMessage(help)
+	r.PushMessage("")
+	return nil
+}
+
+func (r *RPN) listCommands(windoww int) {
+	r.dumpMap("Concepts", windoww, r.ConceptHelp)
+	r.dumpMap("Commands", windoww, r.CommandHelp)
+}
+
+const colWidth = 40
+
+func (r *RPN) dumpMap(title string, windoww int, m map[string]string) {
+	r.PushMessage(title)
+	var topics []string
+	for k := range m {
+		topics = append(topics, k)
+	}
+	sort.Strings(topics)
+	line := []byte("  ")
+	nextCol := len(line) + colWidth
+	for _, t := range topics {
+		line = append(line, []byte(t)...)
+		for len(line) < nextCol {
+			line = append(line, ' ')
+		}
+		nextCol += colWidth
+		if nextCol > windoww {
+			r.PushMessage(string(line))
+			line = line[:2]
+			nextCol = len(line) + colWidth
+		}
+	}
+	if len(line) > 0 {
+		r.PushMessage(string(line))
+	}
 }

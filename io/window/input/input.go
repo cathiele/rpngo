@@ -4,12 +4,10 @@ package input
 
 import (
 	"errors"
-	"fmt"
 	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
-	"sort"
 	"strings"
 )
 
@@ -53,9 +51,12 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		return nil
 	}
 	if line[len(line)-1] == '?' {
-		if err := iw.showHelp(r, line[:len(line)-1]); err != nil {
+		if err := r.PushHelp(line[:len(line)-1], iw.txtw.Width()); err != nil {
 			window.PrintErr(iw.txtw, err)
 		}
+		msg := r.PopMessages()
+		window.Print(iw.txtw, msg)
+		window.PutByte(iw.txtw, '\n')
 		return nil
 	}
 	if line == "exit" {
@@ -115,63 +116,6 @@ func (iw *InputWindow) Size() (int, int) {
 
 func (iw *InputWindow) Type() string {
 	return "input"
-}
-
-func (iw *InputWindow) showHelp(r *rpn.RPN, topic string) error {
-	if len(topic) == 0 {
-		iw.listCommands(r)
-		return nil
-	}
-	help, ok := r.ConceptHelp[topic]
-	if !ok {
-		help, ok = r.CommandHelp[topic]
-	}
-	if !ok {
-		return fmt.Errorf("no help found for %s. Use ? to list all", topic)
-	}
-	window.PutByte(iw.txtw, '\n')
-	window.Print(iw.txtw, help)
-	window.Print(iw.txtw, "\n\n")
-	return nil
-}
-
-func (iw *InputWindow) listCommands(r *rpn.RPN) {
-	window.PutByte(iw.txtw, '\n')
-	iw.dumpMap(r, "Concepts", r.ConceptHelp)
-	window.PutByte(iw.txtw, '\n')
-	iw.dumpMap(r, "Commands", r.CommandHelp)
-	window.PutByte(iw.txtw, '\n')
-}
-
-const colWidth = 40
-
-func (iw *InputWindow) dumpMap(_ *rpn.RPN, title string, m map[string]string) {
-	window.Print(iw.txtw, title)
-	window.Print(iw.txtw, "\n")
-	var topics []string
-	for k := range m {
-		topics = append(topics, k)
-	}
-	sort.Strings(topics)
-	w := iw.txtw.Width() - colWidth
-	window.Print(iw.txtw, "  ")
-	for _, t := range topics {
-		window.Print(iw.txtw, t)
-		n := colWidth - len(t)
-		i := 0
-		for {
-			if iw.txtw.X() >= w {
-				window.Print(iw.txtw, "\n  ")
-				break
-			}
-			if i >= n {
-				break
-			}
-			window.PutByte(iw.txtw, ' ')
-			i++
-		}
-	}
-	window.PutByte(iw.txtw, '\n')
 }
 
 func parseLine(r *rpn.RPN, line string) (bool, error) {
