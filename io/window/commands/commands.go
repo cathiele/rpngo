@@ -147,6 +147,9 @@ func (wc *WindowCommands) findWindowGroup(r *rpn.Stack) (*window.WindowGroup, er
 	if err != nil {
 		return nil, err
 	}
+	if name == "root" {
+		return wc.root, nil
+	}
 	return wc.root.FindWindowGroup(name)
 }
 

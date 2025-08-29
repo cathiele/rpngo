@@ -110,6 +110,9 @@ func (wg *WindowGroup) FindWindow(name string) Window {
 }
 
 func (wg *WindowGroup) FindWindowGroup(name string) (*WindowGroup, error) {
+	if (name == "root") && wg.isRoot {
+		return wg, nil
+	}
 	wge := wg.findWindowGroupEntry(name)
 	if wge == nil {
 		return nil, fmt.Errorf("window group not found: %s", name)
