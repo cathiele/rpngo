@@ -87,7 +87,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 
 func (iw *InputWindow) firstRun(r *rpn.RPN) error {
 	iw.firstInput = false
-	r.ConceptHelp["exiting"] = "Enter exit or type Ctrl-D to exit the program"
+	r.RegisterConceptHelp("exiting", "Enter exit or type Ctrl-D to exit the program")
 	if err := iw.txtw.Color(0, 31, 31, 0, 0, 0); err != nil {
 		return err
 	}

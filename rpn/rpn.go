@@ -29,8 +29,8 @@ type RPN struct {
 	messages    []string
 	Variables   map[string]Frame
 	functions   map[string]func(*RPN) error
-	CommandHelp map[string]string
-	ConceptHelp map[string]string
+	commandHelp map[string]string
+	conceptHelp map[string]string
 }
 
 // Init initializes an RPNCalc object
@@ -44,5 +44,5 @@ func (rpn *RPN) Init() {
 // Register adds a new function
 func (rpn *RPN) Register(name string, fn func(f *RPN) error, help string) {
 	rpn.functions[name] = fn
-	rpn.CommandHelp[name] = help
+	rpn.commandHelp[name] = help
 }

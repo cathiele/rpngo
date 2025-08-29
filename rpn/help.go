@@ -6,7 +6,7 @@ import (
 )
 
 func (rpn *RPN) initHelp() {
-	rpn.ConceptHelp = map[string]string{
+	rpn.conceptHelp = map[string]string{
 		"basics": "- Enter numbers to push them to the stack\n" +
 			"- Numbers can be separated by spaces or newlines\n" +
 			"- Enter an operator to replace numbers on the stack with a result\n" +
@@ -28,7 +28,11 @@ func (rpn *RPN) initHelp() {
 			"Example: 5 x= $x $x *\n" +
 			"See Also: macros",
 	}
-	rpn.CommandHelp = make(map[string]string)
+	rpn.commandHelp = make(map[string]string)
+}
+
+func (r *RPN) RegisterConceptHelp(concept, help string) {
+	r.conceptHelp[concept] = help
 }
 
 func (r *RPN) PushHelp(topic string, windoww int) error {
@@ -36,9 +40,9 @@ func (r *RPN) PushHelp(topic string, windoww int) error {
 		r.listCommands(windoww)
 		return nil
 	}
-	help, ok := r.ConceptHelp[topic]
+	help, ok := r.conceptHelp[topic]
 	if !ok {
-		help, ok = r.CommandHelp[topic]
+		help, ok = r.commandHelp[topic]
 	}
 	if !ok {
 		return fmt.Errorf("no help found for %s. Use ? to list all", topic)
@@ -50,8 +54,8 @@ func (r *RPN) PushHelp(topic string, windoww int) error {
 }
 
 func (r *RPN) listCommands(windoww int) {
-	r.dumpMap("Concepts", windoww, r.ConceptHelp)
-	r.dumpMap("Commands", windoww, r.CommandHelp)
+	r.dumpMap("Concepts", windoww, r.conceptHelp)
+	r.dumpMap("Commands", windoww, r.commandHelp)
 }
 
 const colWidth = 40
