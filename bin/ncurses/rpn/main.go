@@ -17,7 +17,7 @@ import (
 
 func run() error {
 	os.RemoveAll("/tmp/rpngo.log")
-	logFile, err := os.OpenFile("/tmp/rpngo.log", os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, err := os.Create("/tmp/rpngo.log")
 	if err != nil {
 		return err
 	}
