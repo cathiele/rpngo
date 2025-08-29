@@ -24,3 +24,13 @@ func Swap(r *rpn.RPN) error {
 	}
 	return r.PushFrame(a)
 }
+
+const DropHelp = "Drops the element at the top of the stack"
+
+func Drop(r *rpn.RPN) error {
+	_, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	return nil
+}
