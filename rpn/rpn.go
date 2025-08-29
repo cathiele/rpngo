@@ -27,7 +27,7 @@ type Frame struct {
 type RPN struct {
 	frames      []Frame
 	messages    []string
-	Variables   map[string]Frame
+	variables   []map[string]Frame
 	functions   map[string]func(*RPN) error
 	commandHelp map[string]string
 	conceptHelp map[string]string
@@ -37,8 +37,10 @@ type RPN struct {
 func (rpn *RPN) Init() {
 	rpn.Clear()
 	rpn.functions = make(map[string]func(*RPN) error)
-	rpn.Variables = make(map[string]Frame)
+	rpn.variables = []map[string]Frame{make(map[string]Frame)}
 	rpn.initHelp()
+	rpn.Register("vpush", pushVariableFrame, pushVariableFrameHelp)
+	rpn.Register("vpop", popVariableFrame, popVariableFrameHelp)
 }
 
 // Register adds a new function

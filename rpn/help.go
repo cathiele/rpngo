@@ -26,6 +26,11 @@ func (rpn *RPN) initHelp() {
 		"variables": "Set a variable as name=\n" +
 			"Use a variable with $name\n" +
 			"Example: 5 x= $x $x *\n" +
+			"\n" +
+			"Push a variable frame with vpush, pop with vpop\n" +
+			"Variables added after vpush will be reverted after a vpop,\n" +
+			"allowing for 'local variables' to be temporarily defined." +
+			"\n" +
 			"See Also: macros",
 	}
 	rpn.commandHelp = make(map[string]string)

@@ -1,6 +1,7 @@
 package rpn
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -15,7 +16,12 @@ func (rpn *RPN) Exec(arg string) error {
 			return rpn.setVariable(arg[:len(arg)-1])
 		}
 		if arg[0] == '$' {
-			return rpn.getVariable(arg[1:])
+			f, ok := rpn.getVariable(arg[1:])
+			if !ok {
+				return fmt.Errorf("variable not found: %s", arg[1:])
+			}
+			rpn.PushFrame(f)
+			return nil
 		}
 		if arg[0] == '@' {
 			return rpn.execVariableAsMacro(arg[1:])

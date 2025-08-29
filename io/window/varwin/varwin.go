@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
-	"sort"
 )
 
 type VariableWindow struct {
@@ -43,11 +42,7 @@ func (vw *VariableWindow) Type() string {
 func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	vw.txtw.Erase()
 	h := vw.txtw.Height()
-	var names []string
-	for n := range rpn.Variables {
-		names = append(names, n)
-	}
-	sort.Strings(names)
+	names := rpn.AllVariableNamesAndValues()
 	n := len(names)
 	allShown := true
 	if n > h {
@@ -57,9 +52,6 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	vw.txtw.SetXY(0, 0)
 	for i := 0; i < n; i++ {
 		window.Print(vw.txtw, names[i])
-		window.Print(vw.txtw, ": ")
-		f := rpn.Variables[names[i]]
-		window.Print(vw.txtw, f.String())
 		window.PutByte(vw.txtw, '\n')
 	}
 	if !allShown {
