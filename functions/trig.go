@@ -7,30 +7,30 @@ import (
 
 const SinHelp = "takes the sine of a number"
 
-func Sin(s *rpn.Stack) error {
-	a, err := s.PopComplex()
+func Sin(r *rpn.RPN) error {
+	a, err := r.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.PushComplex(cmplx.Sin(a))
+	return r.PushComplex(cmplx.Sin(a))
 }
 
 const CosHelp = "takes the cosine of a number"
 
-func Cos(s *rpn.Stack) error {
-	a, err := s.PopComplex()
+func Cos(r *rpn.RPN) error {
+	a, err := r.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.PushComplex(cmplx.Cos(a))
+	return r.PushComplex(cmplx.Cos(a))
 }
 
 const TanHelp = "takes the tangent of a number"
 
-func Tan(s *rpn.Stack) error {
-	a, err := s.PopComplex()
+func Tan(r *rpn.RPN) error {
+	a, err := r.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.PushComplex(cmplx.Tan(a))
+	return r.PushComplex(cmplx.Tan(a))
 }

@@ -67,12 +67,12 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		return nil
 	}
 	if action {
-		msg := r.Stack.PopMessages()
+		msg := r.PopMessages()
 		if len(msg) > 0 {
 			window.Print(iw.txtw, msg)
 			window.PutByte(iw.txtw, '\n')
 		}
-		frame, err := r.Stack.PeekFrame(0)
+		frame, err := r.PeekFrame(0)
 		if err == nil {
 			window.Print(iw.txtw, frame.String())
 			window.PutByte(iw.txtw, '\n')

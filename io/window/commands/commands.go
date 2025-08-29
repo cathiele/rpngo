@@ -34,7 +34,7 @@ func (wc *WindowCommands) Register(r *rpn.RPN) {
 
 const WDumpHelp = "Dump the state of all created windows and groups"
 
-func (wc *WindowCommands) WDump(r *rpn.Stack) error {
+func (wc *WindowCommands) WDump(r *rpn.RPN) error {
 	lines := wc.root.Dump(nil, "root", 0, 100)
 	r.PushMessage(strings.Join(lines, "\n"))
 	return nil
@@ -42,7 +42,7 @@ func (wc *WindowCommands) WDump(r *rpn.Stack) error {
 
 const WResetHelp = "Resets window configuration to just a single input window"
 
-func (wc *WindowCommands) WReset(r *rpn.Stack) error {
+func (wc *WindowCommands) WReset(r *rpn.RPN) error {
 	iw := wc.root.FindWindow("i")
 	if iw == nil {
 		return errors.New("internal error: no window 'i' was found")
@@ -55,7 +55,7 @@ func (wc *WindowCommands) WReset(r *rpn.Stack) error {
 const WColumnsHelp = "Sets a window group layout to column mode\n" +
 	"Example: 'g1' w.columns"
 
-func (wc *WindowCommands) WColumns(r *rpn.Stack) error {
+func (wc *WindowCommands) WColumns(r *rpn.RPN) error {
 	group, err := wc.findWindowGroup(r)
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (wc *WindowCommands) WColumns(r *rpn.Stack) error {
 const WMoveBegHelp = "Moves a window or group to the beginning of a window group\n" +
 	"Example: 's1' 'root' w.move.beg"
 
-func (wc *WindowCommands) WMoveBeg(r *rpn.Stack) error {
+func (wc *WindowCommands) WMoveBeg(r *rpn.RPN) error {
 	src, dst, err := r.Pop2Strings()
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (wc *WindowCommands) WMoveBeg(r *rpn.Stack) error {
 const WMoveEndHelp = "Moves a window or group to the end of a window group\n" +
 	"Example: 's1' 'root' w.move.end"
 
-func (wc *WindowCommands) WMoveEnd(r *rpn.Stack) error {
+func (wc *WindowCommands) WMoveEnd(r *rpn.RPN) error {
 	src, dst, err := r.Pop2Strings()
 	if err != nil {
 		return err
@@ -89,7 +89,7 @@ func (wc *WindowCommands) WMoveEnd(r *rpn.Stack) error {
 const WNewGroupHelp = "Creates a new window group with the given name and\n" +
 	"adds it to the root window. Example: 'g1' w.new.group"
 
-func (wc *WindowCommands) WNewGroup(r *rpn.Stack) error {
+func (wc *WindowCommands) WNewGroup(r *rpn.RPN) error {
 	name, err := wc.newWindowNameFromStack(r)
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func (wc *WindowCommands) WNewGroup(r *rpn.Stack) error {
 const WNewStackHelp = "Creates a new stack window with the given name and\n" +
 	"adds it to the root window. Example: 's1' w.new.stack"
 
-func (wc *WindowCommands) WNewStack(r *rpn.Stack) error {
+func (wc *WindowCommands) WNewStack(r *rpn.RPN) error {
 	txtw, name, err := wc.newTextWindow(r)
 	if err != nil {
 		return err
@@ -118,7 +118,7 @@ func (wc *WindowCommands) WNewStack(r *rpn.Stack) error {
 const WNewVarHelp = "Creates a new variable window with the given name and\n" +
 	"adds it to the root window. Example: 'v1' w.new.var"
 
-func (wc *WindowCommands) WNewVar(r *rpn.Stack) error {
+func (wc *WindowCommands) WNewVar(r *rpn.RPN) error {
 	txtw, name, err := wc.newTextWindow(r)
 	if err != nil {
 		return err
@@ -131,7 +131,7 @@ func (wc *WindowCommands) WNewVar(r *rpn.Stack) error {
 	return nil
 }
 
-func (wc *WindowCommands) newTextWindow(r *rpn.Stack) (window.TextWindow, string, error) {
+func (wc *WindowCommands) newTextWindow(r *rpn.RPN) (window.TextWindow, string, error) {
 	name, err := wc.newWindowNameFromStack(r)
 	if err != nil {
 		return nil, "", err
@@ -140,7 +140,7 @@ func (wc *WindowCommands) newTextWindow(r *rpn.Stack) (window.TextWindow, string
 	return txtw, name, err
 }
 
-func (wc *WindowCommands) newWindowNameFromStack(r *rpn.Stack) (string, error) {
+func (wc *WindowCommands) newWindowNameFromStack(r *rpn.RPN) (string, error) {
 	name, err := r.PopString()
 	if err != nil {
 		return "", err
@@ -152,7 +152,7 @@ func (wc *WindowCommands) newWindowNameFromStack(r *rpn.Stack) (string, error) {
 	return name, nil
 }
 
-func (wc *WindowCommands) findWindowGroup(r *rpn.Stack) (*window.WindowGroup, error) {
+func (wc *WindowCommands) findWindowGroup(r *rpn.RPN) (*window.WindowGroup, error) {
 	name, err := r.PopString()
 	if err != nil {
 		return nil, err
@@ -167,7 +167,7 @@ const WWeightHelp = "Changes the weight of a window or window group causing it\n
 	"to take more or less screen space. The default value is 100.\n" +
 	"Example: 's1' 20 w.weight"
 
-func (wc *WindowCommands) WWeight(r *rpn.Stack) error {
+func (wc *WindowCommands) WWeight(r *rpn.RPN) error {
 	cw, err := r.PopComplex()
 	if err != nil {
 		return err

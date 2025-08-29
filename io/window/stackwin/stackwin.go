@@ -45,15 +45,15 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 	sw.txtw.Erase()
 	w, h := sw.txtw.Size()
 	framesBack := h
-	if rpn.Stack.Size() < framesBack {
-		framesBack = rpn.Stack.Size()
+	if rpn.Size() < framesBack {
+		framesBack = rpn.Size()
 	}
 	if framesBack <= 0 {
 		// nothing to do
 		return nil
 	}
 	for i := 0; i < framesBack; i++ {
-		f, err := rpn.Stack.PeekFrame(i)
+		f, err := rpn.PeekFrame(i)
 		if err != nil {
 			return err
 		}

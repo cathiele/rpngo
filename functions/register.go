@@ -8,6 +8,7 @@ import "mattwach/rpngo/rpn"
 // know about these.
 func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register(".", Duplicate, DuplicateHelp)
+	rpn.Register("load", Load, LoadHelp)
 	rpn.Register("a", Add, AddHelp)
 	rpn.Register("+", Add, AddHelp)
 	rpn.Register("s", Subtract, SubtractHelp)

@@ -13,63 +13,63 @@ var (
 
 const AddHelp = "Adds two numbers"
 
-func Add(s *rpn.Stack) error {
-	a, b, err := s.Pop2Complex()
+func Add(r *rpn.RPN) error {
+	a, b, err := r.Pop2Complex()
 	if err != nil {
 		return err
 	}
-	return s.PushComplex(a + b)
+	return r.PushComplex(a + b)
 }
 
 const SubtractHelp = "Subtracts two numbers"
 
-func Subtract(s *rpn.Stack) error {
-	a, b, err := s.Pop2Complex()
+func Subtract(r *rpn.RPN) error {
+	a, b, err := r.Pop2Complex()
 	if err != nil {
 		return err
 	}
-	return s.PushComplex(a - b)
+	return r.PushComplex(a - b)
 }
 
 const MultiplyHelp = "Multiplies two numbers"
 
-func Multiply(s *rpn.Stack) error {
-	a, b, err := s.Pop2Complex()
+func Multiply(r *rpn.RPN) error {
+	a, b, err := r.Pop2Complex()
 	if err != nil {
 		return err
 	}
-	return s.PushComplex(a * b)
+	return r.PushComplex(a * b)
 }
 
 const DivideHelp = "Divides two numbers"
 
-func Divide(s *rpn.Stack) error {
-	a, b, err := s.Pop2Complex()
+func Divide(r *rpn.RPN) error {
+	a, b, err := r.Pop2Complex()
 	if err != nil {
 		return err
 	}
 	if b == 0 {
 		return errDivideByZero
 	}
-	return s.PushComplex(a / b)
+	return r.PushComplex(a / b)
 }
 
 const SquareHelp = "executes v * v"
 
-func Square(s *rpn.Stack) error {
-	a, err := s.PopComplex()
+func Square(r *rpn.RPN) error {
+	a, err := r.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.PushComplex(a * a)
+	return r.PushComplex(a * a)
 }
 
 const SquareRootHelp = "takes the square root of a complex number"
 
-func SquareRoot(s *rpn.Stack) error {
-	a, err := s.PopComplex()
+func SquareRoot(r *rpn.RPN) error {
+	a, err := r.PopComplex()
 	if err != nil {
 		return err
 	}
-	return s.PushComplex(cmplx.Sqrt(a))
+	return r.PushComplex(cmplx.Sqrt(a))
 }

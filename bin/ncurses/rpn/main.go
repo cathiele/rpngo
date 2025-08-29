@@ -42,7 +42,7 @@ func cli(r *rpn.RPN) error {
 		}
 	}
 
-	r.Stack.IterFrames(func(sf rpn.Frame) {
+	r.IterFrames(func(sf rpn.Frame) {
 		fmt.Println(sf.String())
 	})
 

@@ -2,31 +2,8 @@
 package rpn
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 )
-
-var (
-	errExpectedANumber      = errors.New("expected a number")
-	errExpectedAString      = errors.New("expected a string")
-	ErrStackEmpty           = errors.New("stack empty")
-	errNotEnoughStackFrames = errors.New("not enough stack frames")
-)
-
-type FrameType uint8
-
-const (
-	STRING_FRAME FrameType = iota
-	COMPLEX_FRAME
-)
-
-// Frame Defines a single stack frame
-type Frame struct {
-	Type    FrameType
-	Str     string
-	Complex complex128
-}
 
 func (f *Frame) String() string {
 	switch f.Type {
@@ -66,72 +43,53 @@ func complexString(v float64) string {
 	return fmt.Sprintf("%gi", v)
 }
 
-// Stak defines a full stack frame
-type Stack struct {
-	frames   []Frame
-	messages []string
+func (r *RPN) Clear() {
+	r.frames = r.frames[:0]
 }
 
-func (s *Stack) PushMessage(msg string) {
-	s.messages = append(s.messages, msg)
-}
-
-func (s *Stack) PopMessages() string {
-	if len(s.messages) == 0 {
-		return ""
-	}
-	msgs := strings.Join(s.messages, "\n")
-	s.messages = s.messages[:0]
-	return msgs
-}
-
-func (s *Stack) Clear() {
-	s.frames = s.frames[:0]
-}
-
-func (s *Stack) PushComplex(v complex128) error {
-	s.frames = append(s.frames, Frame{Type: COMPLEX_FRAME, Complex: v})
+func (r *RPN) PushComplex(v complex128) error {
+	r.frames = append(r.frames, Frame{Type: COMPLEX_FRAME, Complex: v})
 	return nil
 }
 
-func (s *Stack) PushString(v string) error {
-	s.frames = append(s.frames, Frame{Type: STRING_FRAME, Str: v})
+func (r *RPN) PushString(v string) error {
+	r.frames = append(r.frames, Frame{Type: STRING_FRAME, Str: v})
 	return nil
 }
 
-func (s *Stack) PushFrame(f Frame) error {
-	s.frames = append(s.frames, Frame{f.Type, f.Str, f.Complex})
+func (r *RPN) PushFrame(f Frame) error {
+	r.frames = append(r.frames, Frame{f.Type, f.Str, f.Complex})
 	return nil
 }
 
-func (s *Stack) PopFrame() (sf Frame, err error) {
-	if len(s.frames) == 0 {
+func (r *RPN) PopFrame() (sf Frame, err error) {
+	if len(r.frames) == 0 {
 		err = ErrStackEmpty
 		return
 	}
-	sf = s.frames[len(s.frames)-1]
-	s.frames = s.frames[:len(s.frames)-1]
+	sf = r.frames[len(r.frames)-1]
+	r.frames = r.frames[:len(r.frames)-1]
 	return
 }
 
-func (s *Stack) Pop2Frames() (a Frame, b Frame, err error) {
-	if len(s.frames) < 2 {
+func (r *RPN) Pop2Frames() (a Frame, b Frame, err error) {
+	if len(r.frames) < 2 {
 		err = errNotEnoughStackFrames
 		return
 	}
-	a = s.frames[len(s.frames)-2]
-	b = s.frames[len(s.frames)-1]
-	s.frames = s.frames[:len(s.frames)-2]
+	a = r.frames[len(r.frames)-2]
+	b = r.frames[len(r.frames)-1]
+	r.frames = r.frames[:len(r.frames)-2]
 	return
 }
 
-func (s *Stack) PopString() (str string, err error) {
-	f, err := s.PopFrame()
+func (r *RPN) PopString() (str string, err error) {
+	f, err := r.PopFrame()
 	if err != nil {
 		return
 	}
 	if f.Type != STRING_FRAME {
-		s.PushFrame(f)
+		r.PushFrame(f)
 		err = errExpectedAString
 		return
 	}
@@ -139,14 +97,14 @@ func (s *Stack) PopString() (str string, err error) {
 	return
 }
 
-func (s *Stack) Pop2Strings() (a string, b string, err error) {
-	as, bs, err := s.Pop2Frames()
+func (r *RPN) Pop2Strings() (a string, b string, err error) {
+	as, bs, err := r.Pop2Frames()
 	if err != nil {
 		return
 	}
 	if as.Type != STRING_FRAME || bs.Type != STRING_FRAME {
-		s.PushFrame(as)
-		s.PushFrame(bs)
+		r.PushFrame(as)
+		r.PushFrame(bs)
 		err = errExpectedAString
 		return
 	}
@@ -155,13 +113,13 @@ func (s *Stack) Pop2Strings() (a string, b string, err error) {
 	return
 }
 
-func (s *Stack) PopComplex() (v complex128, err error) {
-	f, err := s.PopFrame()
+func (r *RPN) PopComplex() (v complex128, err error) {
+	f, err := r.PopFrame()
 	if err != nil {
 		return
 	}
 	if f.Type != COMPLEX_FRAME {
-		s.PushFrame(f)
+		r.PushFrame(f)
 		err = errExpectedANumber
 		return
 	}
@@ -169,14 +127,14 @@ func (s *Stack) PopComplex() (v complex128, err error) {
 	return
 }
 
-func (s *Stack) Pop2Complex() (a complex128, b complex128, err error) {
-	af, bf, err := s.Pop2Frames()
+func (r *RPN) Pop2Complex() (a complex128, b complex128, err error) {
+	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return
 	}
 	if af.Type != COMPLEX_FRAME || bf.Type != COMPLEX_FRAME {
-		s.PushFrame(af)
-		s.PushFrame(bf)
+		r.PushFrame(af)
+		r.PushFrame(bf)
 		err = errExpectedANumber
 		return
 	}
@@ -185,21 +143,21 @@ func (s *Stack) Pop2Complex() (a complex128, b complex128, err error) {
 	return
 }
 
-func (s *Stack) PeekFrame(framesBack int) (sf Frame, err error) {
-	if len(s.frames)-framesBack <= 0 {
+func (r *RPN) PeekFrame(framesBack int) (sf Frame, err error) {
+	if len(r.frames)-framesBack <= 0 {
 		err = ErrStackEmpty
 		return
 	}
-	sf = s.frames[len(s.frames)-1-framesBack]
+	sf = r.frames[len(r.frames)-1-framesBack]
 	return
 }
 
-func (s *Stack) IterFrames(fn func(Frame)) {
-	for _, sf := range s.frames {
+func (r *RPN) IterFrames(fn func(Frame)) {
+	for _, sf := range r.frames {
 		fn(sf)
 	}
 }
 
-func (s *Stack) Size() int {
-	return len(s.frames)
+func (r *RPN) Size() int {
+	return len(r.frames)
 }
