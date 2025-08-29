@@ -54,6 +54,16 @@ func Divide(r *rpn.RPN) error {
 	return r.PushComplex(a / b)
 }
 
+const NegateHelp = "Negates the top number"
+
+func Negate(r *rpn.RPN) error {
+	a, err := r.PopComplex()
+	if err != nil {
+		return err
+	}
+	return r.PushComplex(-a)
+}
+
 const SquareHelp = "executes v * v"
 
 func Square(r *rpn.RPN) error {
