@@ -54,7 +54,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 			return err
 		}
 		sw.txtw.SetXY(0, h-i-1)
-		s := fmt.Sprintf("%d: %v", i+1, f.String())
+		s := fmt.Sprintf("%d: %v", i, f.String())
 		if len(s) > w {
 			s = s[:w]
 		}

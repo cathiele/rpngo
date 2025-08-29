@@ -25,7 +25,7 @@ func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register("sin", Sin, SinHelp)
 	rpn.Register("sq", Square, SquareHelp)
 	rpn.Register("sqrt", SquareRoot, SquareRootHelp)
-	rpn.Register("s", Swap, SwapHelp)
+	rpn.Register("sw", Swap, SwapHelp)
 	rpn.Register("tan", Tan, TanHelp)
 	rpn.Register("x", Drop, DropHelp)
 	rpn.Register("X", DropAll, DropAllHelp)
