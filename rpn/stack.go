@@ -2,6 +2,7 @@
 package rpn
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -143,12 +144,44 @@ func (r *RPN) Pop2Complex() (a complex128, b complex128, err error) {
 	return
 }
 
+func (r *RPN) PopStackIndex() (i int, err error) {
+	var v complex128
+	v, err = r.PopComplex()
+	if err != nil {
+		return
+	}
+	if imag(v) != 0 {
+		err = errors.New("real number required")
+		return
+	}
+	i = int(real(v))
+	if i < 0 {
+		err = errors.New("index must be >= 0")
+		return
+	}
+	if i >= len(r.frames) {
+		err = fmt.Errorf("index too high: %d", i)
+		return
+	}
+	return
+}
+
 func (r *RPN) PeekFrame(framesBack int) (sf Frame, err error) {
 	if len(r.frames)-framesBack <= 0 {
 		err = ErrStackEmpty
 		return
 	}
 	sf = r.frames[len(r.frames)-1-framesBack]
+	return
+}
+
+func (r *RPN) DeleteFrame(framesBack int) (sf Frame, err error) {
+	sf, err = r.PeekFrame(framesBack)
+	if err != nil {
+		return
+	}
+	idx := len(r.frames) - 1 - framesBack
+	r.frames = append(r.frames[:idx], r.frames[idx+1:]...)
 	return
 }
 
