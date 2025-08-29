@@ -65,6 +65,13 @@ func Drop(r *rpn.RPN) error {
 	return nil
 }
 
+const DropAllHelp = "Drops the element at the top of the stack"
+
+func DropAll(r *rpn.RPN) error {
+	r.Clear()
+	return nil
+}
+
 const DropIndexHelp = "Removes the element at index n on the stack\n" +
 	"Example: 11 22 1 di # removes the 11"
 
