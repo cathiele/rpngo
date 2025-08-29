@@ -11,3 +11,16 @@ func Duplicate(r *rpn.RPN) error {
 	}
 	return r.PushFrame(a)
 }
+
+const SwapHelp = "Swaps two elements at the top of the stack"
+
+func Swap(r *rpn.RPN) error {
+	a, b, err := r.Pop2Frames()
+	if err != nil {
+		return err
+	}
+	if err := r.PushFrame(b); err != nil {
+		return err
+	}
+	return r.PushFrame(a)
+}

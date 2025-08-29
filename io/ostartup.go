@@ -10,6 +10,15 @@ import (
 )
 
 const defaultConfigFile = `
+# Create and layout windows
+'g1' w.new.group
+'g1' 25 w.weight
+'g1' w.columns
+'s1' w.new.stack
+'s1' 'g1' w.move.end
+'v1' w.new.var
+'v1' 'g1' w.move.end
+
 # set some useful vars
 3.141592653589793 pi=
 2.718281828459045 e=
