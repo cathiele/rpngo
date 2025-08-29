@@ -48,10 +48,6 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 	if rpn.Size() < framesBack {
 		framesBack = rpn.Size()
 	}
-	if framesBack <= 0 {
-		// nothing to do
-		return nil
-	}
 	for i := 0; i < framesBack; i++ {
 		f, err := rpn.PeekFrame(i)
 		if err != nil {
