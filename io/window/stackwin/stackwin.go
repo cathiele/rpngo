@@ -29,6 +29,18 @@ func (sw *StackWindow) ShowBorder(screenw, screenh int) error {
 	return sw.txtw.ShowBorder(screenw, screenh)
 }
 
+func (sw *StackWindow) WindowXY() (int, int) {
+	return sw.txtw.WindowXY()
+}
+
+func (sw *StackWindow) Size() (int, int) {
+	return sw.txtw.Size()
+}
+
+func (sw *StackWindow) Type() string {
+	return "stack"
+}
+
 func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 	sw.txtw.Erase()
 	w, h := sw.txtw.Size()

@@ -4,12 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"mattwach/rpngo/rpn"
+	"strings"
 )
 
 type Window interface {
 	Update(*rpn.RPN) error
 	Resize(x, y, w, h int) error
 	ShowBorder(screenw, screenh int) error
+	WindowXY() (int, int)
+	Size() (int, int)
+	Type() string
 }
 
 type windowGroupEntry struct {
@@ -99,6 +103,46 @@ func (wg *WindowGroup) findWindowGroupEntryAndParent(name string) (*WindowGroup,
 		}
 	}
 	return nil, nil
+}
+
+func (wg *WindowGroup) Dump(lines []string, name string, indent int, weight int) []string {
+	pad := strings.Repeat("  ", indent)
+	line := fmt.Sprintf(
+		"%s%s(x=%d, y=%d, w=%d, h=%d, cols=%v, weight=%d):",
+		pad,
+		name,
+		wg.x,
+		wg.y,
+		wg.w,
+		wg.h,
+		wg.isColumn,
+		weight,
+	)
+	lines = append(lines, line)
+	pad = strings.Repeat("  ", indent+1)
+	for _, c := range wg.children {
+		if c.group != nil {
+			lines = c.group.Dump(lines, c.name, indent+1, c.weight)
+		}
+		if c.window != nil {
+			x, y := c.window.WindowXY()
+			w, h := c.window.Size()
+			lines = append(
+				lines,
+				fmt.Sprintf(
+					"%s%s(type=%s, x=%d, y=%d, w=%d, h=%d, weight=%d)",
+					pad,
+					c.name,
+					c.window.Type(),
+					x,
+					y,
+					w,
+					h,
+					c.weight,
+				))
+		}
+	}
+	return lines
 }
 
 func (wg *WindowGroup) FindWindow(name string) Window {

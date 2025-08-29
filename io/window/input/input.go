@@ -67,6 +67,11 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		return nil
 	}
 	if action {
+		msg := r.Stack.PopMessages()
+		if len(msg) > 0 {
+			window.Print(iw.txtw, msg)
+			window.PutByte(iw.txtw, '\n')
+		}
 		frame, err := r.Stack.PeekFrame(0)
 		if err == nil {
 			window.Print(iw.txtw, frame.String())
@@ -98,6 +103,18 @@ func (iw *InputWindow) Resize(x, y, w, h int) error {
 
 func (iw *InputWindow) ShowBorder(screenw, screenh int) error {
 	return iw.txtw.ShowBorder(screenw, screenh)
+}
+
+func (iw *InputWindow) WindowXY() (int, int) {
+	return iw.txtw.WindowXY()
+}
+
+func (iw *InputWindow) Size() (int, int) {
+	return iw.txtw.Size()
+}
+
+func (iw *InputWindow) Type() string {
+	return "input"
 }
 
 func (iw *InputWindow) showHelp(r *rpn.RPN, topic string) error {

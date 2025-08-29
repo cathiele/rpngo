@@ -26,6 +26,7 @@ type TextWindow interface {
 	Width() int
 	Height() int
 	Size() (int, int)
+	WindowXY() (int, int)
 
 	// Get and set the character position
 	X() int

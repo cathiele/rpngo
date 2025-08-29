@@ -8,6 +8,7 @@ import (
 	"mattwach/rpngo/io/window/stackwin"
 	"mattwach/rpngo/io/window/varwin"
 	"mattwach/rpngo/rpn"
+	"strings"
 )
 
 type WindowCommands struct {
@@ -21,6 +22,7 @@ func InitWindowCommands(root *window.WindowGroup, screen window.Screen) *WindowC
 
 func (wc *WindowCommands) Register(r *rpn.RPN) {
 	r.Register("w.columns", wc.WColumns, WColumnsHelp)
+	r.Register("w.dump", wc.WDump, WDumpHelp)
 	r.Register("w.move.beg", wc.WMoveBeg, WMoveBegHelp)
 	r.Register("w.move.end", wc.WMoveEnd, WMoveEndHelp)
 	r.Register("w.new.group", wc.WNewGroup, WNewGroupHelp)
@@ -28,6 +30,14 @@ func (wc *WindowCommands) Register(r *rpn.RPN) {
 	r.Register("w.new.var", wc.WNewVar, WNewVarHelp)
 	r.Register("w.reset", wc.WReset, WResetHelp)
 	r.Register("w.weight", wc.WWeight, WWeightHelp)
+}
+
+const WDumpHelp = "Dump the state of all created windows and groups"
+
+func (wc *WindowCommands) WDump(r *rpn.Stack) error {
+	lines := wc.root.Dump(nil, "root", 0, 100)
+	r.PushMessage(strings.Join(lines, "\n"))
+	return nil
 }
 
 const WResetHelp = "Resets window configuration to just a single input window"

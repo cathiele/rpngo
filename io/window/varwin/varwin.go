@@ -28,6 +28,18 @@ func (vw *VariableWindow) ShowBorder(screenw, screenh int) error {
 	return vw.txtw.ShowBorder(screenw, screenh)
 }
 
+func (vw *VariableWindow) WindowXY() (int, int) {
+	return vw.txtw.WindowXY()
+}
+
+func (vw *VariableWindow) Size() (int, int) {
+	return vw.txtw.Size()
+}
+
+func (vw *VariableWindow) Type() string {
+	return "var"
+}
+
 func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	vw.txtw.Erase()
 	h := vw.txtw.Height()

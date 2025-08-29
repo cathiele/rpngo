@@ -158,6 +158,11 @@ func (c *Curses) Size() (int, int) {
 	return x, y
 }
 
+func (c *Curses) WindowXY() (int, int) {
+	y, x := c.window.YX()
+	return x, y
+}
+
 func (c *Curses) X() int {
 	_, x := c.window.CursorYX()
 	return x

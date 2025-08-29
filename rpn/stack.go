@@ -4,6 +4,7 @@ package rpn
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 var (
@@ -67,7 +68,21 @@ func complexString(v float64) string {
 
 // Stak defines a full stack frame
 type Stack struct {
-	frames []Frame
+	frames   []Frame
+	messages []string
+}
+
+func (s *Stack) PushMessage(msg string) {
+	s.messages = append(s.messages, msg)
+}
+
+func (s *Stack) PopMessages() string {
+	if len(s.messages) == 0 {
+		return ""
+	}
+	msgs := strings.Join(s.messages, "\n")
+	s.messages = s.messages[:0]
+	return msgs
 }
 
 func (s *Stack) Clear() {
