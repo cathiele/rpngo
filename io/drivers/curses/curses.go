@@ -42,23 +42,28 @@ func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
 }
 
 func (c *Curses) ShowBorder(screenw, screenh int) error {
-	y, x := c.border.YX()
-	h, w := c.border.MaxYX()
-	rs := goncurses.Char('|')
-	tr := goncurses.Char('|')
-	br := goncurses.Char('+')
-	bl := goncurses.Char('-')
-	if (x + w) >= screenw {
-		rs = goncurses.Char(' ')
-		tr = goncurses.Char(' ')
-		br = goncurses.Char(' ')
-	}
-	bs := goncurses.Char('-')
-	if (y + h) >= screenh {
-		bs = goncurses.Char(' ')
-		bl = goncurses.Char(' ')
-	}
-	if err := c.border.Border(' ', rs, ' ', bs, ' ', tr, bl, br); err != nil {
+	/*
+		y, x := c.border.YX()
+		h, w := c.border.MaxYX()
+		rs := goncurses.Char('|')
+		tr := goncurses.Char('|')
+		br := goncurses.Char('+')
+		bl := goncurses.Char('-')
+		if (x + w) >= screenw {
+			rs = goncurses.Char(' ')
+			tr = goncurses.Char(' ')
+			br = goncurses.Char(' ')
+		}
+		bs := goncurses.Char('-')
+		if (y + h) >= screenh {
+			bs = goncurses.Char(' ')
+			bl = goncurses.Char(' ')
+		}
+		if err := c.border.Border(' ', rs, ' ', bs, ' ', tr, bl, br); err != nil {
+			return err
+		}
+	*/
+	if err := c.border.Border('|', '|', '-', '-', '+', '+', '+', '+'); err != nil {
 		return err
 	}
 	c.border.Refresh()
