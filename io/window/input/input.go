@@ -96,8 +96,8 @@ func (iw *InputWindow) Resize(x, y, w, h int) error {
 	return iw.txtw.Resize(x, y, w, h)
 }
 
-func (iw *InputWindow) ShowBorder(t, b, l, r bool) error {
-	return iw.txtw.ShowBorder(t, b, l, r)
+func (iw *InputWindow) ShowBorder(screenw, screenh int) error {
+	return iw.txtw.ShowBorder(screenw, screenh)
 }
 
 func (iw *InputWindow) showHelp(r *rpn.RPN, topic string) error {
@@ -128,7 +128,7 @@ func (iw *InputWindow) listCommands(r *rpn.RPN) {
 
 const colWidth = 40
 
-func (iw *InputWindow) dumpMap(r *rpn.RPN, title string, m map[string]string) {
+func (iw *InputWindow) dumpMap(_ *rpn.RPN, title string, m map[string]string) {
 	window.Print(iw.txtw, title)
 	window.Print(iw.txtw, "\n")
 	var topics []string

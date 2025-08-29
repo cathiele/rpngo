@@ -64,11 +64,11 @@ func interactive(r *rpn.RPN) error {
 	if err := io.OSStartup(r); err != nil {
 		return err
 	}
-	if err := root.Update(r, false); err != nil {
+	if err := root.Update(r, false, screen.Width(), screen.Height()); err != nil {
 		return err
 	}
 	for {
-		if err := root.Update(r, true); err != nil {
+		if err := root.Update(r, true, screen.Width(), screen.Height()); err != nil {
 			if errors.Is(err, input.ErrExit) {
 				return nil
 			}

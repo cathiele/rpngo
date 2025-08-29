@@ -9,7 +9,7 @@ import (
 type Window interface {
 	Update(*rpn.RPN) error
 	Resize(x, y, w, h int) error
-	ShowBorder(top, bottom, left, right bool) error
+	ShowBorder(screenw, screenh int) error
 }
 
 type windowGroupEntry struct {
@@ -28,20 +28,15 @@ func (wge *windowGroupEntry) resize(x, y, w, h int) {
 	}
 }
 
-func (wge *windowGroupEntry) showBorder(isColumn, isFinal bool) error {
+func (wge *windowGroupEntry) showBorder(screenw, screenh int) error {
 	if wge.group != nil {
-		for i, c := range wge.group.children {
-			if err := c.showBorder(
-				isColumn, i == (len(wge.group.children)-1)); err != nil {
+		for _, c := range wge.group.children {
+			if err := c.showBorder(screenw, screenh); err != nil {
 				return err
 			}
 		}
 	} else if wge.window != nil {
-		if err := wge.window.ShowBorder(
-			false,
-			!isColumn && !isFinal,
-			false,
-			isColumn && !isFinal); err != nil {
+		if err := wge.window.ShowBorder(screenw, screenh); err != nil {
 			return err
 		}
 	}
@@ -206,7 +201,7 @@ func (wg *WindowGroup) Resize(x, y, w, h int) {
 	wg.adjustNeeded = true
 }
 
-func (wg *WindowGroup) adjustChildren() error {
+func (wg *WindowGroup) adjustChildren(screenw, screenh int) error {
 	totalWeight := 0
 	for _, c := range wg.children {
 		totalWeight += c.weight
@@ -216,7 +211,7 @@ func (wg *WindowGroup) adjustChildren() error {
 	} else {
 		wg.adjustChildrenRow(totalWeight)
 	}
-	return wg.redrawChildBorders()
+	return wg.redrawChildBorders(screenw, screenh)
 }
 
 func (wg *WindowGroup) adjustChildrenColumn(totalWeight int) {
@@ -237,10 +232,9 @@ func (wg *WindowGroup) adjustChildrenRow(totalWeight int) {
 	}
 }
 
-func (wg *WindowGroup) redrawChildBorders() error {
-	for i, c := range wg.children {
-		if err := c.showBorder(
-			wg.isColumn, i == (len(wg.children)-1)); err != nil {
+func (wg *WindowGroup) redrawChildBorders(screenw, screenh int) error {
+	for _, c := range wg.children {
+		if err := c.showBorder(screenw, screenh); err != nil {
 			return err
 		}
 	}
@@ -248,15 +242,15 @@ func (wg *WindowGroup) redrawChildBorders() error {
 }
 
 // Calls update on all contained windows
-func (wg *WindowGroup) Update(rpn *rpn.RPN, updateInput bool) error {
+func (wg *WindowGroup) Update(rpn *rpn.RPN, updateInput bool, screenw, screenh int) error {
 	if wg.adjustNeeded {
-		if err := wg.adjustChildren(); err != nil {
+		if err := wg.adjustChildren(screenw, screenh); err != nil {
 			return err
 		}
 		wg.adjustNeeded = false
 		// We want to give screens other than the input screen a chance to
 		// redraw before getting locked into the input screen
-		if err := wg.Update(rpn, false); err != nil {
+		if err := wg.Update(rpn, false, screenw, screenh); err != nil {
 			return err
 		}
 	}
@@ -281,7 +275,7 @@ func (wg *WindowGroup) Update(rpn *rpn.RPN, updateInput bool) error {
 			}
 			continue
 		}
-		if err := c.group.Update(rpn, false); err != nil {
+		if err := c.group.Update(rpn, false, screenw, screenh); err != nil {
 			return err
 		}
 	}

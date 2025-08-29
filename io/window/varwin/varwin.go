@@ -24,8 +24,8 @@ func (vw *VariableWindow) Resize(x, y, w, h int) error {
 	return vw.txtw.Resize(x, y, w, h)
 }
 
-func (vw *VariableWindow) ShowBorder(t, b, l, r bool) error {
-	return vw.txtw.ShowBorder(t, b, l, r)
+func (vw *VariableWindow) ShowBorder(screenw, screenh int) error {
+	return vw.txtw.ShowBorder(screenw, screenh)
 }
 
 func (vw *VariableWindow) Update(rpn *rpn.RPN) error {

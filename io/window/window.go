@@ -16,7 +16,7 @@ type TextWindow interface {
 	Erase()
 
 	// Activate / remove display borders
-	ShowBorder(top, bottom, left, right bool) error
+	ShowBorder(screenw, screenh int) error
 
 	// Write a charaacter to the display, wrap, newlines, and
 	// scrolling should all be supported.

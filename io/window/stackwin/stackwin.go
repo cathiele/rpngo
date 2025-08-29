@@ -25,8 +25,8 @@ func (sw *StackWindow) Resize(x, y, w, h int) error {
 	return sw.txtw.Resize(x, y, w, h)
 }
 
-func (sw *StackWindow) ShowBorder(t, b, l, r bool) error {
-	return sw.txtw.ShowBorder(t, b, l, r)
+func (sw *StackWindow) ShowBorder(screenw, screenh int) error {
+	return sw.txtw.ShowBorder(screenw, screenh)
 }
 
 func (sw *StackWindow) Update(rpn *rpn.RPN) error {
