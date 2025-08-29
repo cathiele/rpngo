@@ -1,11 +1,15 @@
 package input
 
 import (
+	"log"
 	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
-const MAX_HISTORY_LINES = 100
+const MAX_HISTORY_LINES = 500
 
 type getLine struct {
 	insertMode   bool
@@ -13,14 +17,72 @@ type getLine struct {
 	txtd         window.TextWindow
 	history      [MAX_HISTORY_LINES]string
 	historyCount int
+	historyFile  *os.File
 }
 
+const histFile = ".rpngo_history"
+
 func initGetLine(input Input, txtd window.TextWindow) *getLine {
-	return &getLine{
+	gl := &getLine{
 		insertMode:   true,
 		input:        input,
 		txtd:         txtd,
 		historyCount: 0,
+	}
+	gl.loadHistory()
+	gl.prepareHistory()
+	return gl
+}
+
+func historyPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, histFile), nil
+}
+
+func (gl *getLine) loadHistory() {
+	path, err := historyPath()
+	if err != nil {
+		log.Printf("Could not generate history path for load: %v", err)
+		return
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		log.Printf("Could not read hitory file: %v", err)
+		return
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		line := strings.TrimSpace(line)
+		if len(line) > 0 {
+			gl.history[gl.historyCount%MAX_HISTORY_LINES] = line
+			gl.historyCount++
+		}
+	}
+}
+
+func (gl *getLine) prepareHistory() {
+	path, err := historyPath()
+	if err != nil {
+		log.Printf("Could not generate history path for prepare: %v", err)
+		return
+	}
+	gl.historyFile, err = os.Create(path)
+	if err != nil {
+		log.Printf("Could not create history path: %v", err)
+		return
+	}
+	mini := gl.historyCount - MAX_HISTORY_LINES
+	if mini < 0 {
+		mini = 0
+	}
+	for i := mini; i < gl.historyCount; i++ {
+		line := gl.history[i%MAX_HISTORY_LINES] + "\n"
+		_, err := gl.historyFile.Write([]byte(line))
+		if err != nil {
+			log.Printf("error writing exsiting history: %v", err)
+		}
 	}
 }
 
@@ -128,6 +190,14 @@ func (gl *getLine) addToHistory(line string) {
 	}
 	gl.history[gl.historyCount%MAX_HISTORY_LINES] = line
 	gl.historyCount++
+	if gl.historyFile != nil {
+		line = line + "\n"
+		_, err := gl.historyFile.WriteString(line)
+		if err != nil {
+			log.Printf("could not write history line: %v", err)
+		}
+		gl.historyFile.Sync()
+	}
 }
 
 func (gl *getLine) replaceLineWithHistory(historyIdx int, oldlen int, idx int) []byte {
