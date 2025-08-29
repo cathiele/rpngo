@@ -34,11 +34,7 @@ func (wge *windowGroupEntry) resize(x, y, w, h int) {
 
 func (wge *windowGroupEntry) showBorder(screenw, screenh int) error {
 	if wge.group != nil {
-		for _, c := range wge.group.children {
-			if err := c.showBorder(screenw, screenh); err != nil {
-				return err
-			}
-		}
+		wge.group.showBorder(screenw, screenh)
 	} else if wge.window != nil {
 		if err := wge.window.ShowBorder(screenw, screenh); err != nil {
 			return err
@@ -258,7 +254,7 @@ func (wg *WindowGroup) adjustChildren(screenw, screenh int) error {
 	} else {
 		wg.adjustChildrenRow(totalWeight)
 	}
-	return wg.redrawChildBorders(screenw, screenh)
+	return wg.showBorder(screenw, screenh)
 }
 
 func (wg *WindowGroup) adjustChildrenColumn(totalWeight int) {
@@ -279,7 +275,7 @@ func (wg *WindowGroup) adjustChildrenRow(totalWeight int) {
 	}
 }
 
-func (wg *WindowGroup) redrawChildBorders(screenw, screenh int) error {
+func (wg *WindowGroup) showBorder(screenw, screenh int) error {
 	for _, c := range wg.children {
 		if err := c.showBorder(screenw, screenh); err != nil {
 			return err
