@@ -42,31 +42,23 @@ func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
 }
 
 func (c *Curses) ShowBorder(screenw, screenh int) error {
-	/*
-		y, x := c.border.YX()
-		h, w := c.border.MaxYX()
-		rs := goncurses.Char('|')
-		tr := goncurses.Char('|')
-		br := goncurses.Char('+')
-		bl := goncurses.Char('-')
-		if (x + w) >= screenw {
-			rs = goncurses.Char(' ')
-			tr = goncurses.Char(' ')
-			br = goncurses.Char(' ')
-		}
-		bs := goncurses.Char('-')
-		if (y + h) >= screenh {
-			bs = goncurses.Char(' ')
-			bl = goncurses.Char(' ')
-		}
-		if err := c.border.Border(' ', rs, ' ', bs, ' ', tr, bl, br); err != nil {
-			return err
-		}
-	*/
-	if err := c.border.Border('|', '|', '-', '-', '+', '+', '+', '+'); err != nil {
+	ch, err := c.colorPairFor(31, 31, 31, 0, 0, 31)
+	if err != nil {
+		return err
+	}
+	c.border.AttrSet(ch)
+	//if err := c.border.Border('|', '|', '-', '-', '+', '+', '+', '+'); err != nil {
+	//	return err
+	//}
+	if err := c.border.Border(' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '); err != nil {
 		return err
 	}
 	c.border.Refresh()
+	ch, err = c.colorPairFor(31, 31, 31, 0, 0, 0)
+	if err != nil {
+		return err
+	}
+	c.border.AttrSet(ch)
 	return nil
 }
 
@@ -202,25 +194,24 @@ func (c *Curses) Scroll(n int) {
 }
 
 func (c *Curses) Color(fr, fg, fb, br, bg, bb int) error {
-	if err := checkColorRange(fr, fg, fb); err != nil {
-		return err
-	}
-	if err := checkColorRange(br, bg, bb); err != nil {
-		return err
-	}
-	if !goncurses.HasColors() {
-		return nil
-	}
-	pairIdx, err := c.colorPairFor(fr, fg, fb, br, bg, bb)
+	ch, err := c.colorPairFor(fr, fg, fb, br, bg, bb)
 	if err != nil {
 		return err
 	}
-	ch := goncurses.ColorPair(pairIdx)
 	c.window.AttrSet(ch)
 	return nil
 }
 
-func (c *Curses) colorPairFor(fr, fg, fb, br, bg, bb int) (int16, error) {
+func (c *Curses) colorPairFor(fr, fg, fb, br, bg, bb int) (goncurses.Char, error) {
+	if err := checkColorRange(fr, fg, fb); err != nil {
+		return 0, err
+	}
+	if err := checkColorRange(br, bg, bb); err != nil {
+		return 0, err
+	}
+	if !goncurses.HasColors() {
+		return 0, nil
+	}
 	fc := colorIndexFor(fr, fg, fb)
 	bc := colorIndexFor(br, bg, bb)
 	pc := (uint32(fc) << 15) | uint32(bc)
@@ -232,7 +223,7 @@ func (c *Curses) colorPairFor(fr, fg, fb, br, bg, bb int) (int16, error) {
 		}
 		c.rgbToPair[pc] = pidx
 	}
-	return pidx, nil
+	return goncurses.ColorPair(pidx), nil
 }
 
 var idxToCol = map[uint8]int16{
