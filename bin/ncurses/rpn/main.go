@@ -64,11 +64,11 @@ func interactive(r *rpn.RPN) error {
 	if err := io.OSStartup(r); err != nil {
 		return err
 	}
-	if err := root.Update(r, false, screen.Width(), screen.Height()); err != nil {
+	if err := root.Update(r, screen.Width(), screen.Height()); err != nil {
 		return err
 	}
 	for {
-		if err := root.Update(r, true, screen.Width(), screen.Height()); err != nil {
+		if err := root.Update(r, screen.Width(), screen.Height()); err != nil {
 			if errors.Is(err, input.ErrExit) {
 				return nil
 			}
@@ -77,17 +77,16 @@ func interactive(r *rpn.RPN) error {
 	}
 }
 
-func buildUI(screen *curses.Curses) (*window.WindowGroup, error) {
-	root := window.NewWindowGroup(true)
+func buildUI(screen *curses.Curses) (*window.WindowRoot, error) {
 	w, h := screen.Size()
-	root.Resize(0, 0, w, h)
+	root := window.NewWindowRoot(w, h)
 	if err := addInputWindow(screen, root); err != nil {
 		return nil, err
 	}
 	return root, nil
 }
 
-func addInputWindow(screen window.Screen, root *window.WindowGroup) error {
+func addInputWindow(screen window.Screen, root *window.WindowRoot) error {
 	txtw, err := screen.NewTextWindow(0, 0, 10, 5)
 	if err != nil {
 		return err

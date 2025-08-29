@@ -8,15 +8,14 @@ import (
 	"mattwach/rpngo/io/window/stackwin"
 	"mattwach/rpngo/io/window/varwin"
 	"mattwach/rpngo/rpn"
-	"strings"
 )
 
 type WindowCommands struct {
-	root   *window.WindowGroup
+	root   *window.WindowRoot
 	screen window.Screen
 }
 
-func InitWindowCommands(root *window.WindowGroup, screen window.Screen) *WindowCommands {
+func InitWindowCommands(root *window.WindowRoot, screen window.Screen) *WindowCommands {
 	return &WindowCommands{root: root, screen: screen}
 }
 
@@ -35,8 +34,7 @@ func (wc *WindowCommands) Register(r *rpn.RPN) {
 const WDumpHelp = "Dump the state of all created windows and groups"
 
 func (wc *WindowCommands) WDump(r *rpn.RPN) error {
-	lines := wc.root.Dump(nil, "root", 0, 100)
-	r.PushMessage(strings.Join(lines, "\n"))
+	wc.root.Dump(r)
 	return nil
 }
 
@@ -56,11 +54,13 @@ const WColumnsHelp = "Sets a window group layout to column mode\n" +
 	"Example: 'g1' w.columns"
 
 func (wc *WindowCommands) WColumns(r *rpn.RPN) error {
-	group, err := wc.findWindowGroup(r)
+	name, err := r.PopString()
 	if err != nil {
 		return err
 	}
-	group.UseColumnLayout(true)
+	if err := wc.root.UseColumnLayout(name, true); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -94,8 +94,7 @@ func (wc *WindowCommands) WNewGroup(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	newwg := window.NewWindowGroup(false)
-	wc.root.AddWindowGroupChild(newwg, name, 100)
+	wc.root.AddNewWindowGroupChild(name, 100)
 	return nil
 }
 
@@ -150,17 +149,6 @@ func (wc *WindowCommands) newWindowNameFromStack(r *rpn.RPN) (string, error) {
 		return "", fmt.Errorf("window already exits: %s", name)
 	}
 	return name, nil
-}
-
-func (wc *WindowCommands) findWindowGroup(r *rpn.RPN) (*window.WindowGroup, error) {
-	name, err := r.PopString()
-	if err != nil {
-		return nil, err
-	}
-	if name == "root" {
-		return wc.root, nil
-	}
-	return wc.root.FindWindowGroup(name)
 }
 
 const WWeightHelp = "Changes the weight of a window or window group causing it\n" +

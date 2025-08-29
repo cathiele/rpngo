@@ -1,7 +1,6 @@
 package window
 
 import (
-	"errors"
 	"fmt"
 	"mattwach/rpngo/rpn"
 	"strings"
@@ -20,19 +19,20 @@ type windowGroupEntry struct {
 	name   string
 	weight int
 	// Only one of the following should be non-nil
-	group  *WindowGroup
+	group  *windowGroup
 	window Window
 }
 
 func (wge *windowGroupEntry) resize(x, y, w, h int) {
 	if wge.group != nil {
-		wge.group.Resize(x, y, w, h)
+		wge.group.resize(x, y, w, h)
 	} else if wge.window != nil {
 		wge.window.Resize(x, y, w, h)
 	}
 }
 
 func (wge *windowGroupEntry) showBorder(screenw, screenh int) error {
+	//log.Printf("showBorder: name=%s sw=%d, sh=%d", wge.name, screenw, screenh)
 	if wge.group != nil {
 		wge.group.showBorder(screenw, screenh)
 	} else if wge.window != nil {
@@ -43,10 +43,8 @@ func (wge *windowGroupEntry) showBorder(screenw, screenh int) error {
 	return nil
 }
 
-type WindowGroup struct {
-	isRoot       bool
-	isColumn     bool
-	adjustNeeded bool
+type windowGroup struct {
+	isColumn bool
 	// Coordinates are in global screen coordinates
 	x        int
 	y        int
@@ -55,11 +53,7 @@ type WindowGroup struct {
 	children []*windowGroupEntry
 }
 
-func NewWindowGroup(isRoot bool) *WindowGroup {
-	return &WindowGroup{isRoot: isRoot}
-}
-
-func (wg *WindowGroup) removeChild(c *windowGroupEntry) {
+func (wg *windowGroup) removeChild(c *windowGroupEntry) {
 	idx := -1
 	for i, rc := range wg.children {
 		if rc == c {
@@ -71,13 +65,13 @@ func (wg *WindowGroup) removeChild(c *windowGroupEntry) {
 	wg.children = append(wg.children[:idx], wg.children[idx+1:]...)
 }
 
-func (wg *WindowGroup) findWindowGroupEntry(name string) *windowGroupEntry {
+func (wg *windowGroup) findwindowGroupEntry(name string) *windowGroupEntry {
 	for _, c := range wg.children {
 		if c.name == name {
 			return c
 		}
 		if c.group != nil {
-			wge := c.group.findWindowGroupEntry(name)
+			wge := c.group.findwindowGroupEntry(name)
 			if wge != nil {
 				return wge
 			}
@@ -86,13 +80,13 @@ func (wg *WindowGroup) findWindowGroupEntry(name string) *windowGroupEntry {
 	return nil
 }
 
-func (wg *WindowGroup) findWindowGroupEntryAndParent(name string) (*WindowGroup, *windowGroupEntry) {
+func (wg *windowGroup) findwindowGroupEntryAndParent(name string) (*windowGroup, *windowGroupEntry) {
 	for _, c := range wg.children {
 		if c.name == name {
 			return wg, c
 		}
 		if c.group != nil {
-			g, wge := c.group.findWindowGroupEntryAndParent(name)
+			g, wge := c.group.findwindowGroupEntryAndParent(name)
 			if wge != nil {
 				return g, wge
 			}
@@ -101,7 +95,14 @@ func (wg *WindowGroup) findWindowGroupEntryAndParent(name string) (*WindowGroup,
 	return nil, nil
 }
 
-func (wg *WindowGroup) Dump(lines []string, name string, indent int, weight int) []string {
+func (wg *windowGroup) resize(x, y, w, h int) {
+	wg.x = x
+	wg.y = y
+	wg.w = w
+	wg.h = h
+}
+
+func (wg *windowGroup) dump(lines []string, name string, indent int, weight int) []string {
 	pad := strings.Repeat("  ", indent)
 	line := fmt.Sprintf(
 		"%s%s(x=%d, y=%d, w=%d, h=%d, cols=%v, weight=%d):",
@@ -118,7 +119,7 @@ func (wg *WindowGroup) Dump(lines []string, name string, indent int, weight int)
 	pad = strings.Repeat("  ", indent+1)
 	for _, c := range wg.children {
 		if c.group != nil {
-			lines = c.group.Dump(lines, c.name, indent+1, c.weight)
+			lines = c.group.dump(lines, c.name, indent+1, c.weight)
 		}
 		if c.window != nil {
 			x, y := c.window.WindowXY()
@@ -141,145 +142,61 @@ func (wg *WindowGroup) Dump(lines []string, name string, indent int, weight int)
 	return lines
 }
 
-func (wg *WindowGroup) FindWindow(name string) Window {
-	wge := wg.findWindowGroupEntry(name)
-	if wge == nil {
-		return nil
-	}
-	return wge.window
-}
-
-func (wg *WindowGroup) FindWindowGroup(name string) (*WindowGroup, error) {
-	if (name == "root") && wg.isRoot {
-		return wg, nil
-	}
-	wge := wg.findWindowGroupEntry(name)
-	if wge == nil {
-		return nil, fmt.Errorf("window group not found: %s", name)
-	}
-	if wge.group == nil {
-		return nil, fmt.Errorf("not a window group: %s", name)
-	}
-	return wge.group, nil
-}
-
-func (wg *WindowGroup) RemoveAllChildren() {
+func (wg *windowGroup) removeAllChildren() {
 	for i, c := range wg.children {
 		if c.group != nil {
-			c.group.RemoveAllChildren()
+			c.group.removeAllChildren()
 		}
 		wg.children[i] = nil
 	}
 	wg.children = make([]*windowGroupEntry, 0)
 }
 
-func (wg *WindowGroup) MoveWindowOrGroup(src string, dst string, beginning bool) error {
-	if src == "root" {
-		return errors.New("can not move root window")
-	}
-	srcpg, srcwge := wg.findWindowGroupEntryAndParent(src)
-	if srcwge == nil {
-		return fmt.Errorf("source window not found: %s", src)
-	}
-	if srcwge.group != nil {
-		check := srcwge.group.findWindowGroupEntry(dst)
-		if check != nil {
-			return fmt.Errorf("moving %s to %s would detach from root", src, dst)
-		}
-	}
-	dstpg := wg
-	if dst != "root" {
-		var err error
-		dstpg, err = wg.FindWindowGroup(dst)
-		if err != nil {
-			return err
-		}
-	}
-	srcpg.removeChild(srcwge)
-	if beginning {
-		dstpg.children = append([]*windowGroupEntry{srcwge}, dstpg.children...)
-	} else {
-		dstpg.children = append(dstpg.children, srcwge)
-	}
-	wg.adjustNeeded = true
-	return nil
-}
-
-func (wg *WindowGroup) SetWindowWeight(name string, w int) error {
-	if w < 1 {
-		return fmt.Errorf("weight must be >= 1: %d", w)
-	}
-	if w > 10000 {
-		return fmt.Errorf("weight must be <= 10000: %d", w)
-	}
-	wge := wg.findWindowGroupEntry(name)
-	if wge == nil {
-		return fmt.Errorf("window not found: %s", name)
-	}
-	wge.weight = w
-	wg.adjustNeeded = true
-	return nil
-}
-
-func (wg *WindowGroup) AddWindowGroupChild(group *WindowGroup, name string, weight int) {
-	wg.children = append(wg.children, &windowGroupEntry{name: name, weight: weight, group: group})
-	wg.adjustNeeded = true
-}
-
-func (wg *WindowGroup) AddWindowChild(window Window, name string, weight int) {
-	wg.children = append(wg.children, &windowGroupEntry{name: name, weight: weight, window: window})
-	wg.adjustNeeded = true
-}
-
-func (wg *WindowGroup) UseColumnLayout(v bool) {
-	wg.isColumn = v
-	wg.adjustNeeded = true
-}
-
-func (wg *WindowGroup) Resize(x, y, w, h int) {
-	wg.x = x
-	wg.y = y
-	wg.w = w
-	wg.h = h
-	wg.adjustNeeded = true
-}
-
-func (wg *WindowGroup) adjustChildren(screenw, screenh int) error {
+func (wg *windowGroup) adjustChildren(screenw, screenh int) error {
+	//log.Printf("adjustChildren: wg=%v sw=%d sh=%d", wg, screenw, screenh)
 	totalWeight := 0
 	for _, c := range wg.children {
 		totalWeight += c.weight
 	}
 	if wg.isColumn {
-		wg.adjustChildrenColumn(totalWeight)
+		wg.adjustChildrenColumn(screenw, screenh, totalWeight)
 	} else {
-		wg.adjustChildrenRow(totalWeight)
+		wg.adjustChildrenRow(screenw, screenh, totalWeight)
 	}
-	return wg.showBorder(screenw, screenh)
+	var err error
+	return err
 }
 
-func (wg *WindowGroup) adjustChildrenColumn(totalWeight int) {
+func (wg *windowGroup) adjustChildrenColumn(screenw, screenh, totalWeight int) {
 	x1 := wg.x
 	weightSum := 0
 	for _, c := range wg.children {
 		weightSum += c.weight
 		x2 := wg.x + wg.w*weightSum/totalWeight
 		c.resize(x1, wg.y, x2-x1, wg.h)
+		if c.group != nil {
+			c.group.adjustChildren(screenw, screenh)
+		}
 		x1 = x2 - 1
 	}
 }
 
-func (wg *WindowGroup) adjustChildrenRow(totalWeight int) {
+func (wg *windowGroup) adjustChildrenRow(screenw, screenh, totalWeight int) {
 	y1 := wg.y
 	weightSum := 0
 	for _, c := range wg.children {
 		weightSum += c.weight
 		y2 := wg.y + wg.h*weightSum/totalWeight
+		//log.Printf("adjustChildrenRow: y1=%d y2=%d weightSum=%d totalWeight=%d", y1, y2, weightSum, totalWeight)
 		c.resize(wg.x, y1, wg.w, y2-y1)
+		if c.group != nil {
+			c.group.adjustChildren(screenw, screenh)
+		}
 		y1 = y2 - 1
 	}
 }
 
-func (wg *WindowGroup) showBorder(screenw, screenh int) error {
+func (wg *windowGroup) showBorder(screenw, screenh int) error {
 	for _, c := range wg.children {
 		if err := c.showBorder(screenw, screenh); err != nil {
 			return err
@@ -289,29 +206,7 @@ func (wg *WindowGroup) showBorder(screenw, screenh int) error {
 }
 
 // Calls update on all contained windows
-func (wg *WindowGroup) Update(rpn *rpn.RPN, updateInput bool, screenw, screenh int) error {
-	if wg.adjustNeeded {
-		if err := wg.adjustChildren(screenw, screenh); err != nil {
-			return err
-		}
-		wg.adjustNeeded = false
-		// We want to give screens other than the input screen a chance to
-		// redraw before getting locked into the input screen
-		if err := wg.Update(rpn, false, screenw, screenh); err != nil {
-			return err
-		}
-	}
-	if wg.isRoot && updateInput {
-		// Update the input window first
-		input := wg.FindWindow("i")
-		if input == nil {
-			return errors.New("could not find window 'i' for input")
-		}
-		if err := input.Update(rpn); err != nil {
-			return err
-		}
-	}
-
+func (wg *windowGroup) update(rpn *rpn.RPN, screenw, screenh int) error {
 	for _, c := range wg.children {
 		if c.name == "i" {
 			continue
@@ -322,7 +217,7 @@ func (wg *WindowGroup) Update(rpn *rpn.RPN, updateInput bool, screenw, screenh i
 			}
 			continue
 		}
-		if err := c.group.Update(rpn, false, screenw, screenh); err != nil {
+		if err := c.group.update(rpn, screenw, screenh); err != nil {
 			return err
 		}
 	}
