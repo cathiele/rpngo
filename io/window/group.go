@@ -219,8 +219,8 @@ func (wg *WindowGroup) adjustChildren(screenw, screenh int) error {
 
 func (wg *WindowGroup) adjustChildrenColumn(totalWeight int) {
 	x1 := wg.x
-	for _, c := range wg.children {
-		x2 := x1 + (wg.w * c.weight / totalWeight)
+	for i, c := range wg.children {
+		x2 := (i + 1) * (wg.w * c.weight / totalWeight)
 		c.resize(x1, wg.y, x2-x1, wg.h)
 		x1 = x2
 	}
@@ -228,8 +228,8 @@ func (wg *WindowGroup) adjustChildrenColumn(totalWeight int) {
 
 func (wg *WindowGroup) adjustChildrenRow(totalWeight int) {
 	y1 := wg.y
-	for _, c := range wg.children {
-		y2 := y1 + (wg.h * c.weight / totalWeight)
+	for i, c := range wg.children {
+		y2 := (i + 1) * (wg.h * c.weight / totalWeight)
 		c.resize(wg.x, y1, wg.w, y2-y1)
 		y1 = y2
 	}
