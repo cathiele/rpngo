@@ -22,6 +22,13 @@ const defaultConfigFile = `
 # set some useful vars
 3.141592653589793 pi=
 2.718281828459045 e=
+
+# some useful equations
+'vpush
+ c= c neg bn= b= c 2 * 2a= a= $b sq 4 $a $c * * - sqrt root=
+ $bn $root + $2a /
+ $bn $root - $2a /
+ vpop' quad=
 `
 
 const configName = ".rpngo"
