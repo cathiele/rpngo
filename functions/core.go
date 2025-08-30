@@ -57,11 +57,17 @@ func Divide(r *rpn.RPN) error {
 const NegateHelp = "Negates the top number"
 
 func Negate(r *rpn.RPN) error {
-	a, err := r.PopComplex()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	return r.PushComplex(-a)
+	if f.Type == rpn.COMPLEX_FRAME {
+		return r.PushComplex(-f.Complex)
+	}
+	if f.Type == rpn.BOOL_FRAME {
+		return r.PushBool(!f.Bool)
+	}
+	return errors.New("expected number or boolean")
 }
 
 const SquareHelp = "executes v * v"

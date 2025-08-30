@@ -5,10 +5,14 @@ import (
 	"fmt"
 )
 
+const MaxStackDepth = 4096
+
 var (
+	errExpectedABoolean     = errors.New("expected a boolean")
 	errExpectedANumber      = errors.New("expected a number")
 	errExpectedAString      = errors.New("expected a string")
 	ErrStackEmpty           = errors.New("stack empty")
+	ErrStackFull            = errors.New("stack is full")
 	errNotEnoughStackFrames = errors.New("not enough stack frames")
 )
 
@@ -17,6 +21,7 @@ type FrameType uint8
 const (
 	STRING_FRAME FrameType = iota
 	COMPLEX_FRAME
+	BOOL_FRAME
 )
 
 // Frame Defines a single stack frame
@@ -24,6 +29,7 @@ type Frame struct {
 	Type    FrameType
 	Str     string
 	Complex complex128
+	Bool    bool
 }
 
 // RPN is the main structure

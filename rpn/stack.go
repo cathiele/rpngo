@@ -15,6 +15,11 @@ func (f *Frame) String(quote bool) string {
 		return f.Str
 	case COMPLEX_FRAME:
 		return f.complexString()
+	case BOOL_FRAME:
+		if f.Bool {
+			return "true"
+		}
+		return "false"
 	default:
 		return "BAD_TYPE"
 	}
@@ -33,10 +38,6 @@ func (f *Frame) complexString() string {
 	return fmt.Sprintf("%g+%s", real(f.Complex), complexString(imag(f.Complex)))
 }
 
-func (f *Frame) Copy() Frame {
-	return Frame{f.Type, f.Str, f.Complex}
-}
-
 func complexString(v float64) string {
 	if v == 1 {
 		return "i"
@@ -51,19 +52,24 @@ func (r *RPN) Clear() {
 	r.frames = r.frames[:0]
 }
 
-func (r *RPN) PushComplex(v complex128) error {
-	r.frames = append(r.frames, Frame{Type: COMPLEX_FRAME, Complex: v})
+func (r *RPN) PushFrame(f Frame) error {
+	if len(r.frames) >= MaxStackDepth {
+		return ErrStackFull
+	}
+	r.frames = append(r.frames, f)
 	return nil
+}
+
+func (r *RPN) PushComplex(v complex128) error {
+	return r.PushFrame(Frame{Type: COMPLEX_FRAME, Complex: v})
 }
 
 func (r *RPN) PushString(v string) error {
-	r.frames = append(r.frames, Frame{Type: STRING_FRAME, Str: v})
-	return nil
+	return r.PushFrame(Frame{Type: STRING_FRAME, Str: v})
 }
 
-func (r *RPN) PushFrame(f Frame) error {
-	r.frames = append(r.frames, Frame{f.Type, f.Str, f.Complex})
-	return nil
+func (r *RPN) PushBool(v bool) error {
+	return r.PushFrame(Frame{Type: BOOL_FRAME, Bool: v})
 }
 
 func (r *RPN) PopFrame() (sf Frame, err error) {
@@ -98,6 +104,20 @@ func (r *RPN) PopString() (str string, err error) {
 		return
 	}
 	str = f.Str
+	return
+}
+
+func (r *RPN) PopBool() (v bool, err error) {
+	f, err := r.PopFrame()
+	if err != nil {
+		return
+	}
+	if f.Type != BOOL_FRAME {
+		r.PushFrame(f)
+		err = errExpectedABoolean
+		return
+	}
+	v = f.Bool
 	return
 }
 

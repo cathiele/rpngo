@@ -12,6 +12,15 @@ func (rpn *RPN) initHelp() {
 			"- Enter an operator to replace numbers on the stack with a result\n" +
 			"- For example: 2 3 +",
 
+		"conditionals": "The operators, >, >=, <, <=, =, != can be used to\n" +
+			"compare numbers.  Note that > and friends ignore the complex\n" +
+			"part of numbers.\n" +
+			"Example: 3 5 > # this will put false on the stack",
+
+		"control": "The if, ifelse, and for operators can be used to provide\n" +
+			"support for simple programmng\n" +
+			"Example (print 1-50): 1 'println 1 + c 50 <' for",
+
 		"complex": "Enter a complex value as i, -i, 3+i or 3-i\n" +
 			"Do not use spaces.",
 

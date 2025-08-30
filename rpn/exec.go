@@ -35,6 +35,12 @@ func (rpn *RPN) Exec(arg string) error {
 			return rpn.PushString(arg[1 : len(arg)-1])
 		}
 	}
+	if arg == "true" {
+		return rpn.PushBool(true)
+	}
+	if arg == "false" {
+		return rpn.PushBool(false)
+	}
 	return rpn.pushComplex(arg)
 }
 
