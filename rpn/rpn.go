@@ -51,6 +51,9 @@ func (r *RPN) Init() {
 	r.Register("vpush", pushVariableFrame, pushVariableFrameHelp)
 	r.Register("vpop", popVariableFrame, popVariableFrameHelp)
 	r.Print = DefaultPrint
+	// Set the default plot window to p1
+	r.PushString("p1")
+	r.setVariable("plotwin")
 }
 
 // Register adds a new function

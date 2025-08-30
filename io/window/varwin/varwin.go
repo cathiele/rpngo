@@ -2,6 +2,7 @@
 package varwin
 
 import (
+	"errors"
 	"fmt"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
@@ -37,6 +38,18 @@ func (vw *VariableWindow) Size() (int, int) {
 
 func (vw *VariableWindow) Type() string {
 	return "var"
+}
+
+func (vw *VariableWindow) SetProp(name string, val rpn.Frame) error {
+	return errors.New("props not supported")
+}
+
+func (vw *VariableWindow) GetProp(name string) (rpn.Frame, error) {
+	return rpn.Frame{}, errors.New("props not supported")
+}
+
+func (vw *VariableWindow) ListProps() []string {
+	return nil
 }
 
 func (vw *VariableWindow) Update(rpn *rpn.RPN) error {

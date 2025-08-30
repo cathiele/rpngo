@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/io/window/plotwin"
 	"mattwach/rpngo/io/window/stackwin"
 	"mattwach/rpngo/io/window/varwin"
 	"mattwach/rpngo/rpn"
@@ -25,6 +26,7 @@ func (wc *WindowCommands) Register(r *rpn.RPN) {
 	r.Register("w.move.beg", wc.WMoveBeg, WMoveBegHelp)
 	r.Register("w.move.end", wc.WMoveEnd, WMoveEndHelp)
 	r.Register("w.new.group", wc.WNewGroup, WNewGroupHelp)
+	r.Register("w.new.plot", wc.WNewPlot, WNewPlotHelp)
 	r.Register("w.new.stack", wc.WNewStack, WNewStackHelp)
 	r.Register("w.new.var", wc.WNewVar, WNewVarHelp)
 	r.Register("w.reset", wc.WReset, WResetHelp)
@@ -112,6 +114,22 @@ func (wc *WindowCommands) WNewStack(r *rpn.RPN) error {
 		return err
 	}
 	wc.root.AddWindowChild(sw, name, 100)
+	return nil
+}
+
+const WNewPlotHelp = "Creates a new plot window with the given name and\n" +
+	"adds it to the root window. Example: 'p1' w.new.plot"
+
+func (wc *WindowCommands) WNewPlot(r *rpn.RPN) error {
+	txtw, name, err := wc.newTextWindow(r)
+	if err != nil {
+		return err
+	}
+	pw, err := plotwin.Init(txtw)
+	if err != nil {
+		return err
+	}
+	wc.root.AddWindowChild(pw, name, 100)
 	return nil
 }
 

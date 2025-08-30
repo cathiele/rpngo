@@ -13,6 +13,9 @@ type Window interface {
 	WindowXY() (int, int)
 	Size() (int, int)
 	Type() string
+	SetProp(name string, val rpn.Frame) error
+	GetProp(name string) (rpn.Frame, error)
+	ListProps() []string
 }
 
 type windowGroupEntry struct {

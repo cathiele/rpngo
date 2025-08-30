@@ -56,7 +56,7 @@ func (pw *PlotWindow) Size() (int, int) {
 }
 
 func (pw *PlotWindow) Type() string {
-	return "var"
+	return "plot"
 }
 
 func (pw *PlotWindow) SetProp(name string, val rpn.Frame) error {

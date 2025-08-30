@@ -118,6 +118,18 @@ func (iw *InputWindow) Type() string {
 	return "input"
 }
 
+func (iw *InputWindow) SetProp(name string, val rpn.Frame) error {
+	return errors.New("props not supported")
+}
+
+func (iw *InputWindow) GetProp(name string) (rpn.Frame, error) {
+	return rpn.Frame{}, errors.New("props not supported")
+}
+
+func (iw *InputWindow) ListProps() []string {
+	return nil
+}
+
 func parseLine(r *rpn.RPN, line string) (bool, error) {
 	fields, err := parse.Fields(line)
 	if err != nil {
