@@ -4,6 +4,7 @@ package functions
 import (
 	"errors"
 	"math/cmplx"
+	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 )
 
@@ -88,4 +89,29 @@ func SquareRoot(r *rpn.RPN) error {
 		return err
 	}
 	return r.PushComplex(cmplx.Sqrt(a))
+}
+
+const ExecHelp = "Executes a string\n" +
+	"Example: '4 5 +' @"
+
+func Exec(r *rpn.RPN) error {
+	s, err := r.PopString()
+	if err != nil {
+		return err
+	}
+	fields, err := parse.Fields(s)
+	if err != nil {
+		return err
+	}
+	return r.Exec(fields)
+}
+
+const StrHelp = "Converts head element to a string"
+
+func Str(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	return r.PushString(f.String(false))
 }

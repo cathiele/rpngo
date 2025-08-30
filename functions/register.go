@@ -7,6 +7,7 @@ import "mattwach/rpngo/rpn"
 // added by their respective owners as the functions module should not
 // know about these.
 func RegisterAll(rpn *rpn.RPN) {
+	rpn.Register("@", Exec, ExecHelp)
 	rpn.Register("-", Subtract, SubtractHelp)
 	rpn.Register("!=", NotEqual, NotEqualHelp)
 	rpn.Register("*", Multiply, MultiplyHelp)
@@ -23,6 +24,8 @@ func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register("cos", Cos, CosHelp)
 	rpn.Register("d", Divide, DivideHelp)
 	rpn.Register("di", DropIndex, DropIndexHelp)
+	rpn.Register("if", If, IfHelp)
+	rpn.Register("ifelse", IfElse, IfElseHelp)
 	rpn.Register("for", For, ForHelp)
 	rpn.Register("load", Load, LoadHelp)
 	rpn.Register("m", Multiply, MultiplyHelp)
@@ -38,6 +41,7 @@ func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register("sin", Sin, SinHelp)
 	rpn.Register("sq", Square, SquareHelp)
 	rpn.Register("sqrt", SquareRoot, SquareRootHelp)
+	rpn.Register("str", Str, StrHelp)
 	rpn.Register("sw", Swap, SwapHelp)
 	rpn.Register("tan", Tan, TanHelp)
 	rpn.Register("x", Drop, DropHelp)

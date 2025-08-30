@@ -48,10 +48,8 @@ func OSStartup(r *rpn.RPN) error {
 	if err != nil {
 		return fmt.Errorf("while parsing %s: %w", configPath, err)
 	}
-	for _, f := range fields {
-		if err := r.Exec(f); err != nil {
-			return fmt.Errorf("while executing commands in %s: %w", configPath, err)
-		}
+	if err := r.Exec(fields); err != nil {
+		return fmt.Errorf("while executing commands in %s: %w", configPath, err)
 	}
 	return nil
 }

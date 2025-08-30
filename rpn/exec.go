@@ -7,7 +7,7 @@ import (
 )
 
 // Exec executes a single instruction
-func (rpn *RPN) Exec(arg string) error {
+func (rpn *RPN) exec(arg string) error {
 	if fn := rpn.functions[arg]; fn != nil {
 		return fn(rpn)
 	}
@@ -42,6 +42,15 @@ func (rpn *RPN) Exec(arg string) error {
 		return rpn.PushBool(false)
 	}
 	return rpn.pushComplex(arg)
+}
+
+func (rpn *RPN) Exec(args []string) error {
+	for _, arg := range args {
+		if err := rpn.exec(arg); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Pushes a float onto the stack

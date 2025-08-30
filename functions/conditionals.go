@@ -1,7 +1,6 @@
 package functions
 
 import (
-	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 )
 
@@ -80,33 +79,4 @@ func NotEqual(r *rpn.RPN) error {
 		return err
 	}
 	return r.PushBool(!checkEqual(a, b))
-}
-
-const ForHelp = "Executes the head of the stack in a loop until a value < is found\n" +
-	"Example: 1 'c 1 + c 50 <' for # put 1 to 50 on the stack"
-
-func For(r *rpn.RPN) error {
-	macro, err := r.PopString()
-	if err != nil {
-		return err
-	}
-	fields, err := parse.Fields(macro)
-	if err != nil {
-		return err
-	}
-	for {
-		for _, f := range fields {
-			if err := r.Exec(f); err != nil {
-				return err
-			}
-		}
-		cond, err := r.PopBool()
-		if err != nil {
-			return err
-		}
-		if !cond {
-			break
-		}
-	}
-	return nil
 }

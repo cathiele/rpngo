@@ -8,9 +8,9 @@ import (
 const MaxStackDepth = 4096
 
 var (
-	errExpectedABoolean     = errors.New("expected a boolean")
-	errExpectedANumber      = errors.New("expected a number")
-	errExpectedAString      = errors.New("expected a string")
+	ErrExpectedABoolean     = errors.New("expected a boolean")
+	ErrExpectedANumber      = errors.New("expected a number")
+	ErrExpectedAString      = errors.New("expected a string")
 	ErrStackEmpty           = errors.New("stack empty")
 	ErrStackFull            = errors.New("stack is full")
 	errNotEnoughStackFrames = errors.New("not enough stack frames")

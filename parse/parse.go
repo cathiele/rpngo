@@ -2,10 +2,11 @@
 //
 // Parse rules:
 //
-// 1. Spaces, tabs, or carriage returns can be used to separate tokens
-// 2. Single or double quotes can be used to desgniate strings
-// 3. A backslash can be used to cancel the meaning of proceeded character.
-//    e.g.  'It\'s good' (or just say "It's good")
+//  1. Spaces, tabs, or carriage returns can be used to separate tokens
+//  2. Single or double quotes can be used to desgniate strings
+//  3. A backslash can be used to cancel the meaning of proceeded character.
+//     e.g.  'It\'s good' (or just say "It's good")
+//
 // 4 A # can be used for comments, which last until the end of the line
 //
 // Implementation is via a finite state machine
@@ -20,7 +21,8 @@ type State uint8
 const (
 	WHITESPACE State = iota
 	TOKEN
-	STRING
+	STRING_DOUBLE
+	STRING_SINGLE
 	COMMENT
 )
 
@@ -46,9 +48,12 @@ func (p *parseData) whitespace(c rune) {
 	}
 	p.t = p.t[:1]
 	p.t[0] = c
-	if isQuote(c) {
-		p.s = STRING
-	} else {
+	switch c {
+	case '\'':
+		p.s = STRING_SINGLE
+	case '"':
+		p.s = STRING_DOUBLE
+	default:
 		p.s = TOKEN
 	}
 	return
@@ -74,7 +79,7 @@ func (p *parseData) token(c rune) {
 	return
 }
 
-func (p *parseData) str(c rune) {
+func (p *parseData) str(c rune, quoteChar rune) {
 	if p.nextIsLiteral {
 		p.t = append(p.t, c)
 		p.nextIsLiteral = false
@@ -85,7 +90,7 @@ func (p *parseData) str(c rune) {
 		return
 	}
 	p.t = append(p.t, c)
-	if isQuote(c) {
+	if c == quoteChar {
 		p.ret = append(p.ret, string(p.t))
 		p.t = p.t[:0]
 		p.s = WHITESPACE
@@ -106,24 +111,24 @@ func Fields(m string) ([]string, error) {
 			p.whitespace(c)
 		case TOKEN:
 			p.token(c)
-		case STRING:
-			p.str(c)
+		case STRING_SINGLE:
+			p.str(c, '\'')
+		case STRING_DOUBLE:
+			p.str(c, '"')
 		case COMMENT:
 			p.comment(c)
 		}
 	}
 	if p.s == TOKEN {
 		p.token('\n')
-	} else if p.s == STRING {
-		return nil, errors.New("unterminated quote")
+	} else if p.s == STRING_SINGLE {
+		return nil, errors.New("unterminated single quote")
+	} else if p.s == STRING_DOUBLE {
+		return nil, errors.New("unterminated double quote")
 	}
 	return p.ret, nil
 }
 
 func isWhitespace(c rune) bool {
 	return (c == ' ') || (c == '\t') || (c == '\n')
-}
-
-func isQuote(c rune) bool {
-	return (c == '"') || (c == '\'')
 }

@@ -100,7 +100,7 @@ func (r *RPN) PopString() (str string, err error) {
 	}
 	if f.Type != STRING_FRAME {
 		r.PushFrame(f)
-		err = errExpectedAString
+		err = ErrExpectedAString
 		return
 	}
 	str = f.Str
@@ -114,7 +114,7 @@ func (r *RPN) PopBool() (v bool, err error) {
 	}
 	if f.Type != BOOL_FRAME {
 		r.PushFrame(f)
-		err = errExpectedABoolean
+		err = ErrExpectedABoolean
 		return
 	}
 	v = f.Bool
@@ -129,7 +129,7 @@ func (r *RPN) Pop2Strings() (a string, b string, err error) {
 	if as.Type != STRING_FRAME || bs.Type != STRING_FRAME {
 		r.PushFrame(as)
 		r.PushFrame(bs)
-		err = errExpectedAString
+		err = ErrExpectedAString
 		return
 	}
 	a = as.Str
@@ -144,7 +144,7 @@ func (r *RPN) PopComplex() (v complex128, err error) {
 	}
 	if f.Type != COMPLEX_FRAME {
 		r.PushFrame(f)
-		err = errExpectedANumber
+		err = ErrExpectedANumber
 		return
 	}
 	v = f.Complex
@@ -159,7 +159,7 @@ func (r *RPN) Pop2Complex() (a complex128, b complex128, err error) {
 	if af.Type != COMPLEX_FRAME || bf.Type != COMPLEX_FRAME {
 		r.PushFrame(af)
 		r.PushFrame(bf)
-		err = errExpectedANumber
+		err = ErrExpectedANumber
 		return
 	}
 	a = af.Complex

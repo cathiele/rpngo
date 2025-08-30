@@ -36,10 +36,8 @@ func run() error {
 }
 
 func cli(r *rpn.RPN) error {
-	for _, arg := range os.Args[1:] {
-		if err := r.Exec(arg); err != nil {
-			return err
-		}
+	if err := r.Exec(os.Args[1:]); err != nil {
+		return err
 	}
 
 	r.IterFrames(func(sf rpn.Frame) {

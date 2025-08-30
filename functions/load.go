@@ -22,10 +22,8 @@ func Load(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	for _, f := range fields {
-		if err := r.Exec(f); err != nil {
-			return err
-		}
+	if err := r.Exec(fields); err != nil {
+		return err
 	}
 	return nil
 }

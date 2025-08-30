@@ -106,10 +106,8 @@ func (r *RPN) execVariableAsMacro(name string) error {
 	if err != nil {
 		return err
 	}
-	for _, f := range fields {
-		if err := r.Exec(f); err != nil {
-			return fmt.Errorf("@%s(%s): %v", name, f, err)
-		}
+	if err := r.Exec(fields); err != nil {
+		return err
 	}
 	return nil
 }

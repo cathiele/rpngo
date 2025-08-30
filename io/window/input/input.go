@@ -123,10 +123,8 @@ func parseLine(r *rpn.RPN, line string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	for _, arg := range fields {
-		if err := r.Exec(arg); err != nil {
-			return false, err
-		}
+	if err := r.Exec(fields); err != nil {
+		return false, err
 	}
 	return true, nil
 }
