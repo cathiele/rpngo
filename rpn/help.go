@@ -24,7 +24,8 @@ func (rpn *RPN) initHelp() {
 		"complex": "Enter a complex value as i, -i, 3+i or 3-i\n" +
 			"Do not use spaces.",
 
-		"macros": "Execute a variable as @name\n" +
+		"macros": "Execute a variable as @name.  Execute a string with just @\n" +
+			"Convert any value to a string with str.\n" +
 			"Example:\n" +
 			"'. 3.14159 * *' cirarea=\n" +
 			"5 @cirarea\n" +
