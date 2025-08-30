@@ -139,5 +139,5 @@ func (wr *WindowRoot) RemoveAllChildren() {
 
 func (wr *WindowRoot) Dump(r *rpn.RPN) {
 	lines := wr.group.dump(nil, "root", 0, 100)
-	r.PushMessage(strings.Join(lines, "\n"))
+	r.Println(strings.Join(lines, "\n"))
 }

@@ -40,7 +40,7 @@ func (r *RPN) RegisterConceptHelp(concept, help string) {
 	r.conceptHelp[concept] = help
 }
 
-func (r *RPN) PushHelp(topic string, windoww int) error {
+func (r *RPN) PrintHelp(topic string, windoww int) error {
 	if len(topic) == 0 {
 		r.listCommands(windoww)
 		return nil
@@ -52,9 +52,8 @@ func (r *RPN) PushHelp(topic string, windoww int) error {
 	if !ok {
 		return fmt.Errorf("no help found for %s. Use ? to list all", topic)
 	}
-	r.PushMessage("")
-	r.PushMessage(help)
-	r.PushMessage("")
+	r.Print("\n")
+	r.Println(help)
 	return nil
 }
 
@@ -66,7 +65,7 @@ func (r *RPN) listCommands(windoww int) {
 const colWidth = 40
 
 func (r *RPN) dumpMap(title string, windoww int, m map[string]string) {
-	r.PushMessage(title)
+	r.Println(title)
 	var topics []string
 	for k := range m {
 		topics = append(topics, k)
@@ -81,12 +80,12 @@ func (r *RPN) dumpMap(title string, windoww int, m map[string]string) {
 		}
 		nextCol += colWidth
 		if nextCol > windoww {
-			r.PushMessage(string(line))
+			r.Println(string(line))
 			line = line[:2]
 			nextCol = len(line) + colWidth
 		}
 	}
 	if len(line) > 0 {
-		r.PushMessage(string(line))
+		r.Println(string(line))
 	}
 }

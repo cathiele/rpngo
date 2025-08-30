@@ -25,14 +25,22 @@ type InputWindow struct {
 	firstInput bool
 }
 
-func Init(input Input, txtw window.TextWindow) (*InputWindow, error) {
+func Init(input Input, txtw window.TextWindow, r *rpn.RPN) (*InputWindow, error) {
 	iw := &InputWindow{
 		input:      input,
 		txtw:       txtw,
 		gl:         initGetLine(input, txtw),
 		firstInput: true,
 	}
+	r.Print = iw.Print
 	return iw, nil
+}
+
+func (iw *InputWindow) Print(msg string) {
+	window.Print(iw.txtw, msg)
+	if strings.Contains(msg, "\n") {
+		iw.txtw.Refresh()
+	}
 }
 
 func (iw *InputWindow) Update(r *rpn.RPN) error {
@@ -51,12 +59,9 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		return nil
 	}
 	if line[len(line)-1] == '?' {
-		if err := r.PushHelp(line[:len(line)-1], iw.txtw.Width()); err != nil {
+		if err := r.PrintHelp(line[:len(line)-1], iw.txtw.Width()); err != nil {
 			window.PrintErr(iw.txtw, err)
 		}
-		msg := r.PopMessages()
-		window.Print(iw.txtw, msg)
-		window.PutByte(iw.txtw, '\n')
 		return nil
 	}
 	if line == "exit" {
@@ -68,11 +73,6 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		return nil
 	}
 	if action {
-		msg := r.PopMessages()
-		if len(msg) > 0 {
-			window.Print(iw.txtw, msg)
-			window.PutByte(iw.txtw, '\n')
-		}
 		frame, err := r.PeekFrame(0)
 		if err == nil {
 			window.Print(iw.txtw, frame.String())

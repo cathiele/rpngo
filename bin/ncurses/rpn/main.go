@@ -55,7 +55,7 @@ func interactive(r *rpn.RPN) error {
 		return err
 	}
 	defer screen.End()
-	root, err := buildUI(screen)
+	root, err := buildUI(screen, r)
 	if err != nil {
 		return err
 	}
@@ -77,21 +77,21 @@ func interactive(r *rpn.RPN) error {
 	}
 }
 
-func buildUI(screen *curses.Curses) (*window.WindowRoot, error) {
+func buildUI(screen *curses.Curses, r *rpn.RPN) (*window.WindowRoot, error) {
 	w, h := screen.Size()
 	root := window.NewWindowRoot(w, h)
-	if err := addInputWindow(screen, root); err != nil {
+	if err := addInputWindow(screen, root, r); err != nil {
 		return nil, err
 	}
 	return root, nil
 }
 
-func addInputWindow(screen window.Screen, root *window.WindowRoot) error {
+func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) error {
 	txtw, err := screen.NewTextWindow(0, 0, 10, 5)
 	if err != nil {
 		return err
 	}
-	iw, err := input.Init(txtw.(*curses.Curses), txtw)
+	iw, err := input.Init(txtw.(*curses.Curses), txtw, r)
 	if err != nil {
 		return err
 	}
