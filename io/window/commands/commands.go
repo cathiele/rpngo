@@ -46,6 +46,7 @@ func (wc *WindowCommands) WReset(r *rpn.RPN) error {
 		return errors.New("internal error: no window 'i' was found")
 	}
 	wc.root.RemoveAllChildren()
+	wc.root.UseColumnLayout("root", false)
 	wc.root.AddWindowChild(iw, "i", 100)
 	return nil
 }
