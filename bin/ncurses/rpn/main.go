@@ -43,7 +43,7 @@ func cli(r *rpn.RPN) error {
 	}
 
 	r.IterFrames(func(sf rpn.Frame) {
-		fmt.Println(sf.String())
+		fmt.Println(sf.String(true))
 	})
 
 	return nil

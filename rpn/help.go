@@ -21,6 +21,15 @@ func (rpn *RPN) initHelp() {
 			"5 @cirarea\n" +
 			"See Also: variables",
 
+		"printing": "There are various printing functions that print values\n" +
+			"at the head of the stack. These include:\n" +
+			"  - print : print the value at the head of the stack\n" +
+			"  - printx : pop and print the value at the head of the stack\n" +
+			"  - prints : print with a space\n" +
+			"  - printsx : printx with a space\n" +
+			"  - println : print with a newline\n" +
+			"  - printlnx : printx with a newline",
+
 		"strings": "Enter a string value as 'example 1' or \"example 2\"",
 
 		"variables": "Set a variable as name=\n" +

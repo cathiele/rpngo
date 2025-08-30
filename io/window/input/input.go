@@ -75,7 +75,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	if action {
 		frame, err := r.PeekFrame(0)
 		if err == nil {
-			window.Print(iw.txtw, frame.String())
+			window.Print(iw.txtw, frame.String(true))
 			window.PutByte(iw.txtw, '\n')
 		} else if !errors.Is(err, rpn.ErrStackEmpty) {
 			window.PrintErr(iw.txtw, err)

@@ -86,3 +86,73 @@ func DropIndex(r *rpn.RPN) error {
 	}
 	return nil
 }
+
+const PrintHelp = "Prints the head element of the stack to the output window"
+
+func Print(r *rpn.RPN) error {
+	f, err := r.PeekFrame(0)
+	if err != nil {
+		return err
+	}
+	r.Print(f.String(false))
+	return nil
+}
+
+const PrintXHelp = "Pops head element of the stack and prints it"
+
+func PrintX(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	r.Print(f.String(false))
+	return nil
+}
+
+const PrintSHelp = "Prints the head element of the stack plus a space"
+
+func PrintS(r *rpn.RPN) error {
+	f, err := r.PeekFrame(0)
+	if err != nil {
+		return err
+	}
+	r.Print(f.String(false))
+	r.Print(" ")
+	return nil
+}
+
+const PrintSXHelp = "Pops head element of the stack and prints it and a space"
+
+func PrintSX(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	r.Print(f.String(false))
+	r.Print(" ")
+	return nil
+}
+
+const PrintlnHelp = "Prints the head element of the stack plus a newline"
+
+func Println(r *rpn.RPN) error {
+	f, err := r.PeekFrame(0)
+	if err != nil {
+		return err
+	}
+	r.Print(f.String(false))
+	r.Print("\n")
+	return nil
+}
+
+const PrintlnXHelp = "Pops head element of the stack and prints it and a newline"
+
+func PrintlnX(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	r.Print(f.String(false))
+	r.Print("\n")
+	return nil
+}

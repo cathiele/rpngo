@@ -6,10 +6,13 @@ import (
 	"fmt"
 )
 
-func (f *Frame) String() string {
+func (f *Frame) String(quote bool) string {
 	switch f.Type {
 	case STRING_FRAME:
-		return "\"" + f.Str + "\""
+		if quote {
+			return "\"" + f.Str + "\""
+		}
+		return f.Str
 	case COMPLEX_FRAME:
 		return f.complexString()
 	default:

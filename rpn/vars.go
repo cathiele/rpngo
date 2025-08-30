@@ -53,7 +53,7 @@ func (r *RPN) getAllValuesForVariable(name string) string {
 	for i := 0; i < len(r.variables); i++ {
 		f, ok := r.variables[i][name]
 		if ok {
-			values = append(values, f.String())
+			values = append(values, f.String(true))
 			lastVal = i
 		} else {
 			values = append(values, "nil")
