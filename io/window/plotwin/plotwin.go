@@ -198,7 +198,7 @@ func (pw *PlotWindow) plotPoints() error {
 		if !xok {
 			continue
 		}
-		y, yok := pw.transformY(p.x)
+		y, yok := pw.transformY(p.y)
 		if !yok {
 			continue
 		}
