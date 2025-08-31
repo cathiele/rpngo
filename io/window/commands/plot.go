@@ -27,7 +27,7 @@ func (wc *WindowCommands) Plot(r *rpn.RPN) error {
 	}
 	pw := wc.root.FindWindow(wname)
 	if pw == nil {
-		if err := wc.initPlot(r); wc != nil {
+		if err := wc.initPlot(r); err != nil {
 			return err
 		}
 		pw = wc.root.FindWindow(wname)
