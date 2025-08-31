@@ -28,9 +28,8 @@ type PlotWindow struct {
 func Init(txtw window.TextWindow) (*PlotWindow, error) {
 	w := &PlotWindow{
 		txtw:  txtw,
-		minx:  -1.0,
-		maxx:  1.0,
 		color: 31 << 5, // green
+		autox: true,
 		autoy: true,
 	}
 	if err := txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
@@ -79,15 +78,9 @@ func (pw *PlotWindow) Update(rpn *rpn.RPN) error {
 	pw.txtw.Erase()
 	defer pw.txtw.Refresh()
 	if pw.autox {
-		if len(pw.points) == 0 {
-			return nil
-		}
 		pw.adjustAutoX()
 	}
-	if pw.autox {
-		if len(pw.points) == 0 {
-			return nil
-		}
+	if pw.autoy {
 		pw.adjustAutoY()
 	}
 	if err := pw.drawAxis(); err != nil {
@@ -100,8 +93,13 @@ func (pw *PlotWindow) Update(rpn *rpn.RPN) error {
 }
 
 func (pw *PlotWindow) adjustAutoX() {
-	pw.minx = pw.points[0].x
-	pw.maxx = pw.points[0].x
+	if len(pw.points) == 0 {
+		pw.minx = 0
+		pw.maxx = 0
+	} else {
+		pw.minx = pw.points[0].x
+		pw.maxx = pw.points[0].x
+	}
 	for _, p := range pw.points {
 		if p.x < pw.minx {
 			pw.minx = p.x
@@ -117,8 +115,13 @@ func (pw *PlotWindow) adjustAutoX() {
 }
 
 func (pw *PlotWindow) adjustAutoY() {
-	pw.miny = pw.points[0].y
-	pw.maxy = pw.points[0].y
+	if len(pw.points) == 0 {
+		pw.miny = 0
+		pw.maxy = 0
+	} else {
+		pw.miny = pw.points[0].y
+		pw.maxy = pw.points[0].y
+	}
 	for _, p := range pw.points {
 		if p.y < pw.miny {
 			pw.miny = p.y
@@ -126,7 +129,7 @@ func (pw *PlotWindow) adjustAutoY() {
 			pw.maxy = p.y
 		}
 	}
-	if pw.minx == pw.maxx {
+	if pw.miny == pw.maxy {
 		// create a little spread to avoid math issues
 		pw.miny -= 1.0
 		pw.maxy += 1.0
@@ -234,5 +237,5 @@ func (pw *PlotWindow) transformY(y float64) (int, bool) {
 		// off the bottom of the screen
 		return 0, false
 	}
-	return int(float64(pw.txtw.Height()) * y), true
+	return pw.txtw.Height() - int(float64(pw.txtw.Height())*y) - 1, true
 }

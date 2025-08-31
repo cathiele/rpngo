@@ -52,6 +52,10 @@ func (r *RPN) Clear() {
 	r.frames = r.frames[:0]
 }
 
+func (r *RPN) StackLen() int {
+	return len(r.frames)
+}
+
 func (r *RPN) PushFrame(f Frame) error {
 	if len(r.frames) >= MaxStackDepth {
 		return ErrStackFull

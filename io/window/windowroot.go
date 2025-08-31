@@ -108,7 +108,7 @@ func (wr *WindowRoot) UseColumnLayout(name string, v bool) error {
 }
 
 // Calls update on all contained windows
-func (wr *WindowRoot) Update(rpn *rpn.RPN, screenw, screenh int) error {
+func (wr *WindowRoot) Update(rpn *rpn.RPN, screenw, screenh int, updateInput bool) error {
 	if wr.adjustNeeded {
 		if err := wr.group.adjustChildren(screenw, screenh); err != nil {
 			return err
@@ -121,13 +121,15 @@ func (wr *WindowRoot) Update(rpn *rpn.RPN, screenw, screenh int) error {
 			return err
 		}
 	}
-	// Update the input window first
-	input := wr.FindWindow("i")
-	if input == nil {
-		return errors.New("could not find window 'i' for input")
-	}
-	if err := input.Update(rpn); err != nil {
-		return err
+	if updateInput {
+		// Update the input window first
+		input := wr.FindWindow("i")
+		if input == nil {
+			return errors.New("could not find window 'i' for input")
+		}
+		if err := input.Update(rpn); err != nil {
+			return err
+		}
 	}
 	return wr.group.update(rpn, screenw, screenh)
 }

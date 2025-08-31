@@ -46,6 +46,30 @@ func (r *RPN) getVariable(name string) (Frame, bool) {
 	return Frame{}, false
 }
 
+// gets a variable as a string
+func (r *RPN) GetStringVariable(name string) (string, error) {
+	v, ok := r.getVariable(name)
+	if !ok {
+		return "", fmt.Errorf("$%s is not defined", name)
+	}
+	if v.Type != STRING_FRAME {
+		return "", fmt.Errorf("$%s is not a string", name)
+	}
+	return v.Str, nil
+}
+
+// gets a variable as a complex
+func (r *RPN) GetComplexVariable(name string) (complex128, error) {
+	v, ok := r.getVariable(name)
+	if !ok {
+		return 0, fmt.Errorf("$%s is not defined", name)
+	}
+	if v.Type != COMPLEX_FRAME {
+		return 0, fmt.Errorf("$%s is not a number", name)
+	}
+	return v.Complex, nil
+}
+
 // Gets all variable values as a string
 func (r *RPN) getAllValuesForVariable(name string) string {
 	var values []string

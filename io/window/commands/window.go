@@ -21,6 +21,7 @@ func InitWindowCommands(root *window.WindowRoot, screen window.Screen) *WindowCo
 }
 
 func (wc *WindowCommands) Register(r *rpn.RPN) {
+	r.Register("plot", wc.Plot, PlotHelp)
 	r.Register("w.columns", wc.WColumns, WColumnsHelp)
 	r.Register("w.dump", wc.WDump, WDumpHelp)
 	r.Register("w.move.beg", wc.WMoveBeg, WMoveBegHelp)

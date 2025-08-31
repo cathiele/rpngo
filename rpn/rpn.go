@@ -51,9 +51,22 @@ func (r *RPN) Init() {
 	r.Register("vpush", pushVariableFrame, pushVariableFrameHelp)
 	r.Register("vpop", popVariableFrame, popVariableFrameHelp)
 	r.Print = DefaultPrint
+	r.addDefaultPlotVars()
+}
+
+func (r *RPN) addDefaultPlotVars() {
 	// Set the default plot window to p1
 	r.PushString("p1")
-	r.setVariable("plotwin")
+	r.setVariable("plot.win")
+	// set the default plot init function
+	r.PushString("$plot.win w.new.plot $plot.win 'root' w.move.beg $plot.win 200 w.weight")
+	r.setVariable("plot.init")
+	r.pushComplex("-1")
+	r.setVariable("plot.min")
+	r.pushComplex("1")
+	r.setVariable("plot.max")
+	r.pushComplex("400")
+	r.setVariable("plot.steps")
 }
 
 // Register adds a new function
