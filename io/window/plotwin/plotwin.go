@@ -9,6 +9,16 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
+// colors to autorotate through
+var colorWheel = []uint16{
+	31 << 10,               // red
+	31 << 5,                // green
+	31,                     // blue
+	(31 << 10) | (31 << 5), // yellow
+	(31 << 10) | 31,        // magenta
+	(31 << 5) | 31,         // cyan
+}
+
 type Point struct {
 	x     float64
 	y     float64
@@ -21,18 +31,19 @@ type Plot struct {
 }
 
 type PlotWindow struct {
-	txtw  window.TextWindow
-	minx  float64
-	maxx  float64
-	miny  float64
-	maxy  float64
-	color uint16
-	autox bool
-	autoy bool
-	minv  float64
-	maxv  float64
-	steps uint32
-	plots []Plot
+	txtw     window.TextWindow
+	minx     float64
+	maxx     float64
+	miny     float64
+	maxy     float64
+	color    uint16
+	coloridx int
+	autox    bool
+	autoy    bool
+	minv     float64
+	maxv     float64
+	steps    uint32
+	plots    []Plot
 }
 
 func Init(txtw window.TextWindow) (*PlotWindow, error) {
@@ -83,7 +94,16 @@ func (pw *PlotWindow) ListProps() []string {
 	return nil
 }
 
+func (pw *PlotWindow) nextColor() {
+	pw.coloridx++
+	if pw.coloridx >= len(colorWheel) {
+		pw.coloridx = 0
+	}
+	pw.color = colorWheel[pw.coloridx]
+}
+
 func (pw *PlotWindow) AddPlot(r *rpn.RPN, fn []string) error {
+	pw.nextColor()
 	if len(fn) == 0 {
 		return nil
 	}
