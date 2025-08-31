@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"log"
 	"mattwach/rpngo/io/window/plotwin"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
@@ -74,11 +75,15 @@ func (wc *WindowCommands) initPlot(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	if err := r.Exec(fields); err != nil {
+	err = r.Exec(fields)
+	w, h := wc.screen.Size()
+	if uerr := wc.root.Update(r, w, h, false); uerr != nil {
+		log.Printf("initPlot.Update error: %v", uerr)
+	}
+	if err != nil {
 		return fmt.Errorf("while executing $plot.init: %v", err)
 	}
-	w, h := wc.screen.Size()
-	return wc.root.Update(r, w, h, false)
+	return nil
 }
 
 func makePlot(r *rpn.RPN, pw *plotwin.PlotWindow, fields []string, xmin, xmax float64, steps int) error {
