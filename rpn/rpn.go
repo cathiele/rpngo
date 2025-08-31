@@ -61,12 +61,6 @@ func (r *RPN) addDefaultPlotVars() {
 	// set the default plot init function
 	r.PushString("$plot.win w.new.plot $plot.win 'root' w.move.beg $plot.win 200 w.weight")
 	r.setVariable("plot.init")
-	r.pushComplex("-1")
-	r.setVariable("plot.min")
-	r.pushComplex("1")
-	r.setVariable("plot.max")
-	r.pushComplex("400")
-	r.setVariable("plot.steps")
 }
 
 // Register adds a new function

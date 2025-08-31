@@ -2,6 +2,7 @@ package rpn
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -47,6 +48,7 @@ func (rpn *RPN) exec(arg string) error {
 func (rpn *RPN) Exec(args []string) error {
 	for _, arg := range args {
 		if err := rpn.exec(arg); err != nil {
+			log.Printf("rpn.Exec: error executing %s: %v", args, err)
 			return err
 		}
 	}

@@ -3,6 +3,7 @@ package plotwin
 
 import (
 	"errors"
+	"fmt"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
 )
@@ -13,16 +14,24 @@ type Point struct {
 	color uint16
 }
 
+type Plot struct {
+	fn    []string
+	color uint16
+}
+
 type PlotWindow struct {
-	txtw   window.TextWindow
-	minx   float64
-	maxx   float64
-	miny   float64
-	maxy   float64
-	color  uint16
-	autox  bool
-	autoy  bool
-	points []Point
+	txtw  window.TextWindow
+	minx  float64
+	maxx  float64
+	miny  float64
+	maxy  float64
+	color uint16
+	autox bool
+	autoy bool
+	minv  float64
+	maxv  float64
+	steps uint32
+	plots []Plot
 }
 
 func Init(txtw window.TextWindow) (*PlotWindow, error) {
@@ -31,6 +40,9 @@ func Init(txtw window.TextWindow) (*PlotWindow, error) {
 		color: 31 << 5, // green
 		autox: true,
 		autoy: true,
+		minv:  -1,
+		maxv:  1,
+		steps: 400,
 	}
 	if err := txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
 		return nil, err
@@ -70,37 +82,113 @@ func (pw *PlotWindow) ListProps() []string {
 	return nil
 }
 
-func (pw *PlotWindow) SetPoint(x, y float64) {
-	pw.points = append(pw.points, Point{x, y, pw.color})
+func (pw *PlotWindow) AddPlot(r *rpn.RPN, fn []string) error {
+	if len(fn) == 0 {
+		return nil
+	}
+	for i := range pw.plots {
+		if slicesAreEqual(fn, pw.plots[i].fn) {
+			// plot already exists.  Just update the color
+			pw.plots[i].color = pw.color
+			return nil
+		}
+	}
+	fncopy := make([]string, len(fn))
+	copy(fncopy, fn)
+	plot := Plot{fn: fncopy, color: pw.color}
+
+	// do a dry run of creating the points
+	_, err := pw.addPoints(r, nil, plot)
+	if err != nil {
+		return err
+	}
+
+	pw.plots = append(pw.plots, plot)
+	return nil
 }
 
-func (pw *PlotWindow) Update(rpn *rpn.RPN) error {
+func slicesAreEqual(a []string, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func (pw *PlotWindow) Update(r *rpn.RPN) error {
+	points, err := pw.createPoints(r)
+	if err != nil {
+		return err
+	}
 	pw.txtw.Erase()
 	defer pw.txtw.Refresh()
 	if pw.autox {
-		pw.adjustAutoX()
+		pw.adjustAutoX(points)
 	}
 	if pw.autoy {
-		pw.adjustAutoY()
+		pw.adjustAutoY(points)
 	}
 	if err := pw.drawAxis(); err != nil {
 		return err
 	}
-	if err := pw.plotPoints(); err != nil {
+	if err := pw.plotPoints(points); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (pw *PlotWindow) adjustAutoX() {
-	if len(pw.points) == 0 {
+func (pw *PlotWindow) createPoints(r *rpn.RPN) ([]Point, error) {
+	var points []Point
+	for _, plot := range pw.plots {
+		var err error
+		points, err = pw.addPoints(r, points, plot)
+		if err != nil {
+			pw.plots = nil
+			return nil, fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)
+		}
+	}
+	return points, nil
+}
+
+func (pw *PlotWindow) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point, error) {
+	startlen := r.StackLen()
+	step := (pw.maxv - pw.minx) / float64(pw.steps)
+	for x := pw.minx; x <= pw.maxv; x += step {
+		if err := r.PushComplex(complex(x, 0)); err != nil {
+			return nil, err
+		}
+		if err := r.Exec(plot.fn); err != nil {
+			return nil, err
+		}
+		y, err := r.PopComplex()
+		if err != nil {
+			return nil, err
+		}
+		nowlen := r.StackLen()
+		if nowlen != startlen {
+			return nil, fmt.Errorf(
+				"stack changed size running plot string (old: %d, new %d)",
+				startlen,
+				nowlen)
+		}
+		points = append(points, Point{x: x, y: real(y), color: plot.color})
+	}
+	return points, nil
+}
+
+func (pw *PlotWindow) adjustAutoX(points []Point) {
+	if len(points) == 0 {
 		pw.minx = 0
 		pw.maxx = 0
 	} else {
-		pw.minx = pw.points[0].x
-		pw.maxx = pw.points[0].x
+		pw.minx = points[0].x
+		pw.maxx = points[0].x
 	}
-	for _, p := range pw.points {
+	for _, p := range points {
 		if p.x < pw.minx {
 			pw.minx = p.x
 		} else if p.x > pw.maxx {
@@ -114,15 +202,15 @@ func (pw *PlotWindow) adjustAutoX() {
 	}
 }
 
-func (pw *PlotWindow) adjustAutoY() {
-	if len(pw.points) == 0 {
+func (pw *PlotWindow) adjustAutoY(points []Point) {
+	if len(points) == 0 {
 		pw.miny = 0
 		pw.maxy = 0
 	} else {
-		pw.miny = pw.points[0].y
-		pw.maxy = pw.points[0].y
+		pw.miny = points[0].y
+		pw.maxy = points[0].y
 	}
-	for _, p := range pw.points {
+	for _, p := range points {
 		if p.y < pw.miny {
 			pw.miny = p.y
 		} else if p.y > pw.maxy {
@@ -187,9 +275,9 @@ func (pw *PlotWindow) drawHorizontalAxis(y int) error {
 	return nil
 }
 
-func (pw *PlotWindow) plotPoints() error {
+func (pw *PlotWindow) plotPoints(points []Point) error {
 	var color uint16
-	for _, p := range pw.points {
+	for _, p := range points {
 		if p.color != color {
 			color = p.color
 			pw.txtw.Color(int(color>>10), int((color>>5)&31), int(color&31), 0, 0, 0)
