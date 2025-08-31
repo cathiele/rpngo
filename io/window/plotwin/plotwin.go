@@ -4,6 +4,7 @@ package plotwin
 import (
 	"errors"
 	"fmt"
+	"log"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
 )
@@ -126,12 +127,7 @@ func (pw *PlotWindow) Update(r *rpn.RPN) error {
 	}
 	pw.txtw.Erase()
 	defer pw.txtw.Refresh()
-	if pw.autox {
-		pw.adjustAutoX(points)
-	}
-	if pw.autoy {
-		pw.adjustAutoY(points)
-	}
+	pw.maybeAutoAdjustAxes(points)
 	if err := pw.drawAxis(); err != nil {
 		return err
 	}
@@ -156,8 +152,8 @@ func (pw *PlotWindow) createPoints(r *rpn.RPN) ([]Point, error) {
 
 func (pw *PlotWindow) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point, error) {
 	startlen := r.StackLen()
-	step := (pw.maxv - pw.minx) / float64(pw.steps)
-	for x := pw.minx; x <= pw.maxv; x += step {
+	step := (pw.maxv - pw.minv) / float64(pw.steps)
+	for x := pw.minv; x <= pw.maxv; x += step {
 		if err := r.PushComplex(complex(x, 0)); err != nil {
 			return nil, err
 		}
@@ -178,6 +174,18 @@ func (pw *PlotWindow) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point,
 		points = append(points, Point{x: x, y: real(y), color: plot.color})
 	}
 	return points, nil
+}
+
+func (pw *PlotWindow) maybeAutoAdjustAxes(points []Point) {
+	if pw.autox {
+		pw.adjustAutoX(points)
+	}
+	if pw.autoy {
+		pw.adjustAutoY(points)
+	}
+	if pw.autox && pw.autoy {
+		pw.makeAxesSquare()
+	}
 }
 
 func (pw *PlotWindow) adjustAutoX(points []Point) {
@@ -221,6 +229,59 @@ func (pw *PlotWindow) adjustAutoY(points []Point) {
 		// create a little spread to avoid math issues
 		pw.miny -= 1.0
 		pw.maxy += 1.0
+	}
+}
+
+func (pw *PlotWindow) makeAxesSquare() {
+	w, h := pw.txtw.Size()
+	wratio := float64(h) / float64(w)
+	log.Printf(
+		"window ratio: w=%v h=%v minx=%v maxx=%v miny=%v maxy=%v ratio=%v",
+		w,
+		h,
+		pw.minx,
+		pw.maxx,
+		pw.miny,
+		pw.maxy,
+		wratio)
+
+	pratio := (pw.maxy - pw.miny) / (pw.maxx - pw.minx)
+	log.Printf(
+		"starting plot ratio: w=%v h=%v ratio=%v",
+		(pw.maxx - pw.minx),
+		(pw.maxy - pw.minv),
+		pratio)
+
+	if wratio > pratio {
+		// need to expand y
+		yspread := wratio * (pw.maxx - pw.minx)
+		ydelta := (yspread - (pw.maxy - pw.miny)) / 2
+		pw.miny -= ydelta
+		pw.maxy += ydelta
+		pratio = (pw.maxy - pw.miny) / (pw.maxx - pw.minx)
+		log.Printf(
+			"expandy plot: yspread=%v, ydelta=%v, miny=%v, maxy=%v pratio=%v",
+			yspread,
+			ydelta,
+			pw.miny,
+			pw.maxy,
+			pratio)
+	} else {
+		// need to expand x
+		xspread := (pw.maxy - pw.miny) / wratio
+		xdelta := (xspread - (pw.maxx - pw.minx)) / 2
+		pw.minx -= xdelta
+		pw.maxx += xdelta
+		pratio = (pw.maxy - pw.miny) / (pw.maxx - pw.minx)
+		log.Printf(
+			"expandx plot: xspread=%v, xdelta=%v, minx=%v, maxx=%v miny=%v maxy=%v pratio=%v",
+			xspread,
+			xdelta,
+			pw.minx,
+			pw.maxx,
+			pw.miny,
+			pw.maxy,
+			pratio)
 	}
 }
 
