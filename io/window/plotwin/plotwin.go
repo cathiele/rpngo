@@ -53,7 +53,7 @@ func Init(txtw window.TextWindow) (*PlotWindow, error) {
 		autoy: true,
 		minv:  -1,
 		maxv:  1,
-		steps: 400,
+		steps: 250,
 	}
 	if err := txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
 		return nil, err
@@ -317,7 +317,7 @@ func (pw *PlotWindow) drawVerticalTickMarks(wx int) {
 
 	for {
 		y := float64(stepsBack) * te
-		if y > pw.maxy {
+		if y >= pw.maxy {
 			break
 		}
 		if stepsBack != 0 {
@@ -330,14 +330,8 @@ func (pw *PlotWindow) drawVerticalTickMarks(wx int) {
 func (pw *PlotWindow) drawVerticalTick(wx int, y float64) {
 	ww := pw.txtw.Width()
 	wy, _ := pw.transformY(y)
-	if wx > 0 {
-		pw.txtw.SetXY(wx-1, wy)
-		window.PutByte(pw.txtw, '-')
-	}
-	if (wx + 1) < ww {
-		pw.txtw.SetXY(wx+1, wy)
-		window.PutByte(pw.txtw, '-')
-	}
+	pw.txtw.SetXY(wx, wy)
+	window.PutByte(pw.txtw, '+')
 	if (wx + 10) < ww {
 		pw.txtw.SetXY(wx+3, wy)
 		window.Print(pw.txtw, fmt.Sprintf("%.2f", y))
@@ -407,7 +401,55 @@ func (pw *PlotWindow) drawHorizontalAxis(y int) error {
 			return err
 		}
 	}
+	pw.drawHorizontalTickMarks(y)
 	return nil
+}
+
+const minHorizontalSpacing = 9.0
+const maxHorizontalSpacing = 18.0
+
+func (pw *PlotWindow) drawHorizontalTickMarks(wy int) {
+	ww := pw.txtw.Width()   // width in characters
+	xr := pw.maxx - pw.minx // units
+	cpu := float64(ww) / xr // characters / unit
+	var te float64 = 1      // ticks every (0.5, 1, etc)
+	if cpu > maxHorizontalSpacing {
+		te = searchScaleDownward(cpu, minHorizontalSpacing)
+	} else if cpu < minHorizontalSpacing {
+		te = searchScaleUpward(cpu, maxHorizontalSpacing)
+	}
+
+	stepsBack := 0
+	for (float64(stepsBack-1) * te) > pw.minx {
+		stepsBack--
+	}
+
+	for {
+		x := float64(stepsBack) * te
+		if x >= pw.maxx {
+			break
+		}
+		if stepsBack != 0 {
+			pw.drawHorizontalTick(x, wy)
+		}
+		stepsBack++
+	}
+}
+
+const horizontalNumberPad = 5
+
+func (pw *PlotWindow) drawHorizontalTick(x float64, wy int) {
+	ww, wh := pw.txtw.Size()
+	wx, _ := pw.transformX(x)
+	if wy >= 0 {
+		pw.txtw.SetXY(wx, wy)
+		window.PutByte(pw.txtw, '+')
+	}
+	if (wx > horizontalNumberPad) && (wx < (ww - horizontalNumberPad)) && (wy+1) < wh {
+		s := fmt.Sprintf("%.2f", x)
+		pw.txtw.SetXY(wx-len(s)/2, wy+1)
+		window.Print(pw.txtw, s)
+	}
 }
 
 func (pw *PlotWindow) plotPoints(points []Point) error {
