@@ -4,7 +4,6 @@ package plotwin
 import (
 	"errors"
 	"fmt"
-	"log"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
 )
@@ -147,7 +146,12 @@ func (pw *PlotWindow) Update(r *rpn.RPN) error {
 	}
 	pw.txtw.Erase()
 	defer pw.txtw.Refresh()
-	pw.maybeAutoAdjustAxes(points)
+	if pw.autox {
+		pw.adjustAutoX(points)
+	}
+	if pw.autoy {
+		pw.adjustAutoY(points)
+	}
 	if err := pw.drawAxis(); err != nil {
 		return err
 	}
@@ -196,18 +200,6 @@ func (pw *PlotWindow) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point,
 	return points, nil
 }
 
-func (pw *PlotWindow) maybeAutoAdjustAxes(points []Point) {
-	if pw.autox {
-		pw.adjustAutoX(points)
-	}
-	if pw.autoy {
-		pw.adjustAutoY(points)
-	}
-	if pw.autox && pw.autoy {
-		pw.makeAxesSquare()
-	}
-}
-
 func (pw *PlotWindow) adjustAutoX(points []Point) {
 	if len(points) == 0 {
 		pw.minx = 0
@@ -250,59 +242,10 @@ func (pw *PlotWindow) adjustAutoY(points []Point) {
 		pw.miny -= 1.0
 		pw.maxy += 1.0
 	}
-}
-
-func (pw *PlotWindow) makeAxesSquare() {
-	w, h := pw.txtw.Size()
-	wratio := float64(h) / float64(w)
-	log.Printf(
-		"window ratio: w=%v h=%v minx=%v maxx=%v miny=%v maxy=%v ratio=%v",
-		w,
-		h,
-		pw.minx,
-		pw.maxx,
-		pw.miny,
-		pw.maxy,
-		wratio)
-
-	pratio := (pw.maxy - pw.miny) / (pw.maxx - pw.minx)
-	log.Printf(
-		"starting plot ratio: w=%v h=%v ratio=%v",
-		(pw.maxx - pw.minx),
-		(pw.maxy - pw.minv),
-		pratio)
-
-	if wratio > pratio {
-		// need to expand y
-		yspread := wratio * (pw.maxx - pw.minx)
-		ydelta := (yspread - (pw.maxy - pw.miny)) / 2
-		pw.miny -= ydelta
-		pw.maxy += ydelta
-		pratio = (pw.maxy - pw.miny) / (pw.maxx - pw.minx)
-		log.Printf(
-			"expandy plot: yspread=%v, ydelta=%v, miny=%v, maxy=%v pratio=%v",
-			yspread,
-			ydelta,
-			pw.miny,
-			pw.maxy,
-			pratio)
-	} else {
-		// need to expand x
-		xspread := (pw.maxy - pw.miny) / wratio
-		xdelta := (xspread - (pw.maxx - pw.minx)) / 2
-		pw.minx -= xdelta
-		pw.maxx += xdelta
-		pratio = (pw.maxy - pw.miny) / (pw.maxx - pw.minx)
-		log.Printf(
-			"expandx plot: xspread=%v, xdelta=%v, minx=%v, maxx=%v miny=%v maxy=%v pratio=%v",
-			xspread,
-			xdelta,
-			pw.minx,
-			pw.maxx,
-			pw.miny,
-			pw.maxy,
-			pratio)
-	}
+	// open up the y a bit (20% or so)
+	delta := (pw.maxy - pw.miny) / 10
+	pw.maxy += delta
+	pw.miny -= delta
 }
 
 func (pw *PlotWindow) drawAxis() error {
@@ -342,7 +285,118 @@ func (pw *PlotWindow) drawVerticalAxis(x int) error {
 			return err
 		}
 	}
+	pw.drawVerticalTickMarks(x)
 	return nil
+}
+
+// About axis drawing
+// the goal is to make it look nice while also being useful
+// We are going for rounded tick marks (e.g. 0.25, 1.0, ...)
+// and reasonable pixels per mark
+
+const minVerticalSpacing = 5.0
+const maxVerticalSpacing = 10.0
+
+func (pw *PlotWindow) drawVerticalTickMarks(wx int) {
+	wh := pw.txtw.Height()  // height in characters
+	yr := pw.maxy - pw.miny // units
+	cpu := float64(wh) / yr // characters / unit
+	var te float64 = 1      // ticks every (0.5, 1, etc)
+	if cpu > maxVerticalSpacing {
+		te = searchScaleDownward(cpu, minVerticalSpacing)
+	} else if cpu < minVerticalSpacing {
+		te = searchScaleUpward(cpu, maxVerticalSpacing)
+	}
+
+	// becuase te was carefully selected to provide a limited number
+	// of tick marks, we can use a simple loop to determine the min te
+	stepsBack := 0
+	for (float64(stepsBack-1) * te) > pw.miny {
+		stepsBack--
+	}
+
+	for {
+		y := float64(stepsBack) * te
+		if y > pw.maxy {
+			break
+		}
+		if stepsBack != 0 {
+			pw.drawVerticalTick(wx, y)
+		}
+		stepsBack++
+	}
+}
+
+func (pw *PlotWindow) drawVerticalTick(wx int, y float64) {
+	ww := pw.txtw.Width()
+	wy, _ := pw.transformY(y)
+	if wx > 0 {
+		pw.txtw.SetXY(wx-1, wy)
+		window.PutByte(pw.txtw, '-')
+	}
+	if (wx + 1) < ww {
+		pw.txtw.SetXY(wx+1, wy)
+		window.PutByte(pw.txtw, '-')
+	}
+	if (wx + 10) < ww {
+		pw.txtw.SetXY(wx+3, wy)
+		window.Print(pw.txtw, fmt.Sprintf("%.2f", y))
+	}
+}
+
+// use a nice-looking scale. 1, 0.5, 0.25, 0.1, 0.05, 0.025, 0.01, etc
+func searchScaleDownward(cpu, minSpacing float64) float64 {
+	tens := 1.0
+	partial := 1
+	te := 1.0
+
+	for {
+		switch partial {
+		case 1:
+			partial = 2
+		case 2:
+			partial = 4
+		case 4:
+			partial = 1
+			tens *= 10
+		}
+
+		newte := 1.0 / (tens * float64(partial))
+		if (cpu * newte) < minSpacing {
+			// too far
+			break
+		}
+		te = newte
+	}
+
+	return te
+}
+
+func searchScaleUpward(cpu, maxSpacing float64) float64 {
+	tens := 1.0
+	partialDeci := 10
+	te := 1.0
+
+	for {
+		switch partialDeci {
+		case 10:
+			partialDeci = 25
+		case 25:
+			partialDeci = 50
+		case 50:
+			partialDeci = 10
+			tens *= 10
+		}
+
+		newte := tens * float64(partialDeci) / 10.0
+		if (cpu * newte) > maxSpacing {
+			// too far
+			break
+		}
+		te = newte
+	}
+
+	return te
 }
 
 func (pw *PlotWindow) drawHorizontalAxis(y int) error {
