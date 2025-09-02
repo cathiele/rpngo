@@ -123,7 +123,7 @@ func (pw *PlotWindow) transformX(x float64) (int, bool) {
 		// off the right of the screen
 		return 0, false
 	}
-	return int(float64(pw.txtw.Width()) * x), true
+	return int(float64(pw.txtw.Width())*x + 0.5), true
 }
 
 func (pw *PlotWindow) transformY(y float64) (int, bool) {
@@ -138,5 +138,5 @@ func (pw *PlotWindow) transformY(y float64) (int, bool) {
 		// off the bottom of the screen
 		return 0, false
 	}
-	return pw.txtw.Height() - int(float64(pw.txtw.Height())*y) - 1, true
+	return pw.txtw.Height() - int(float64(pw.txtw.Height())*y+0.5) - 1, true
 }
