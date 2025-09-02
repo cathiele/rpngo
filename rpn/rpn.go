@@ -19,7 +19,8 @@ var (
 type FrameType uint8
 
 const (
-	STRING_FRAME FrameType = iota
+	EMPTY_FRAME FrameType = iota
+	STRING_FRAME
 	COMPLEX_FRAME
 	BOOL_FRAME
 )

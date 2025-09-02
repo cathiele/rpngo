@@ -8,6 +8,8 @@ import (
 
 func (f *Frame) String(quote bool) string {
 	switch f.Type {
+	case EMPTY_FRAME:
+		return "nil"
 	case STRING_FRAME:
 		if quote {
 			return "\"" + f.Str + "\""

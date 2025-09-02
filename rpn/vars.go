@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"mattwach/rpngo/parse"
 	"sort"
-	"strings"
 )
 
 const pushVariableFrameHelp = "Pushes a variable frame to the variable stack"
@@ -71,26 +70,31 @@ func (r *RPN) GetComplexVariable(name string) (complex128, error) {
 }
 
 // Gets all variable values as a string
-func (r *RPN) getAllValuesForVariable(name string) string {
-	var values []string
+func (r *RPN) getAllValuesForVariable(name string) []Frame {
+	var values []Frame
 	lastVal := 0
 	for i := 0; i < len(r.variables); i++ {
 		f, ok := r.variables[i][name]
 		if ok {
-			values = append(values, f.String(true))
+			values = append(values, f)
 			lastVal = i
 		} else {
-			values = append(values, "nil")
+			values = append(values, Frame{Type: EMPTY_FRAME})
 		}
 	}
 	if len(values) == 0 {
-		return "nil"
+		return []Frame{{Type: EMPTY_FRAME}}
 	}
-	return strings.Join(values[:lastVal+1], " -> ")
+	return values[:lastVal+1]
+}
+
+type NameAndValues struct {
+	Name   string
+	Values []Frame
 }
 
 // Gets all variable names
-func (r *RPN) AllVariableNamesAndValues() []string {
+func (r *RPN) AllVariableNamesAndValues() []NameAndValues {
 	var names []string
 	for i := 0; i < len(r.variables); i++ {
 		for k := range r.variables[i] {
@@ -103,15 +107,13 @@ func (r *RPN) AllVariableNamesAndValues() []string {
 	sort.Strings(names)
 	// names may contain duplicates
 	var lastName string
-	var results []string
+	var results []NameAndValues
 	for _, name := range names {
 		if name == lastName {
 			continue
 		}
 		lastName = name
-		results = append(
-			results,
-			fmt.Sprintf("%s: %s", name, r.getAllValuesForVariable(name)))
+		results = append(results, NameAndValues{Name: name, Values: r.getAllValuesForVariable(name)})
 	}
 	return results
 }

@@ -67,8 +67,8 @@ func (vw *VariableWindow) ListProps() []string {
 func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	vw.txtw.Erase()
 	w, h := vw.txtw.Size()
-	names := rpn.AllVariableNamesAndValues()
-	n := len(names)
+	nv := rpn.AllVariableNamesAndValues()
+	n := len(nv)
 	allShown := true
 	if n > h {
 		n = h - 1
@@ -76,21 +76,36 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	}
 	vw.txtw.SetXY(0, 0)
 	for i := 0; i < n; i++ {
-		v := names[i]
+		name := nv[i].Name + ": "
+		val := framesToString(nv[i].Values)
 		if !vw.multiline {
-			v = makeSingleLine(v, w)
+			val = makeSingleLine(val, w-len(name))
 		}
-		window.Print(vw.txtw, v)
+		vw.txtw.Color(31, 31, 31, 0, 0, 0)
+		window.Print(vw.txtw, name)
+		vw.txtw.Color(0, 31, 31, 0, 0, 0)
+		window.Print(vw.txtw, val)
 		window.PutByte(vw.txtw, '\n')
 	}
 	if !allShown {
-		window.Print(vw.txtw, fmt.Sprintf("+ %d more\n", len(names)-h))
+		window.Print(vw.txtw, fmt.Sprintf("+ %d more\n", len(nv)-h))
 	}
 	vw.txtw.Refresh()
 	return nil
 }
 
+func framesToString(frames []rpn.Frame) string {
+	var parts []string
+	for _, f := range frames {
+		parts = append(parts, f.String(true))
+	}
+	return strings.Join(parts, " -> ")
+}
+
 func makeSingleLine(line string, width int) string {
+	if width < 0 {
+		return ""
+	}
 	if strings.Contains(line, "\n") {
 		line = removeCRsAndComments(line)
 	}
