@@ -31,6 +31,21 @@ func (rpn *RPN) initHelp() {
 			"5 @cirarea\n" +
 			"See Also: variables",
 
+		"plotting": "Plot functions using plot. Plot will push an 'x' value to the stack,\n" +
+			"run the provided string, and pop the value as y value.\n" +
+			"Examples:\n" +
+			"    '2 *' plot # plots y = x * 2\n" +
+			"    'c *' plot # plots y = x * x\n" +
+			"    'sin' plot # plots y = sin(x)\n" +
+			"Various properties can be set on the plot window to change the number\n" +
+			"of points and the boundaries of the plot.\n" +
+			"There are some special variables that plot uses:\n" +
+			"    plot.win  : Name of the window to send plots to (there can be more than one)\n" +
+			"                at a time.\n" +
+			"    plot.init : If no plot window exists, this string is executed and is expected\n" +
+			"                create one. Making this a variable allows for user customization.\n" +
+			"See Also: window.props",
+
 		"printing": "There are various printing functions that print values\n" +
 			"at the head of the stack. These include:\n" +
 			"  - print : print the value at the head of the stack\n" +
@@ -51,6 +66,27 @@ func (rpn *RPN) initHelp() {
 			"allowing for 'local variables' to be temporarily defined." +
 			"\n" +
 			"See Also: macros",
+
+		"window.layout": "Windows are arranged with window groups.  There\n" +
+			"is always a window group named 'root' which is the parent of all \n" +
+			"windows and groups.\n" +
+			"- Add a new window group to the root window with w.new.group.\n" +
+			"- Move a window or group to a different window group with w.move.beg and w.move.end\n" +
+			"- Change the weight of a window or group with w.weight (default weight is 100).\n" +
+			"- Change the layout mode of a window group to columns with w.columns.\n" +
+			"- Print info on all existing windows and groups with w.dump.\n" +
+			"See Also: windows, window.props",
+
+		"window.props": "Each window supports properties that changes how the window operates\n" +
+			"- Print all properties and values for a window with w.listp\n" +
+			"- Get a single property with w.getp\n" +
+			"- Set a single property with w.setp\n" +
+			"See Also: windows, window.layout, plotting",
+
+		"windows": "The display can be customized with different windows\n" +
+			"- Add a window with a w.new.<type> command. Example: w.new.stack\n" +
+			"- Reset to a single window with w.reset.\n" +
+			"See Also: window.layout, window.props",
 	}
 	rpn.commandHelp = make(map[string]string)
 }

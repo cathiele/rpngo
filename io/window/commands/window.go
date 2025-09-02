@@ -30,6 +30,9 @@ func (wc *WindowCommands) Register(r *rpn.RPN) {
 	r.Register("w.new.plot", wc.WNewPlot, WNewPlotHelp)
 	r.Register("w.new.stack", wc.WNewStack, WNewStackHelp)
 	r.Register("w.new.var", wc.WNewVar, WNewVarHelp)
+	r.Register("w.listp", wc.WListP, WListPHelp)
+	r.Register("w.getp", wc.WGetP, WGetPHelp)
+	r.Register("w.setp", wc.WSetP, WSetPHelp)
 	r.Register("w.reset", wc.WReset, WResetHelp)
 	r.Register("w.weight", wc.WWeight, WWeightHelp)
 }

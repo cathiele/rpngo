@@ -2,7 +2,6 @@
 package plotwin
 
 import (
-	"errors"
 	"fmt"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
@@ -79,18 +78,6 @@ func (pw *PlotWindow) Size() (int, int) {
 
 func (pw *PlotWindow) Type() string {
 	return "plot"
-}
-
-func (pw *PlotWindow) SetProp(name string, val rpn.Frame) error {
-	return errors.New("props not supported")
-}
-
-func (pw *PlotWindow) GetProp(name string) (rpn.Frame, error) {
-	return rpn.Frame{}, errors.New("props not supported")
-}
-
-func (pw *PlotWindow) ListProps() []string {
-	return nil
 }
 
 func (pw *PlotWindow) nextColor() {
