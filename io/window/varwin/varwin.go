@@ -2,14 +2,15 @@
 package varwin
 
 import (
-	"errors"
 	"fmt"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
+	"strings"
 )
 
 type VariableWindow struct {
-	txtw window.TextWindow
+	txtw      window.TextWindow
+	multiline bool
 }
 
 func Init(txtw window.TextWindow) (*VariableWindow, error) {
@@ -41,20 +42,31 @@ func (vw *VariableWindow) Type() string {
 }
 
 func (vw *VariableWindow) SetProp(name string, val rpn.Frame) error {
-	return errors.New("props not supported")
+	if name == "multiline" {
+		if val.Type != rpn.BOOL_FRAME {
+			return rpn.ErrExpectedABoolean
+		}
+		vw.multiline = val.Bool
+	} else {
+		return fmt.Errorf("unknown property: %s", name)
+	}
+	return nil
 }
 
 func (vw *VariableWindow) GetProp(name string) (rpn.Frame, error) {
-	return rpn.Frame{}, errors.New("props not supported")
+	if name == "multiline" {
+		return rpn.Frame{Type: rpn.BOOL_FRAME, Bool: vw.multiline}, nil
+	}
+	return rpn.Frame{}, fmt.Errorf("unknown property: %s", name)
 }
 
 func (vw *VariableWindow) ListProps() []string {
-	return nil
+	return []string{"multiline"}
 }
 
 func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	vw.txtw.Erase()
-	h := vw.txtw.Height()
+	w, h := vw.txtw.Size()
 	names := rpn.AllVariableNamesAndValues()
 	n := len(names)
 	allShown := true
@@ -64,7 +76,11 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	}
 	vw.txtw.SetXY(0, 0)
 	for i := 0; i < n; i++ {
-		window.Print(vw.txtw, names[i])
+		v := names[i]
+		if !vw.multiline {
+			v = makeSingleLine(v, w)
+		}
+		window.Print(vw.txtw, v)
 		window.PutByte(vw.txtw, '\n')
 	}
 	if !allShown {
@@ -72,4 +88,36 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	}
 	vw.txtw.Refresh()
 	return nil
+}
+
+func makeSingleLine(line string, width int) string {
+	if strings.Contains(line, "\n") {
+		line = removeCRsAndComments(line)
+	}
+	if len(line) < width {
+		return line
+	}
+	if width < 4 {
+		return line[:width]
+	}
+	return line[:width-4] + "..."
+}
+
+func removeCRsAndComments(line string) string {
+	if !strings.Contains(line, "#") {
+		// no comments
+		return strings.ReplaceAll(line, "\n", " ")
+	}
+	var parts []string
+	for _, part := range strings.Split(line, "\n") {
+		commentIdx := strings.Index(part, "#")
+		if commentIdx >= 0 {
+			part = part[:commentIdx]
+		}
+		if len(part) == 0 {
+			continue
+		}
+		parts = append(parts, part)
+	}
+	return strings.Join(parts, "\n")
 }
