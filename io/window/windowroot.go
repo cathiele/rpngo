@@ -42,6 +42,22 @@ func (wr *WindowRoot) FindwindowGroup(name string) (*windowGroup, error) {
 	return wge.group, nil
 }
 
+func (wr *WindowRoot) DeleteWindowOrGroup(name string) error {
+	if name == "root" {
+		return errors.New("can not delete root window")
+	}
+	if name == "i" {
+		return errors.New("can not delete input window")
+	}
+	pwge, wge := wr.group.findwindowGroupEntryAndParent(name)
+	if wge == nil {
+		return fmt.Errorf("window not found: %s", name)
+	}
+	pwge.removeChild(wge)
+	wr.adjustNeeded = true
+	return nil
+}
+
 func (wr *WindowRoot) MoveWindowOrGroup(src string, dst string, beginning bool) error {
 	if src == "root" {
 		return errors.New("can not move root window")

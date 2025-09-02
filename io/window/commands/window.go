@@ -23,6 +23,7 @@ func InitWindowCommands(root *window.WindowRoot, screen window.Screen) *WindowCo
 func (wc *WindowCommands) Register(r *rpn.RPN) {
 	r.Register("plot", wc.Plot, PlotHelp)
 	r.Register("w.columns", wc.WColumns, WColumnsHelp)
+	r.Register("w.del", wc.WDelete, WDeleteHelp)
 	r.Register("w.dump", wc.WDump, WDumpHelp)
 	r.Register("w.move.beg", wc.WMoveBeg, WMoveBegHelp)
 	r.Register("w.move.end", wc.WMoveEnd, WMoveEndHelp)
@@ -69,6 +70,17 @@ func (wc *WindowCommands) WColumns(r *rpn.RPN) error {
 		return err
 	}
 	return nil
+}
+
+const WDeleteHelp = "Deletes a window or window group\n" +
+	"Example: 'p1' w.del"
+
+func (wc *WindowCommands) WDelete(r *rpn.RPN) error {
+	name, err := r.PopString()
+	if err != nil {
+		return err
+	}
+	return wc.root.DeleteWindowOrGroup(name)
 }
 
 const WMoveBegHelp = "Moves a window or group to the beginning of a window group\n" +
