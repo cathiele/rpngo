@@ -84,9 +84,11 @@ func (pw *PlotWindow) SetProp(name string, val rpn.Frame) error {
 			return fmt.Errorf("steps must be <= %d", maxSteps)
 		}
 		pw.steps = uint32(v)
+	default:
+		return fmt.Errorf("unknown property: %s", name)
 	}
 
-	return fmt.Errorf("unknown property: %s", name)
+	return nil
 }
 
 func (pw *PlotWindow) GetProp(name string) (rpn.Frame, error) {

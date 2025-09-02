@@ -51,6 +51,10 @@ const WSetPHelp = "Sets a property on a window.\n" +
 	"Example: 'p1' 'minx' -1 w.setp"
 
 func (wc *WindowCommands) WSetP(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
 	wname, pname, err := r.Pop2Strings()
 	if err != nil {
 		return err
@@ -58,10 +62,6 @@ func (wc *WindowCommands) WSetP(r *rpn.RPN) error {
 	w := wc.root.FindWindow(wname)
 	if w == nil {
 		return fmt.Errorf("window not found: %s", wname)
-	}
-	f, err := r.PopFrame()
-	if err != nil {
-		return err
 	}
 	return w.SetProp(pname, f)
 }
