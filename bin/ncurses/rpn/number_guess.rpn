@@ -1,17 +1,17 @@
 '
-X
-vpush
+vpush              # create a new variable frame
 rand 101 * int a=  # set a to a random number
-$guess_fn for
+$guess_fn for     # loop until the user guesses correctly
 vpop
 ' number_guess=
 
 '
-  "enter a number from 0-100: " printx input int g= # put the users guess into $g
+  "enter a number from 0-100: " printx input int g=  # put the users guess into $g
+  # The next 3 lines put one message on the stack
   $g $a < "too low" if
   $g $a > "too high" if
   $g $a = "correct!" if
-  printlnx
+  printlnx # print the message
   $g $a != # loop conditional
 ' guess_fn=
 
