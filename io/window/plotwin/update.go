@@ -112,31 +112,25 @@ func (pw *PlotWindow) plotPoints(points []Point) error {
 }
 
 func (pw *PlotWindow) transformX(x float64) (int, bool) {
-	x -= pw.minx
+	x = (x - pw.minx) / (pw.maxx - pw.minx)
 	if x < 0 {
-		// off the left of the screen
 		return 0, false
 	}
-	// convert x to a ratio between 0 and 1
-	x = x / (pw.maxx - pw.minx)
-	if x >= 1 {
-		// off the right of the screen
+	xi := int(float64(pw.txtw.Width())*x + 0.5)
+	if xi < 0 || xi >= pw.txtw.Width() {
 		return 0, false
 	}
-	return int(float64(pw.txtw.Width())*x + 0.5), true
+	return xi, true
 }
 
 func (pw *PlotWindow) transformY(y float64) (int, bool) {
-	y -= pw.miny
+	y = (y - pw.miny) / (pw.maxy - pw.miny)
 	if y < 0 {
-		// off the top of the screen
 		return 0, false
 	}
-	// convert y to a ratio between 0 and 1
-	y = y / (pw.maxy - pw.miny)
-	if y >= 1 {
-		// off the bottom of the screen
+	py := pw.txtw.Height() - int(float64(pw.txtw.Height())*y+0.5) - 1
+	if py < 0 || py > pw.txtw.Height() {
 		return 0, false
 	}
-	return pw.txtw.Height() - int(float64(pw.txtw.Height())*y+0.5) - 1, true
+	return py, true
 }
