@@ -4,6 +4,7 @@ package functions
 import (
 	"errors"
 	"math/cmplx"
+	"math/rand"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 )
@@ -137,4 +138,10 @@ func Exec(r *rpn.RPN) error {
 		return err
 	}
 	return r.Exec(fields)
+}
+
+const RandHelp = "Pushes a random number between 0 and 1"
+
+func Rand(r *rpn.RPN) error {
+	return r.PushComplex(complex(rand.Float64(), 0))
 }

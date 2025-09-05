@@ -2,7 +2,6 @@ package rpn
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -59,13 +58,23 @@ func (rpn *RPN) exec(arg string) error {
 }
 
 func (rpn *RPN) Exec(args []string) error {
-	for _, arg := range args {
+	for i, arg := range args {
 		if err := rpn.exec(arg); err != nil {
-			log.Printf("rpn.Exec: error executing %s: %v", args, err)
-			return err
+			return fmt.Errorf("exec %s: %v", highlightArg(args, i), err)
 		}
 	}
 	return nil
+}
+
+func highlightArg(args []string, idx int) string {
+	var parts []string
+	for i, arg := range args {
+		if i == idx {
+			arg = "->" + arg + "<-"
+		}
+		parts = append(parts, arg)
+	}
+	return strings.Join(parts, " ")
 }
 
 func (rpn *RPN) pushInt(arg string, base int, t FrameType) error {

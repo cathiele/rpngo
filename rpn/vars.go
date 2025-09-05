@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mattwach/rpngo/parse"
 	"sort"
+	"strings"
 )
 
 const pushVariableFrameHelp = "Pushes a variable frame to the variable stack"
@@ -29,6 +30,12 @@ func (r *RPN) setVariable(name string) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
+	}
+	if strings.Contains(name, "=") {
+		return errors.New("= is not allowed in variable names")
+	}
+	if strings.Contains(name, "$") {
+		return errors.New("$ is not allowed in variable names")
 	}
 	r.variables[len(r.variables)-1][name] = f
 	return nil

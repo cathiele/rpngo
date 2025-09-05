@@ -1,6 +1,9 @@
 package functions
 
-import "mattwach/rpngo/rpn"
+import (
+	"fmt"
+	"mattwach/rpngo/rpn"
+)
 
 const NoOpHelp = "No operation. e.g. 'noop' plot will plot y = x"
 
@@ -160,6 +163,17 @@ func PrintlnX(r *rpn.RPN) error {
 	}
 	r.Print(f.String(false))
 	r.Print("\n")
+	return nil
+}
+
+const PrintAllHelp = "Prints the whole stack"
+
+func PrintAll(r *rpn.RPN) error {
+	i := r.Size()
+	r.IterFrames(func(f rpn.Frame) {
+		i--
+		r.Print(fmt.Sprintf("%d: %s\n", i, f.String(true)))
+	})
 	return nil
 }
 

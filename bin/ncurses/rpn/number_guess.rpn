@@ -1,0 +1,17 @@
+'
+X
+vpush
+rand 101 * int a=  # set a to a random number
+$guess_fn for
+vpop
+' number_guess=
+
+'
+  "enter a number from 0-100: " printx input int g= # put the users guess into $g
+  $g $a < "too low" if
+  $g $a > "too high" if
+  $g $a = "correct!" if
+  printlnx
+  $g $a != # loop conditional
+' guess_fn=
+

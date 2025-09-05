@@ -6,7 +6,6 @@ func Print(txtd TextWindow, msg string) {
 
 func PrintErr(txtd TextWindow, err error) {
 	txtd.Color(31, 0, 0, 0, 0, 0)
-	Print(txtd, "ERROR: ")
 	Print(txtd, err.Error())
 	PutByte(txtd, '\n')
 	txtd.Color(31, 31, 31, 0, 0, 0)
