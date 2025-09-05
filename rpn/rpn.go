@@ -23,6 +23,10 @@ const (
 	STRING_FRAME
 	COMPLEX_FRAME
 	BOOL_FRAME
+	INTEGER_FRAME
+	HEXIDECIMAL_FRAME
+	OCTAL_FRAME
+	BINARY_FRAME
 )
 
 // Frame Defines a single stack frame
@@ -31,6 +35,7 @@ type Frame struct {
 	Str     string
 	Complex complex128
 	Bool    bool
+	Int     int64
 }
 
 // RPN is the main structure

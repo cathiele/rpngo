@@ -6,6 +6,21 @@ import (
 	"fmt"
 )
 
+func (f *Frame) IsInt() bool {
+	switch f.Type {
+	case INTEGER_FRAME:
+		return true
+	case HEXIDECIMAL_FRAME:
+		return true
+	case OCTAL_FRAME:
+		return true
+	case BINARY_FRAME:
+		return true
+	default:
+		return false
+	}
+}
+
 func (f *Frame) String(quote bool) string {
 	switch f.Type {
 	case EMPTY_FRAME:
@@ -22,6 +37,14 @@ func (f *Frame) String(quote bool) string {
 			return "true"
 		}
 		return "false"
+	case INTEGER_FRAME:
+		return fmt.Sprintf("%vd", f.Int)
+	case HEXIDECIMAL_FRAME:
+		return fmt.Sprintf("%xx", f.Int)
+	case OCTAL_FRAME:
+		return fmt.Sprintf("%oo", f.Int)
+	case BINARY_FRAME:
+		return fmt.Sprintf("%bb", f.Int)
 	default:
 		return "BAD_TYPE"
 	}
@@ -76,6 +99,10 @@ func (r *RPN) PushString(v string) error {
 
 func (r *RPN) PushBool(v bool) error {
 	return r.PushFrame(Frame{Type: BOOL_FRAME, Bool: v})
+}
+
+func (r *RPN) PushInt(v int64, t FrameType) error {
+	return r.PushFrame(Frame{Type: t, Int: v})
 }
 
 func (r *RPN) PopFrame() (sf Frame, err error) {

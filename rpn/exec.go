@@ -16,24 +16,37 @@ func (rpn *RPN) exec(arg string) error {
 		if arg[len(arg)-1] == '=' {
 			return rpn.setVariable(arg[:len(arg)-1])
 		}
-		if arg[0] == '$' {
+		switch arg[0] {
+		case '$':
 			f, ok := rpn.getVariable(arg[1:])
 			if !ok {
 				return fmt.Errorf("variable not found: %s", arg[1:])
 			}
 			rpn.PushFrame(f)
 			return nil
-		}
-		if arg[0] == '@' {
+		case '@':
 			return rpn.execVariableAsMacro(arg[1:])
 		}
 	}
 	if len(arg) >= 2 {
-		if (arg[0] == '"') && (arg[len(arg)-1] == '"') {
-			return rpn.PushString(arg[1 : len(arg)-1])
-		}
-		if (arg[0] == '\'') && (arg[len(arg)-1] == '\'') {
-			return rpn.PushString(arg[1 : len(arg)-1])
+		last := arg[len(arg)-1]
+		switch last {
+		case '"':
+			if arg[0] == '"' {
+				return rpn.PushString(arg[1 : len(arg)-1])
+			}
+		case '\'':
+			if arg[0] == '\'' {
+				return rpn.PushString(arg[1 : len(arg)-1])
+			}
+		case 'd':
+			return rpn.pushInt(arg[:len(arg)-1], 10, INTEGER_FRAME)
+		case 'x':
+			return rpn.pushInt(arg[:len(arg)-1], 16, HEXIDECIMAL_FRAME)
+		case 'o':
+			return rpn.pushInt(arg[:len(arg)-1], 8, OCTAL_FRAME)
+		case 'b':
+			return rpn.pushInt(arg[:len(arg)-1], 2, BINARY_FRAME)
 		}
 	}
 	if arg == "true" {
@@ -53,6 +66,14 @@ func (rpn *RPN) Exec(args []string) error {
 		}
 	}
 	return nil
+}
+
+func (rpn *RPN) pushInt(arg string, base int, t FrameType) error {
+	v, err := strconv.ParseInt(arg, base, 64)
+	if err != nil {
+		return err
+	}
+	return rpn.PushInt(v, t)
 }
 
 // Pushes a float onto the stack
