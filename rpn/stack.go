@@ -185,47 +185,83 @@ func (r *RPN) Pop2Strings() (a string, b string, err error) {
 	return
 }
 
+func (r *RPN) PopNumber() (f Frame, err error) {
+	f, err = r.PopFrame()
+	if err != nil {
+		return
+	}
+	if (f.Type != COMPLEX_FRAME) && !f.IsInt() {
+		r.PushFrame(f)
+		err = ErrExpectedANumber
+		return
+	}
+	return
+}
+
 func (r *RPN) PopComplex() (v complex128, err error) {
 	f, err := r.PopFrame()
 	if err != nil {
 		return
 	}
-	if f.Type != COMPLEX_FRAME {
-		r.PushFrame(f)
-		err = ErrExpectedANumber
+	if f.Type == COMPLEX_FRAME {
+		v = f.Complex
 		return
 	}
-	v = f.Complex
+	if f.IsInt() {
+		v = complex(float64(f.Int), 0)
+		return
+	}
+	r.PushFrame(f)
+	err = ErrExpectedANumber
 	return
 }
 
-func (r *RPN) Pop2Complex() (a complex128, b complex128, err error) {
-	af, bf, err := r.Pop2Frames()
+// Pops 2 numbers.
+//
+// If either is a non-number, an error is returned
+// If either number is a complex, both are converted to complex
+// Ohterwise both number are integers and they are returned.
+func (r *RPN) Pop2Numbers() (a Frame, b Frame, err error) {
+	a, b, err = r.Pop2Frames()
 	if err != nil {
 		return
 	}
-	if af.Type != COMPLEX_FRAME || bf.Type != COMPLEX_FRAME {
-		r.PushFrame(af)
-		r.PushFrame(bf)
-		err = ErrExpectedANumber
+	if (a.Type == COMPLEX_FRAME) && (b.Type == COMPLEX_FRAME) {
 		return
 	}
-	a = af.Complex
-	b = bf.Complex
+	if (a.Type == COMPLEX_FRAME) && b.IsInt() {
+		b.Type = COMPLEX_FRAME
+		b.Complex = complex(float64(b.Int), 0)
+		return
+	}
+	if (b.Type == COMPLEX_FRAME) && a.IsInt() {
+		a.Type = COMPLEX_FRAME
+		a.Complex = complex(float64(a.Int), 0)
+		return
+	}
+	if a.IsInt() && b.IsInt() {
+		return
+	}
+	r.PushFrame(a)
+	r.PushFrame(b)
+	err = ErrExpectedANumber
 	return
 }
 
 func (r *RPN) PopStackIndex() (i int, err error) {
-	var v complex128
-	v, err = r.PopComplex()
+	var f Frame
+	f, err = r.PopNumber()
 	if err != nil {
 		return
 	}
-	if imag(v) != 0 {
-		err = errors.New("real number required")
-		return
+	i = int(f.Int)
+	if f.Type == COMPLEX_FRAME {
+		if imag(f.Complex) != 0 {
+			err = errors.New("real number required")
+			return
+		}
+		i = int(real(f.Complex))
 	}
-	i = int(real(v))
 	if i < 0 {
 		err = errors.New("index must be >= 0")
 		return
