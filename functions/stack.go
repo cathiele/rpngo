@@ -2,6 +2,12 @@ package functions
 
 import "mattwach/rpngo/rpn"
 
+const NoOpHelp = "No operation. e.g. 'noop' plot will plot y = x"
+
+func NoOp(r *rpn.RPN) error {
+	return nil
+}
+
 const CopyHelp = "Duplicates the element at the head of the stack"
 
 func Copy(r *rpn.RPN) error {

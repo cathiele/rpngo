@@ -33,6 +33,7 @@ func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register("load", Load, LoadHelp)
 	rpn.Register("m", Multiply, MultiplyHelp)
 	rpn.Register("mi", MoveIndex, MoveIndexHelp)
+	rpn.Register("noop", NoOp, NoOpHelp)
 	rpn.Register("neg", Negate, NegateHelp)
 	rpn.Register("oct", Oct, OctHelp)
 	rpn.Register("print", Print, PrintHelp)
