@@ -132,7 +132,7 @@ func removeCRsAndComments(line string) string {
 		if len(part) == 0 {
 			continue
 		}
-		parts = append(parts, part)
+		parts = append(parts, strings.Fields(part)...)
 	}
-	return strings.Join(parts, "\n")
+	return strings.Join(parts, " ")
 }
