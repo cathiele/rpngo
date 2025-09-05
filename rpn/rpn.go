@@ -45,6 +45,7 @@ type RPN struct {
 	commandHelp map[string]string
 	conceptHelp map[string]string
 	Print       func(string)
+	Input       func() (string, error)
 }
 
 // Init initializes an RPNCalc object

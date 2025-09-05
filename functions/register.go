@@ -27,6 +27,7 @@ func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register("float", Float, FloatHelp)
 	rpn.Register("if", If, IfHelp)
 	rpn.Register("ifelse", IfElse, IfElseHelp)
+	rpn.Register("input", Input, InputHelp)
 	rpn.Register("int", Int, IntHelp)
 	rpn.Register("for", For, ForHelp)
 	rpn.Register("hex", Hex, HexHelp)

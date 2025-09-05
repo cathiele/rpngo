@@ -33,6 +33,7 @@ func Init(input Input, txtw window.TextWindow, r *rpn.RPN) (*InputWindow, error)
 		firstInput: true,
 	}
 	r.Print = iw.Print
+	r.Input = iw.Input
 	return iw, nil
 }
 
@@ -41,6 +42,10 @@ func (iw *InputWindow) Print(msg string) {
 	if strings.Contains(msg, "\n") {
 		iw.txtw.Refresh()
 	}
+}
+
+func (iw *InputWindow) Input() (string, error) {
+	return iw.gl.get()
 }
 
 func (iw *InputWindow) Update(r *rpn.RPN) error {
@@ -52,6 +57,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	if err := iw.txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
 		return err
 	}
+	window.Print(iw.gl.txtd, "> ")
 	line, err := iw.gl.get()
 	if err := iw.txtw.Color(0, 31, 31, 0, 0, 0); err != nil {
 		return err

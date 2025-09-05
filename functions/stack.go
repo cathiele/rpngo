@@ -162,3 +162,13 @@ func PrintlnX(r *rpn.RPN) error {
 	r.Print("\n")
 	return nil
 }
+
+const InputHelp = "Pauses for user input and pushes the result to the stack as a string"
+
+func Input(r *rpn.RPN) error {
+	str, err := r.Input()
+	if err != nil {
+		return err
+	}
+	return r.PushString(str)
+}
