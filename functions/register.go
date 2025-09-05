@@ -23,7 +23,6 @@ func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register("ci", CopyIndex, CopyIndexHelp)
 	rpn.Register("cos", Cos, CosHelp)
 	rpn.Register("d", Divide, DivideHelp)
-	rpn.Register("di", DropIndex, DropIndexHelp)
 	rpn.Register("if", If, IfHelp)
 	rpn.Register("ifelse", IfElse, IfElseHelp)
 	rpn.Register("for", For, ForHelp)
@@ -46,4 +45,5 @@ func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register("tan", Tan, TanHelp)
 	rpn.Register("x", Drop, DropHelp)
 	rpn.Register("X", DropAll, DropAllHelp)
+	rpn.Register("xi", DropIndex, DropIndexHelp)
 }

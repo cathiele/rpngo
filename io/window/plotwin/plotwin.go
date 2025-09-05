@@ -24,8 +24,9 @@ type Point struct {
 }
 
 type Plot struct {
-	fn    []string
-	color uint16
+	fn           []string
+	color        uint16
+	isParametric bool
 }
 
 type PlotWindow struct {
@@ -88,7 +89,7 @@ func (pw *PlotWindow) nextColor() {
 	pw.color = colorWheel[pw.coloridx]
 }
 
-func (pw *PlotWindow) AddPlot(r *rpn.RPN, fn []string) error {
+func (pw *PlotWindow) AddPlot(r *rpn.RPN, fn []string, isParametric bool) error {
 	pw.nextColor()
 	if len(fn) == 0 {
 		return nil
@@ -102,7 +103,7 @@ func (pw *PlotWindow) AddPlot(r *rpn.RPN, fn []string) error {
 	}
 	fncopy := make([]string, len(fn))
 	copy(fncopy, fn)
-	plot := Plot{fn: fncopy, color: pw.color}
+	plot := Plot{fn: fncopy, color: pw.color, isParametric: isParametric}
 
 	// do a dry run of creating the points
 	_, err := pw.addPoints(r, nil, plot)
@@ -117,8 +118,9 @@ func (pw *PlotWindow) AddPlot(r *rpn.RPN, fn []string) error {
 func (pw *PlotWindow) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point, error) {
 	startlen := r.StackLen()
 	step := (pw.maxv - pw.minv) / float64(pw.steps)
-	for x := pw.minv; x <= pw.maxv; x += step {
-		if err := r.PushComplex(complex(x, 0)); err != nil {
+	var x complex128
+	for v := pw.minv; v <= pw.maxv; v += step {
+		if err := r.PushComplex(complex(v, 0)); err != nil {
 			return nil, err
 		}
 		if err := r.Exec(plot.fn); err != nil {
@@ -128,6 +130,14 @@ func (pw *PlotWindow) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point,
 		if err != nil {
 			return nil, err
 		}
+		if plot.isParametric {
+			x, err = r.PopComplex()
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			x = complex(v, 0)
+		}
 		nowlen := r.StackLen()
 		if nowlen != startlen {
 			return nil, fmt.Errorf(
@@ -135,7 +145,7 @@ func (pw *PlotWindow) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point,
 				startlen,
 				nowlen)
 		}
-		points = append(points, Point{x: x, y: real(y), color: plot.color})
+		points = append(points, Point{x: real(x), y: real(y), color: plot.color})
 	}
 	return points, nil
 }

@@ -13,6 +13,18 @@ const PlotHelp = "Run a value from $plot.min to $plot.max with $plot.steps\n" +
 	"Example (y = x * x): 'c *' plot"
 
 func (wc *WindowCommands) Plot(r *rpn.RPN) error {
+	return wc.plotInternal(r, false)
+}
+
+const PPlotHelp = "Run a value from $plot.min to $plot.max with $plot.steps\n" +
+	"executing the provided string and plotting (x, y) to the window $plot.win\n" +
+	"Example (arc): 'c sin sw cos"
+
+func (wc *WindowCommands) PPlot(r *rpn.RPN) error {
+	return wc.plotInternal(r, true)
+}
+
+func (wc *WindowCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	macro, err := r.PopString()
 	if err != nil {
 		return err
@@ -40,7 +52,7 @@ func (wc *WindowCommands) Plot(r *rpn.RPN) error {
 		return fmt.Errorf("%s has the wrong window type: %s", wname, pw.Type())
 	}
 
-	return pw.(*plotwin.PlotWindow).AddPlot(r, fields)
+	return pw.(*plotwin.PlotWindow).AddPlot(r, fields, isParametric)
 }
 
 func (wc *WindowCommands) initPlot(r *rpn.RPN) error {

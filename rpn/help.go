@@ -31,7 +31,7 @@ func (rpn *RPN) initHelp() {
 			"5 @cirarea\n" +
 			"See Also: variables",
 
-		"plotting": "Plot functions using plot. Plot will push an 'x' value to the stack,\n" +
+		"plot": "Plot functions using plot. Plot will push an 'x' value to the stack,\n" +
 			"run the provided string, and pop the value as y value.\n" +
 			"Examples:\n" +
 			"    '2 *' plot # plots y = x * 2\n" +
@@ -44,7 +44,14 @@ func (rpn *RPN) initHelp() {
 			"                at a time.\n" +
 			"    plot.init : If no plot window exists, this string is executed and is expected\n" +
 			"                create one. Making this a variable allows for user customization.\n" +
-			"See Also: window.props",
+			"See Also: window.props, plot.parametric",
+
+		"plot.parametric": "Plot parametric functions using pplot. pplot will push a 't' value to\n" +
+			"the stack, run the provided string then pop y, then x to determine the plot point x, y\n" +
+			"Examples:\n" +
+			"    'c cos sw sin' pplot # draws an arc or full circle, depending on t range\n" +
+			"    't= $t sin $t * $t cos $t *' pplot # draw a spiral\n" +
+			"    '1 sw' draw a vertical line\n",
 
 		"printing": "There are various printing functions that print values\n" +
 			"at the head of the stack. These include:\n" +
@@ -54,6 +61,18 @@ func (rpn *RPN) initHelp() {
 			"  - printsx : printx with a space\n" +
 			"  - println : print with a newline\n" +
 			"  - printlnx : printx with a newline",
+
+		"stack": "Operators are provided to manipute the stack to set up calculations\n" +
+			"    If things are getting complex, consider using variables.\n" +
+			"Examples:\n" +
+			"  $x c + 1 /  # Uses c to copy the stack head and execute a/(a+1)'\n" +
+			"  'c cos sw sin' pplot # parametric plot of a circle using sw to swap elements\n" +
+			"   x # drop the element at the head of the stack\n" +
+			"   1 xi # drop the second element from the stack\n" +
+			"   X # clear the stack\n" +
+			"   2 mi # Moves the third element in the stack to the head\n" +
+			"   2 ci # Copies the third element in the stack to the head\n" +
+			"\n",
 
 		"strings": "Enter a string value as 'example 1' or \"example 2\"",
 
