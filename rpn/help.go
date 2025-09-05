@@ -7,6 +7,22 @@ import (
 
 func (rpn *RPN) initHelp() {
 	rpn.conceptHelp = map[string]string{
+		"base": "Different number bases are supported:\n" +
+			"Examples:\n" +
+			"  1.1 -1 0 # complex floats\n" +
+			"  2+3i # also a complex float\n" +
+			"  32d # a decimal integer\n" +
+			"  ffx # hexidecimal ff (255 in decimal)\n" +
+			"  55o # octal 55 (45 in decimal)\n" +
+			"  1001b # binary (9 in decimal)\n" +
+			"Numbers can be converted to different formats:\n" +
+			"  bin # convert to binary\n" +
+			"  float # convert to complex float\n" +
+			"  hex # convert to hecidecimal\n" +
+			"  int # cnvert to integer\n" +
+			"  oct # cnvert to octal\n" +
+			"  str # cnvert to string",
+
 		"basics": "- Enter numbers to push them to the stack\n" +
 			"- Numbers can be separated by spaces or newlines\n" +
 			"- Enter an operator to replace numbers on the stack with a result\n" +

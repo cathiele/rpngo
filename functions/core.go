@@ -66,7 +66,10 @@ func Negate(r *rpn.RPN) error {
 		return r.PushComplex(-f.Complex)
 	}
 	if f.Type == rpn.BOOL_FRAME {
-		return r.PushBool(!f.Bool)
+		if f.Int == 0 {
+			return r.PushBool(true)
+		}
+		return r.PushBool(false)
 	}
 	return errors.New("expected number or boolean")
 }
@@ -104,14 +107,4 @@ func Exec(r *rpn.RPN) error {
 		return err
 	}
 	return r.Exec(fields)
-}
-
-const StrHelp = "Converts head element to a string"
-
-func Str(r *rpn.RPN) error {
-	f, err := r.PopFrame()
-	if err != nil {
-		return err
-	}
-	return r.PushString(f.String(false))
 }

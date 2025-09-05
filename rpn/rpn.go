@@ -34,7 +34,6 @@ type Frame struct {
 	Type    FrameType
 	Str     string
 	Complex complex128
-	Bool    bool
 	Int     int64
 }
 

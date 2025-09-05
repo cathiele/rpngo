@@ -21,6 +21,17 @@ func (f *Frame) IsInt() bool {
 	}
 }
 
+func (f *Frame) Bool() bool {
+	return f.Int != 0
+}
+
+func BoolFrame(v bool) Frame {
+	if v {
+		return Frame{Int: 1, Type: BOOL_FRAME}
+	}
+	return Frame{Int: 0, Type: BOOL_FRAME}
+}
+
 func (f *Frame) String(quote bool) string {
 	switch f.Type {
 	case EMPTY_FRAME:
@@ -33,7 +44,7 @@ func (f *Frame) String(quote bool) string {
 	case COMPLEX_FRAME:
 		return f.complexString()
 	case BOOL_FRAME:
-		if f.Bool {
+		if f.Int != 0 {
 			return "true"
 		}
 		return "false"
@@ -98,7 +109,11 @@ func (r *RPN) PushString(v string) error {
 }
 
 func (r *RPN) PushBool(v bool) error {
-	return r.PushFrame(Frame{Type: BOOL_FRAME, Bool: v})
+	var val int64
+	if v {
+		val = 1
+	}
+	return r.PushFrame(Frame{Type: BOOL_FRAME, Int: val})
 }
 
 func (r *RPN) PushInt(v int64, t FrameType) error {
@@ -150,7 +165,7 @@ func (r *RPN) PopBool() (v bool, err error) {
 		err = ErrExpectedABoolean
 		return
 	}
-	v = f.Bool
+	v = f.Int != 0
 	return
 }
 

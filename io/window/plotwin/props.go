@@ -66,12 +66,12 @@ func (pw *PlotWindow) SetProp(name string, val rpn.Frame) error {
 		if val.Type != rpn.BOOL_FRAME {
 			return rpn.ErrExpectedABoolean
 		}
-		pw.autox = val.Bool
+		pw.autox = val.Bool()
 	case "autoy":
 		if val.Type != rpn.BOOL_FRAME {
 			return rpn.ErrExpectedABoolean
 		}
-		pw.autoy = val.Bool
+		pw.autoy = val.Bool()
 	case "steps":
 		if val.Type != rpn.COMPLEX_FRAME {
 			return rpn.ErrExpectedANumber
@@ -106,9 +106,9 @@ func (pw *PlotWindow) GetProp(name string) (rpn.Frame, error) {
 	case "maxv":
 		return rpn.Frame{Type: rpn.COMPLEX_FRAME, Complex: complex(pw.maxv, 0)}, nil
 	case "autox":
-		return rpn.Frame{Type: rpn.BOOL_FRAME, Bool: pw.autox}, nil
+		return rpn.BoolFrame(pw.autox), nil
 	case "autoy":
-		return rpn.Frame{Type: rpn.BOOL_FRAME, Bool: pw.autoy}, nil
+		return rpn.BoolFrame(pw.autoy), nil
 	case "steps":
 		return rpn.Frame{Type: rpn.COMPLEX_FRAME, Complex: complex(float64(pw.steps), 0)}, nil
 	}
