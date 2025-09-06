@@ -150,6 +150,20 @@ func (wr *WindowRoot) Update(rpn *rpn.RPN, screenw, screenh int, updateInput boo
 	return wr.group.update(rpn, screenw, screenh)
 }
 
+func (wr *WindowRoot) UpdateByName(r *rpn.RPN, name string) error {
+	if name == "root" {
+		return wr.Update(r, wr.group.w, wr.group.y, false)
+	}
+	wge := wr.group.findwindowGroupEntry(name)
+	if wge == nil {
+		return fmt.Errorf("window not found: %s", name)
+	}
+	if wge.group != nil {
+		return wge.group.update(r, wr.group.w, wr.group.h)
+	}
+	return wge.window.Update(r)
+}
+
 // Removes all children
 func (wr *WindowRoot) RemoveAllChildren() {
 	wr.group.removeAllChildren()

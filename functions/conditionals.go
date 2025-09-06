@@ -40,7 +40,7 @@ func LessThan(r *rpn.RPN) error {
 		return err
 	}
 	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushBool(real(a.Complex) >= real(b.Complex))
+		return r.PushBool(real(a.Complex) < real(b.Complex))
 	}
 	return r.PushBool(a.Int < b.Int)
 }
@@ -53,7 +53,7 @@ func LessThanEqual(r *rpn.RPN) error {
 		return err
 	}
 	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushBool(real(a.Complex) >= real(b.Complex))
+		return r.PushBool(real(a.Complex) <= real(b.Complex))
 	}
 	return r.PushBool(a.Int <= b.Int)
 }

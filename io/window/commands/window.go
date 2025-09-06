@@ -36,7 +36,18 @@ func (wc *WindowCommands) Register(r *rpn.RPN) {
 	r.Register("w.getp", wc.WGetP, WGetPHelp)
 	r.Register("w.setp", wc.WSetP, WSetPHelp)
 	r.Register("w.reset", wc.WReset, WResetHelp)
+	r.Register("w.update", wc.WUpdate, WUpdateHelp)
 	r.Register("w.weight", wc.WWeight, WWeightHelp)
+}
+
+const WUpdateHelp = "Updates the given window or window group"
+
+func (wc *WindowCommands) WUpdate(r *rpn.RPN) error {
+	name, err := r.PopString()
+	if err != nil {
+		return err
+	}
+	return wc.root.UpdateByName(r, name)
 }
 
 const WDumpHelp = "Dump the state of all created windows and groups"
