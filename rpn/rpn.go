@@ -8,12 +8,13 @@ import (
 const MaxStackDepth = 4096
 
 var (
-	ErrExpectedABoolean     = errors.New("expected a boolean")
-	ErrExpectedANumber      = errors.New("expected a number")
-	ErrExpectedAString      = errors.New("expected a string")
-	ErrStackEmpty           = errors.New("stack empty")
-	ErrStackFull            = errors.New("stack is full")
-	errNotEnoughStackFrames = errors.New("not enough stack frames")
+	ErrExpectedABoolean       = errors.New("expected a boolean")
+	ErrExpectedAComplexNumber = errors.New("expected a complex number")
+	ErrExpectedANumber        = errors.New("expected a number")
+	ErrExpectedAString        = errors.New("expected a string")
+	ErrStackEmpty             = errors.New("stack empty")
+	ErrStackFull              = errors.New("stack is full")
+	errNotEnoughStackFrames   = errors.New("not enough stack frames")
 )
 
 type FrameType uint8

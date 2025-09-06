@@ -98,6 +98,23 @@ func Negate(r *rpn.RPN) error {
 	return errors.New("expected number or boolean")
 }
 
+const AbsHelp = "Takes the absolute value"
+
+func Abs(r *rpn.RPN) error {
+	a, err := r.PopNumber()
+	if err != nil {
+		return err
+	}
+	if a.Type == rpn.COMPLEX_FRAME {
+		return r.PushComplex(complex(cmplx.Abs(a.Complex), 0))
+	}
+	iv := a.Int
+	if iv < 0 {
+		iv = -iv
+	}
+	return r.PushInt(iv, a.Type)
+}
+
 const SquareHelp = "executes v * v"
 
 func Square(r *rpn.RPN) error {
@@ -144,4 +161,32 @@ const RandHelp = "Pushes a random number between 0 and 1"
 
 func Rand(r *rpn.RPN) error {
 	return r.PushComplex(complex(rand.Float64(), 0))
+}
+
+const RealHelp = "Takes the real portion of a complex number"
+
+func Real(r *rpn.RPN) error {
+	a, err := r.PopNumber()
+	if err != nil {
+		return err
+	}
+	if a.Type != rpn.COMPLEX_FRAME {
+		return rpn.ErrExpectedAComplexNumber
+	}
+	a.Complex = complex(real(a.Complex), 0)
+	return r.PushFrame(a)
+}
+
+const ImagHelp = "Takes the imaginary portion of a complex number"
+
+func Imag(r *rpn.RPN) error {
+	a, err := r.PopNumber()
+	if err != nil {
+		return err
+	}
+	if a.Type != rpn.COMPLEX_FRAME {
+		return rpn.ErrExpectedAComplexNumber
+	}
+	a.Complex = complex(0, imag(a.Complex))
+	return r.PushFrame(a)
 }
