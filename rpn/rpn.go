@@ -12,6 +12,7 @@ var (
 	ErrExpectedAComplexNumber = errors.New("expected a complex number")
 	ErrExpectedANumber        = errors.New("expected a number")
 	ErrExpectedAString        = errors.New("expected a string")
+	ErrInterrupted            = errors.New("interrupted")
 	ErrStackEmpty             = errors.New("stack empty")
 	ErrStackFull              = errors.New("stack is full")
 	errNotEnoughStackFrames   = errors.New("not enough stack frames")
@@ -47,6 +48,7 @@ type RPN struct {
 	conceptHelp map[string]string
 	Print       func(string)
 	Input       func() (string, error)
+	Interrupt   chan bool
 }
 
 // Init initializes an RPNCalc object

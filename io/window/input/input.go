@@ -57,6 +57,13 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	if err := iw.txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
 		return err
 	}
+	// clear any pending ctrl-c
+	select {
+	case <-r.Interrupt:
+		break
+	default:
+		break
+	}
 	window.Print(iw.gl.txtd, "> ")
 	line, err := iw.gl.get()
 	if err := iw.txtw.Color(0, 31, 31, 0, 0, 0); err != nil {

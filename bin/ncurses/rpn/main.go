@@ -13,6 +13,7 @@ import (
 	"mattwach/rpngo/io/window/input"
 	"mattwach/rpngo/rpn"
 	"os"
+	"os/signal"
 )
 
 func run() error {
@@ -48,6 +49,7 @@ func cli(r *rpn.RPN) error {
 }
 
 func interactive(r *rpn.RPN) error {
+	r.Interrupt = setupSignals()
 	screen, err := curses.Init()
 	if err != nil {
 		return err
@@ -73,6 +75,20 @@ func interactive(r *rpn.RPN) error {
 			return err
 		}
 	}
+}
+
+func setupSignals() chan bool {
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, os.Interrupt)
+	interrupt := make(chan bool, 1)
+	go func() {
+		for {
+			<-sigc
+			interrupt <- true
+		}
+	}()
+	return interrupt
+
 }
 
 func buildUI(screen *curses.Curses, r *rpn.RPN) (*window.WindowRoot, error) {

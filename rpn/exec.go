@@ -8,6 +8,12 @@ import (
 
 // Exec executes a single instruction
 func (rpn *RPN) exec(arg string) error {
+	select {
+	case <-rpn.Interrupt:
+		return ErrInterrupted
+	default:
+		break
+	}
 	if fn := rpn.functions[arg]; fn != nil {
 		return fn(rpn)
 	}
