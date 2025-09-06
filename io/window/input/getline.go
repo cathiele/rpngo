@@ -87,6 +87,8 @@ func (gl *getLine) prepareHistory() {
 }
 
 func (gl *getLine) get() (string, error) {
+	gl.txtd.Cursor(true)
+	defer gl.txtd.Cursor(false)
 	var line []byte
 	idx := 0
 	// how many steps back into history, with 0 being not in history

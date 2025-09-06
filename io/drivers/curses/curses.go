@@ -24,6 +24,7 @@ func Init() (*Curses, error) {
 		goncurses.StartColor()
 	}
 	goncurses.Echo(false)
+	goncurses.Cursor(0)
 	tw := &Curses{
 		window:    window,
 		rgbToPair: make(map[uint32]int16),
@@ -65,6 +66,14 @@ func (c *Curses) Refresh() {
 
 func (c *Curses) End() {
 	goncurses.End()
+}
+
+func (c *Curses) Cursor(on bool) {
+	var val byte = 0
+	if on {
+		val = 1
+	}
+	goncurses.Cursor(val)
 }
 
 func (c *Curses) Resize(x, y, w, h int) error {

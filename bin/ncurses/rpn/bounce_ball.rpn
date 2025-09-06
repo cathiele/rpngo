@@ -1,4 +1,4 @@
-'rand -0.5 - 0.05 *' randvel=
+'rand -0.5 - 0.02 *' randvel=
 "
   vpush
   @randvel xv=
@@ -28,6 +28,6 @@
   c abs 1 > '$yv neg yv= $yv + y=' 'y=' ifelse @
 
   'p1' w.update
-  0.05 delay
+  1 60 / delay
 " next_frame=
 

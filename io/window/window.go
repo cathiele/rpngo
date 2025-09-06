@@ -44,4 +44,8 @@ type TextWindow interface {
 
 	// Scroll the display up or down
 	Scroll(int)
+
+	// Show/hide cursor, this may affect other windows and should be set back to
+	// off if it's turned on.
+	Cursor(bool)
 }
