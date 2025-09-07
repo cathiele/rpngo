@@ -44,8 +44,8 @@ func (iw *InputWindow) Print(msg string) {
 	}
 }
 
-func (iw *InputWindow) Input() (string, error) {
-	return iw.gl.get()
+func (iw *InputWindow) Input(r *rpn.RPN) (string, error) {
+	return iw.gl.get(r)
 }
 
 func (iw *InputWindow) Update(r *rpn.RPN) error {
@@ -65,7 +65,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		break
 	}
 	window.Print(iw.gl.txtd, "> ")
-	line, err := iw.gl.get()
+	line, err := iw.gl.get(r)
 	if err := iw.txtw.Color(0, 31, 31, 0, 0, 0); err != nil {
 		return err
 	}

@@ -180,7 +180,7 @@ func PrintAll(r *rpn.RPN) error {
 const InputHelp = "Pauses for user input and pushes the result to the stack as a string"
 
 func Input(r *rpn.RPN) error {
-	str, err := r.Input()
+	str, err := r.Input(r)
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"log"
 	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/rpn"
 	"os"
 	"path/filepath"
 	"strings"
@@ -86,7 +87,7 @@ func (gl *getLine) prepareHistory() {
 	}
 }
 
-func (gl *getLine) get() (string, error) {
+func (gl *getLine) get(r *rpn.RPN) (string, error) {
 	gl.txtd.Cursor(true)
 	defer gl.txtd.Cursor(false)
 	var line []byte
@@ -151,6 +152,8 @@ func (gl *getLine) get() (string, error) {
 		case key.KEY_HOME:
 			window.Shift(gl.txtd, -idx)
 			idx = 0
+		case '\t':
+			line, idx = gl.tabComplete(r, line, idx)
 		case key.KEY_EOF:
 			return "exit", nil
 		default:

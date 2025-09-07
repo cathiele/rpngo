@@ -3,6 +3,7 @@ package rpn
 import (
 	"errors"
 	"fmt"
+	"sort"
 )
 
 const MaxStackDepth = 4096
@@ -47,7 +48,7 @@ type RPN struct {
 	commandHelp map[string]string
 	conceptHelp map[string]string
 	Print       func(string)
-	Input       func() (string, error)
+	Input       func(*RPN) (string, error)
 	Interrupt   chan bool
 }
 
@@ -76,6 +77,15 @@ func (r *RPN) addDefaultPlotVars() {
 func (rpn *RPN) Register(name string, fn func(f *RPN) error, help string) {
 	rpn.functions[name] = fn
 	rpn.commandHelp[name] = help
+}
+
+func (rpn *RPN) AllFunctionNames() []string {
+	var names []string
+	for name := range rpn.functions {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 func DefaultPrint(msg string) {
