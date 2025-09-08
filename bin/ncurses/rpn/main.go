@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"mattwach/rpngo/convert"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/io"
 	"mattwach/rpngo/io/drivers/curses"
@@ -38,7 +37,6 @@ func run() error {
 }
 
 func cli(r *rpn.RPN) error {
-	convert.Debugme()
 	if err := r.Exec(os.Args[1:]); err != nil {
 		return err
 	}

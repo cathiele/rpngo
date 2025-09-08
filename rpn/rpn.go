@@ -2,6 +2,7 @@ package rpn
 
 import (
 	"fmt"
+	"mattwach/rpngo/convert"
 	"sort"
 )
 
@@ -38,6 +39,7 @@ type RPN struct {
 	Print       func(string)
 	Input       func(*RPN) (string, error)
 	Interrupt   chan bool
+	conv        *convert.Conversion
 }
 
 // Init initializes an RPNCalc object
@@ -49,6 +51,7 @@ func (r *RPN) Init() {
 	r.Register("vpush", pushVariableFrame, pushVariableFrameHelp)
 	r.Register("vpop", popVariableFrame, popVariableFrameHelp)
 	r.Print = DefaultPrint
+	r.conv = convert.Init()
 	r.addDefaultPlotVars()
 }
 

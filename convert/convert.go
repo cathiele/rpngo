@@ -198,7 +198,7 @@ type conversionType struct {
 	offset    float64
 }
 
-type conversion struct {
+type Conversion struct {
 	convertDict map[string]conversionType
 }
 
@@ -210,8 +210,8 @@ type conversionData struct {
 	denominatorName string
 }
 
-func Init() *conversion {
-	c := &conversion{}
+func Init() *Conversion {
+	c := &Conversion{}
 	c.insertKeys("Distance", distantConvert)
 	c.insertKeys("Time", timeConvert)
 	c.insertKeys("Force/Weight/Mass (Planet Earth)", massConvert)
@@ -223,7 +223,7 @@ func Init() *conversion {
 	return c
 }
 
-func (c *conversion) insertKeys(className string, data []unit) {
+func (c *Conversion) insertKeys(className string, data []unit) {
 	for _, d := range data {
 		for _, k := range d.names {
 			if _, ok := c.convertDict[k]; ok {
@@ -234,7 +234,7 @@ func (c *conversion) insertKeys(className string, data []unit) {
 	}
 }
 
-func (c *conversion) Convert(value float64, valueType string, targetType string) (float64, error) {
+func (c *Conversion) Convert(value float64, valueType string, targetType string) (float64, error) {
 	// extract type and class information
 
 	source, err := c.analyzeType(valueType)
@@ -304,7 +304,7 @@ func (c *conversion) Convert(value float64, valueType string, targetType string)
 	return value, nil
 }
 
-func (c *conversion) analyzeType(t string) (*conversionData, error) {
+func (c *Conversion) analyzeType(t string) (*conversionData, error) {
 	numeratorTypeList, denominatorTypeList := c.analyzeTypeStr(t)
 	numeratorTypeList, denominatorTypeList = c.checkForAliases(numeratorTypeList, denominatorTypeList)
 	denominatorTypeList, numeratorTypeList = c.checkForAliases(denominatorTypeList, numeratorTypeList)
@@ -331,7 +331,7 @@ func (c *conversion) analyzeType(t string) (*conversionData, error) {
 	return initConversionData(numerator, denominator), nil
 }
 
-func (c *conversion) analyzeTypeStr(t string) ([]string, []string) {
+func (c *Conversion) analyzeTypeStr(t string) ([]string, []string) {
 	var numeratorType []string
 	var denominatorType []string
 	parts := strings.SplitN(t, "/", 2)
@@ -344,7 +344,7 @@ func (c *conversion) analyzeTypeStr(t string) ([]string, []string) {
 	return numeratorType, denominatorType
 }
 
-func (c *conversion) checkForAliases(numerator []string, denominator []string) ([]string, []string) {
+func (c *Conversion) checkForAliases(numerator []string, denominator []string) ([]string, []string) {
 	index := 0
 	for index < len(numerator) {
 		alias := aliases[numerator[index]]
@@ -373,7 +373,7 @@ func initConversionData(numerator, denominator []conversionType) *conversionData
 }
 
 func (cd *conversionData) buildClassName(numerator, denominator []conversionType) string {
-	var nameSet map[string]bool
+	nameSet := make(map[string]bool)
 	for _, n := range numerator {
 		nameSet[n.className] = true
 	}
@@ -391,15 +391,15 @@ func (cd *conversionData) buildClassName(numerator, denominator []conversionType
 	return strings.Join(nameList, "*")
 }
 
-func (c *conversion) scaleUp(value float64, scale float64, offset float64) float64 {
+func (c *Conversion) scaleUp(value float64, scale float64, offset float64) float64 {
 	return (value + offset) * scale
 }
 
-func (c *conversion) scaleDown(value float64, scale float64, offset float64) float64 {
+func (c *Conversion) scaleDown(value float64, scale float64, offset float64) float64 {
 	return (value / scale) - offset
 }
 
-func (c *conversion) Help() string {
+func (c *Conversion) Help() string {
 	classes := make(map[string][]string)
 
 	for name, conversion := range c.convertDict {
@@ -465,8 +465,4 @@ func (cd *conversionData) invert() {
 	cd.numerator, cd.denominator = cd.denominator, cd.numerator
 	cd.numeratorName, cd.denominatorName = cd.denominatorName, cd.numeratorName
 	cd.inverted = !cd.inverted
-}
-
-func Debugme() {
-	fmt.Printf("%v\n", distantConvert)
 }
