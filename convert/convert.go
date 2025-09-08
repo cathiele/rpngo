@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"sort"
+	"strings"
 )
 
 //
@@ -199,6 +201,14 @@ type conversion struct {
 	convertDict map[string]conversionType
 }
 
+type conversionData struct {
+	numerator       []conversionType
+	denominator     []conversionType
+	inverted        bool
+	numeratorName   string
+	denominatorName string
+}
+
 func Init() *conversion {
 	c := &conversion{}
 	c.insertKeys("Distance", distantConvert)
@@ -223,58 +233,156 @@ func (c *conversion) insertKeys(className string, data []unit) {
 	}
 }
 
+func (c *conversion) Convert(value float64, valueType string, targetType string) error {
+	// extract type and class information
+
+	source, err := c.analyzeType(valueType)
+	if err != nil {
+		return err
+	}
+	log.Printf("source: %v", source)
+	target, err := c.analyzeType(targetType)
+	if err != nil {
+		return err
+	}
+	log.Printf("target: %v", target)
+
+	/*
+	   # check for ratio incompatibility
+
+	   if source.IsRatio() != target.IsRatio():
+	     raise IllegalConversionBetweenRatioAndScalar()
+
+	   # check for inversion eligibility
+
+	   if (target.IsRatio() and
+	       (source.numerator_name == target.denominator_name)):
+	     target.Invert()
+
+	   # check for numerator compatibility
+
+	   if source.numerator_name != target.numerator_name:
+	     raise IncompatibleConversionTypes(source.numerator_name,
+	                                       target.numerator_name)
+
+	   # check for denominator compatibility, if needed
+
+	   if (source.IsRatio() and
+	       (source.denominator_name != target.denominator_name)):
+	     raise IncompatibleConversionTypes(source.denominator_name,
+	                                       target.denominator_name)
+
+	   # scale the value by each numerator
+
+	   for snum in source.numerator:
+	     value = self._ScaleUp(value, snum.scale_factor)
+	   for tnum in target.numerator:
+	     value = self._ScaleDown(value, tnum.scale_factor)
+
+	   # if needed, scale by each denominator
+
+	   if source.IsRatio():
+	     for sden in source.denominator:
+	       value = self._ScaleDown(value, sden.scale_factor)
+	     for tden in target.denominator:
+	       value = self._ScaleUp(value, tden.scale_factor)
+	     if target.inverted:
+	       value = 1.0 / value
+
+	   return value
+	*/
+	return nil
+}
+
+func (c *conversion) analyzeType(t string) (*conversionData, error) {
+	numeratorTypeList, denominatorTypeList := c.analyzeTypeStr(t)
+	numeratorTypeList, denominatorTypeList = c.checkForAliases(numeratorTypeList, denominatorTypeList)
+	denominatorTypeList, numeratorTypeList = c.checkForAliases(denominatorTypeList, numeratorTypeList)
+
+	var numerator []conversionType
+	var denominator []conversionType
+
+	for _, numeratorType := range numeratorTypeList {
+		n, ok := c.convertDict[numeratorType]
+		if !ok {
+			return nil, fmt.Errorf("unknown conversion type: %v", numeratorType)
+		}
+		numerator = append(numerator, n)
+	}
+
+	for _, denominatorType := range denominatorTypeList {
+		d, ok := c.convertDict[denominatorType]
+		if !ok {
+			return nil, fmt.Errorf("unknown conversion type: %v", denominatorType)
+		}
+		denominator = append(denominator, d)
+	}
+
+	return initConversionData(numerator, denominator), nil
+}
+
+func (c *conversion) analyzeTypeStr(t string) ([]string, []string) {
+	var numeratorType []string
+	var denominatorType []string
+	parts := strings.SplitN(t, "/", 2)
+	numeratorType = strings.Split(parts[0], "*")
+	sort.Strings(numeratorType)
+	if len(parts) > 1 {
+		denominatorType = strings.Split(parts[1], "*")
+		sort.Strings(denominatorType)
+	}
+	return numeratorType, denominatorType
+}
+
+func (c *conversion) checkForAliases(numerator []string, denominator []string) ([]string, []string) {
+	index := 0
+	for index < len(numerator) {
+		alias := aliases[numerator[index]]
+		if alias != "" {
+			numerator = append(numerator[:index], numerator[index+1:]...)
+			parts := strings.SplitN(alias, "/", 2)
+			numerator = append(numerator, strings.Split(parts[0], "*")...)
+			if len(parts) > 1 {
+				denominator = append(denominator, strings.Split(parts[1], "*")...)
+			}
+			index = 0
+		} else {
+			index++
+		}
+	}
+	sort.Strings(numerator)
+	sort.Strings(denominator)
+	return numerator, denominator
+}
+
+func initConversionData(numerator, denominator []conversionType) *conversionData {
+	c := &conversionData{numerator: numerator, denominator: denominator}
+	c.numeratorName = c.buildClassName(numerator, denominator)
+	c.denominatorName = c.buildClassName(denominator, numerator)
+	return c
+}
+
+func (cd *conversionData) buildClassName(numerator, denominator []conversionType) string {
+	var nameSet map[string]bool
+	for _, n := range numerator {
+		nameSet[n.className] = true
+	}
+	for _, d := range denominator {
+		if nameSet[d.className] {
+			nameSet[d.className] = false
+		}
+	}
+	var nameList []string
+	for _, n := range numerator {
+		if nameSet[n.className] {
+			nameList = append(nameList, n.className)
+		}
+	}
+	return strings.Join(nameList, "*")
+}
+
 /*
 class Conversion:
-
-  def Convert(self, value, value_type, target_type):
-
-    # extract type and class information
-
-    source = self._AnalyzeType(value_type)
-    target = self._AnalyzeType(target_type)
-
-    # check for ratio incompatibility
-
-    if source.IsRatio() != target.IsRatio():
-      raise IllegalConversionBetweenRatioAndScalar()
-
-    # check for inversion eligibility
-
-    if (target.IsRatio() and
-        (source.numerator_name == target.denominator_name)):
-      target.Invert()
-
-    # check for numerator compatibility
-
-    if source.numerator_name != target.numerator_name:
-      raise IncompatibleConversionTypes(source.numerator_name,
-                                        target.numerator_name)
-
-    # check for denominator compatibility, if needed
-
-    if (source.IsRatio() and
-        (source.denominator_name != target.denominator_name)):
-      raise IncompatibleConversionTypes(source.denominator_name,
-                                        target.denominator_name)
-
-    # scale the value by each numerator
-
-    for snum in source.numerator:
-      value = self._ScaleUp(value, snum.scale_factor)
-    for tnum in target.numerator:
-      value = self._ScaleDown(value, tnum.scale_factor)
-
-    # if needed, scale by each denominator
-
-    if source.IsRatio():
-      for sden in source.denominator:
-        value = self._ScaleDown(value, sden.scale_factor)
-      for tden in target.denominator:
-        value = self._ScaleUp(value, tden.scale_factor)
-      if target.inverted:
-        value = 1.0 / value
-
-    return value
 
   def _ScaleUp(self, value, scale_factor):
     if isinstance(scale_factor, tuple):
@@ -322,78 +430,11 @@ class Conversion:
       sys.stdout.write('%-15s ' % name)
     sys.stdout.write('\n')
 
-  def _AnalyzeType(self, type_str):
-
-    numerator_type_list, denominator_type_list = self._AnalyzeTypeStr(type_str)
-
-    self._CheckForAliases(numerator_type_list, denominator_type_list)
-    self._CheckForAliases(denominator_type_list, numerator_type_list)
-
-    numerator = []
-    denominator = []
-
-    for numerator_type in numerator_type_list:
-      if numerator_type not in self.convert_dict:
-        raise UnknownConversionType(numerator_type)
-      numerator.append(self.convert_dict[numerator_type])
-
-    for denominator_type in denominator_type_list:
-      if denominator_type not in self.convert_dict:
-        raise UnknownConversionType(denominator_type)
-      denominator.append(self.convert_dict[denominator_type])
-
-    return ConversionData(numerator, denominator)
-
-  def _CheckForAliases(self, numerator, denominator):
-
-    index = 0
-    while index < len(numerator):
-      if numerator[index] in ALIASES:
-        alias = ALIASES[numerator[index]]
-        del numerator[index]
-        if '/' in alias:
-          n, d = alias.split('/')
-          numerator.extend(n.split('*'))
-          denominator.extend(d.split('*'))
-        else:
-          numerator.extend(alias.split('*'))
-        index = 0
-      else:
-        index += 1
-
-    numerator.sort()
-    denominator.sort()
-
-  def _AnalyzeTypeStr(self, type_str):
-    if '/' in type_str:
-      num, den = type_str.split('/')
-      numerator_type = sorted(num.split('*'))
-      denominator_type = sorted(den.split('*'))
-    else:
-      numerator_type = sorted(type_str.split('*'))
-      denominator_type = []
-    return numerator_type, denominator_type
 
 
 
 
 class ConversionData:
-
-  def __init__(self, numerator, denominator):
-    """Constructor.
-
-    Args:
-      numerator: ConversionType
-      denominator: ConversionType for a ratio, None otherwise
-    """
-
-    self.numerator = numerator
-    self.denominator = denominator
-    self.inverted = False
-    self.numerator_name = self._BuildClassName(
-        self.numerator, self.denominator)
-    self.denominator_name = self._BuildClassName(
-        self.denominator, self.numerator)
 
   def IsRatio(self):
     return self.denominator is not None
@@ -404,13 +445,6 @@ class ConversionData:
         self.denominator_name, self.numerator_name)
     self.inverted = not self.inverted
 
-  def _BuildClassName(self, numerator, denominator):
-
-    name_list = [x.class_name for x in numerator]
-    for check_name in [x.class_name for x in denominator]:
-      if check_name in name_list:
-        name_list.remove(check_name)
-    return '*'.join(sorted(name_list))
 
 */
 
