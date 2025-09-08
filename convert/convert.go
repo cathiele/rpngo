@@ -254,27 +254,31 @@ func (c *conversion) Convert(value float64, valueType string, targetType string)
 		return errors.New("can not convert between a ratio and scalar")
 	}
 
+	// check for inversion eligibility
+
+	if target.isRatio() && (source.numeratorName == target.denominatorName) {
+		target.invert()
+	}
+
+	// check for numerator compatibility
+
+	if source.numeratorName != target.numeratorName {
+		return fmt.Errorf(
+			"incompatible numerator types: %s, %s",
+			source.numeratorName,
+			target.numeratorName)
+	}
+
+	// check for denominator compatibility, if needed
+
+	if source.isRatio() && source.denominatorName != target.denominatorName {
+		return fmt.Errorf(
+			"incompatible denominator types: %s, %s",
+			source.denominatorName,
+			target.denominatorName)
+	}
+
 	/*
-
-	   # check for inversion eligibility
-
-	   if (target.IsRatio() and
-	       (source.numerator_name == target.denominator_name)):
-	     target.Invert()
-
-	   # check for numerator compatibility
-
-	   if source.numerator_name != target.numerator_name:
-	     raise IncompatibleConversionTypes(source.numerator_name,
-	                                       target.numerator_name)
-
-	   # check for denominator compatibility, if needed
-
-	   if (source.IsRatio() and
-	       (source.denominator_name != target.denominator_name)):
-	     raise IncompatibleConversionTypes(source.denominator_name,
-	                                       target.denominator_name)
-
 	   # scale the value by each numerator
 
 	   for snum in source.numerator:
