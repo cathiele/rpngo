@@ -234,24 +234,23 @@ func (c *conversion) insertKeys(className string, data []unit) {
 	}
 }
 
-func (c *conversion) Convert(value float64, valueType string, targetType string) error {
+func (c *conversion) Convert(value float64, valueType string, targetType string) (float64, error) {
 	// extract type and class information
 
 	source, err := c.analyzeType(valueType)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	log.Printf("source: %v", source)
+
 	target, err := c.analyzeType(targetType)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	log.Printf("target: %v", target)
 
 	// check for ratio incompatibility
 
 	if source.isRatio() != target.isRatio() {
-		return errors.New("can not convert between a ratio and scalar")
+		return 0, errors.New("can not convert between a ratio and scalar")
 	}
 
 	// check for inversion eligibility
@@ -263,7 +262,7 @@ func (c *conversion) Convert(value float64, valueType string, targetType string)
 	// check for numerator compatibility
 
 	if source.numeratorName != target.numeratorName {
-		return fmt.Errorf(
+		return 0, fmt.Errorf(
 			"incompatible numerator types: %s, %s",
 			source.numeratorName,
 			target.numeratorName)
@@ -272,33 +271,37 @@ func (c *conversion) Convert(value float64, valueType string, targetType string)
 	// check for denominator compatibility, if needed
 
 	if source.isRatio() && source.denominatorName != target.denominatorName {
-		return fmt.Errorf(
+		return 0, fmt.Errorf(
 			"incompatible denominator types: %s, %s",
 			source.denominatorName,
 			target.denominatorName)
 	}
 
-	/*
-	   # scale the value by each numerator
+	// scale the value by each numerator
 
-	   for snum in source.numerator:
-	     value = self._ScaleUp(value, snum.scale_factor)
-	   for tnum in target.numerator:
-	     value = self._ScaleDown(value, tnum.scale_factor)
+	for _, snum := range source.numerator {
+		value = c.scaleUp(value, snum.scale, snum.offset)
+	}
 
-	   # if needed, scale by each denominator
+	for _, tnum := range target.numerator {
+		value = c.scaleDown(value, tnum.scale, tnum.offset)
+	}
 
-	   if source.IsRatio():
-	     for sden in source.denominator:
-	       value = self._ScaleDown(value, sden.scale_factor)
-	     for tden in target.denominator:
-	       value = self._ScaleUp(value, tden.scale_factor)
-	     if target.inverted:
-	       value = 1.0 / value
+	// If needed, scale by each denominator
 
-	   return value
-	*/
-	return nil
+	if source.isRatio() {
+		for _, sden := range source.denominator {
+			value = c.scaleDown(value, sden.scale, sden.offset)
+		}
+		for _, tden := range target.denominator {
+			value = c.scaleUp(value, tden.scale, tden.offset)
+		}
+		if target.inverted {
+			value = 1.0 / value
+		}
+	}
+
+	return value, nil
 }
 
 func (c *conversion) analyzeType(t string) (*conversionData, error) {
@@ -388,6 +391,14 @@ func (cd *conversionData) buildClassName(numerator, denominator []conversionType
 	return strings.Join(nameList, "*")
 }
 
+func (c *conversion) scaleUp(value float64, scale float64, offset float64) float64 {
+	return (value + offset) * scale
+}
+
+func (c *conversion) scaleDown(value float64, scale float64, offset float64) float64 {
+	return (value / scale) - offset
+}
+
 func (cd *conversionData) isRatio() bool {
 	return len(cd.denominator) > 0
 }
@@ -400,17 +411,6 @@ func (cd *conversionData) invert() {
 
 /*
 class Conversion:
-
-  def _ScaleUp(self, value, scale_factor):
-    if isinstance(scale_factor, tuple):
-      return (value + scale_factor[1]) * scale_factor[0]
-    return value * scale_factor
-
-  def _ScaleDown(self, value, scale_factor):
-    if isinstance(scale_factor, tuple):
-      return (value / scale_factor[0]) - scale_factor[1]
-    return value / scale_factor
-
   def DumpHelp(self):
 
     classes = {}
