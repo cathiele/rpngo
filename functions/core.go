@@ -2,14 +2,9 @@
 package functions
 
 import (
-	"errors"
 	"math/rand"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
-)
-
-var (
-	errDivideByZero = errors.New("divide by zero")
 )
 
 const AddHelp = "Adds two numbers"
@@ -60,12 +55,12 @@ func Divide(r *rpn.RPN) error {
 	}
 	if a.Type == rpn.COMPLEX_FRAME {
 		if b.Complex == 0 {
-			return errDivideByZero
+			return rpn.ErrDivideByZero
 		}
 		return r.PushComplex(a.Complex / b.Complex)
 	}
 	if b.Int == 0 {
-		return errDivideByZero
+		return rpn.ErrDivideByZero
 	}
 	return r.PushInt(a.Int/b.Int, a.Type)
 }
@@ -94,7 +89,7 @@ func Negate(r *rpn.RPN) error {
 		}
 		return r.PushFrame(f)
 	}
-	return errors.New("expected number or boolean")
+	return rpn.ErrIllegalValue
 }
 
 const ExecHelp = "Executes a string\n" +

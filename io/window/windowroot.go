@@ -1,8 +1,6 @@
 package window
 
 import (
-	"errors"
-	"fmt"
 	"mattwach/rpngo/rpn"
 	"strings"
 )
@@ -34,24 +32,24 @@ func (wr *WindowRoot) FindwindowGroup(name string) (*windowGroup, error) {
 	}
 	wge := wr.group.findwindowGroupEntry(name)
 	if wge == nil {
-		return nil, fmt.Errorf("window group not found: %s", name)
+		return nil, rpn.ErrNotFound
 	}
 	if wge.group == nil {
-		return nil, fmt.Errorf("not a window group: %s", name)
+		return nil, rpn.ErrNotAWindowGroup
 	}
 	return wge.group, nil
 }
 
 func (wr *WindowRoot) DeleteWindowOrGroup(name string) error {
 	if name == "root" {
-		return errors.New("can not delete root window")
+		return rpn.ErrCanNotDeleteRootWindow
 	}
 	if name == "i" {
-		return errors.New("can not delete input window")
+		return rpn.ErrCanNotDeleteInputWindow
 	}
 	pwge, wge := wr.group.findwindowGroupEntryAndParent(name)
 	if wge == nil {
-		return fmt.Errorf("window not found: %s", name)
+		return rpn.ErrNotFound
 	}
 	pwge.removeChild(wge)
 	wr.adjustNeeded = true
@@ -60,16 +58,16 @@ func (wr *WindowRoot) DeleteWindowOrGroup(name string) error {
 
 func (wr *WindowRoot) MoveWindowOrGroup(src string, dst string, beginning bool) error {
 	if src == "root" {
-		return errors.New("can not move root window")
+		return rpn.ErrIllegalWindowOperation
 	}
 	srcpg, srcwge := wr.group.findwindowGroupEntryAndParent(src)
 	if srcwge == nil {
-		return fmt.Errorf("source window not found: %s", src)
+		return rpn.ErrNotFound
 	}
 	if srcwge.group != nil {
 		check := srcwge.group.findwindowGroupEntry(dst)
 		if check != nil {
-			return fmt.Errorf("moving %s to %s would detach from root", src, dst)
+			return rpn.ErrIllegalWindowOperation
 		}
 	}
 	dstpg, err := wr.FindwindowGroup(dst)
@@ -88,14 +86,14 @@ func (wr *WindowRoot) MoveWindowOrGroup(src string, dst string, beginning bool) 
 
 func (wr *WindowRoot) SetWindowWeight(name string, w int) error {
 	if w < 1 {
-		return fmt.Errorf("weight must be >= 1: %d", w)
+		return rpn.ErrIllegalWindowOperation
 	}
 	if w > 10000 {
-		return fmt.Errorf("weight must be <= 10000: %d", w)
+		return rpn.ErrIllegalWindowOperation
 	}
 	wge := wr.group.findwindowGroupEntry(name)
 	if wge == nil {
-		return fmt.Errorf("window not found: %s", name)
+		return rpn.ErrNotFound
 	}
 	wge.weight = w
 	wr.adjustNeeded = true
@@ -124,7 +122,7 @@ func (wr *WindowRoot) UseColumnLayout(name string, v bool) error {
 }
 
 // Calls update on all contained windows
-func (wr *WindowRoot) Update(rpn *rpn.RPN, screenw, screenh int, updateInput bool) error {
+func (wr *WindowRoot) Update(r *rpn.RPN, screenw, screenh int, updateInput bool) error {
 	if wr.adjustNeeded {
 		if err := wr.group.adjustChildren(screenw, screenh); err != nil {
 			return err
@@ -133,7 +131,7 @@ func (wr *WindowRoot) Update(rpn *rpn.RPN, screenw, screenh int, updateInput boo
 		wr.adjustNeeded = false
 		// We want to give screens other than the input screen a chance to
 		// redraw before getting locked into the input screen
-		if err := wr.group.update(rpn, screenw, screenh); err != nil {
+		if err := wr.group.update(r, screenw, screenh); err != nil {
 			return err
 		}
 	}
@@ -141,13 +139,13 @@ func (wr *WindowRoot) Update(rpn *rpn.RPN, screenw, screenh int, updateInput boo
 		// Update the input window first
 		input := wr.FindWindow("i")
 		if input == nil {
-			return errors.New("could not find window 'i' for input")
+			return rpn.ErrNotFound
 		}
-		if err := input.Update(rpn); err != nil {
+		if err := input.Update(r); err != nil {
 			return err
 		}
 	}
-	return wr.group.update(rpn, screenw, screenh)
+	return wr.group.update(r, screenw, screenh)
 }
 
 func (wr *WindowRoot) UpdateByName(r *rpn.RPN, name string) error {
@@ -156,7 +154,7 @@ func (wr *WindowRoot) UpdateByName(r *rpn.RPN, name string) error {
 	}
 	wge := wr.group.findwindowGroupEntry(name)
 	if wge == nil {
-		return fmt.Errorf("window not found: %s", name)
+		return rpn.ErrNotFound
 	}
 	if wge.group != nil {
 		return wge.group.update(r, wr.group.w, wr.group.h)

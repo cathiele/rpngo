@@ -138,11 +138,11 @@ func (iw *InputWindow) Type() string {
 }
 
 func (iw *InputWindow) SetProp(name string, val rpn.Frame) error {
-	return errors.New("props not supported")
+	return rpn.ErrNotSupported
 }
 
 func (iw *InputWindow) GetProp(name string) (rpn.Frame, error) {
-	return rpn.Frame{}, errors.New("props not supported")
+	return rpn.Frame{}, rpn.ErrNotSupported
 }
 
 func (iw *InputWindow) ListProps() []string {

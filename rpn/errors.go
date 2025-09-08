@@ -1,0 +1,28 @@
+package rpn
+
+import "errors"
+
+var (
+	ErrCanNotDeleteInputWindow   = errors.New("can not delete input window")
+	ErrCanNotDeleteRootWindow    = errors.New("can not delete root window")
+	ErrComplecNumberNotSupported = errors.New("complex number not suppported")
+	ErrDivideByZero              = errors.New("divide by zero")
+	ErrExpectedABoolean          = errors.New("expected a boolean")
+	ErrExpectedAComplexNumber    = errors.New("expected a complex number")
+	ErrExpectedANumber           = errors.New("expected a number")
+	ErrExpectedAString           = errors.New("expected a string")
+	ErrIllegalName               = errors.New("illegal name")
+	ErrIllegalValue              = errors.New("illegal value")
+	ErrIllegalWindowOperation    = errors.New("illegal window operation")
+	ErrInterrupted               = errors.New("interrupted")
+	ErrInvalidColor              = errors.New("invalid color")
+	ErrNotEnoughStackFrames      = errors.New("not enough stack frames")
+	ErrNotAWindowGroup           = errors.New("not a window group")
+	ErrNotSupported              = errors.New("not supported")
+	ErrNotFound                  = errors.New("not found")
+	ErrStackEmpty                = errors.New("stack empty")
+	ErrStackFull                 = errors.New("stack is full")
+	ErrUnknownProperty           = errors.New("unknown property")
+	ErrInputWindowNotFound       = errors.New("input window not found")
+	ErrWindowAlreadyExists       = errors.New("window already exists")
+)

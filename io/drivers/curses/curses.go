@@ -2,9 +2,9 @@
 package curses
 
 import (
-	"errors"
 	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/rpn"
 
 	"github.com/gbin/goncurses"
 )
@@ -265,22 +265,22 @@ func colorIndexFor(r, g, b int) int16 {
 
 func checkColorRange(r, g, b int) error {
 	if r < 0 {
-		return errors.New("red value < 0")
+		return rpn.ErrInvalidColor
 	}
 	if r > 31 {
-		return errors.New("red value > 31")
+		return rpn.ErrInvalidColor
 	}
 	if g < 0 {
-		return errors.New("green value < 0")
+		return rpn.ErrInvalidColor
 	}
 	if g > 31 {
-		return errors.New("green value > 31")
+		return rpn.ErrInvalidColor
 	}
 	if b < 0 {
-		return errors.New("blue value < 0")
+		return rpn.ErrInvalidColor
 	}
 	if b > 31 {
-		return errors.New("blue value > 31")
+		return rpn.ErrInvalidColor
 	}
 	return nil
 }

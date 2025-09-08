@@ -27,7 +27,7 @@ func (rpn *RPN) exec(arg string) error {
 		case '$':
 			f, ok := rpn.getVariable(arg[1:])
 			if !ok {
-				return fmt.Errorf("variable not found: %s", arg[1:])
+				return ErrNotFound
 			}
 			rpn.PushFrame(f)
 			return nil

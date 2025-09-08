@@ -1,8 +1,6 @@
 package plotwin
 
 import (
-	"errors"
-	"fmt"
 	"mattwach/rpngo/rpn"
 )
 
@@ -78,14 +76,14 @@ func (pw *PlotWindow) SetProp(name string, val rpn.Frame) error {
 		}
 		v := real(val.Complex)
 		if v < 1 {
-			return errors.New("steps must be >= 1")
+			return rpn.ErrIllegalValue
 		}
 		if v > maxSteps {
-			return fmt.Errorf("steps must be <= %d", maxSteps)
+			return rpn.ErrIllegalValue
 		}
 		pw.steps = uint32(v)
 	default:
-		return fmt.Errorf("unknown property: %s", name)
+		return rpn.ErrUnknownProperty
 	}
 
 	return nil
@@ -112,7 +110,7 @@ func (pw *PlotWindow) GetProp(name string) (rpn.Frame, error) {
 	case "steps":
 		return rpn.Frame{Type: rpn.COMPLEX_FRAME, Complex: complex(float64(pw.steps), 0)}, nil
 	}
-	return rpn.Frame{}, fmt.Errorf("unknown property: %s", name)
+	return rpn.Frame{}, rpn.ErrUnknownProperty
 }
 
 func (pw *PlotWindow) ListProps() []string {

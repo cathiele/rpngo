@@ -1,7 +1,6 @@
 package functions
 
 import (
-	"errors"
 	"mattwach/rpngo/rpn"
 )
 
@@ -31,7 +30,7 @@ func convert(r *rpn.RPN, t rpn.FrameType) error {
 	case rpn.OCTAL_FRAME:
 		v.Type = t
 	default:
-		return errors.New("bad frame type")
+		return rpn.ErrIllegalValue
 	}
 	return r.PushFrame(v)
 }
@@ -98,7 +97,7 @@ func Float(r *rpn.RPN) error {
 		v.Type = rpn.COMPLEX_FRAME
 		v.Complex = complex(float64(v.Int), 0)
 	default:
-		return errors.New("bad frame type")
+		return rpn.ErrIllegalValue
 	}
 	return r.PushFrame(v)
 }

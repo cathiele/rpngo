@@ -2,7 +2,6 @@
 package rpn
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -132,7 +131,7 @@ func (r *RPN) PopFrame() (sf Frame, err error) {
 
 func (r *RPN) Pop2Frames() (a Frame, b Frame, err error) {
 	if len(r.frames) < 2 {
-		err = errNotEnoughStackFrames
+		err = ErrNotEnoughStackFrames
 		return
 	}
 	a = r.frames[len(r.frames)-2]
@@ -257,17 +256,17 @@ func (r *RPN) PopStackIndex() (i int, err error) {
 	i = int(f.Int)
 	if f.Type == COMPLEX_FRAME {
 		if imag(f.Complex) != 0 {
-			err = errors.New("real number required")
+			err = ErrComplecNumberNotSupported
 			return
 		}
 		i = int(real(f.Complex))
 	}
 	if i < 0 {
-		err = errors.New("index must be >= 0")
+		err = ErrIllegalValue
 		return
 	}
 	if i >= len(r.frames) {
-		err = fmt.Errorf("index too high: %d", i)
+		err = ErrIllegalValue
 		return
 	}
 	return

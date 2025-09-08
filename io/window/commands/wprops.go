@@ -15,7 +15,7 @@ func (wc *WindowCommands) WListP(r *rpn.RPN) error {
 	}
 	w := wc.root.FindWindow(wname)
 	if w == nil {
-		return fmt.Errorf("window not found: %s", wname)
+		return rpn.ErrNotFound
 	}
 	for _, p := range w.ListProps() {
 		f, err := w.GetProp(p)
@@ -38,7 +38,7 @@ func (wc *WindowCommands) WGetP(r *rpn.RPN) error {
 	}
 	w := wc.root.FindWindow(wname)
 	if w == nil {
-		return fmt.Errorf("window not found: %s", wname)
+		return rpn.ErrNotFound
 	}
 	f, err := w.GetProp(pname)
 	if err != nil {
@@ -61,7 +61,7 @@ func (wc *WindowCommands) WSetP(r *rpn.RPN) error {
 	}
 	w := wc.root.FindWindow(wname)
 	if w == nil {
-		return fmt.Errorf("window not found: %s", wname)
+		return rpn.ErrNotFound
 	}
 	return w.SetProp(pname, f)
 }

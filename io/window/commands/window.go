@@ -2,8 +2,6 @@
 package commands
 
 import (
-	"errors"
-	"fmt"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/io/window/plotwin"
 	"mattwach/rpngo/io/window/stackwin"
@@ -62,7 +60,7 @@ const WResetHelp = "Resets window configuration to just a single input window"
 func (wc *WindowCommands) WReset(r *rpn.RPN) error {
 	iw := wc.root.FindWindow("i")
 	if iw == nil {
-		return errors.New("internal error: no window 'i' was found")
+		return rpn.ErrInputWindowNotFound
 	}
 	wc.root.RemoveAllChildren()
 	wc.root.UseColumnLayout("root", false)
@@ -193,7 +191,7 @@ func (wc *WindowCommands) newWindowNameFromStack(r *rpn.RPN) (string, error) {
 	}
 	existing := wc.root.FindWindow(name)
 	if existing != nil {
-		return "", fmt.Errorf("window already exits: %s", name)
+		return "", rpn.ErrWindowAlreadyExists
 	}
 	return name, nil
 }

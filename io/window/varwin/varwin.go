@@ -48,7 +48,7 @@ func (vw *VariableWindow) SetProp(name string, val rpn.Frame) error {
 		}
 		vw.multiline = val.Int != 0
 	} else {
-		return fmt.Errorf("unknown property: %s", name)
+		return rpn.ErrUnknownProperty
 	}
 	return nil
 }
@@ -57,7 +57,7 @@ func (vw *VariableWindow) GetProp(name string) (rpn.Frame, error) {
 	if name == "multiline" {
 		return rpn.BoolFrame(vw.multiline), nil
 	}
-	return rpn.Frame{}, fmt.Errorf("unknown property: %s", name)
+	return rpn.Frame{}, rpn.ErrUnknownProperty
 }
 
 func (vw *VariableWindow) ListProps() []string {

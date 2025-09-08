@@ -16,6 +16,11 @@ import (
 	"errors"
 )
 
+var (
+	ErrUnterminatedDouble      = errors.New("unterminated double quote")
+	ErrUnterminatedSingleQuote = errors.New("unterminated single quote")
+)
+
 type State uint8
 
 const (
@@ -122,9 +127,9 @@ func Fields(m string) ([]string, error) {
 	if p.s == TOKEN {
 		p.token('\n')
 	} else if p.s == STRING_SINGLE {
-		return nil, errors.New("unterminated single quote")
+		return nil, ErrUnterminatedSingleQuote
 	} else if p.s == STRING_DOUBLE {
-		return nil, errors.New("unterminated double quote")
+		return nil, ErrUnterminatedDouble
 	}
 	return p.ret, nil
 }

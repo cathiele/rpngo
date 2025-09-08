@@ -1,8 +1,6 @@
 package rpn
 
 import (
-	"errors"
-	"fmt"
 	"mattwach/rpngo/parse"
 	"sort"
 	"strings"
@@ -19,7 +17,7 @@ const popVariableFrameHelp = "Pops a variable frame from the variable stack"
 
 func popVariableFrame(r *RPN) error {
 	if len(r.variables) <= 1 {
-		return errors.New("no variable stack to pop")
+		return ErrStackEmpty
 	}
 	r.variables = r.variables[:len(r.variables)-1]
 	return nil
@@ -32,10 +30,10 @@ func (r *RPN) setVariable(name string) error {
 		return err
 	}
 	if strings.Contains(name, "=") {
-		return errors.New("= is not allowed in variable names")
+		return ErrIllegalName
 	}
 	if strings.Contains(name, "$") {
-		return errors.New("$ is not allowed in variable names")
+		return ErrIllegalName
 	}
 	r.variables[len(r.variables)-1][name] = f
 	return nil
@@ -46,7 +44,7 @@ func (r *RPN) clearVariable(name string) error {
 	vframe := r.variables[len(r.variables)-1]
 	_, ok := vframe[name]
 	if !ok {
-		return errors.New("variable not found")
+		return ErrNotFound
 	}
 	delete(vframe, name)
 	return nil
@@ -67,10 +65,10 @@ func (r *RPN) getVariable(name string) (Frame, bool) {
 func (r *RPN) GetStringVariable(name string) (string, error) {
 	v, ok := r.getVariable(name)
 	if !ok {
-		return "", fmt.Errorf("$%s is not defined", name)
+		return "", ErrNotFound
 	}
 	if v.Type != STRING_FRAME {
-		return "", fmt.Errorf("$%s is not a string", name)
+		return "", ErrExpectedAString
 	}
 	return v.Str, nil
 }
@@ -79,10 +77,10 @@ func (r *RPN) GetStringVariable(name string) (string, error) {
 func (r *RPN) GetComplexVariable(name string) (complex128, error) {
 	v, ok := r.getVariable(name)
 	if !ok {
-		return 0, fmt.Errorf("$%s is not defined", name)
+		return 0, ErrNotFound
 	}
 	if v.Type != COMPLEX_FRAME {
-		return 0, fmt.Errorf("$%s is not a number", name)
+		return 0, ErrExpectedANumber
 	}
 	return v.Complex, nil
 }
@@ -140,7 +138,7 @@ func (r *RPN) AllVariableNamesAndValues() []NameAndValues {
 func (r *RPN) execVariableAsMacro(name string) error {
 	f, ok := r.getVariable(name)
 	if !ok {
-		return fmt.Errorf("unknown variable: @%s", name)
+		return ErrNotFound
 	}
 	if f.Type == COMPLEX_FRAME {
 		// Just push the frame

@@ -2,7 +2,6 @@
 package stackwin
 
 import (
-	"errors"
 	"fmt"
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
@@ -43,11 +42,11 @@ func (sw *StackWindow) Type() string {
 }
 
 func (sw *StackWindow) SetProp(name string, val rpn.Frame) error {
-	return errors.New("props not supported")
+	return rpn.ErrNotSupported
 }
 
 func (sw *StackWindow) GetProp(name string) (rpn.Frame, error) {
-	return rpn.Frame{}, errors.New("props not supported")
+	return rpn.Frame{}, rpn.ErrNotSupported
 }
 
 func (sw *StackWindow) ListProps() []string {
