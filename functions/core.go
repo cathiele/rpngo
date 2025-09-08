@@ -3,8 +3,6 @@ package functions
 
 import (
 	"errors"
-	"math"
-	"math/cmplx"
 	"math/rand"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
@@ -97,63 +95,6 @@ func Negate(r *rpn.RPN) error {
 		return r.PushFrame(f)
 	}
 	return errors.New("expected number or boolean")
-}
-
-const AbsHelp = "Takes the absolute value"
-
-func Abs(r *rpn.RPN) error {
-	a, err := r.PopNumber()
-	if err != nil {
-		return err
-	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushComplex(complex(cmplx.Abs(a.Complex), 0))
-	}
-	iv := a.Int
-	if iv < 0 {
-		iv = -iv
-	}
-	return r.PushInt(iv, a.Type)
-}
-
-const SquareHelp = "executes v * v"
-
-func Square(r *rpn.RPN) error {
-	a, err := r.PopNumber()
-	if err != nil {
-		return err
-	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushComplex(a.Complex * a.Complex)
-	}
-	return r.PushInt(a.Int*a.Int, a.Type)
-}
-
-const PowerHelp = "executes a to the power of b"
-
-func Power(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
-	if err != nil {
-		return err
-	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushComplex(cmplx.Pow(a.Complex, b.Complex))
-	}
-	return r.PushInt(int64(math.Pow(float64(a.Int), float64(b.Int))), a.Type)
-}
-
-const SquareRootHelp = "takes the square root of a complex number"
-
-func SquareRoot(r *rpn.RPN) error {
-	a, err := r.PopNumber()
-	if err != nil {
-		return err
-	}
-	c := a.Complex
-	if a.Type != rpn.COMPLEX_FRAME {
-		c = complex(float64(a.Int), 0)
-	}
-	return r.PushComplex(cmplx.Sqrt(c))
 }
 
 const ExecHelp = "Executes a string\n" +
