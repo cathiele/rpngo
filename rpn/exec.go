@@ -20,6 +20,8 @@ func (rpn *RPN) exec(arg string) error {
 	if len(arg) > 1 {
 		if arg[len(arg)-1] == '=' {
 			return rpn.setVariable(arg[:len(arg)-1])
+		} else if arg[len(arg)-1] == '/' {
+			return rpn.clearVariable(arg[:len(arg)-1])
 		}
 		switch arg[0] {
 		case '$':

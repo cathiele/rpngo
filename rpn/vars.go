@@ -41,6 +41,17 @@ func (r *RPN) setVariable(name string) error {
 	return nil
 }
 
+// Clears a variable
+func (r *RPN) clearVariable(name string) error {
+	vframe := r.variables[len(r.variables)-1]
+	_, ok := vframe[name]
+	if !ok {
+		return errors.New("variable not found")
+	}
+	delete(vframe, name)
+	return nil
+}
+
 // Gets a variable
 func (r *RPN) getVariable(name string) (Frame, bool) {
 	for i := len(r.variables) - 1; i >= 0; i-- {

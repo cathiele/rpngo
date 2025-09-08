@@ -96,6 +96,7 @@ func (rpn *RPN) initHelp() {
 			"Use a variable with $name\n" +
 			"Example: 5 x= $x $x *\n" +
 			"\n" +
+			"Clear a variable with a trailing /. e.g. x/\n" +
 			"Push a variable frame with vpush, pop with vpop\n" +
 			"Variables added after vpush will be reverted after a vpop,\n" +
 			"allowing for 'local variables' to be temporarily defined." +
