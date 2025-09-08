@@ -62,6 +62,9 @@ func (rpn *RPN) exec(arg string) error {
 	if arg == "false" {
 		return rpn.PushBool(false)
 	}
+	if strings.Contains(arg, ">") {
+		return rpn.convert(arg)
+	}
 	return rpn.pushComplex(arg)
 }
 
@@ -106,7 +109,7 @@ func (rpn *RPN) pushComplex(arg string) error {
 	} else {
 		fv, err := strconv.ParseFloat(arg, 64)
 		if err != nil {
-			return err
+			return ErrSyntax
 		}
 		v = complex(fv, 0)
 	}
@@ -147,4 +150,17 @@ func parseComplexWithI(arg string) (complex128, error) {
 		return 0, err
 	}
 	return complex(fa, fb), nil
+}
+
+func (r *RPN) convert(arg string) error {
+	v, err := r.PopReal()
+	if err != nil {
+		return err
+	}
+	parts := strings.SplitN(arg, ">", 2)
+	newv, err := r.conv.Convert(v, parts[0], parts[1])
+	if err != nil {
+		return err
+	}
+	return r.PushComplex(complex(newv, 0))
 }

@@ -5,7 +5,7 @@ import "errors"
 var (
 	ErrCanNotDeleteInputWindow   = errors.New("can not delete input window")
 	ErrCanNotDeleteRootWindow    = errors.New("can not delete root window")
-	ErrComplecNumberNotSupported = errors.New("complex number not suppported")
+	ErrComplexNumberNotSupported = errors.New("complex number not suppported")
 	ErrDivideByZero              = errors.New("divide by zero")
 	ErrExpectedABoolean          = errors.New("expected a boolean")
 	ErrExpectedAComplexNumber    = errors.New("expected a complex number")
@@ -22,6 +22,7 @@ var (
 	ErrNotFound                  = errors.New("not found")
 	ErrStackEmpty                = errors.New("stack empty")
 	ErrStackFull                 = errors.New("stack is full")
+	ErrSyntax                    = errors.New("syntax error (? for help)")
 	ErrUnknownProperty           = errors.New("unknown property")
 	ErrInputWindowNotFound       = errors.New("input window not found")
 	ErrWindowAlreadyExists       = errors.New("window already exists")

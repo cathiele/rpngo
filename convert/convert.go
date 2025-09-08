@@ -211,7 +211,7 @@ type conversionData struct {
 }
 
 func Init() *Conversion {
-	c := &Conversion{}
+	c := &Conversion{convertDict: make(map[string]conversionType)}
 	c.insertKeys("Distance", distantConvert)
 	c.insertKeys("Time", timeConvert)
 	c.insertKeys("Force/Weight/Mass (Planet Earth)", massConvert)

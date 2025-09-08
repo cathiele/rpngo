@@ -215,6 +215,29 @@ func (r *RPN) PopComplex() (v complex128, err error) {
 	return
 }
 
+func (r *RPN) PopReal() (v float64, err error) {
+	f, err := r.PopFrame()
+	if err != nil {
+		return
+	}
+	if f.Type == COMPLEX_FRAME {
+		if imag(f.Complex) != 0 {
+			err = ErrComplexNumberNotSupported
+			r.PushFrame(f)
+			return
+		}
+		v = real(f.Complex)
+		return
+	}
+	if f.IsInt() {
+		v = float64(f.Int)
+		return
+	}
+	r.PushFrame(f)
+	err = ErrExpectedANumber
+	return
+}
+
 // Pops 2 numbers.
 //
 // If either is a non-number, an error is returned
@@ -256,7 +279,7 @@ func (r *RPN) PopStackIndex() (i int, err error) {
 	i = int(f.Int)
 	if f.Type == COMPLEX_FRAME {
 		if imag(f.Complex) != 0 {
-			err = ErrComplecNumberNotSupported
+			err = ErrComplexNumberNotSupported
 			return
 		}
 		i = int(real(f.Complex))
