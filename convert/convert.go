@@ -399,6 +399,64 @@ func (c *conversion) scaleDown(value float64, scale float64, offset float64) flo
 	return (value / scale) - offset
 }
 
+func (c *conversion) Help() string {
+	classes := make(map[string][]string)
+
+	for name, conversion := range c.convertDict {
+		classes[conversion.className] = append(classes[conversion.className], name)
+	}
+
+	var classNames []string
+	for name := range classes {
+		classNames = append(classNames, name)
+	}
+	sort.Strings(classNames)
+
+	var lines []string
+	for _, className := range classNames {
+		lines = append(lines, fmt.Sprintf("\n%s:", className))
+		sort.Strings(classes[className])
+		var subNames []string
+		for _, name := range classes[className] {
+			if (len(name) > 0) && (name[0] == '_') {
+				continue
+			}
+			subNames = append(subNames, name)
+			if len(subNames) == 4 {
+				lines = dumpColumns(lines, subNames)
+				subNames = subNames[:0]
+			}
+		}
+		if len(subNames) > 0 {
+			lines = dumpColumns(lines, subNames)
+		}
+	}
+
+	lines = append(lines, "\nUseful Aliases:\n")
+	var aliasNames []string
+	for name := range aliases {
+		aliasNames = append(aliasNames, name)
+	}
+	sort.Strings(aliasNames)
+
+	for _, aliasName := range aliasNames {
+		lines = append(
+			lines,
+			fmt.Sprintf("  %-15s ->  %s\n", aliasName, aliases[aliasName]))
+	}
+
+	return strings.Join(lines, "")
+}
+
+func dumpColumns(lines []string, nameList []string) []string {
+	lines = append(lines, "  ")
+	for _, name := range nameList {
+		lines = append(lines, fmt.Sprintf("%-15s ", name))
+	}
+	lines = append(lines, "\n")
+	return lines
+}
+
 func (cd *conversionData) isRatio() bool {
 	return len(cd.denominator) > 0
 }
@@ -408,45 +466,6 @@ func (cd *conversionData) invert() {
 	cd.numeratorName, cd.denominatorName = cd.denominatorName, cd.numeratorName
 	cd.inverted = !cd.inverted
 }
-
-/*
-class Conversion:
-  def DumpHelp(self):
-
-    classes = {}
-
-    for conversion_name, conversion in self.convert_dict.items():
-      if conversion.class_name not in classes:
-        classes[conversion.class_name] = []
-      classes[conversion.class_name].append(conversion_name)
-
-    for class_name in sorted(classes):
-      sys.stdout.write('\n%s:\n' % class_name)
-      names = sorted(classes[class_name])
-      names.reverse()
-      sub_names = []
-      while names:
-        name = names.pop()
-        if name.startswith('_'):
-          continue
-        sub_names.append(name)
-        if len(sub_names) == 4:
-          self._DumpColumns(sub_names)
-          sub_names = []
-      if sub_names:
-        self._DumpColumns(sub_names)
-
-    sys.stdout.write('\nUseful Aliases:\n')
-    for alias_name in sorted(ALIASES):
-      sys.stdout.write('  %-15s ->  %s\n' % (alias_name, ALIASES[alias_name]))
-
-  def _DumpColumns(self, name_list):
-
-    sys.stdout.write('  ')
-    for name in name_list:
-      sys.stdout.write('%-15s ' % name)
-    sys.stdout.write('\n')
-*/
 
 func Debugme() {
 	fmt.Printf("%v\n", distantConvert)
