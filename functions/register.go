@@ -11,6 +11,7 @@ func RegisterAll(rpn *rpn.RPN) {
 	rpn.Register("-", Subtract, SubtractHelp)
 	rpn.Register("!=", NotEqual, NotEqualHelp)
 	rpn.Register("*", Multiply, MultiplyHelp)
+	rpn.Register("**", Power, PowerHelp)
 	rpn.Register("/", Divide, DivideHelp)
 	rpn.Register("+", Add, AddHelp)
 	rpn.Register("<", LessThan, LessThanHelp)

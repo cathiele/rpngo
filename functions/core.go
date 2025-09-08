@@ -3,6 +3,7 @@ package functions
 
 import (
 	"errors"
+	"math"
 	"math/cmplx"
 	"math/rand"
 	"mattwach/rpngo/parse"
@@ -126,6 +127,19 @@ func Square(r *rpn.RPN) error {
 		return r.PushComplex(a.Complex * a.Complex)
 	}
 	return r.PushInt(a.Int*a.Int, a.Type)
+}
+
+const PowerHelp = "executes a to the power of b"
+
+func Power(r *rpn.RPN) error {
+	a, b, err := r.Pop2Numbers()
+	if err != nil {
+		return err
+	}
+	if a.Type == rpn.COMPLEX_FRAME {
+		return r.PushComplex(cmplx.Pow(a.Complex, b.Complex))
+	}
+	return r.PushInt(int64(math.Pow(float64(a.Int), float64(b.Int))), a.Type)
 }
 
 const SquareRootHelp = "takes the square root of a complex number"
