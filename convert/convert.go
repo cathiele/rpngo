@@ -1,6 +1,7 @@
 package convert
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -247,11 +248,13 @@ func (c *conversion) Convert(value float64, valueType string, targetType string)
 	}
 	log.Printf("target: %v", target)
 
-	/*
-	   # check for ratio incompatibility
+	// check for ratio incompatibility
 
-	   if source.IsRatio() != target.IsRatio():
-	     raise IllegalConversionBetweenRatioAndScalar()
+	if source.isRatio() != target.isRatio() {
+		return errors.New("can not convert between a ratio and scalar")
+	}
+
+	/*
 
 	   # check for inversion eligibility
 
@@ -381,6 +384,16 @@ func (cd *conversionData) buildClassName(numerator, denominator []conversionType
 	return strings.Join(nameList, "*")
 }
 
+func (cd *conversionData) isRatio() bool {
+	return len(cd.denominator) > 0
+}
+
+func (cd *conversionData) invert() {
+	cd.numerator, cd.denominator = cd.denominator, cd.numerator
+	cd.numeratorName, cd.denominatorName = cd.denominatorName, cd.numeratorName
+	cd.inverted = !cd.inverted
+}
+
 /*
 class Conversion:
 
@@ -429,23 +442,6 @@ class Conversion:
     for name in name_list:
       sys.stdout.write('%-15s ' % name)
     sys.stdout.write('\n')
-
-
-
-
-
-class ConversionData:
-
-  def IsRatio(self):
-    return self.denominator is not None
-
-  def Invert(self):
-    self.numerator, self.denominator = self.denominator, self.numerator
-    self.numerator_name, self.denominator_name = (
-        self.denominator_name, self.numerator_name)
-    self.inverted = not self.inverted
-
-
 */
 
 func Debugme() {
