@@ -2,6 +2,7 @@ package convert
 
 import (
 	"fmt"
+	"log"
 	"math"
 )
 
@@ -19,7 +20,7 @@ import (
 //
 // Done!
 
-type Unit struct {
+type unit struct {
 	scale  float64
 	offset float64
 	names  []string
@@ -29,7 +30,7 @@ type Unit struct {
 // Conversions to meters
 //
 
-var distantConvert = []Unit{
+var distantConvert = []unit{
 	{1.0000, 0, []string{"meter", "m", "meters", "metre", "metres"}},
 	{1609.3440, 0, []string{"mile", "miles", "mi"}},
 	{0.0254, 0, []string{"inch", "inches", "in"}},
@@ -51,7 +52,7 @@ var distantConvert = []Unit{
 // Conversion to seconds
 //
 
-var timeConvert = []Unit{
+var timeConvert = []unit{
 	{1.0000, 0, []string{"second", "seconds", "sec", "s"}},
 	{0.0010, 0, []string{"millisecond", "milliseconds", "ms"}},
 	{1.0e-6, 0, []string{"microsecond", "microseconds", "us"}},
@@ -66,7 +67,7 @@ var timeConvert = []Unit{
 // Weight/Mass Conversions (planet earth :) )
 //
 
-var massConvert = []Unit{
+var massConvert = []unit{
 	{1.00000, 0, []string{"gram", "grams", "g"}},
 	{1000.00000, 0, []string{"kilogram", "kilograms", "kg"}},
 	{28.3495231, 0, []string{"ounce", "ounces", "oz"}},
@@ -81,7 +82,7 @@ var massConvert = []Unit{
 // Cycles
 //
 
-var cycleConvert = []Unit{
+var cycleConvert = []unit{
 	{1.0000, 0, []string{"cycle", "cycles"}},
 	{1000000.0000, 0, []string{"kilacycle", "kilacycles"}},
 	{1000000.0000, 0, []string{"megacycle", "megacycles"}},
@@ -92,7 +93,7 @@ var cycleConvert = []Unit{
 // Memory
 //
 
-var memoryConvert = []Unit{
+var memoryConvert = []unit{
 	{1.0000, 0, []string{"bit", "bits"}},
 	{1024.0000, 0, []string{"kilobit", "kilobits"}},
 	{8.0000, 0, []string{"byte", "bytes"}},
@@ -106,7 +107,7 @@ var memoryConvert = []Unit{
 // Angles
 //
 
-var angleConvert = []Unit{
+var angleConvert = []unit{
 	{1.0000, 0, []string{"radians", "rad"}},
 	{math.Pi / 180.0, 0, []string{"degrees", "deg"}},
 }
@@ -115,7 +116,7 @@ var angleConvert = []Unit{
 // Energy
 //
 
-var energyConvert = []Unit{
+var energyConvert = []unit{
 	{1.0000, 0, []string{"joules", "j"}},
 	{1000.0000, 0, []string{"kilojoules", "kj"}},
 	{1000000.0000, 0, []string{"megajoules", "mj"}},
@@ -131,7 +132,7 @@ var energyConvert = []Unit{
 // Temperature
 //
 
-var temperatureConvert = []Unit{
+var temperatureConvert = []unit{
 	{1.0, 0, []string{"c", "celsius"}},
 	{5.0 / 9.0, -32, []string{"f", "fahrenheit"}},
 	{1.0, -273.15, []string{"k", "kelvin"}},
@@ -141,94 +142,89 @@ var temperatureConvert = []Unit{
 // Aliases to help things along
 //
 
-/*
-ALIASES = {
-  'acre': '_acremeter*_acremeter',
-  'acres': 'acre',
-  'bar': '_barnewton/meter*meter',
-  'cadence': 'cycles/minute',
-  'gallon': '_gallonmeters*_gallonmeters*_gallonmeters',
-  'gallons': 'gallon',
-  'ghz': 'gigacycles/second',
-  'hp': 'hps/second',
-  'hz': 'cycles/second',
-  'khz': 'kilacycles/second',
-  'kilowatt': 'kilojoules/second',
-  'kilowatts': 'kilowatt',
-  'kw': 'kilojoules/second',
-  'liter': 'decimeter*decimeter*decimeter',
-  'litre': 'liter',
-  'liters': 'liter',
-  'litres': 'liter',
-  'milliliter': 'cm*cm*cm',
-  'milliliters': 'milliliter',
-  'ml': 'milliliter',
-  'megawatt': 'megajoules/second',
-  'megawatts': 'megawatt',
-  'mw': 'megajoules/second',
-  'mhz': 'megacycles/second',
-  'mph': 'miles/hour',
-  'pascal': 'newton/meter*meter',
-  'pascals': 'pascal',
-  'pa': 'pascal',
-  'kilopascal': 'kilonewtons/meter*meter',
-  'kilopascals': 'kilopascal',
-  'kpa': 'kilopascal',
-  'pint': '_pintmeter*_pintmeter*_pintmeter',
-  'pints': 'pint',
-  'psi': 'pounds/inch*inch',
-  'quart': '_quartmeter*_quartmeter*_quartmeter',
-  'quarts': 'quart',
-  'rpm': 'cycles/minute',
-  'tablespoon': '_tablespoonmeters*_tablespoonmeters*_tablespoonmeters',
-  'tablespoons': 'tablespoon',
-  'tsp': '_teaspoonmeters*_teaspoonmeters*_teaspoonmeters',
-  'teaspoon': 'tsp',
-  'teaspoons': 'tsp',
-  'watt': 'joules/second',
-  'watts': 'watt',
+var aliases = map[string]string{
+	"acre":        "_acremeter*_acremeter",
+	"acres":       "acre",
+	"bar":         "_barnewton/meter*meter",
+	"cadence":     "cycles/minute",
+	"gallon":      "_gallonmeters*_gallonmeters*_gallonmeters",
+	"gallons":     "gallon",
+	"ghz":         "gigacycles/second",
+	"hp":          "hps/second",
+	"hz":          "cycles/second",
+	"khz":         "kilacycles/second",
+	"kilowatt":    "kilojoules/second",
+	"kilowatts":   "kilowatt",
+	"kw":          "kilojoules/second",
+	"liter":       "decimeter*decimeter*decimeter",
+	"litre":       "liter",
+	"liters":      "liter",
+	"litres":      "liter",
+	"milliliter":  "cm*cm*cm",
+	"milliliters": "milliliter",
+	"ml":          "milliliter",
+	"megawatt":    "megajoules/second",
+	"megawatts":   "megawatt",
+	"mw":          "megajoules/second",
+	"mhz":         "megacycles/second",
+	"mph":         "miles/hour",
+	"pascal":      "newton/meter*meter",
+	"pascals":     "pascal",
+	"pa":          "pascal",
+	"kilopascal":  "kilonewtons/meter*meter",
+	"kilopascals": "kilopascal",
+	"kpa":         "kilopascal",
+	"pint":        "_pintmeter*_pintmeter*_pintmeter",
+	"pints":       "pint",
+	"psi":         "pounds/inch*inch",
+	"quart":       "_quartmeter*_quartmeter*_quartmeter",
+	"quarts":      "quart",
+	"rpm":         "cycles/minute",
+	"tablespoon":  "_tablespoonmeters*_tablespoonmeters*_tablespoonmeters",
+	"tablespoons": "tablespoon",
+	"tsp":         "_teaspoonmeters*_teaspoonmeters*_teaspoonmeters",
+	"teaspoon":    "tsp",
+	"teaspoons":   "tsp",
+	"watt":        "joules/second",
+	"watts":       "watt",
 }
 
-#
-# Classes
-#
+type conversionType struct {
+	className string
+	scale     float64
+	offset    float64
+}
 
-class Error(Exception):
-  def __init__(self, msg=None):
-    Exception.__init__(self, msg)
+type conversion struct {
+	convertDict map[string]conversionType
+}
 
+func Init() *conversion {
+	c := &conversion{}
+	c.insertKeys("Distance", distantConvert)
+	c.insertKeys("Time", timeConvert)
+	c.insertKeys("Force/Weight/Mass (Planet Earth)", massConvert)
+	c.insertKeys("Cycles", cycleConvert)
+	c.insertKeys("Memory", memoryConvert)
+	c.insertKeys("Angles", angleConvert)
+	c.insertKeys("Energy", energyConvert)
+	c.insertKeys("Temperature", temperatureConvert)
+	return c
+}
 
-class DuplicateKey(Error):
-  def __init__(self, keyname):
-    Error.__init__(self, keyname)
+func (c *conversion) insertKeys(className string, data []unit) {
+	for _, d := range data {
+		for _, k := range d.names {
+			if _, ok := c.convertDict[k]; ok {
+				log.Printf("Error: duplicate conversion key: %s", k)
+			}
+			c.convertDict[k] = conversionType{className, d.scale, d.offset}
+		}
+	}
+}
 
-
-class IllegalConversionBetweenRatioAndScalar(Error):
-  pass
-
-
-class UnknownConversionType(Error):
-  def __init__(self, type_name):
-    Error.__init__(self, type_name)
-
-
-class IncompatibleConversionTypes(Error):
-  def __init__(self, source_type, target_type):
-    Error.__init__(self, '%s -> %s' % (source_type, target_type))
-
-
+/*
 class Conversion:
-
-  def __init__(self):
-    self.convert_dict = {}
-    self._InsertKeys('Distance', DISTANCE_CONVERT)
-    self._InsertKeys('Time', TIME_CONVERT)
-    self._InsertKeys('Force/Weight/Mass (Planet Earth)', MASS_CONVERT)
-    self._InsertKeys('Cycles', CYCLE_CONVERT)
-    self._InsertKeys('Memory', MEMORY_CONVERT)
-    self._InsertKeys('Angles', ANGLE_CONVERT)
-    self._InsertKeys('Energy', ENERGY_CONVERT)
-    self._InsertKeys('Temperature', TEMPERATURE_CONVERT)
 
   def Convert(self, value, value_type, target_type):
 
@@ -379,15 +375,6 @@ class Conversion:
     return numerator_type, denominator_type
 
 
-  def _InsertKeys(self, class_name, data):
-
-    for conversion_tuple in data:
-      scale_factor = conversion_tuple[0]
-      keys = conversion_tuple[1:]
-      for key in keys:
-        if key in self.convert_dict:
-          raise DuplicateKey(key)
-        self.convert_dict[key] = ConversionType(class_name, scale_factor)
 
 
 class ConversionData:
@@ -425,11 +412,6 @@ class ConversionData:
         name_list.remove(check_name)
     return '*'.join(sorted(name_list))
 
-class ConversionType:
-
-  def __init__(self, class_name, scale_factor):
-    self.class_name = class_name
-    self.scale_factor = scale_factor
 */
 
 func Debugme() {
