@@ -12,12 +12,19 @@ import (
 const defaultConfigFile = `
 # Create and layout windows
 'g1' w.new.group
-'g1' 25 w.weight
 'g1' w.columns
+'i' 'g1' w.move.end
+'g2' w.new.group
+'g2' 25 w.weight
+'g2' w.columns
 's1' w.new.stack
-'s1' 'g1' w.move.end
+'s1' 'g2' w.move.end
 'v1' w.new.var
-'v1' 'g1' w.move.end
+'v1' 'g2' w.move.end
+
+# Plot defaults
+'p1' plot.win=
+'$plot.win w.new.plot $plot.win "g1" w.move.end' plot.init=
 
 # set some useful vars
 3.141592653589793 pi=

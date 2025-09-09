@@ -52,16 +52,6 @@ func (r *RPN) Init() {
 	r.Register("vpop", popVariableFrame, CatVariables, popVariableFrameHelp)
 	r.Print = DefaultPrint
 	r.conv = convert.Init()
-	r.addDefaultPlotVars()
-}
-
-func (r *RPN) addDefaultPlotVars() {
-	// Set the default plot window to p1
-	r.PushString("p1")
-	r.setVariable("plot.win")
-	// set the default plot init function
-	r.PushString("$plot.win w.new.plot $plot.win 'root' w.move.beg $plot.win 200 w.weight")
-	r.setVariable("plot.init")
 }
 
 // Register adds a new function
