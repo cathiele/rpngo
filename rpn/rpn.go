@@ -31,15 +31,15 @@ type Frame struct {
 
 // RPN is the main structure
 type RPN struct {
-	frames      []Frame
-	variables   []map[string]Frame
-	functions   map[string]func(*RPN) error
-	commandHelp map[string]string
-	conceptHelp map[string]string
-	Print       func(string)
-	Input       func(*RPN) (string, error)
-	Interrupt   chan bool
-	conv        *convert.Conversion
+	frames    []Frame
+	variables []map[string]Frame
+	functions map[string]func(*RPN) error
+	// maps are category -> command -> help
+	help      map[string]map[string]string
+	Print     func(string)
+	Input     func(*RPN) (string, error)
+	Interrupt chan bool
+	conv      *convert.Conversion
 }
 
 // Init initializes an RPNCalc object
@@ -48,8 +48,8 @@ func (r *RPN) Init() {
 	r.functions = make(map[string]func(*RPN) error)
 	r.variables = []map[string]Frame{make(map[string]Frame)}
 	r.initHelp()
-	r.Register("vpush", pushVariableFrame, pushVariableFrameHelp)
-	r.Register("vpop", popVariableFrame, popVariableFrameHelp)
+	r.Register("vpush", pushVariableFrame, CatVariables, pushVariableFrameHelp)
+	r.Register("vpop", popVariableFrame, CatVariables, popVariableFrameHelp)
 	r.Print = DefaultPrint
 	r.conv = convert.Init()
 	r.addDefaultPlotVars()
@@ -65,9 +65,14 @@ func (r *RPN) addDefaultPlotVars() {
 }
 
 // Register adds a new function
-func (rpn *RPN) Register(name string, fn func(f *RPN) error, help string) {
+func (rpn *RPN) Register(name string, fn func(f *RPN) error, helpcat, helptxt string) {
 	rpn.functions[name] = fn
-	rpn.commandHelp[name] = help
+	cat := rpn.help[helpcat]
+	if cat == nil {
+		rpn.help[helpcat] = map[string]string{name: helptxt}
+	} else {
+		cat[name] = helptxt
+	}
 }
 
 func (rpn *RPN) AllFunctionNames() []string {

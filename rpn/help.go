@@ -6,7 +6,7 @@ import (
 )
 
 func (rpn *RPN) initHelp() {
-	rpn.conceptHelp = map[string]string{
+	conceptHelp := map[string]string{
 		"base": "Different number bases are supported:\n" +
 			"Examples:\n" +
 			"  1.1 -1 0 # complex floats\n" +
@@ -124,11 +124,11 @@ func (rpn *RPN) initHelp() {
 			"- Reset to a single window with w.reset.\n" +
 			"See Also: window.layout, window.props",
 	}
-	rpn.commandHelp = make(map[string]string)
+	rpn.help = map[string]map[string]string{CatConcepts: conceptHelp}
 }
 
-func (r *RPN) RegisterConceptHelp(concept, help string) {
-	r.conceptHelp[concept] = help
+func (r *RPN) RegisterConceptHelp(concept string, help string) {
+	r.help[CatConcepts][concept] = help
 }
 
 func (r *RPN) PrintHelp(topic string, windoww int) error {
@@ -136,11 +136,14 @@ func (r *RPN) PrintHelp(topic string, windoww int) error {
 		r.listCommands(windoww)
 		return nil
 	}
-	help, ok := r.conceptHelp[topic]
-	if !ok {
-		help, ok = r.commandHelp[topic]
+	var help string
+	for cat := range r.help {
+		help = r.help[cat][topic]
+		if help != "" {
+			break
+		}
 	}
-	if !ok {
+	if help == "" {
 		return fmt.Errorf("no help found for %s. Use ? to list all", topic)
 	}
 	r.Print("\n")
@@ -149,11 +152,17 @@ func (r *RPN) PrintHelp(topic string, windoww int) error {
 }
 
 func (r *RPN) listCommands(windoww int) {
-	r.dumpMap("Concepts", windoww, r.conceptHelp)
-	r.dumpMap("Commands", windoww, r.commandHelp)
+	var cats []string
+	for cat := range r.help {
+		cats = append(cats, cat)
+	}
+	sort.Strings(cats)
+	for _, cat := range cats {
+		r.dumpMap(cat, windoww, r.help[cat])
+	}
 }
 
-const colWidth = 40
+const colWidth = 32
 
 func (r *RPN) dumpMap(title string, windoww int, m map[string]string) {
 	r.Println(title)
