@@ -14,6 +14,12 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register(">", GreaterThan, rpn.CatCompare, GreaterThanHelp)
 	r.Register(">=", GreaterThanEqual, rpn.CatCompare, GreaterThanEqualHelp)
 
+	r.Register("&", And, rpn.CatBitwise, AndHelp)
+	r.Register("|", Or, rpn.CatBitwise, OrHelp)
+	r.Register("^", XOr, rpn.CatBitwise, XOrHelp)
+	r.Register("<<", ShiftLeft, rpn.CatBitwise, ShiftLeftHelp)
+	r.Register(">>", ShiftRight, rpn.CatBitwise, ShiftRightHelp)
+
 	r.Register("-", Subtract, rpn.CatCore, SubtractHelp)
 	r.Register("*", Multiply, rpn.CatCore, MultiplyHelp)
 	r.Register("/", Divide, rpn.CatCore, DivideHelp)

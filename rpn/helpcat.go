@@ -2,6 +2,7 @@ package rpn
 
 const (
 	CatConcepts  = "Base Concepts"
+	CatBitwise      = "Bitwise Arithmetic"
 	CatCompare   = "Comparison"
 	CatCore      = "Core Arithmetic"
 	CatEng       = "Engineering / Scientific"
