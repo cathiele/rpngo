@@ -1,0 +1,23 @@
+"
+  0 delta=
+  2 sc=
+  10 maxv=
+  2000 frames=
+  'c c $sc * $delta + cos * sw c $sc * $delta + sin *' pplot
+  'p1' 'minv' 0 w.setp
+  'p1' 'maxv' $maxv w.setp
+  'p1' 'minx' $maxv neg w.setp
+  'p1' 'maxx' $maxv w.setp
+  'p1' 'miny' $maxv neg w.setp
+  'p1' 'maxy' $maxv w.setp
+  'p1' 'steps' 1000 w.setp
+  '@next_frame $frames 1 - frames= $frames 0 >=' for
+" spiral=
+
+"
+  $delta 0.15 - delta=
+  'p1' w.update
+  1 60 / delay
+" next_frame=
+
+
