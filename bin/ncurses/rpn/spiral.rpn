@@ -11,6 +11,7 @@
   'p1' 'miny' $maxv neg w.setp
   'p1' 'maxy' $maxv w.setp
   'p1' 'steps' 1000 w.setp
+  'program will exit after a minute. press ctrl-c to stop sooner' printlnx
   '@next_frame $frames 1 - frames= $frames 0 >=' for
 " spiral=
 
