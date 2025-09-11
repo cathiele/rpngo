@@ -32,6 +32,7 @@ type Frame struct {
 // RPN is the main structure
 type RPN struct {
 	frames    []Frame
+	pushed    [][]Frame
 	variables []map[string]Frame
 	functions map[string]func(*RPN) error
 	// maps are category -> command -> help
@@ -48,6 +49,9 @@ func (r *RPN) Init() {
 	r.functions = make(map[string]func(*RPN) error)
 	r.variables = []map[string]Frame{make(map[string]Frame)}
 	r.initHelp()
+	r.Register("ssize", stackSize, CatStack, stackSizeHelp)
+	r.Register("spush", pushStack, CatStack, pushStackHelp)
+	r.Register("spop", popStack, CatStack, popStackHelp)
 	r.Register("vpush", pushVariableFrame, CatVariables, pushVariableFrameHelp)
 	r.Register("vpop", popVariableFrame, CatVariables, popVariableFrameHelp)
 	r.Print = DefaultPrint

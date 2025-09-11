@@ -272,25 +272,25 @@ func (r *RPN) Pop2Numbers() (a Frame, b Frame, err error) {
 
 // Pops 2 numbers as integers.
 func (r *RPN) Pop2Ints() (a Frame, b Frame, err error) {
-  a, b, err = r.Pop2Frames()
-    if err != nil {
-      return
-    }
-  if (a.Type == COMPLEX_FRAME) {
-    a.Type = INTEGER_FRAME
-      a.Int = int64(real(a.Complex))
-  }
-  if (b.Type == COMPLEX_FRAME) {
-    b.Type = INTEGER_FRAME
-      b.Int = int64(real(b.Complex))
-  }
-  if !a.IsInt() || !b.IsInt() {
-    r.PushFrame(a)
-      r.PushFrame(b)
-      err = ErrExpectedANumber
-      return
-  }
-  return
+	a, b, err = r.Pop2Frames()
+	if err != nil {
+		return
+	}
+	if a.Type == COMPLEX_FRAME {
+		a.Type = INTEGER_FRAME
+		a.Int = int64(real(a.Complex))
+	}
+	if b.Type == COMPLEX_FRAME {
+		b.Type = INTEGER_FRAME
+		b.Int = int64(real(b.Complex))
+	}
+	if !a.IsInt() || !b.IsInt() {
+		r.PushFrame(a)
+		r.PushFrame(b)
+		err = ErrExpectedANumber
+		return
+	}
+	return
 }
 
 func (r *RPN) PopStackIndex() (i int, err error) {
@@ -345,4 +345,29 @@ func (r *RPN) IterFrames(fn func(Frame)) {
 
 func (r *RPN) Size() int {
 	return len(r.frames)
+}
+
+const pushStackHelp = "Pushes a copy of the entire stack. spop can be use to recover it."
+
+func pushStack(r *RPN) error {
+	r.pushed = append(r.pushed, make([]Frame, len(r.frames)))
+	copy(r.pushed[len(r.pushed)-1], r.frames)
+	return nil
+}
+
+const popStackHelp = "Pops a copy of the entire stack preiously pushed with spush"
+
+func popStack(r *RPN) error {
+	if len(r.pushed) == 0 {
+		return ErrStackEmpty
+	}
+	r.frames = r.pushed[len(r.pushed)-1]
+	r.pushed = r.pushed[:len(r.pushed)-1]
+	return nil
+}
+
+const stackSizeHelp = "Pushes the current stack size to the stack (non-inclusive)."
+
+func stackSize(r *RPN) error {
+	return r.PushInt(int64(len(r.frames)), INTEGER_FRAME)
 }

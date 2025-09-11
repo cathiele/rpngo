@@ -80,6 +80,9 @@ func (rpn *RPN) initHelp() {
 
 		"stack": "Operators are provided to manipute the stack to set up calculations\n" +
 			"    If things are getting complex, consider using variables.\n" +
+			"    You can also push and pop the entire stack contents with spush\n" +
+			"    and spop, which can be useful for doing multiple operations on\n" +
+			"    the same stack values.\n" +
 			"Examples:\n" +
 			"  $x c + 1 /  # Uses c to copy the stack head and execute a/(a+1)'\n" +
 			"  'c cos sw sin' pplot # parametric plot of a circle using sw to swap elements\n" +
