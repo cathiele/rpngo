@@ -11,6 +11,7 @@ import (
 	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/io/window/commands"
 	"mattwach/rpngo/io/window/input"
+	"mattwach/rpngo/io/window/plotwin"
 	"mattwach/rpngo/rpn"
 	"os"
 	"os/signal"
@@ -59,8 +60,8 @@ func interactive(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	wc := commands.InitWindowCommands(root, screen)
-	wc.Register(r)
+	_ = commands.InitWindowCommands(r, root, screen)
+	_ = plotwin.InitPlotCommands(r, root, screen)
 	if err := io.OSStartup(r); err != nil {
 		return err
 	}

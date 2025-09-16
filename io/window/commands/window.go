@@ -14,14 +14,31 @@ type WindowCommands struct {
 	screen window.Screen
 }
 
-func InitWindowCommands(root *window.WindowRoot, screen window.Screen) *WindowCommands {
-	return &WindowCommands{root: root, screen: screen}
-}
+func InitWindowCommands(r *rpn.RPN, root *window.WindowRoot, screen window.Screen) *WindowCommands {
+	conceptHelp := map[string]string{
+		"window.layout": "Windows are arranged with window groups.  There\n" +
+			"is always a window group named 'root' which is the parent of all \n" +
+			"windows and groups.\n" +
+			"- Add a new window group to the root window with w.new.group.\n" +
+			"- Move a window or group to a different window group with w.move.beg and w.move.end\n" +
+			"- Change the weight of a window or group with w.weight (default weight is 100).\n" +
+			"- Change the layout mode of a window group to columns with w.columns.\n" +
+			"- Print info on all existing windows and groups with w.dump.\n" +
+			"See Also: windows, window.props",
 
-func (wc *WindowCommands) Register(r *rpn.RPN) {
-	r.Register("plot", wc.Plot, rpn.CatPlot, PlotHelp)
-	r.Register("pplot", wc.PPlot, rpn.CatPlot, PPlotHelp)
+		"window.props": "Each window supports properties that changes how the window operates\n" +
+			"- Print all properties and values for a window with w.listp\n" +
+			"- Get a single property with w.getp\n" +
+			"- Set a single property with w.setp\n" +
+			"See Also: windows, window.layout, plotting",
 
+		"windows": "The display can be customized with different windows\n" +
+			"- Add a window with a w.new.<type> command. Example: w.new.stack\n" +
+			"- Reset to a single window with w.reset.\n" +
+			"See Also: window.layout, window.props",
+	}
+	r.RegisterConceptHelp(conceptHelp)
+	wc := WindowCommands{root: root, screen: screen}
 	r.Register("w.columns", wc.WColumns, rpn.CatWindow, WColumnsHelp)
 	r.Register("w.del", wc.WDelete, rpn.CatWindow, WDeleteHelp)
 	r.Register("w.dump", wc.WDump, rpn.CatWindow, WDumpHelp)
@@ -37,6 +54,7 @@ func (wc *WindowCommands) Register(r *rpn.RPN) {
 	r.Register("w.reset", wc.WReset, rpn.CatWindow, WResetHelp)
 	r.Register("w.update", wc.WUpdate, rpn.CatWindow, WUpdateHelp)
 	r.Register("w.weight", wc.WWeight, rpn.CatWindow, WWeightHelp)
+	return &wc
 }
 
 const WUpdateHelp = "Updates the given window or window group"
