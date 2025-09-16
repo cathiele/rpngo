@@ -2,6 +2,7 @@ package rpn
 
 import (
 	"errors"
+	"math"
 	"reflect"
 	"testing"
 )
@@ -198,6 +199,16 @@ func TestExec(t *testing.T) {
 			wantFrame:  Frame{Type: INTEGER_FRAME, Int: 55},
 		},
 		{
+			name:    "set variable no value",
+			args:    []string{"foo="},
+			wantErr: ErrStackEmpty,
+		},
+		{
+			name:    "set empty var",
+			args:    []string{"="},
+			wantErr: ErrSyntax,
+		},
+		{
 			name:    "set and clear variable",
 			args:    []string{"55d", "foo=", "foo/", "$foo"},
 			wantErr: ErrNotFound,
@@ -217,6 +228,12 @@ func TestExec(t *testing.T) {
 			args:       []string{"'1 2 55d'", "foo=", "@foo"},
 			frameCount: 3,
 			wantFrame:  Frame{Type: INTEGER_FRAME, Int: 55},
+		},
+		{
+			name:       "conversion (parse check only)",
+			args:       []string{"0", "mi>km"},
+			frameCount: 1,
+			wantFrame:  Frame{Type: COMPLEX_FRAME, Complex: complex(0, 0)},
 		},
 		{
 			name: "help all",
@@ -245,9 +262,6 @@ func TestExec(t *testing.T) {
 			if len(r.frames) != d.frameCount {
 				t.Errorf("frame count want %v, got %v", d.frameCount, len(r.frames))
 			}
-			if err != nil {
-				return
-			}
 			if len(r.frames) > 0 {
 				gotf := r.frames[len(r.frames)-1]
 				if !reflect.DeepEqual(gotf, d.wantFrame) {
@@ -256,4 +270,10 @@ func TestExec(t *testing.T) {
 			}
 		})
 	}
+}
+
+const float64EqualityThreshold = 1e-4
+
+func almostEqual(a, b float64) bool {
+	return math.Abs(a-b) <= float64EqualityThreshold
 }
