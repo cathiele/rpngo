@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"machine"
 	"mattwach/rpngo/functions"
+	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
-	"strings"
 	"time"
 )
 
@@ -22,9 +22,12 @@ func main() {
 	fmt.Println("Type ? for help or topic? for more detailed help")
 
 	for {
-		args := readLine()
+		line := readLine()
+		args, err := parse.Fields(line)
 
-		err := r.Exec(args)
+		if err == nil {
+			err = r.Exec(args)
+		}
 
 		if err == nil {
 			r.IterFrames(func(sf rpn.Frame) {
@@ -36,7 +39,7 @@ func main() {
 	}
 }
 
-func readLine() []string {
+func readLine() string {
 	var msg []byte
 	fmt.Print("> ")
 	for {
@@ -48,7 +51,7 @@ func readLine() []string {
 				break
 			case 13:
 				machine.Serial.WriteByte('\n')
-				return strings.Fields(string(msg))
+				return string(msg)
 			default:
 				msg = append(msg, c)
 			}
