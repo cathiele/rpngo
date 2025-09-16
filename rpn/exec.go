@@ -59,12 +59,6 @@ func (rpn *RPN) exec(arg string) error {
 	if len(arg) > 0 && arg[len(arg)-1] == '?' {
 		return rpn.printHelp(arg[:len(arg)-1])
 	}
-	if arg == "true" {
-		return rpn.PushBool(true)
-	}
-	if arg == "false" {
-		return rpn.PushBool(false)
-	}
 	if strings.Contains(arg, ">") {
 		return rpn.convert(arg)
 	}
@@ -74,7 +68,7 @@ func (rpn *RPN) exec(arg string) error {
 func (rpn *RPN) Exec(args []string) error {
 	for i, arg := range args {
 		if err := rpn.exec(arg); err != nil {
-			return fmt.Errorf("exec %s: %v", highlightArg(args, i), err)
+			return fmt.Errorf("exec %s: %w", highlightArg(args, i), err)
 		}
 	}
 	return nil
@@ -94,7 +88,7 @@ func highlightArg(args []string, idx int) string {
 func (rpn *RPN) pushInt(arg string, base int, t FrameType) error {
 	v, err := strconv.ParseInt(arg, base, 64)
 	if err != nil {
-		return err
+		return ErrSyntax
 	}
 	return rpn.PushInt(v, t)
 }
@@ -146,11 +140,11 @@ func parseComplexWithI(arg string) (complex128, error) {
 	}
 	fa, err := strconv.ParseFloat(a, 64)
 	if err != nil {
-		return 0, err
+		return 0, ErrSyntax
 	}
 	fb, err := strconv.ParseFloat(b, 64)
 	if err != nil {
-		return 0, err
+		return 0, ErrSyntax
 	}
 	return complex(fa, fb), nil
 }

@@ -140,3 +140,15 @@ func Imag(r *rpn.RPN) error {
 	a.Complex = complex(0, imag(a.Complex))
 	return r.PushFrame(a)
 }
+
+const TrueHelp = "Pushes a boolean true"
+
+func True(r *rpn.RPN) error {
+	return r.PushBool(true)
+}
+
+const FalseHelp = "Pushes a boolean false"
+
+func False(r *rpn.RPN) error {
+	return r.PushBool(false)
+}

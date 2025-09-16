@@ -26,9 +26,11 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("+", Add, rpn.CatCore, AddHelp)
 	r.Register("a", Add, rpn.CatCore, AddHelp)
 	r.Register("d", Divide, rpn.CatCore, DivideHelp)
+	r.Register("false", False, rpn.CatCore, FalseHelp)
 	r.Register("neg", Negate, rpn.CatCore, NegateHelp)
 	r.Register("m", Multiply, rpn.CatCore, MultiplyHelp)
 	r.Register("s", Subtract, rpn.CatCore, SubtractHelp)
+	r.Register("true", True, rpn.CatCore, TrueHelp)
 
 	r.Register("**", Power, rpn.CatEng, PowerHelp)
 	r.Register("abs", Abs, rpn.CatEng, AbsHelp)

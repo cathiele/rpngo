@@ -106,7 +106,7 @@ func (r *RPN) printHelp(topic string) error {
 		}
 	}
 	if help == "" {
-		return fmt.Errorf("no help found for %s. Use ? to list all", topic)
+		return fmt.Errorf("Use ? to list all: %w", ErrNotFound)
 	}
 	r.Print("\n")
 	r.Println(help)
