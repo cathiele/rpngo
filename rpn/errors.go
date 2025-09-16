@@ -10,7 +10,7 @@ var (
 	ErrExpectedABoolean          = errors.New("expected a boolean")
 	ErrExpectedAComplexNumber    = errors.New("expected a complex number")
 	ErrExpectedANumber           = errors.New("expected a number")
-	ErrExpectedAPositiveNumber           = errors.New("expected a positive number")
+	ErrExpectedAPositiveNumber   = errors.New("expected a positive number")
 	ErrExpectedAString           = errors.New("expected a string")
 	ErrIllegalName               = errors.New("illegal name")
 	ErrIllegalValue              = errors.New("illegal value")

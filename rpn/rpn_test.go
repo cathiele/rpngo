@@ -3,21 +3,75 @@ package rpn
 import "testing"
 
 func TestInit(t *testing.T) {
-  var r RPN
-  r.Init()
-  err := r.Exec([]string{"11", "22", "33", "ssize"})
-  if err != nil {
-    t.Fatalf("r.Exec() err=%v", err)
-  }
-  if len(r.frames) != 4 {
-    t.Fatalf("want len(r.frames) = 4, got %v", len(r.frames))
-  }
-  f := r.frames[3]
-  if f.Type != INTEGER_FRAME {
-    t.Errorf("want frame.Type = INTEGER_FRAMFE, got %v", f.Type)
-  }
-  if f.Int != 3 {
-    t.Errorf("want frame.Int = 3, got %v", f.Int)
-  }
+	var r RPN
+	r.Init()
+	err := r.Exec([]string{"11", "22", "33", "ssize"})
+	if err != nil {
+		t.Fatalf("r.Exec() err=%v", err)
+	}
+	if len(r.frames) != 4 {
+		t.Fatalf("want len(r.frames) = 4, got %v", len(r.frames))
+	}
+	f := r.frames[3]
+	if f.Type != INTEGER_FRAME {
+		t.Errorf("want frame.Type = INTEGER_FRAME, got %v", f.Type)
+	}
+	if f.Int != 3 {
+		t.Errorf("want frame.Int = 3, got %v", f.Int)
+	}
 }
 
+func TestRegister(t *testing.T) {
+	var r RPN
+	r.Init()
+	fn := func(r *RPN) error {
+		return r.PushInt(55, INTEGER_FRAME)
+	}
+	r.Register("fiftyfive", fn, "helpcat", "helptxt")
+	err := r.Exec([]string{"fiftyfive"})
+	if err != nil {
+		t.Fatalf("r.Exec() err=%v", err)
+	}
+	if len(r.frames) != 1 {
+		t.Fatalf("want len(r.frames) = 1, got %v", len(r.frames))
+	}
+	f := r.frames[0]
+	if f.Type != INTEGER_FRAME {
+		t.Errorf("want frame.Type = INTEGER_FRAME, got %v", f.Type)
+	}
+	if f.Int != 55 {
+		t.Errorf("want frame.Int = 55, got %v", f.Int)
+	}
+	if r.help["helpcat"]["fiftyfive"] != "helptxt" {
+		t.Errorf("want 'helptxt', got %v", r.help["helpcat"]["fiftyfive"])
+	}
+}
+
+func TestAllFunctionNames(t *testing.T) {
+	var r RPN
+	r.Init()
+	names := r.AllFunctionNames()
+	var found bool
+	for _, n := range names {
+		if n == "ssize" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("AllFunctionNames() did not contain ssize")
+	}
+}
+
+func TestPrintln(t *testing.T) {
+	var r RPN
+	r.Init()
+	var got string
+	r.Print = func(msg string) {
+		got = got + msg
+	}
+	r.Println("hello")
+	if got != "hello\n" {
+		t.Errorf("want hello\\n, got %v", got)
+	}
+}
