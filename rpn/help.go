@@ -134,9 +134,9 @@ func (r *RPN) RegisterConceptHelp(concept string, help string) {
 	r.help[CatConcepts][concept] = help
 }
 
-func (r *RPN) PrintHelp(topic string, windoww int) error {
+func (r *RPN) printHelp(topic string) error {
 	if len(topic) == 0 {
-		r.listCommands(windoww)
+		r.listCommands()
 		return nil
 	}
 	var help string
@@ -154,20 +154,20 @@ func (r *RPN) PrintHelp(topic string, windoww int) error {
 	return nil
 }
 
-func (r *RPN) listCommands(windoww int) {
+func (r *RPN) listCommands() {
 	var cats []string
 	for cat := range r.help {
 		cats = append(cats, cat)
 	}
 	sort.Strings(cats)
 	for _, cat := range cats {
-		r.dumpMap(cat, windoww, r.help[cat])
+		r.dumpMap(cat, r.help[cat])
 	}
 }
 
 const colWidth = 32
 
-func (r *RPN) dumpMap(title string, windoww int, m map[string]string) {
+func (r *RPN) dumpMap(title string, m map[string]string) {
 	r.Println(title)
 	var topics []string
 	for k := range m {
@@ -182,7 +182,7 @@ func (r *RPN) dumpMap(title string, windoww int, m map[string]string) {
 			line = append(line, ' ')
 		}
 		nextCol += colWidth
-		if nextCol > windoww {
+		if nextCol > r.WindowWidth {
 			r.Println(string(line))
 			line = line[:2]
 			nextCol = len(line) + colWidth

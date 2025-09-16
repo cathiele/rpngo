@@ -56,6 +56,9 @@ func (rpn *RPN) exec(arg string) error {
 			return rpn.pushInt(arg[:len(arg)-1], 2, BINARY_FRAME)
 		}
 	}
+	if len(arg) > 0 && arg[len(arg)-1] == '?' {
+		return rpn.printHelp(arg[:len(arg)-1])
+	}
 	if arg == "true" {
 		return rpn.PushBool(true)
 	}

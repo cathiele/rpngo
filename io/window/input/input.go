@@ -64,6 +64,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	default:
 		break
 	}
+	r.WindowWidth = iw.txtw.Width()
 	window.Print(iw.gl.txtd, "> ")
 	line, err := iw.gl.get(r)
 	if err := iw.txtw.Color(0, 31, 31, 0, 0, 0); err != nil {
@@ -75,12 +76,6 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	}
 	line = strings.TrimSpace(line)
 	if len(line) == 0 {
-		return nil
-	}
-	if line[len(line)-1] == '?' {
-		if err := r.PrintHelp(line[:len(line)-1], iw.txtw.Width()); err != nil {
-			window.PrintErr(iw.txtw, err)
-		}
 		return nil
 	}
 	if line == "exit" {
