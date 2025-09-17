@@ -1,6 +1,7 @@
 package rpn
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -95,6 +96,26 @@ func TestString(t *testing.T) {
 			frame: BoolFrame(false),
 			want:  "false",
 		},
+		{
+			name:  "integer",
+			frame: Frame{Type: INTEGER_FRAME, Int: 1234},
+			want:  "1234d",
+		},
+		{
+			name:  "hex",
+			frame: Frame{Type: HEXIDECIMAL_FRAME, Int: 0x1234},
+			want:  "1234x",
+		},
+		{
+			name:  "octal",
+			frame: Frame{Type: OCTAL_FRAME, Int: 01234},
+			want:  "1234o",
+		},
+		{
+			name:  "binary",
+			frame: Frame{Type: BINARY_FRAME, Int: 9},
+			want:  "1001b",
+		},
 	}
 
 	for _, d := range data {
@@ -102,6 +123,50 @@ func TestString(t *testing.T) {
 			got := d.frame.String(d.quote)
 			if got != d.want {
 				t.Errorf("want: %v, got: %v", d.want, got)
+			}
+		})
+	}
+}
+
+func TestLengthAndClear(t *testing.T) {
+	var r RPN
+	r.Init()
+	r.Exec([]string{"1", "2", "3"})
+	if r.StackLen() != 3 {
+		t.Errorf("StackLen()=%v, want 3", r.StackLen())
+	}
+	r.Clear()
+	if r.StackLen() != 0 {
+		t.Errorf("StackLen()=%v, want 0", r.StackLen())
+	}
+}
+
+func TestPush(t *testing.T) {
+	data := []struct {
+		name string
+		fn   func(r *RPN) error
+		want Frame
+	}{
+		{
+			name: "integer",
+			fn:   func(r *RPN) error { return r.PushFrame(Frame{Type: INTEGER_FRAME, Int: 1234}) },
+			want: Frame{Type: INTEGER_FRAME, Int: 1234},
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.name, func(t *testing.T) {
+			var r RPN
+			r.Init()
+			err := d.fn(&r)
+			if err != nil {
+				t.Fatalf("err=%v, want nil", err)
+			}
+			if len(r.frames) != 1 {
+				t.Fatalf("len(frames)=%v, want 1", len(r.frames))
+			}
+			if !reflect.DeepEqual(r.frames[0], d.want) {
+				t.Errorf("frame mismatch. got=%+v, want=%+v", r.frames[0], d.want)
 			}
 		})
 	}
