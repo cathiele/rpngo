@@ -389,6 +389,47 @@ func TestPopReal(t *testing.T) {
 	}
 }
 
+func TestPopStackIndex(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, err := r.PopStackIndex()
+	if err != ErrStackEmpty {
+		t.Errorf("err: %v, want: ErrStackEmpty", err)
+	}
+	r.PushString("foo")
+	_, err = r.PopStackIndex()
+	if err != ErrExpectedANumber {
+		t.Errorf("err: %v, want: ErrExpectedANumber", err)
+	}
+	r.PushComplex(complex(1, 2))
+	_, err = r.PopStackIndex()
+	if err != ErrComplexNumberNotSupported {
+		t.Errorf("err: %v, want: ErrComplexNumberNotSupported", err)
+	}
+	r.PushInt(-1, INTEGER_FRAME)
+	_, err = r.PopStackIndex()
+	if err != ErrIllegalValue {
+		t.Errorf("err: %v, want: ErrIllegalValue", err)
+	}
+	r.PushInt(4, INTEGER_FRAME)
+	_, err = r.PopStackIndex()
+	if err != ErrIllegalValue {
+		t.Errorf("err: %v, want: ErrIllegalValue", err)
+	}
+	r.PushComplex(complex(3, 0))
+	got, err := r.PopStackIndex()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	want := 3
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 4 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+}
+
 func TestPop2Frames(t *testing.T) {
 	var r RPN
 	r.Init()

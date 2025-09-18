@@ -211,6 +211,34 @@ func (r *RPN) PopReal() (v float64, err error) {
 	return
 }
 
+func (r *RPN) PopStackIndex() (i int, err error) {
+	var f Frame
+	f, err = r.PopNumber()
+	if err != nil {
+		return
+	}
+	i = int(f.Int)
+	if f.Type == COMPLEX_FRAME {
+		if imag(f.Complex) != 0 {
+			r.PushFrame(f)
+			err = ErrComplexNumberNotSupported
+			return
+		}
+		i = int(real(f.Complex))
+	}
+	if i < 0 {
+		r.PushFrame(f)
+		err = ErrIllegalValue
+		return
+	}
+	if i >= len(r.frames) {
+		r.PushFrame(f)
+		err = ErrIllegalValue
+		return
+	}
+	return
+}
+
 func (r *RPN) Pop2Frames() (a Frame, b Frame, err error) {
 	if len(r.frames) < 2 {
 		err = ErrNotEnoughStackFrames
@@ -288,31 +316,6 @@ func (r *RPN) Pop2Ints() (a Frame, b Frame, err error) {
 		r.PushFrame(a)
 		r.PushFrame(b)
 		err = ErrExpectedANumber
-		return
-	}
-	return
-}
-
-func (r *RPN) PopStackIndex() (i int, err error) {
-	var f Frame
-	f, err = r.PopNumber()
-	if err != nil {
-		return
-	}
-	i = int(f.Int)
-	if f.Type == COMPLEX_FRAME {
-		if imag(f.Complex) != 0 {
-			err = ErrComplexNumberNotSupported
-			return
-		}
-		i = int(real(f.Complex))
-	}
-	if i < 0 {
-		err = ErrIllegalValue
-		return
-	}
-	if i >= len(r.frames) {
-		err = ErrIllegalValue
 		return
 	}
 	return
