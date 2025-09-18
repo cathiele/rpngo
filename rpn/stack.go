@@ -129,17 +129,6 @@ func (r *RPN) PopFrame() (sf Frame, err error) {
 	return
 }
 
-func (r *RPN) Pop2Frames() (a Frame, b Frame, err error) {
-	if len(r.frames) < 2 {
-		err = ErrNotEnoughStackFrames
-		return
-	}
-	a = r.frames[len(r.frames)-2]
-	b = r.frames[len(r.frames)-1]
-	r.frames = r.frames[:len(r.frames)-2]
-	return
-}
-
 func (r *RPN) PopString() (str string, err error) {
 	f, err := r.PopFrame()
 	if err != nil {
@@ -165,22 +154,6 @@ func (r *RPN) PopBool() (v bool, err error) {
 		return
 	}
 	v = f.Int != 0
-	return
-}
-
-func (r *RPN) Pop2Strings() (a string, b string, err error) {
-	as, bs, err := r.Pop2Frames()
-	if err != nil {
-		return
-	}
-	if as.Type != STRING_FRAME || bs.Type != STRING_FRAME {
-		r.PushFrame(as)
-		r.PushFrame(bs)
-		err = ErrExpectedAString
-		return
-	}
-	a = as.Str
-	b = bs.Str
 	return
 }
 
@@ -235,6 +208,33 @@ func (r *RPN) PopReal() (v float64, err error) {
 	}
 	r.PushFrame(f)
 	err = ErrExpectedANumber
+	return
+}
+
+func (r *RPN) Pop2Frames() (a Frame, b Frame, err error) {
+	if len(r.frames) < 2 {
+		err = ErrNotEnoughStackFrames
+		return
+	}
+	a = r.frames[len(r.frames)-2]
+	b = r.frames[len(r.frames)-1]
+	r.frames = r.frames[:len(r.frames)-2]
+	return
+}
+
+func (r *RPN) Pop2Strings() (a string, b string, err error) {
+	as, bs, err := r.Pop2Frames()
+	if err != nil {
+		return
+	}
+	if as.Type != STRING_FRAME || bs.Type != STRING_FRAME {
+		r.PushFrame(as)
+		r.PushFrame(bs)
+		err = ErrExpectedAString
+		return
+	}
+	a = as.Str
+	b = bs.Str
 	return
 }
 

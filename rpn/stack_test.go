@@ -148,9 +148,34 @@ func TestPush(t *testing.T) {
 		want Frame
 	}{
 		{
-			name: "integer",
+			name: "frame",
 			fn:   func(r *RPN) error { return r.PushFrame(Frame{Type: INTEGER_FRAME, Int: 1234}) },
 			want: Frame{Type: INTEGER_FRAME, Int: 1234},
+		},
+		{
+			name: "complex",
+			fn:   func(r *RPN) error { return r.PushComplex(complex(1, 2)) },
+			want: Frame{Type: COMPLEX_FRAME, Complex: complex(1, 2)},
+		},
+		{
+			name: "string",
+			fn:   func(r *RPN) error { return r.PushString("foo") },
+			want: Frame{Type: STRING_FRAME, Str: "foo"},
+		},
+		{
+			name: "integer",
+			fn:   func(r *RPN) error { return r.PushInt(1234, INTEGER_FRAME) },
+			want: Frame{Type: INTEGER_FRAME, Int: 1234},
+		},
+		{
+			name: "bool true",
+			fn:   func(r *RPN) error { return r.PushBool(true) },
+			want: Frame{Type: BOOL_FRAME, Int: 1},
+		},
+		{
+			name: "bool false",
+			fn:   func(r *RPN) error { return r.PushBool(false) },
+			want: Frame{Type: BOOL_FRAME, Int: 0},
 		},
 	}
 
@@ -169,5 +194,111 @@ func TestPush(t *testing.T) {
 				t.Errorf("frame mismatch. got=%+v, want=%+v", r.frames[0], d.want)
 			}
 		})
+	}
+}
+
+func TestPopFrame(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, err := r.PopFrame()
+	if err != ErrStackEmpty {
+		t.Errorf("err: %v, want: ErrStackEmpty", err)
+	}
+	r.PushString("foo")
+	got, err := r.PopFrame()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	want := Frame{Type: STRING_FRAME, Str: "foo"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 0 {
+		t.Errorf("stack size is %v, want 0", len(r.frames))
+	}
+}
+
+func TestPopString(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, err := r.PopString()
+	if err != ErrStackEmpty {
+		t.Errorf("err: %v, want: ErrStackEmpty", err)
+	}
+	r.PushInt(1234, INTEGER_FRAME)
+	_, err = r.PopString()
+	if err != ErrExpectedAString {
+		t.Errorf("err: %v, want: ErrExpectedAString", err)
+	}
+	r.PushString("foo")
+	got, err := r.PopString()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	want := "foo"
+	if got != want {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 1 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+}
+
+func TestPopBool(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, err := r.PopBool()
+	if err != ErrStackEmpty {
+		t.Errorf("err: %v, want: ErrStackEmpty", err)
+	}
+	r.PushInt(1234, INTEGER_FRAME)
+	_, err = r.PopBool()
+	if err != ErrExpectedABoolean {
+		t.Errorf("err: %v, want: ErrExpectedABoolean", err)
+	}
+	r.PushBool(true)
+	got, err := r.PopBool()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	want := true
+	if got != want {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 1 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+}
+
+func TestPop2Frames(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, _, err := r.Pop2Frames()
+	if err != ErrNotEnoughStackFrames {
+		t.Errorf("err: %v, want: ErrNotEnoughStackFrames", err)
+	}
+	r.PushString("foo")
+	_, _, err = r.Pop2Frames()
+	if err != ErrNotEnoughStackFrames {
+		t.Errorf("err: %v, want: ErrNotEnoughStackFrames", err)
+	}
+	if len(r.frames) != 1 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+	r.PushString("bar")
+	gota, gotb, err := r.Pop2Frames()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	wanta := Frame{Type: STRING_FRAME, Str: "foo"}
+	wantb := Frame{Type: STRING_FRAME, Str: "bar"}
+	if !reflect.DeepEqual(gota, wanta) {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", gota, wanta)
+	}
+	if !reflect.DeepEqual(gotb, wantb) {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", gotb, wantb)
+	}
+	if len(r.frames) != 0 {
+		t.Errorf("stack size is %v, want 0", len(r.frames))
 	}
 }
