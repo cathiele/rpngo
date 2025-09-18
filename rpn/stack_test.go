@@ -463,6 +463,56 @@ func TestPop2Frames(t *testing.T) {
 	}
 }
 
+func TestPop2Strings(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, _, err := r.Pop2Strings()
+	if err != ErrNotEnoughStackFrames {
+		t.Errorf("err: %v, want: ErrNotEnoughStackFrames", err)
+	}
+	r.PushString("foo")
+	_, _, err = r.Pop2Strings()
+	if err != ErrNotEnoughStackFrames {
+		t.Errorf("err: %v, want: ErrNotEnoughStackFrames", err)
+	}
+	if len(r.frames) != 1 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+	r.PushInt(1234, INTEGER_FRAME)
+	_, _, err = r.Pop2Strings()
+	if err != ErrExpectedAString {
+		t.Errorf("err: %v, want: ErrExpectedAString", err)
+	}
+	if len(r.frames) != 2 {
+		t.Errorf("stack size is %v, want 2", len(r.frames))
+	}
+
+	r.PushString("bar")
+	_, _, err = r.Pop2Strings()
+	if err != ErrExpectedAString {
+		t.Errorf("err: %v, want: ErrExpectedAString", err)
+	}
+	if len(r.frames) != 3 {
+		t.Errorf("stack size is %v, want 3", len(r.frames))
+	}
+	r.PushString("baz")
+	gota, gotb, err := r.Pop2Strings()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	if len(r.frames) != 2 {
+		t.Errorf("stack size is %v, want 2", len(r.frames))
+	}
+	wanta := "bar"
+	wantb := "baz"
+	if gota != wanta {
+		t.Errorf("want: %v, go %v", wanta, gota)
+	}
+	if gotb != wantb {
+		t.Errorf("want: %v, go %v", wantb, gotb)
+	}
+}
+
 func TestPop2Numbers(t *testing.T) {
 	var r RPN
 	r.Init()
