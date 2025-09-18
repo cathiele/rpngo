@@ -421,3 +421,128 @@ func TestPop2Frames(t *testing.T) {
 		t.Errorf("stack size is %v, want 0", len(r.frames))
 	}
 }
+
+func TestPop2Numbers(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, _, err := r.Pop2Numbers()
+	if err != ErrNotEnoughStackFrames {
+		t.Errorf("err: %v, want: ErrNotEnoughStackFrames", err)
+	}
+	r.PushString("foo")
+	_, _, err = r.Pop2Numbers()
+	if err != ErrNotEnoughStackFrames {
+		t.Errorf("err: %v, want: ErrNotEnoughStackFrames", err)
+	}
+	if len(r.frames) != 1 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+	r.PushString("bar")
+	_, _, err = r.Pop2Numbers()
+	if err != ErrExpectedANumber {
+		t.Errorf("err: %v, want: ErrExpectedANumber", err)
+	}
+	if len(r.frames) != 2 {
+		t.Errorf("stack size is %v, want 2", len(r.frames))
+	}
+
+	r.PushInt(123, INTEGER_FRAME)
+	_, _, err = r.Pop2Numbers()
+	if err != ErrExpectedANumber {
+		t.Errorf("err: %v, want: ErrExpectedANumber", err)
+	}
+	if len(r.frames) != 3 {
+		t.Errorf("stack size is %v, want 3", len(r.frames))
+	}
+	r.PushInt(456, INTEGER_FRAME)
+	gota, gotb, err := r.Pop2Numbers()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	if len(r.frames) != 2 {
+		t.Errorf("stack size is %v, want 2", len(r.frames))
+	}
+	wanta := Frame{Type: INTEGER_FRAME, Int: 123}
+	wantb := Frame{Type: INTEGER_FRAME, Int: 456}
+	if !reflect.DeepEqual(wanta, gota) {
+		t.Errorf("want: %v, go %v", wanta, gota)
+	}
+	if !reflect.DeepEqual(wantb, gotb) {
+		t.Errorf("want: %v, go %v", wantb, gotb)
+	}
+
+	r.PushInt(123, INTEGER_FRAME)
+	_, _, err = r.Pop2Numbers()
+	if err != ErrExpectedANumber {
+		t.Errorf("err: %v, want: ErrExpectedANumber", err)
+	}
+	if len(r.frames) != 3 {
+		t.Errorf("stack size is %v, want 3", len(r.frames))
+	}
+	r.PushComplex(complex(1, 2))
+	gota, gotb, err = r.Pop2Numbers()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	if len(r.frames) != 2 {
+		t.Errorf("stack size is %v, want 2", len(r.frames))
+	}
+	wanta = Frame{Type: COMPLEX_FRAME, Complex: complex(123, 0), Int: 123} // Int: 123 is ignored due to type
+	wantb = Frame{Type: COMPLEX_FRAME, Complex: complex(1, 2)}
+	if !reflect.DeepEqual(wanta, gota) {
+		t.Errorf("want: %v, go %v", wanta, gota)
+	}
+	if !reflect.DeepEqual(wantb, gotb) {
+		t.Errorf("want: %v, go %v", wantb, gotb)
+	}
+
+	r.PushComplex(complex(1, 2))
+	_, _, err = r.Pop2Numbers()
+	if err != ErrExpectedANumber {
+		t.Errorf("err: %v, want: ErrExpectedANumber", err)
+	}
+	if len(r.frames) != 3 {
+		t.Errorf("stack size is %v, want 3", len(r.frames))
+	}
+	r.PushInt(123, INTEGER_FRAME)
+	gota, gotb, err = r.Pop2Numbers()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	if len(r.frames) != 2 {
+		t.Errorf("stack size is %v, want 2", len(r.frames))
+	}
+	wanta = Frame{Type: COMPLEX_FRAME, Complex: complex(1, 2)}
+	wantb = Frame{Type: COMPLEX_FRAME, Complex: complex(123, 0), Int: 123} // Int: 123 is ignored due to type
+	if !reflect.DeepEqual(wanta, gota) {
+		t.Errorf("want: %v, go %v", wanta, gota)
+	}
+	if !reflect.DeepEqual(wantb, gotb) {
+		t.Errorf("want: %v, go %v", wantb, gotb)
+	}
+
+	r.PushComplex(complex(1, 2))
+	_, _, err = r.Pop2Numbers()
+	if err != ErrExpectedANumber {
+		t.Errorf("err: %v, want: ErrExpectedANumber", err)
+	}
+	if len(r.frames) != 3 {
+		t.Errorf("stack size is %v, want 3", len(r.frames))
+	}
+	r.PushComplex(complex(3, 4))
+	gota, gotb, err = r.Pop2Numbers()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	if len(r.frames) != 2 {
+		t.Errorf("stack size is %v, want 2", len(r.frames))
+	}
+	wanta = Frame{Type: COMPLEX_FRAME, Complex: complex(1, 2)}
+	wantb = Frame{Type: COMPLEX_FRAME, Complex: complex(3, 4)}
+	if !reflect.DeepEqual(wanta, gota) {
+		t.Errorf("want: %v, go %v", wanta, gota)
+	}
+	if !reflect.DeepEqual(wantb, gotb) {
+		t.Errorf("want: %v, go %v", wantb, gotb)
+	}
+}
