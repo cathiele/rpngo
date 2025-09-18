@@ -270,6 +270,125 @@ func TestPopBool(t *testing.T) {
 	}
 }
 
+func TestPopNumber(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, err := r.PopNumber()
+	if err != ErrStackEmpty {
+		t.Errorf("err: %v, want: ErrStackEmpty", err)
+	}
+	r.PushString("foo")
+	_, err = r.PopNumber()
+	if err != ErrExpectedANumber {
+		t.Errorf("err: %v, want: ErrExpectedANumber", err)
+	}
+	r.PushInt(1234, INTEGER_FRAME)
+	got, err := r.PopNumber()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	want := Frame{Type: INTEGER_FRAME, Int: 1234}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 1 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+	r.PushComplex(complex(1, 2))
+	got, err = r.PopNumber()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	want = Frame{Type: COMPLEX_FRAME, Complex: complex(1, 2)}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 1 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+}
+
+func TestPopComplex(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, err := r.PopComplex()
+	if err != ErrStackEmpty {
+		t.Errorf("err: %v, want: ErrStackEmpty", err)
+	}
+	r.PushString("foo")
+	_, err = r.PopComplex()
+	if err != ErrExpectedANumber {
+		t.Errorf("err: %v, want: ErrExpectedANumber", err)
+	}
+	r.PushInt(1234, INTEGER_FRAME)
+	got, err := r.PopComplex()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	want := complex(1234, 0)
+	if got != want {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 1 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+	r.PushComplex(complex(1, 2))
+	got, err = r.PopComplex()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	want = complex(1, 2)
+	if got != want {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 1 {
+		t.Errorf("stack size is %v, want 1", len(r.frames))
+	}
+}
+
+func TestPopReal(t *testing.T) {
+	var r RPN
+	r.Init()
+	_, err := r.PopReal()
+	if err != ErrStackEmpty {
+		t.Errorf("err: %v, want: ErrStackEmpty", err)
+	}
+	r.PushString("foo")
+	_, err = r.PopReal()
+	if err != ErrExpectedANumber {
+		t.Errorf("err: %v, want: ErrExpectedANumber", err)
+	}
+	r.PushComplex(complex(1, 2))
+	_, err = r.PopReal()
+	if err != ErrComplexNumberNotSupported {
+		t.Errorf("err: %v, want: ErrComplexNumberNotSupported", err)
+	}
+	r.PushComplex(complex(1234, 0))
+	got, err := r.PopReal()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	var want float64 = 1234
+	if got != want {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 2 {
+		t.Errorf("stack size is %v, want 2", len(r.frames))
+	}
+	r.PushInt(12, INTEGER_FRAME)
+	got, err = r.PopReal()
+	if err != nil {
+		t.Errorf("err: %v, want: nil", err)
+	}
+	want = 12
+	if got != want {
+		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
+	}
+	if len(r.frames) != 2 {
+		t.Errorf("stack size is %v, want 2", len(r.frames))
+	}
+}
+
 func TestPop2Frames(t *testing.T) {
 	var r RPN
 	r.Init()
