@@ -870,3 +870,55 @@ func TestSize(t *testing.T) {
 		t.Errorf("want 1, got %v", r.Size())
 	}
 }
+
+func testPushPopAndSizeStack(t *testing.T) {
+	var r RPN
+	r.Init()
+	r.PushString("foo")
+	err := pushStack(&r)
+	if err != nil {
+		t.Fatalf("want err=nil, got %v", err)
+	}
+	want := [][]Frame{{{Type: STRING_FRAME, Str: "foo"}}}
+	if !reflect.DeepEqual(want, r.pushed) {
+		t.Fatalf("want pushed=%+v, got %+v", want, r.pushed)
+	}
+
+	err = popStack(&r)
+	if err != nil {
+		t.Fatalf("want err=nil, got %v", err)
+	}
+	if len(r.frames) != 0 {
+		t.Errorf("want size=0, got %v", len(r.frames))
+	}
+
+	err = popStack(&r)
+	if err != ErrStackEmpty {
+		t.Fatalf("want err=ErrStackEmpty, got %v", err)
+	}
+}
+
+func testStackSize(t *testing.T) {
+	var r RPN
+	r.Init()
+	err := stackSize(&r)
+	if err != nil {
+		t.Fatalf("want err=nil, got %v", err)
+	}
+	f, _ := r.PopFrame()
+	want := Frame{Type: INTEGER_FRAME, Int: 0}
+	if !reflect.DeepEqual(want, f) {
+		t.Errorf("want size=%v, got %v", want, f)
+	}
+
+	r.PushString("foo")
+	err = stackSize(&r)
+	if err != nil {
+		t.Fatalf("want err=nil, got %v", err)
+	}
+	f, _ = r.PopFrame()
+	want = Frame{Type: INTEGER_FRAME, Int: 1}
+	if !reflect.DeepEqual(want, f) {
+		t.Errorf("want size=%v, got %v", want, f)
+	}
+}
