@@ -844,3 +844,29 @@ func TestDeletaFrame(t *testing.T) {
 		t.Errorf("want %v, get %v", wants, r.frames)
 	}
 }
+
+func TestIterFrames(t *testing.T) {
+	var r RPN
+	r.Init()
+	r.PushString("foo")
+	r.PushString("bar")
+	r.PushString("baz")
+	var got []string
+	r.IterFrames(func(f Frame) { got = append(got, f.Str) })
+	want := []string{"foo", "bar", "baz"}
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("want %v, got %v", want, got)
+	}
+}
+
+func TestSize(t *testing.T) {
+	var r RPN
+	r.Init()
+	if r.Size() != 0 {
+		t.Errorf("want 0, got %v", r.Size())
+	}
+	r.PushString("foo")
+	if r.Size() != 1 {
+		t.Errorf("want 1, got %v", r.Size())
+	}
+}
