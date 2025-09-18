@@ -762,3 +762,85 @@ func TestPop2Ints(t *testing.T) {
 		t.Errorf("want: %v, go %v", wantb, gotb)
 	}
 }
+
+func TestPeekFrame(t *testing.T) {
+	var r RPN
+	r.Init()
+	r.PushString("foo")
+	r.PushString("bar")
+	_, err := r.PeekFrame(-1)
+	if err != ErrIllegalValue {
+		t.Errorf("want ErrIllegalValue, got %v", err)
+	}
+	_, err = r.PeekFrame(2)
+	if err != ErrIllegalValue {
+		t.Errorf("want ErrIllegalValue, got %v", err)
+	}
+
+	want := Frame{Type: STRING_FRAME, Str: "bar"}
+	got, err := r.PeekFrame(0)
+	if err != nil {
+		t.Errorf("want err=nil, got %v", err)
+	}
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("want %v, for %v", want, got)
+	}
+
+	want = Frame{Type: STRING_FRAME, Str: "foo"}
+	got, err = r.PeekFrame(1)
+	if err != nil {
+		t.Errorf("want err=nil, got %v", err)
+	}
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("want %v, for %v", want, got)
+	}
+}
+
+func TestDeletaFrame(t *testing.T) {
+	var r RPN
+	r.Init()
+	r.PushString("foo")
+	r.PushString("bar")
+	r.PushString("baz")
+	_, err := r.DeleteFrame(-1)
+	if err != ErrIllegalValue {
+		t.Errorf("want ErrIllegalValue, got %v", err)
+	}
+	_, err = r.DeleteFrame(3)
+	if err != ErrIllegalValue {
+		t.Errorf("want ErrIllegalValue, got %v", err)
+	}
+
+	got, err := r.DeleteFrame(0)
+	if err != nil {
+		t.Errorf("want err=nil, got %v", err)
+	}
+	want := Frame{Type: STRING_FRAME, Str: "baz"}
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("want %v, got %v", want, got)
+	}
+
+	wants := []Frame{
+		{Type: STRING_FRAME, Str: "foo"},
+		{Type: STRING_FRAME, Str: "bar"},
+	}
+	if !reflect.DeepEqual(wants, r.frames) {
+		t.Errorf("want %v, get %v", wants, r.frames)
+	}
+
+	got, err = r.DeleteFrame(1)
+	if err != nil {
+		t.Errorf("want err=nil, got %v", err)
+	}
+	want = Frame{Type: STRING_FRAME, Str: "foo"}
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("want %v, got %v", want, got)
+	}
+
+	wants = []Frame{
+		{Type: STRING_FRAME, Str: "bar"},
+	}
+	if !reflect.DeepEqual(wants, r.frames) {
+		t.Errorf("want %v, get %v", wants, r.frames)
+	}
+}

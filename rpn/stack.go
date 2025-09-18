@@ -322,8 +322,12 @@ func (r *RPN) Pop2Ints() (a Frame, b Frame, err error) {
 }
 
 func (r *RPN) PeekFrame(framesBack int) (sf Frame, err error) {
+	if framesBack < 0 {
+		err = ErrIllegalValue
+		return
+	}
 	if len(r.frames)-framesBack <= 0 {
-		err = ErrStackEmpty
+		err = ErrIllegalValue
 		return
 	}
 	sf = r.frames[len(r.frames)-1-framesBack]
