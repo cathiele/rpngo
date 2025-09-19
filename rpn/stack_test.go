@@ -871,54 +871,44 @@ func TestSize(t *testing.T) {
 	}
 }
 
-func testPushPopAndSizeStack(t *testing.T) {
-	var r RPN
-	r.Init()
-	r.PushString("foo")
-	err := pushStack(&r)
-	if err != nil {
-		t.Fatalf("want err=nil, got %v", err)
+func TestPushAndPopStack(t *testing.T) {
+	data := []UnitTestExecData{
+		{
+			Name:    "empty spop",
+			Args:    []string{"spop"},
+			WantErr: ErrStackEmpty,
+		},
+		{
+			Name: "push and check",
+			Args: []string{"1", "2", "spush"},
+			Want: []string{"1", "2"},
+		},
+		{
+			Name: "push change and pop",
+			Args: []string{"1", "2", "spush", "5", "spop"},
+			Want: []string{"1", "2"},
+		},
 	}
-	want := [][]Frame{{{Type: STRING_FRAME, Str: "foo"}}}
-	if !reflect.DeepEqual(want, r.pushed) {
-		t.Fatalf("want pushed=%+v, got %+v", want, r.pushed)
-	}
-
-	err = popStack(&r)
-	if err != nil {
-		t.Fatalf("want err=nil, got %v", err)
-	}
-	if len(r.frames) != 0 {
-		t.Errorf("want size=0, got %v", len(r.frames))
-	}
-
-	err = popStack(&r)
-	if err != ErrStackEmpty {
-		t.Fatalf("want err=ErrStackEmpty, got %v", err)
-	}
+	UnitTestExecAll(t, data, nil)
 }
 
-func testStackSize(t *testing.T) {
-	var r RPN
-	r.Init()
-	err := stackSize(&r)
-	if err != nil {
-		t.Fatalf("want err=nil, got %v", err)
+func TestStackSize(t *testing.T) {
+	data := []UnitTestExecData{
+		{
+			Name: "empty",
+			Args: []string{"ssize"},
+			Want: []string{"0d"},
+		},
+		{
+			Name: "one",
+			Args: []string{"1", "ssize"},
+			Want: []string{"1d"},
+		},
+		{
+			Name: "two",
+			Args: []string{"1", "2", "ssize"},
+			Want: []string{"2d"},
+		},
 	}
-	f, _ := r.PopFrame()
-	want := Frame{Type: INTEGER_FRAME, Int: 0}
-	if !reflect.DeepEqual(want, f) {
-		t.Errorf("want size=%v, got %v", want, f)
-	}
-
-	r.PushString("foo")
-	err = stackSize(&r)
-	if err != nil {
-		t.Fatalf("want err=nil, got %v", err)
-	}
-	f, _ = r.PopFrame()
-	want = Frame{Type: INTEGER_FRAME, Int: 1}
-	if !reflect.DeepEqual(want, f) {
-		t.Errorf("want size=%v, got %v", want, f)
-	}
+	UnitTestExecAll(t, data, nil)
 }
