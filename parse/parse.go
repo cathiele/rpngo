@@ -51,8 +51,12 @@ func (p *parseData) whitespace(c rune) {
 		p.s = COMMENT
 		return
 	}
-	p.t = p.t[:1]
-	p.t[0] = c
+	if len(p.t) > 0 {
+		p.t = p.t[:1]
+		p.t[0] = c
+	} else {
+		p.t = append(p.t, c)
+	}
 	switch c {
 	case '\'':
 		p.s = STRING_SINGLE
@@ -61,7 +65,6 @@ func (p *parseData) whitespace(c rune) {
 	default:
 		p.s = TOKEN
 	}
-	return
 }
 
 func (p *parseData) token(c rune) {
@@ -81,7 +84,6 @@ func (p *parseData) token(c rune) {
 		return
 	}
 	p.t = append(p.t, c)
-	return
 }
 
 func (p *parseData) str(c rune, quoteChar rune) {
@@ -109,7 +111,7 @@ func (p *parseData) comment(c rune) {
 }
 
 func Fields(m string) ([]string, error) {
-	var p parseData = parseData{t: make([]rune, 'x')}
+	var p parseData = parseData{t: make([]rune, 0, 32)}
 	for _, c := range m {
 		switch p.s {
 		case WHITESPACE:
@@ -124,11 +126,12 @@ func Fields(m string) ([]string, error) {
 			p.comment(c)
 		}
 	}
-	if p.s == TOKEN {
+	switch p.s {
+	case TOKEN:
 		p.token('\n')
-	} else if p.s == STRING_SINGLE {
+	case STRING_SINGLE:
 		return nil, ErrUnterminatedSingleQuote
-	} else if p.s == STRING_DOUBLE {
+	case STRING_DOUBLE:
 		return nil, ErrUnterminatedDouble
 	}
 	return p.ret, nil
