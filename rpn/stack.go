@@ -301,6 +301,8 @@ func (r *RPN) Pop2Numbers() (a Frame, b Frame, err error) {
 // Pops 2 numbers as integers.
 func (r *RPN) Pop2Ints() (a Frame, b Frame, err error) {
 	a, b, err = r.Pop2Frames()
+	oa := a
+	ob := b
 	if err != nil {
 		return
 	}
@@ -313,8 +315,8 @@ func (r *RPN) Pop2Ints() (a Frame, b Frame, err error) {
 		b.Int = int64(real(b.Complex))
 	}
 	if !a.IsInt() || !b.IsInt() {
-		r.PushFrame(a)
-		r.PushFrame(b)
+		r.PushFrame(oa)
+		r.PushFrame(ob)
 		err = ErrExpectedANumber
 		return
 	}
