@@ -902,12 +902,12 @@ func TestStackSize(t *testing.T) {
 		{
 			Name: "one",
 			Args: []string{"1", "ssize"},
-			Want: []string{"1d"},
+			Want: []string{"1", "1d"},
 		},
 		{
 			Name: "two",
 			Args: []string{"1", "2", "ssize"},
-			Want: []string{"2d"},
+			Want: []string{"1", "2", "2d"},
 		},
 	}
 	UnitTestExecAll(t, data, nil)

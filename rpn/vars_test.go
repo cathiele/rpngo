@@ -1,58 +1,29 @@
 package rpn
 
-import (
-	"reflect"
-	"testing"
-)
+import "testing"
 
-func testPushPopVariableFrame(t *testing.T) {
-	var r RPN
-	r.Init()
-	r.PushString("bar")
-	r.setVariable("foo")
-
-	err := pushVariableFrame(&r)
-	if err != nil {
-		t.Fatalf("want err=nil, got %v", err)
-	}
-	r.PushString("x")
-	r.setVariable("y")
-	want := []map[string]Frame{
+func TestPushPopVarFrame(t *testing.T) {
+	data := []UnitTestExecData{
 		{
-			"foo": Frame{Type: STRING_FRAME, Str: "bar"},
+			Name:    "empty pop",
+			Args:    []string{"vpop"},
+			WantErr: ErrStackEmpty,
 		},
 		{
-			"y": Frame{Type: STRING_FRAME, Str: "x"},
+			Name: "push",
+			Args: []string{"1234", "x=", "vpush", "$x"},
+			Want: []string{"1234"},
 		},
-	}
-	if !reflect.DeepEqual(want, r.variables) {
-		t.Errorf("want variables = %+v, got %+v", want, r.variables)
-	}
-
-	err = popVariableFrame(&r)
-	if err != nil {
-		t.Fatalf("want err=nil, got %v", err)
-	}
-	want = []map[string]Frame{
 		{
-			"foo": Frame{Type: STRING_FRAME, Str: "bar"},
+			Name: "push, then pop",
+			Args: []string{"1234", "x=", "vpush", "2345", "$x", "x=", "vpop", "$x"},
+			Want: []string{"2345", "1234"},
+		},
+		{
+			Name: "push twice, then pop twice",
+			Args: []string{"1234", "x=", "vpush", "$x", "vpush", "$x", "2345", "x=", "$x", "vpop", "vpop", "$x"},
+			Want: []string{"1234", "1234", "2345", "1234"},
 		},
 	}
-	if !reflect.DeepEqual(want, r.variables) {
-		t.Errorf("want variables = %+v, got %+v", want, r.variables)
-	}
-
-	err = popVariableFrame(&r)
-	if err != nil {
-		t.Fatalf("want err=nil, got %v", err)
-	}
-	want = []map[string]Frame{}
-	if !reflect.DeepEqual(want, r.variables) {
-		t.Errorf("want variables = %+v, got %+v", want, r.variables)
-	}
-
-	err = popVariableFrame(&r)
-	if err != ErrStackEmpty {
-		t.Fatalf("want err=ErrStackEmpty, got %v", err)
-	}
+	UnitTestExecAll(t, data, nil)
 }
