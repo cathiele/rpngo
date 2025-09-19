@@ -3,7 +3,6 @@ package rpn
 import (
 	"mattwach/rpngo/parse"
 	"sort"
-	"strings"
 )
 
 const pushVariableFrameHelp = "Pushes a variable frame to the variable stack"
@@ -29,14 +28,35 @@ func (r *RPN) setVariable(name string) error {
 	if err != nil {
 		return err
 	}
-	if strings.Contains(name, "=") {
-		return ErrIllegalName
-	}
-	if strings.Contains(name, "$") {
-		return ErrIllegalName
+	if err := checkVariableName(name); err != nil {
+		r.PushFrame(f)
+		return err
 	}
 	r.variables[len(r.variables)-1][name] = f
 	return nil
+}
+
+func checkVariableName(name string) error {
+	if len(name) == 0 {
+		return ErrIllegalName
+	}
+	if !isAlpha(rune(name[0])) {
+		return ErrIllegalName
+	}
+	for _, r := range name {
+		if !isAlphaNum(r) {
+			return ErrIllegalName
+		}
+	}
+	return nil
+}
+
+func isAlpha(r rune) bool {
+	return (r == '_') || ((r >= 'A') && (r <= 'Z')) || ((r >= 'a') && (r <= 'z'))
+}
+
+func isAlphaNum(r rune) bool {
+	return (r == '_') || ((r >= '0') && (r <= '9')) || ((r >= 'A') && (r <= 'Z')) || ((r >= 'a') && (r <= 'z'))
 }
 
 // Clears a variable
@@ -79,10 +99,13 @@ func (r *RPN) GetComplexVariable(name string) (complex128, error) {
 	if !ok {
 		return 0, ErrNotFound
 	}
-	if v.Type != COMPLEX_FRAME {
-		return 0, ErrExpectedANumber
+	if v.Type == COMPLEX_FRAME {
+		return v.Complex, nil
 	}
-	return v.Complex, nil
+	if v.IsInt() {
+		return complex(float64(v.Int), 0), nil
+	}
+	return 0, ErrExpectedANumber
 }
 
 // Gets all variable values as a string

@@ -36,9 +36,6 @@ func UnitTestExec(t *testing.T, r *RPN, args, want []string, wantErr error) {
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("err=%v, want=%v", err, wantErr)
 	}
-	if wantErr != nil {
-		return
-	}
 	var got []string
 	r.IterFrames(func(f Frame) { got = append(got, f.String(true)) })
 	if !reflect.DeepEqual(want, got) {
