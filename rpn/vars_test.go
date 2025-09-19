@@ -158,6 +158,22 @@ func TestSetGetAndClear(t *testing.T) {
 			Want:    []string{"1", "2"},
 			WantErr: ErrNotEnoughStackFrames,
 		},
+		{
+			Name: "move head to",
+			Args: []string{"1", "2", "1<"},
+			Want: []string{"2", "1"},
+		},
+		{
+			Name: "move head to 2",
+			Args: []string{"1", "2", "0<"},
+			Want: []string{"1", "2"},
+		},
+		{
+			Name:    "move head to 3",
+			Args:    []string{"1", "2", "2<"},
+			Want:    []string{"1", "2"},
+			WantErr: ErrNotEnoughStackFrames,
+		},
 	}
 	UnitTestExecAll(t, data, nil)
 }

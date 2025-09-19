@@ -344,6 +344,23 @@ func (r *RPN) DeleteFrame(framesBack int) (sf Frame, err error) {
 	return
 }
 
+func (r *RPN) InsertFrame(f Frame, framesBack int) error {
+	if framesBack < 0 {
+		return ErrIllegalValue
+	}
+	if framesBack > len(r.frames) {
+		return ErrNotEnoughStackFrames
+	}
+	if framesBack == 0 {
+		return r.PushFrame(f)
+	}
+	idx := len(r.frames) - framesBack
+	r.frames = append(r.frames, Frame{})
+	copy(r.frames[idx+1:], r.frames[idx:])
+	r.frames[idx] = f
+	return nil
+}
+
 func (r *RPN) IterFrames(fn func(Frame)) {
 	for _, sf := range r.frames {
 		fn(sf)

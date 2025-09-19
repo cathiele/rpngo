@@ -845,6 +845,32 @@ func TestDeleteFrame(t *testing.T) {
 	}
 }
 
+func TestInsertFrame(t *testing.T) {
+	var r RPN
+	r.Init()
+	err := r.InsertFrame(Frame{}, -1)
+	wantErr := ErrIllegalValue
+	if err != wantErr {
+		t.Errorf("err=%v, want %v", err, wantErr)
+	}
+	err = r.InsertFrame(Frame{}, 1)
+	wantErr = ErrNotEnoughStackFrames
+	if err != wantErr {
+		t.Errorf("err=%v, want %v", err, wantErr)
+	}
+	r.PushString("1")
+	err = r.InsertFrame(Frame{Type: STRING_FRAME, Str: "foo"}, 1)
+	wantErr = nil
+	if err != wantErr {
+		t.Errorf("err=%v, want %v", err, wantErr)
+	}
+
+	wants := []Frame{{Type: STRING_FRAME, Str: "foo"}, {Type: STRING_FRAME, Str: "1"}}
+	if !reflect.DeepEqual(wants, r.frames) {
+		t.Errorf("want %v, get %v", wants, r.frames)
+	}
+}
+
 func TestIterFrames(t *testing.T) {
 	var r RPN
 	r.Init()

@@ -129,6 +129,22 @@ func (r *RPN) moveStackVariableToHead(name string) error {
 	return r.PushFrame(f)
 }
 
+func (r *RPN) moveHeadStackVariable(name string) error {
+	idx, err := strconv.Atoi(name)
+	if err != nil {
+		return ErrIllegalName
+	}
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	err = r.InsertFrame(f, idx)
+	if err != nil {
+		r.PushFrame(f)
+	}
+	return err
+}
+
 // gets a variable as a string
 func (r *RPN) GetStringVariable(name string) (string, error) {
 	v, err := r.getVariable(name)

@@ -25,6 +25,8 @@ func (rpn *RPN) exec(arg string) error {
 			return rpn.clearVariable(arg[:len(arg)-1])
 		case '>':
 			return rpn.moveStackVariableToHead(arg[:len(arg)-1])
+		case '<':
+			return rpn.moveHeadStackVariable(arg[:len(arg)-1])
 		}
 		switch arg[0] {
 		case '$':
