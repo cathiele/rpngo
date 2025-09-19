@@ -19,7 +19,7 @@ func InitPlotCommands(r *rpn.RPN, root *window.WindowRoot, screen window.Screen)
 			"run the provided string, and pop the value as y value.\n" +
 			"Examples:\n" +
 			"    '2 *' plot # plots y = x * 2\n" +
-			"    'c *' plot # plots y = x * x\n" +
+			"    'sq' plot # plots y = x * x\n" +
 			"    'sin' plot # plots y = sin(x)\n" +
 			"Various properties can be set on the plot window to change the number\n" +
 			"of points and the boundaries of the plot.\n" +
@@ -33,7 +33,7 @@ func InitPlotCommands(r *rpn.RPN, root *window.WindowRoot, screen window.Screen)
 		"plot.parametric": "Plot parametric functions using pplot. pplot will push a 't' value to\n" +
 			"the stack, run the provided string then pop y, then x to determine the plot point x, y\n" +
 			"Examples:\n" +
-			"    'c cos sw sin' pplot # draws an arc or full circle, depending on t range\n" +
+			"    '$0 cos 1> sin' pplot # draws an arc or full circle, depending on t range\n" +
 			"    't= $t sin $t * $t cos $t *' pplot # draw a spiral\n" +
 			"    '1 sw' draw a vertical line\n",
 	}

@@ -32,7 +32,7 @@ const defaultConfigFile = `
 
 # some useful equations
 'vpush
- c= c neg bn= b= c 2 * 2a= a= $b sq 4 $a $c * * - sqrt root=
+ c= $0 neg bn= b= $0 2 * 2a= a= $b sq 4 $a $c * * - sqrt root=
  $bn $root + $2a /
  $bn $root - $2a /
  vpop' quad=

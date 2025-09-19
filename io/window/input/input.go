@@ -91,7 +91,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		if err == nil {
 			window.Print(iw.txtw, frame.String(true))
 			window.PutByte(iw.txtw, '\n')
-		} else if !errors.Is(err, rpn.ErrStackEmpty) {
+		} else if !errors.Is(err, rpn.ErrNotEnoughStackFrames) {
 			window.PrintErr(iw.txtw, err)
 		}
 	}

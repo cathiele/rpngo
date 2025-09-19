@@ -773,8 +773,8 @@ func TestPeekFrame(t *testing.T) {
 		t.Errorf("want ErrIllegalValue, got %v", err)
 	}
 	_, err = r.PeekFrame(2)
-	if err != ErrIllegalValue {
-		t.Errorf("want ErrIllegalValue, got %v", err)
+	if err != ErrNotEnoughStackFrames {
+		t.Errorf("want ErrNotEnoughStackFrames, got %v", err)
 	}
 
 	want := Frame{Type: STRING_FRAME, Str: "bar"}
@@ -796,7 +796,7 @@ func TestPeekFrame(t *testing.T) {
 	}
 }
 
-func TestDeletaFrame(t *testing.T) {
+func TestDeleteFrame(t *testing.T) {
 	var r RPN
 	r.Init()
 	r.PushString("foo")
@@ -807,8 +807,8 @@ func TestDeletaFrame(t *testing.T) {
 		t.Errorf("want ErrIllegalValue, got %v", err)
 	}
 	_, err = r.DeleteFrame(3)
-	if err != ErrIllegalValue {
-		t.Errorf("want ErrIllegalValue, got %v", err)
+	if err != ErrNotEnoughStackFrames {
+		t.Errorf("want ErrNotEnoughStackFrames, got %v", err)
 	}
 
 	got, err := r.DeleteFrame(0)

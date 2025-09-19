@@ -35,7 +35,7 @@ func (rpn *RPN) initHelp() {
 
 		"control": "The if, ifelse, and for operators can be used to provide\n" +
 			"support for simple programmng\n" +
-			"Example (print 1-50): 1 'println 1 + c 50 <' for",
+			"Example (print 1-50): 1 'println 1 + $0 50 <' for",
 
 		"complex": "Enter a complex value as i, -i, 3+i or 3-i\n" +
 			"Do not use spaces.",
@@ -62,13 +62,14 @@ func (rpn *RPN) initHelp() {
 			"    and spop, which can be useful for doing multiple operations on\n" +
 			"    the same stack values.\n" +
 			"Examples:\n" +
-			"  $x c + 1 /  # Uses c to copy the stack head and execute a/(a+1)'\n" +
-			"  'c cos sw sin' pplot # parametric plot of a circle using sw to swap elements\n" +
-			"   x # drop the element at the head of the stack\n" +
-			"   1 xi # drop the second element from the stack\n" +
+			"  $x $0 + 1 /  # Uses $0 to copy the stack head and execute a/(a+1)'\n" +
+			"  '$0 cos 1> sin' pplot # parametric plot of a circle using sw to swap elements\n" +
+			"   0/ # drop the element at the head of the stack\n" +
+			"   1/ # drop the second element from the stack\n" +
 			"   X # clear the stack\n" +
-			"   2 mi # Moves the third element in the stack to the head\n" +
-			"   2 ci # Copies the third element in the stack to the head\n" +
+			"   2> # Moves the third element in the stack to the head\n" +
+			"   2< # Moves the head element two backwards\n" +
+			"   $2 # Copies the third element in the stack to the head\n" +
 			"\n",
 
 		"strings": "Enter a string value as 'example 1' or \"example 2\"",
@@ -78,11 +79,12 @@ func (rpn *RPN) initHelp() {
 			"Example: 5 x= $x $x *\n" +
 			"\n" +
 			"Clear a variable with a trailing /. e.g. x/\n" +
+			"Choose the first value of the stack: $0\n" +
 			"Push a variable frame with vpush, pop with vpop\n" +
 			"Variables added after vpush will be reverted after a vpop,\n" +
 			"allowing for 'local variables' to be temporarily defined." +
 			"\n" +
-			"See Also: macros",
+			"See Also: macros, stack",
 	}
 	rpn.help = map[string]map[string]string{CatConcepts: conceptHelp}
 }

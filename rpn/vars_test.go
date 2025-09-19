@@ -41,7 +41,7 @@ func TestSetGetAndClear(t *testing.T) {
 		},
 		{
 			Name: "basic",
-			Args: []string{"5", "x_1=", "$x_1", "$x_1", "6", "x_1=", "$x_1"},
+			Args: []string{"5", "x.y_1=", "$x.y_1", "$x.y_1", "6", "x.y_1=", "$x.y_1"},
 			Want: []string{"5", "5", "6"},
 		},
 		{
@@ -81,6 +81,82 @@ func TestSetGetAndClear(t *testing.T) {
 			Name:    "clear basic with check",
 			Args:    []string{"5", "x=", "x/", "$x"},
 			WantErr: ErrNotFound,
+		},
+		{
+			Name: "head arg",
+			Args: []string{"1", "2", "$0"},
+			Want: []string{"1", "2", "2"},
+		},
+		{
+			Name:    "head arg 2",
+			Args:    []string{"$0"},
+			WantErr: ErrNotEnoughStackFrames,
+		},
+		{
+			Name: "arg",
+			Args: []string{"1", "2", "$1"},
+			Want: []string{"1", "2", "1"},
+		},
+		{
+			Name:    "arg 2",
+			Args:    []string{"1", "2", "$2"},
+			WantErr: ErrNotEnoughStackFrames,
+			Want:    []string{"1", "2"},
+		},
+		{
+			Name:    "arg bad",
+			Args:    []string{"1", "$2x"},
+			WantErr: ErrIllegalName,
+			Want:    []string{"1"},
+		},
+		{
+			Name:    "arg bad 2",
+			Args:    []string{"1", "$-2"},
+			WantErr: ErrNotFound,
+			Want:    []string{"1"},
+		},
+		{
+			Name: "remove",
+			Args: []string{"1", "2", "0/"},
+			Want: []string{"1"},
+		},
+		{
+			Name: "remove 2",
+			Args: []string{"1", "2", "1/"},
+			Want: []string{"2"},
+		},
+		{
+			Name:    "remove bad",
+			Args:    []string{"0/"},
+			WantErr: ErrNotEnoughStackFrames,
+		},
+		{
+			Name:    "remove bad 2",
+			Args:    []string{"1", "1/"},
+			Want:    []string{"1"},
+			WantErr: ErrNotEnoughStackFrames,
+		},
+		{
+			Name:    "remove bad 3",
+			Args:    []string{"1", "1x/"},
+			Want:    []string{"1"},
+			WantErr: ErrIllegalName,
+		},
+		{
+			Name: "move to head",
+			Args: []string{"1", "2", "1>"},
+			Want: []string{"2", "1"},
+		},
+		{
+			Name: "move to head 2",
+			Args: []string{"1", "2", "0>"},
+			Want: []string{"1", "2"},
+		},
+		{
+			Name:    "move to head err",
+			Args:    []string{"1", "2", "2>"},
+			Want:    []string{"1", "2"},
+			WantErr: ErrNotEnoughStackFrames,
 		},
 	}
 	UnitTestExecAll(t, data, nil)
@@ -217,6 +293,11 @@ func TestExecVariableAsMacro(t *testing.T) {
 			Name: "simple",
 			Args: []string{"'1 2'", "x=", "@x"},
 			Want: []string{"1", "2"},
+		},
+		{
+			Name: "simple 2",
+			Args: []string{"'1 2'", "@0"},
+			Want: []string{"\"1 2\"", "1", "2"},
 		},
 		{
 			Name: "nested",

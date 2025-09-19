@@ -7,7 +7,7 @@
   0 x=
   0 y=
   0.05 diameter=
-  'c cos $diameter * $x + sw sin $diameter * $y +' pplot
+  '$0 cos $diameter * $x + 1> sin $diameter * $y +' pplot
   'p1' 'minv' 0 w.setp
   'p1' 'maxv' $pi 2 * w.setp
   'p1' 'minx' -1 w.setp
@@ -22,10 +22,10 @@
 
 "
   $x $xv +
-  c abs 1 > '$xv neg xv= $xv + x=' 'x=' ifelse @
+  $0 abs 1 > '$xv neg xv= $xv + x=' 'x=' ifelse @
 
   $y $yv +
-  c abs 1 > '$yv neg yv= $yv + y=' 'y=' ifelse @
+  $0 abs 1 > '$yv neg yv= $yv + y=' 'y=' ifelse @
 
   'p1' w.update
   1 60 / delay

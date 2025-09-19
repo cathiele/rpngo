@@ -24,12 +24,8 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("*", Multiply, rpn.CatCore, MultiplyHelp)
 	r.Register("/", Divide, rpn.CatCore, DivideHelp)
 	r.Register("+", Add, rpn.CatCore, AddHelp)
-	r.Register("a", Add, rpn.CatCore, AddHelp)
-	r.Register("d", Divide, rpn.CatCore, DivideHelp)
 	r.Register("false", False, rpn.CatCore, FalseHelp)
 	r.Register("neg", Negate, rpn.CatCore, NegateHelp)
-	r.Register("m", Multiply, rpn.CatCore, MultiplyHelp)
-	r.Register("s", Subtract, rpn.CatCore, SubtractHelp)
 	r.Register("true", True, rpn.CatCore, TrueHelp)
 
 	r.Register("**", Power, rpn.CatEng, PowerHelp)
@@ -60,13 +56,7 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("input", Input, rpn.CatProg, InputHelp)
 	r.Register("noop", NoOp, rpn.CatProg, NoOpHelp)
 
-	r.Register("c", Copy, rpn.CatStack, CopyHelp)
-	r.Register("ci", CopyIndex, rpn.CatStack, CopyIndexHelp)
-	r.Register("mi", MoveIndex, rpn.CatStack, MoveIndexHelp)
-	r.Register("sw", Swap, rpn.CatStack, SwapHelp)
-	r.Register("x", Drop, rpn.CatStack, DropHelp)
 	r.Register("X", DropAll, rpn.CatStack, DropAllHelp)
-	r.Register("xi", DropIndex, rpn.CatStack, DropIndexHelp)
 
 	r.Register("bin", Bin, rpn.CatType, BinHelp)
 	r.Register("float", Float, rpn.CatType, FloatHelp)

@@ -3,6 +3,7 @@ package rpn
 import (
 	"mattwach/rpngo/parse"
 	"sort"
+	"strconv"
 )
 
 const pushVariableFrameHelp = "Pushes a variable frame to the variable stack"
@@ -55,12 +56,22 @@ func isAlpha(r rune) bool {
 	return (r == '_') || ((r >= 'A') && (r <= 'Z')) || ((r >= 'a') && (r <= 'z'))
 }
 
+func isNum(r rune) bool {
+	return (r >= '0') && (r <= '9')
+}
+
 func isAlphaNum(r rune) bool {
-	return (r == '_') || ((r >= '0') && (r <= '9')) || ((r >= 'A') && (r <= 'Z')) || ((r >= 'a') && (r <= 'z'))
+	return (r == '.') || (r == '_') || ((r >= '0') && (r <= '9')) || ((r >= 'A') && (r <= 'Z')) || ((r >= 'a') && (r <= 'z'))
 }
 
 // Clears a variable
 func (r *RPN) clearVariable(name string) error {
+	if len(name) == 0 {
+		return ErrIllegalName
+	}
+	if isNum(rune(name[0])) {
+		return r.clearStackVariable(name)
+	}
 	vframe := r.variables[len(r.variables)-1]
 	_, ok := vframe[name]
 	if !ok {
@@ -71,21 +82,58 @@ func (r *RPN) clearVariable(name string) error {
 }
 
 // Gets a variable
-func (r *RPN) getVariable(name string) (Frame, bool) {
+func (r *RPN) getVariable(name string) (Frame, error) {
+	if len(name) == 0 {
+		return Frame{}, ErrIllegalName
+	}
+	if isNum(rune(name[0])) {
+		return r.getStackVariable(name)
+	}
 	for i := len(r.variables) - 1; i >= 0; i-- {
 		f, ok := r.variables[i][name]
 		if ok {
-			return f, true
+			return f, nil
 		}
 	}
-	return Frame{}, false
+	return Frame{}, ErrNotFound
+}
+
+// Gets a variable from the stack
+func (r *RPN) getStackVariable(name string) (Frame, error) {
+	idx, err := strconv.Atoi(name)
+	if err != nil {
+		return Frame{}, ErrIllegalName
+	}
+	return r.PeekFrame(idx)
+}
+
+// Removes a variable from the stack
+func (r *RPN) clearStackVariable(name string) error {
+	idx, err := strconv.Atoi(name)
+	if err != nil {
+		return ErrIllegalName
+	}
+	_, err = r.DeleteFrame(idx)
+	return err
+}
+
+func (r *RPN) moveStackVariableToHead(name string) error {
+	idx, err := strconv.Atoi(name)
+	if err != nil {
+		return ErrIllegalName
+	}
+	f, err := r.DeleteFrame(idx)
+	if err != nil {
+		return err
+	}
+	return r.PushFrame(f)
 }
 
 // gets a variable as a string
 func (r *RPN) GetStringVariable(name string) (string, error) {
-	v, ok := r.getVariable(name)
-	if !ok {
-		return "", ErrNotFound
+	v, err := r.getVariable(name)
+	if err != nil {
+		return "", err
 	}
 	if v.Type != STRING_FRAME {
 		return "", ErrExpectedAString
@@ -95,9 +143,9 @@ func (r *RPN) GetStringVariable(name string) (string, error) {
 
 // gets a variable as a complex
 func (r *RPN) GetComplexVariable(name string) (complex128, error) {
-	v, ok := r.getVariable(name)
-	if !ok {
-		return 0, ErrNotFound
+	v, err := r.getVariable(name)
+	if err != nil {
+		return 0, err
 	}
 	if v.Type == COMPLEX_FRAME {
 		return v.Complex, nil
@@ -159,9 +207,9 @@ func (r *RPN) AllVariableNamesAndValues() []NameAndValues {
 
 // Executes a Variables as a macro
 func (r *RPN) execVariableAsMacro(name string) error {
-	f, ok := r.getVariable(name)
-	if !ok {
-		return ErrNotFound
+	f, err := r.getVariable(name)
+	if err != nil {
+		return err
 	}
 	if f.Type == COMPLEX_FRAME {
 		// Just push the frame

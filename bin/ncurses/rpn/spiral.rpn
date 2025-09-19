@@ -3,7 +3,7 @@
   2 sc=
   10 maxv=
   2000 frames=
-  'c c $sc * $delta + cos * sw c $sc * $delta + sin *' pplot
+  '$0 $0 $sc * $delta + cos * 1> $0 $sc * $delta + sin *' pplot
   'p1' 'minv' 0 w.setp
   'p1' 'maxv' $maxv w.setp
   'p1' 'minx' $maxv neg w.setp

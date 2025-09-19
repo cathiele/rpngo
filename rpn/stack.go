@@ -326,8 +326,8 @@ func (r *RPN) PeekFrame(framesBack int) (sf Frame, err error) {
 		err = ErrIllegalValue
 		return
 	}
-	if len(r.frames)-framesBack <= 0 {
-		err = ErrIllegalValue
+	if framesBack >= len(r.frames) {
+		err = ErrNotEnoughStackFrames
 		return
 	}
 	sf = r.frames[len(r.frames)-1-framesBack]

@@ -18,16 +18,19 @@ func (rpn *RPN) exec(arg string) error {
 		return fn(rpn)
 	}
 	if len(arg) > 1 {
-		if arg[len(arg)-1] == '=' {
+		switch arg[len(arg)-1] {
+		case '=':
 			return rpn.setVariable(arg[:len(arg)-1])
-		} else if arg[len(arg)-1] == '/' {
+		case '/':
 			return rpn.clearVariable(arg[:len(arg)-1])
+		case '>':
+			return rpn.moveStackVariableToHead(arg[:len(arg)-1])
 		}
 		switch arg[0] {
 		case '$':
-			f, ok := rpn.getVariable(arg[1:])
-			if !ok {
-				return ErrNotFound
+			f, err := rpn.getVariable(arg[1:])
+			if err != nil {
+				return err
 			}
 			rpn.PushFrame(f)
 			return nil
