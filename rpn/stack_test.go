@@ -900,17 +900,14 @@ func TestSize(t *testing.T) {
 func TestPushAndPopStack(t *testing.T) {
 	data := []UnitTestExecData{
 		{
-			Name:    "empty spop",
 			Args:    []string{"spop"},
 			WantErr: ErrStackEmpty,
 		},
 		{
-			Name: "push and check",
 			Args: []string{"1", "2", "spush"},
 			Want: []string{"1", "2"},
 		},
 		{
-			Name: "push change and pop",
 			Args: []string{"1", "2", "spush", "5", "spop"},
 			Want: []string{"1", "2"},
 		},
@@ -921,17 +918,14 @@ func TestPushAndPopStack(t *testing.T) {
 func TestStackSize(t *testing.T) {
 	data := []UnitTestExecData{
 		{
-			Name: "empty",
 			Args: []string{"ssize"},
 			Want: []string{"0d"},
 		},
 		{
-			Name: "one",
 			Args: []string{"1", "ssize"},
 			Want: []string{"1", "1d"},
 		},
 		{
-			Name: "two",
 			Args: []string{"1", "2", "ssize"},
 			Want: []string{"1", "2", "2d"},
 		},

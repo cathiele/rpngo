@@ -13,6 +13,7 @@ func convert(r *rpn.RPN, t rpn.FrameType) error {
 	case rpn.STRING_FRAME:
 		err := r.Exec([]string{v.Str})
 		if err != nil {
+			r.PushFrame(v)
 			return err
 		}
 		return convert(r, t)
@@ -80,6 +81,7 @@ func Float(r *rpn.RPN) error {
 	case rpn.STRING_FRAME:
 		err := r.Exec([]string{v.Str})
 		if err != nil {
+			r.PushFrame(v)
 			return err
 		}
 		return Float(r)
@@ -97,6 +99,7 @@ func Float(r *rpn.RPN) error {
 		v.Type = rpn.COMPLEX_FRAME
 		v.Complex = complex(float64(v.Int), 0)
 	default:
+		r.PushFrame(v)
 		return rpn.ErrIllegalValue
 	}
 	return r.PushFrame(v)
