@@ -104,13 +104,10 @@ func Negate(r *rpn.RPN) error {
 		return r.PushBool(false)
 	}
 	if f.IsInt() {
-		if f.Int == 0 {
-			f.Int = 1
-		} else {
-			f.Int = 0
-		}
+		f.Int = -f.Int
 		return r.PushFrame(f)
 	}
+	r.PushFrame(f)
 	return rpn.ErrIllegalValue
 }
 
@@ -143,6 +140,7 @@ func Real(r *rpn.RPN) error {
 		return err
 	}
 	if a.Type != rpn.COMPLEX_FRAME {
+		r.PushFrame(a)
 		return rpn.ErrExpectedAComplexNumber
 	}
 	a.Complex = complex(real(a.Complex), 0)
@@ -157,6 +155,7 @@ func Imag(r *rpn.RPN) error {
 		return err
 	}
 	if a.Type != rpn.COMPLEX_FRAME {
+		r.PushFrame(a)
 		return rpn.ErrExpectedAComplexNumber
 	}
 	a.Complex = complex(0, imag(a.Complex))
