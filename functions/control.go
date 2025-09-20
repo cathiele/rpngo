@@ -15,6 +15,7 @@ func If(r *rpn.RPN) error {
 	}
 	cond, err := r.PopBool()
 	if err != nil {
+		r.PushFrame(f)
 		return err
 	}
 	if cond {
@@ -33,10 +34,13 @@ func IfElse(r *rpn.RPN) error {
 	}
 	ifv, err := r.PopFrame()
 	if err != nil {
+		r.PushFrame(elsev)
 		return err
 	}
 	cond, err := r.PopBool()
 	if err != nil {
+		r.PushFrame(ifv)
+		r.PushFrame(elsev)
 		return err
 	}
 	if cond {
@@ -55,6 +59,7 @@ func For(r *rpn.RPN) error {
 	}
 	fields, err := parse.Fields(macro)
 	if err != nil {
+		r.PushString(macro)
 		return err
 	}
 	for {

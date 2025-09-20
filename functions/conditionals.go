@@ -58,7 +58,7 @@ func LessThanEqual(r *rpn.RPN) error {
 	return r.PushBool(a.Int <= b.Int)
 }
 
-func checkEqual(a, b complex128) bool {
+func checkFloatEqual(a, b complex128) bool {
 	d := real(a) - real(b)
 	if d < -tolerance {
 		return false
@@ -115,7 +115,7 @@ func commonEqual(r *rpn.RPN) (bool, error) {
 	}
 	switch a.Type {
 	case rpn.COMPLEX_FRAME:
-		return checkEqual(a.Complex, b.Complex), nil
+		return checkFloatEqual(a.Complex, b.Complex), nil
 	case rpn.STRING_FRAME:
 		return a.Str == b.Str, nil
 	}
