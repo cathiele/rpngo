@@ -76,25 +76,48 @@ func checkEqual(a, b complex128) bool {
 const EqualHelp = "Returns true if a = b, false otherwise (approximate)"
 
 func Equal(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	eq, err := commonEqual(r)
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushBool(checkEqual(a.Complex, b.Complex))
-	}
-	return r.PushBool(a.Int == b.Int)
+	return r.PushBool(eq)
 }
 
 const NotEqualHelp = "Returns true if a != b, false otherwise (approximate)"
 
 func NotEqual(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	eq, err := commonEqual(r)
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushBool(!checkEqual(a.Complex, b.Complex))
+	return r.PushBool(!eq)
+}
+
+func commonEqual(r *rpn.RPN) (bool, error) {
+	a, b, err := r.Pop2Frames()
+	if err != nil {
+		r.PushFrame(a)
+		r.PushFrame(b)
+		return false, err
 	}
-	return r.PushBool(a.Int != b.Int)
+	if a.Type == rpn.COMPLEX_FRAME && b.IsInt() {
+		b.Type = rpn.COMPLEX_FRAME
+		b.Complex = complex(float64(b.Int), 0)
+	} else if b.Type == rpn.COMPLEX_FRAME && a.IsInt() {
+		a.Type = rpn.COMPLEX_FRAME
+		a.Complex = complex(float64(a.Int), 0)
+	}
+	if a.Type != b.Type {
+		return false, nil
+	}
+	if a.IsInt() || a.Type == rpn.BOOL_FRAME {
+		return a.Int == b.Int, nil
+	}
+	switch a.Type {
+	case rpn.COMPLEX_FRAME:
+		return checkEqual(a.Complex, b.Complex), nil
+	case rpn.STRING_FRAME:
+		return a.Str == b.Str, nil
+	}
+	return false, nil
 }
