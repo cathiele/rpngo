@@ -10,14 +10,36 @@ import (
 const AddHelp = "Adds two numbers"
 
 func Add(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	a, b, err := r.Pop2Frames()
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushComplex(a.Complex + b.Complex)
+	if a.Type == rpn.STRING_FRAME || b.Type == rpn.STRING_FRAME {
+		return r.PushString(a.String(false) + b.String(false))
 	}
-	return r.PushInt(a.Int+b.Int, a.Type)
+	if a.Type == rpn.BOOL_FRAME || b.Type == rpn.BOOL_FRAME {
+		r.PushFrame(a)
+		r.PushFrame(b)
+		return rpn.ErrIllegalValue
+	}
+	intMask := 0
+	if a.IsInt() {
+		intMask |= 1
+	}
+	if b.IsInt() {
+		intMask |= 2
+	}
+	switch intMask {
+	case 0:
+		return r.PushComplex(a.Complex + b.Complex)
+	case 1:
+		return r.PushComplex(complex(float64(a.Int), 0) + b.Complex)
+	case 2:
+		return r.PushComplex(a.Complex + complex(float64(b.Int), 0))
+	case 3:
+		return r.PushInt(a.Int+b.Int, a.Type)
+	}
+	return nil
 }
 
 const SubtractHelp = "Subtracts two numbers"
