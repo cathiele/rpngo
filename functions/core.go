@@ -2,6 +2,7 @@
 package functions
 
 import (
+	"math"
 	"math/rand"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
@@ -172,4 +173,49 @@ const FalseHelp = "Pushes a boolean false"
 
 func False(r *rpn.RPN) error {
 	return r.PushBool(false)
+}
+
+const RoundHelp = "Rounds a number to the given number of places"
+
+func Round(r *rpn.RPN) error {
+	a, b, err := r.Pop2Numbers()
+	origb := b
+	if err != nil {
+		return err
+	}
+	if a.Type != rpn.COMPLEX_FRAME {
+		a.Type = rpn.COMPLEX_FRAME
+		a.Complex = complex(float64(a.Int), 0)
+	}
+	if b.Type == rpn.COMPLEX_FRAME {
+		if imag(b.Complex) != 0 {
+			r.PushFrame(a)
+			r.PushFrame(origb)
+			return rpn.ErrComplexNumberNotSupported
+		}
+		if real(b.Complex) != math.Round(real(b.Complex)) {
+			r.PushFrame(a)
+			r.PushFrame(origb)
+			return rpn.ErrIllegalValue
+		}
+		b.Int = int64(real(b.Complex))
+	}
+	if (b.Int < 0) || (b.Int > 16) {
+		r.PushFrame(a)
+		r.PushFrame(origb)
+		return rpn.ErrIllegalValue
+	}
+	rl := real(a.Complex)
+	im := imag(a.Complex)
+	for i := 0; i < int(b.Int); i++ {
+		rl *= 10
+		im *= 10
+	}
+	rl = math.Round(rl)
+	im = math.Round(im)
+	for i := 0; i < int(b.Int); i++ {
+		rl /= 10
+		im /= 10
+	}
+	return r.PushComplex(complex(rl, im))
 }

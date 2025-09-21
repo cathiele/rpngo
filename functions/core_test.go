@@ -397,3 +397,54 @@ func TestTrueFalse(t *testing.T) {
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
 }
+
+func TestRound(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"round"},
+			WantErr: rpn.ErrNotEnoughStackFrames,
+		},
+		{
+			Args:    []string{"1", "round"},
+			WantErr: rpn.ErrNotEnoughStackFrames,
+			Want:    []string{"1"},
+		},
+		{
+			Args: []string{"1.2345", "2", "round"},
+			Want: []string{"1.23"},
+		},
+		{
+			Args: []string{"1.235", "2", "round"},
+			Want: []string{"1.24"},
+		},
+		{
+			Args: []string{"-1.2345", "2", "round"},
+			Want: []string{"-1.23"},
+		},
+		{
+			Args: []string{"-1.235", "2", "round"},
+			Want: []string{"-1.24"},
+		},
+		{
+			Args:    []string{"-1.235", "i", "round"},
+			WantErr: rpn.ErrComplexNumberNotSupported,
+			Want:    []string{"-1.235", "i"},
+		},
+		{
+			Args:    []string{"1.235", "2.1", "round"},
+			WantErr: rpn.ErrIllegalValue,
+			Want:    []string{"1.235", "2.1"},
+		},
+		{
+			Args:    []string{"1.235", "-1", "round"},
+			WantErr: rpn.ErrIllegalValue,
+			Want:    []string{"1.235", "-1"},
+		},
+		{
+			Args:    []string{"1.235", "17", "round"},
+			WantErr: rpn.ErrIllegalValue,
+			Want:    []string{"1.235", "17"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}

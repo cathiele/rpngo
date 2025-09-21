@@ -26,6 +26,7 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("+", Add, rpn.CatCore, AddHelp)
 	r.Register("false", False, rpn.CatCore, FalseHelp)
 	r.Register("neg", Negate, rpn.CatCore, NegateHelp)
+	r.Register("round", Round, rpn.CatCore, RoundHelp)
 	r.Register("true", True, rpn.CatCore, TrueHelp)
 
 	r.Register("**", Power, rpn.CatEng, PowerHelp)
