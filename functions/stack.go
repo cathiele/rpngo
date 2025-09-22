@@ -11,7 +11,7 @@ func NoOp(r *rpn.RPN) error {
 	return nil
 }
 
-const DropAllHelp = "Drops the element at the top of the stack"
+const DropAllHelp = "Clears the stack"
 
 func DropAll(r *rpn.RPN) error {
 	r.Clear()

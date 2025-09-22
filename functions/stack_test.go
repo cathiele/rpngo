@@ -1,0 +1,211 @@
+package functions
+
+import (
+	"mattwach/rpngo/rpn"
+	"testing"
+)
+
+func TestNOOP(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args: []string{"noop"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
+
+func TestDropAll(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args: []string{"X"},
+		},
+		{
+			Args: []string{"1", "2", "3", "X"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
+
+func TestPrint(t *testing.T) {
+	var got string
+	prfn := func(msg string) {
+		got += msg
+	}
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"print"},
+			WantErr: rpn.ErrNotEnoughStackFrames,
+		},
+		{
+			Args: []string{"'foo'", "print"},
+			Want: []string{"\"foo\""},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
+		r.Print = prfn
+		RegisterAll(r)
+	})
+	want := "foo"
+	if got != want {
+		t.Errorf("got: %v, want %v", got, want)
+	}
+}
+
+func TestPrintX(t *testing.T) {
+	var got string
+	prfn := func(msg string) {
+		got += msg
+	}
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"printx"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args: []string{"'foo'", "printx"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
+		r.Print = prfn
+		RegisterAll(r)
+	})
+	want := "foo"
+	if got != want {
+		t.Errorf("got: %v, want %v", got, want)
+	}
+}
+
+func TestPrintS(t *testing.T) {
+	var got string
+	prfn := func(msg string) {
+		got += msg
+	}
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"prints"},
+			WantErr: rpn.ErrNotEnoughStackFrames,
+		},
+		{
+			Args: []string{"'foo'", "prints"},
+			Want: []string{"\"foo\""},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
+		r.Print = prfn
+		RegisterAll(r)
+	})
+	want := "foo "
+	if got != want {
+		t.Errorf("got: %v, want %v", got, want)
+	}
+}
+
+func TestPrintSX(t *testing.T) {
+	var got string
+	prfn := func(msg string) {
+		got += msg
+	}
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"printsx"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args: []string{"'foo'", "printsx"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
+		r.Print = prfn
+		RegisterAll(r)
+	})
+	want := "foo "
+	if got != want {
+		t.Errorf("got: %v, want %v", got, want)
+	}
+}
+
+func TestPrintLn(t *testing.T) {
+	var got string
+	prfn := func(msg string) {
+		got += msg
+	}
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"println"},
+			WantErr: rpn.ErrNotEnoughStackFrames,
+		},
+		{
+			Args: []string{"'foo'", "println"},
+			Want: []string{"\"foo\""},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
+		r.Print = prfn
+		RegisterAll(r)
+	})
+	want := "foo\n"
+	if got != want {
+		t.Errorf("got: %v, want %v", got, want)
+	}
+}
+
+func TestPrintLnX(t *testing.T) {
+	var got string
+	prfn := func(msg string) {
+		got += msg
+	}
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"printlnx"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args: []string{"'foo'", "printlnx"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
+		r.Print = prfn
+		RegisterAll(r)
+	})
+	want := "foo\n"
+	if got != want {
+		t.Errorf("got: %v, want %v", got, want)
+	}
+}
+
+func TestPrintAll(t *testing.T) {
+	var got string
+	prfn := func(msg string) {
+		got += msg
+	}
+	data := []rpn.UnitTestExecData{
+		{
+			Args: []string{"'foo'", "'bar'", "printall"},
+			Want: []string{"\"foo\"", "\"bar\""},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
+		r.Print = prfn
+		RegisterAll(r)
+	})
+	want := "1: \"foo\"\n0: \"bar\"\n"
+	if got != want {
+		t.Errorf("got: %v, want %v", got, want)
+	}
+}
+
+func TestInput(t *testing.T) {
+	infn := func(r *rpn.RPN) (string, error) {
+		return "foo", nil
+	}
+	data := []rpn.UnitTestExecData{
+		{
+			Args: []string{"input"},
+			Want: []string{"\"foo\""},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
+		r.Input = infn
+		RegisterAll(r)
+	})
+}
