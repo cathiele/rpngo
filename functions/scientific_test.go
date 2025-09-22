@@ -122,3 +122,49 @@ func TestSquare(t *testing.T) {
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
 }
+
+func TestLog(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"log"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args: []string{"4", "log", "3", "round"},
+			Want: []string{"1.386"},
+		},
+		{
+			Args: []string{"4d", "log", "3", "round"},
+			Want: []string{"1.386"},
+		},
+		{
+			Args:    []string{"true", "log"},
+			Want:    []string{"true"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
+
+func TestLog10(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"log10"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args: []string{"4", "log10", "1000", "*", "int"},
+			Want: []string{"602d"},
+		},
+		{
+			Args: []string{"4d", "log10", "1000", "*", "int"},
+			Want: []string{"602d"},
+		},
+		{
+			Args:    []string{"true", "log"},
+			Want:    []string{"true"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
