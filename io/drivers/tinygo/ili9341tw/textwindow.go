@@ -13,9 +13,72 @@ import (
 	"tinygo.org/x/tinyfont/freemono"
 )
 
+// The character and color info packed into 1 16-bit value
+//
+// Format:
+// RGGB RGGB CCCC CCCC
+// FFFF BBBB HHHH HHHH
+type lcdchar uint16
+
+// rgb are 5 bit values
+func newLCDCharFGColor(r, g, b uint16) lcdchar {
+	return lcdchar(((r >> 4) << 15) | ((g >> 3) << 14) | ((b >> 4) << 12))
+}
+
+// rgb are 5 bit values
+func newLCDCharBGColor(r, g, b uint16) lcdchar {
+	return lcdchar(((r >> 4) << 11) | ((g >> 3) << 10) | ((b >> 4) << 8))
+}
+
+func (l lcdchar) char() byte {
+	return byte(l & 0xFF)
+}
+
+func (l lcdchar) FGColor() color.RGBA {
+	var r uint8 = 0
+	if (l & 0x8000) != 0 {
+		r = 0xFF
+	}
+	var g uint8 = 0
+	switch l & 0x6000 {
+	case 0x6000:
+		g = 0xFF
+	case 0x4000:
+		g = 0xAA
+	case 0x2000:
+		g = 0x55
+	}
+	var b uint8 = 0
+	if (l & 0x1000) != 0 {
+		b = 0xFF
+	}
+	return color.RGBA{R: r, G: g, B: b, A: 0xFF}
+}
+
+func (l lcdchar) BGColor() pixel.RGB565BE {
+	var r uint8 = 0
+	if (l & 0x800) != 0 {
+		r = 0xFF
+	}
+	var g uint8 = 0
+	switch l & 0x600 {
+	case 0x600:
+		g = 0xFF
+	case 0x400:
+		g = 0xAA
+	case 0x200:
+		g = 0x55
+	}
+	var b uint8 = 0
+	if (l & 0x100) != 0 {
+		b = 0xFF
+	}
+	return pixel.NewRGB565BE(r, g, b)
+}
+
 type Ili9341TW struct {
 	// holds the characters that make up the text grid
-	chars []byte
+	chars []lcdchar
 
 	// screen to send chars to
 	device *ili9341.Device
@@ -42,11 +105,11 @@ type Ili9341TW struct {
 	// A cell to draw the characters in
 	image pixel565.Pixel565
 	// saves a little performance in drawing
-	lastr byte
+	lastr lcdchar
 
 	// text color
-	fgcol color.RGBA
-	bgcol pixel.RGB565BE
+	fgcol lcdchar
+	bgcol lcdchar
 }
 
 // Init initializes a text window. x, y, w, and h are all in pixels
@@ -66,7 +129,7 @@ func (tw *Ili9341TW) Resize(x, y, w, h int) error {
 	tw.cy = 0
 	tw.textw = int16(w) / tw.cw
 	tw.texth = int16(h) / tw.ch
-	tw.chars = make([]byte, int(tw.textw)*int(tw.texth))
+	tw.chars = make([]lcdchar, int(tw.textw)*int(tw.texth))
 	tw.Erase()
 	return nil
 }
@@ -75,7 +138,7 @@ func (tw *Ili9341TW) Refresh() {
 	// maybe no need to do this?
 }
 
-func (tw *Ili9341TW) updateCharAt(tx, ty int16, r byte) {
+func (tw *Ili9341TW) updateCharAt(tx, ty int16, r lcdchar) {
 	oldr := tw.chars[ty*tw.textw+tx]
 	if r == oldr {
 		return
@@ -83,18 +146,19 @@ func (tw *Ili9341TW) updateCharAt(tx, ty int16, r byte) {
 	tw.chars[ty*tw.textw+tx] = r
 	if r != tw.lastr {
 		tw.lastr = r
-		tw.image.Image.FillSolidColor(tw.bgcol)
-		freemono.Regular9pt7b.GetGlyph(rune(r)).Draw(&tw.image, 0, tw.cyoffset, tw.fgcol)
+		tw.image.Image.FillSolidColor(r.BGColor())
+		freemono.Regular9pt7b.GetGlyph(rune(r)).Draw(&tw.image, 0, tw.cyoffset, r.FGColor())
 	}
 	tw.device.DrawBitmap(tw.x+tx*tw.cw, tw.y+ty*tw.ch, tw.image.Image)
 }
 
 func (tw *Ili9341TW) Erase() {
 	var j int16
+	b := tw.fgcol | tw.bgcol | lcdchar(' ')
 	for j = 0; j < tw.texth; j++ {
 		var i int16
 		for i = 0; i < tw.textw; i++ {
-			tw.updateCharAt(i, j, ' ')
+			tw.updateCharAt(i, j, b)
 		}
 	}
 }
@@ -114,7 +178,7 @@ func (tw *Ili9341TW) Write(b byte) error {
 		tw.Scroll(int(tw.texth - tw.cy - 1))
 	}
 	if b != '\n' {
-		tw.updateCharAt(tw.cx, tw.cy, b)
+		tw.updateCharAt(tw.cx, tw.cy, tw.fgcol|tw.bgcol|lcdchar(b))
 		tw.cx++
 	}
 	return nil
@@ -162,18 +226,8 @@ func (tw *Ili9341TW) SetXY(x, y int) {
 }
 
 func (tw *Ili9341TW) Color(fr, fg, fb, br, bg, bb int) error {
-	tw.fgcol = color.RGBA{
-		R: uint8(fr * 8),
-		G: uint8(fg * 8),
-		B: uint8(fb * 8),
-	}
-	tw.bgcol = pixel.NewRGB565BE(
-		uint8(br*8),
-		uint8(bg*8),
-		uint8(bb*8),
-	)
-	// do not reuse image
-	tw.lastr = 0xff
+	tw.fgcol = newLCDCharFGColor(uint16(fr), uint16(fg), uint16(fb))
+	tw.bgcol = newLCDCharBGColor(uint16(br), uint16(bg), uint16(bb))
 	return nil
 }
 
@@ -202,10 +256,11 @@ func (tw *Ili9341TW) scrollUp(i int) {
 			offset++
 		}
 	}
+	b := tw.fgcol | tw.bgcol | lcdchar(' ')
 	for y < tw.texth {
 		var x int16
 		for x = 0; x < tw.textw; x++ {
-			tw.updateCharAt(x, y, ' ')
+			tw.updateCharAt(x, y, b)
 		}
 		y++
 	}
