@@ -28,6 +28,10 @@ type Ili9341TW struct {
 	cx int16
 	cy int16
 
+	// character width and height in pixels
+	cw int16
+	ch int16
+
 	// character y offset
 	cyoffset int16
 
@@ -37,25 +41,20 @@ type Ili9341TW struct {
 
 	// A cell to draw the characters in
 	image pixel565.Pixel565
+	// saves a little performance in drawing
+	lastr byte
 
 	// text color
 	fgcol color.RGBA
 	bgcol pixel.RGB565BE
-
-	// these vars are used to make drawing more efficient
-	// by only drawing lines that might have changed
-	minx int16
-	maxx int16
-	miny int16
-	maxy int16
 }
 
 // Init initializes a text window. x, y, w, and h are all in pixels
 func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
-	cw := freemono.Regular9pt7b.BBox[0] + freemono.Regular9pt7b.BBox[2]
+	tw.cw = int16(freemono.Regular9pt7b.BBox[0] + freemono.Regular9pt7b.BBox[2])
 	tw.cyoffset = int16(-freemono.Regular9pt7b.BBox[3])
-	ch := int16(freemono.Regular9pt7b.BBox[1]) + tw.cyoffset
-	tw.image.Init(int16(cw), ch)
+	tw.ch = int16(freemono.Regular9pt7b.BBox[1]) + tw.cyoffset
+	tw.image.Init(tw.cw, tw.ch)
 	tw.device = d
 	tw.Resize(x, y, w, h)
 }
@@ -65,47 +64,38 @@ func (tw *Ili9341TW) Resize(x, y, w, h int) error {
 	tw.y = int16(y)
 	tw.cx = 0
 	tw.cy = 0
-	cw, ch := tw.image.Size()
-	tw.textw = int16(w) / cw
-	tw.texth = int16(h) / ch
+	tw.textw = int16(w) / tw.cw
+	tw.texth = int16(h) / tw.ch
 	tw.chars = make([]byte, int(tw.textw)*int(tw.texth))
 	tw.Erase()
 	return nil
 }
 
-func (tw *Ili9341TW) resetMinMax() {
-	tw.minx = tw.textw
-	tw.maxx = 0
-	tw.miny = tw.texth
-	tw.maxy = 0
+func (tw *Ili9341TW) Refresh() {
+	// maybe no need to do this?
 }
 
-func (tw *Ili9341TW) Refresh() {
-	w, h := tw.image.Size()
-	y := tw.y + tw.miny*h
-	var j int16
-	for j = tw.miny; j < tw.maxy; j++ {
-		x := tw.x + tw.minx*w
-		var lastr byte = 0xff
-		for i := tw.minx; i < tw.maxx; i++ {
-			r := tw.chars[j*tw.textw+i]
-			if r != lastr {
-				tw.image.Image.FillSolidColor(tw.bgcol)
-				freemono.Regular9pt7b.GetGlyph(rune(r)).Draw(&tw.image, 0, tw.cyoffset, tw.fgcol)
-			}
-			tw.device.DrawBitmap(x, y, tw.image.Image)
-			x += w
-		}
-		y += h
+func (tw *Ili9341TW) drawChatAt(tx, ty int16) {
+	r := tw.chars[ty*tw.textw+tx]
+	if r != tw.lastr {
+		tw.lastr = r
+		tw.image.Image.FillSolidColor(tw.bgcol)
+		freemono.Regular9pt7b.GetGlyph(rune(r)).Draw(&tw.image, 0, tw.cyoffset, tw.fgcol)
 	}
-	tw.resetMinMax()
+	tw.device.DrawBitmap(tw.x+tx*tw.cw, tw.y+ty*tw.ch, tw.image.Image)
 }
 
 func (tw *Ili9341TW) Erase() {
 	for i := range tw.chars {
 		tw.chars[i] = ' '
 	}
-	tw.resetMinMax()
+	var j int16
+	for j = 0; j < tw.texth; j++ {
+		var i int16
+		for i = 0; i < tw.textw; i++ {
+			tw.drawChatAt(i, j)
+		}
+	}
 }
 
 func (tw *Ili9341TW) ShowBorder(screenw, screenh int) error {
@@ -123,19 +113,9 @@ func (tw *Ili9341TW) Write(b byte) error {
 		// implement later
 		return nil
 	}
-	tw.chars[tw.cy*tw.textw+tw.cx] = b
-	// register the area as needed for drawing
-	if tw.cx >= tw.maxx {
-		tw.maxx = tw.cx + 1
-	}
-	if tw.cx < tw.minx {
-		tw.minx = tw.cx
-	}
-	if tw.cy >= tw.maxy {
-		tw.maxy = tw.cy + 1
-	}
-	if tw.cy < tw.miny {
-		tw.miny = tw.cy
+	if tw.chars[tw.cy*tw.textw+tw.cx] != b {
+		tw.chars[tw.cy*tw.textw+tw.cx] = b
+		tw.drawChatAt(tw.cx, tw.cy)
 	}
 	tw.cx++
 	return nil
@@ -193,6 +173,8 @@ func (tw *Ili9341TW) Color(fr, fg, fb, br, bg, bb int) error {
 		uint8(bg*8),
 		uint8(bb*8),
 	)
+	// do not reuse image
+	tw.lastr = 0xff
 	return nil
 }
 
