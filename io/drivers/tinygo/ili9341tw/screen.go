@@ -19,7 +19,7 @@ func (s *Ili9341Screen) Init() {
 // x, y, w, and h are all in pixels.
 func (s *Ili9341Screen) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
 	tw := &Ili9341TW{}
-	tw.Init(s.Device, int16(x), int16(y), int16(w), int16(h))
+	tw.Init(s.Device, x, y, w, h)
 	return tw, nil
 }
 

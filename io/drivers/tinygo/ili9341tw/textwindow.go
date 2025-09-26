@@ -50,7 +50,7 @@ type Ili9341TW struct {
 // Init initializes a text window. x, y, w, and h are all in pixels
 func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
 	gi := freemono.Regular9pt7b.GetGlyph('0').Info()
-	tw.image.Init(gi.Width, gi.Height)
+	tw.image.Init(int16(gi.Width), int16(gi.Height))
 	tw.device = d
 	tw.Resize(x, y, w, h)
 }
@@ -65,6 +65,7 @@ func (tw *Ili9341TW) Resize(x, y, w, h int) error {
 	tw.texth = int16(h) / ch
 	tw.chars = make([]byte, int(tw.textw)*int(tw.texth))
 	tw.Erase()
+	return nil
 }
 
 func (tw *Ili9341TW) resetMinMax() {
@@ -85,9 +86,9 @@ func (tw *Ili9341TW) Refresh() {
 			r := tw.chars[j*tw.textw+i]
 			if r != lastr {
 				tw.image.Image.FillSolidColor(tw.bgcol)
-				freemono.Regular9pt7b.GetGlyph(r).DrawBitmap(tw.image, 0, 0, tw.fgcol)
+				freemono.Regular9pt7b.GetGlyph(rune(r)).Draw(&tw.image, 0, 0, tw.fgcol)
 			}
-			tw.device.DrawBitmap(x, y, tw.image)
+			tw.device.DrawBitmap(x, y, tw.image.Image)
 			x += w
 		}
 		y += h
@@ -182,14 +183,14 @@ func (tw *Ili9341TW) Color(fr, fg, fb, br, bg, bb int) error {
 		B: uint8(fb * 8),
 	}
 	tw.bgcol = pixel.NewRGB565BE(
-		br*8,
-		bg*8,
-		bb*8,
+		uint8(br*8),
+		uint8(bg*8),
+		uint8(bb*8),
 	)
 	return nil
 }
 
-func (tw *Ili9341TW) Scroll() {
+func (tw *Ili9341TW) Scroll(i int) {
 	// not implemented yet
 }
 
