@@ -22,12 +22,12 @@ type lcdchar uint16
 
 // rgb are 5 bit values
 func newLCDCharFGColor(r, g, b uint16) lcdchar {
-	return lcdchar(((r >> 4) << 15) | ((g >> 3) << 14) | ((b >> 4) << 12))
+	return lcdchar(((r >> 4) << 15) | ((g >> 3) << 13) | ((b >> 4) << 12))
 }
 
 // rgb are 5 bit values
 func newLCDCharBGColor(r, g, b uint16) lcdchar {
-	return lcdchar(((r >> 4) << 11) | ((g >> 3) << 10) | ((b >> 4) << 8))
+	return lcdchar(((r >> 4) << 11) | ((g >> 3) << 9) | ((b >> 4) << 8))
 }
 
 func (l lcdchar) char() byte {
