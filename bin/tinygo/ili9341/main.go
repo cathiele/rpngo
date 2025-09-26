@@ -66,6 +66,9 @@ func (getInput) GetChar() (key.Key, error) {
 		c, err := machine.Serial.ReadByte()
 		machine.Serial.WriteByte(c)
 		if err == nil {
+			if c == 13 {
+				return '\n', nil
+			}
 			return key.Key(c), nil
 		}
 
