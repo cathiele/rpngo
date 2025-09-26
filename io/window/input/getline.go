@@ -167,6 +167,7 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 			line = gl.addChar(line, idx, b)
 			idx++
 		}
+		gl.txtd.Refresh()
 	}
 }
 

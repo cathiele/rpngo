@@ -28,6 +28,9 @@ type Ili9341TW struct {
 	cx int16
 	cy int16
 
+	// character y offset
+	cyoffset int16
+
 	// width and height as text cells
 	textw int16
 	texth int16
@@ -49,8 +52,10 @@ type Ili9341TW struct {
 
 // Init initializes a text window. x, y, w, and h are all in pixels
 func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
-	gi := freemono.Regular9pt7b.GetGlyph('0').Info()
-	tw.image.Init(int16(gi.Width), int16(gi.Height))
+	cw := freemono.Regular9pt7b.BBox[0] + freemono.Regular9pt7b.BBox[2]
+	tw.cyoffset = int16(-freemono.Regular9pt7b.BBox[3])
+	ch := int16(freemono.Regular9pt7b.BBox[1]) + tw.cyoffset
+	tw.image.Init(int16(cw), ch)
 	tw.device = d
 	tw.Resize(x, y, w, h)
 }
@@ -86,7 +91,7 @@ func (tw *Ili9341TW) Refresh() {
 			r := tw.chars[j*tw.textw+i]
 			if r != lastr {
 				tw.image.Image.FillSolidColor(tw.bgcol)
-				freemono.Regular9pt7b.GetGlyph(rune(r)).Draw(&tw.image, 0, 0, tw.fgcol)
+				freemono.Regular9pt7b.GetGlyph(rune(r)).Draw(&tw.image, 0, tw.cyoffset, tw.fgcol)
 			}
 			tw.device.DrawBitmap(x, y, tw.image.Image)
 			x += w
@@ -109,7 +114,7 @@ func (tw *Ili9341TW) ShowBorder(screenw, screenh int) error {
 }
 
 func (tw *Ili9341TW) Write(b byte) error {
-	if (b == '\n') || (tw.cx >= tw.textw) {
+	if (b == 13) || (tw.cx >= tw.textw) {
 		// next line
 		tw.cx = 0
 		tw.cy++
@@ -132,6 +137,7 @@ func (tw *Ili9341TW) Write(b byte) error {
 	if tw.cy < tw.miny {
 		tw.miny = tw.cy
 	}
+	tw.cx++
 	return nil
 }
 
