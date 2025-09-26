@@ -110,6 +110,14 @@ type Ili9341TW struct {
 	// text color
 	fgcol lcdchar
 	bgcol lcdchar
+
+	// cusror flash state
+	cursorEn bool
+	// fg and bg color of original
+	cursorCol     lcdchar
+	cursorShowing bool
+	cursorShowX   int16
+	cursorShowY   int16
 }
 
 // Init initializes a text window. x, y, w, and h are all in pixels
@@ -119,6 +127,9 @@ func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
 	tw.cyoffset = 11
 	tw.image.Init(tw.cw, tw.ch)
 	tw.device = d
+	tw.cursorEn = true
+	tw.cursorCol = 0x0000
+	tw.cursorShowing = false
 	tw.Resize(x, y, w, h)
 }
 
@@ -270,6 +281,27 @@ func (tw *Ili9341TW) scrollDown(i int) {
 	// not yet implemented
 }
 
-func (tw *Ili9341TW) Cursor(bool) {
-	// not implemented yet
+func (tw *Ili9341TW) Cursor(en bool) {
+	tw.ShowCursorIfEnabled(en)
+	tw.cursorEn = en
+}
+
+func (tw *Ili9341TW) ShowCursorIfEnabled(show bool) {
+	if !tw.cursorEn {
+		return
+	}
+	if show == tw.cursorShowing {
+		return
+	}
+	tw.cursorShowing = !tw.cursorShowing
+	if show {
+		ch := tw.chars[tw.cy*tw.textw+tw.cx]
+		tw.cursorCol = ch & 0xFF00
+		tw.updateCharAt(tw.cx, tw.cy, 0x0F00|(ch&0x00FF))
+		tw.cursorShowX = tw.cx
+		tw.cursorShowY = tw.cy
+	} else {
+		ch := tw.chars[tw.cursorShowY*tw.textw+tw.cursorShowX]
+		tw.updateCharAt(tw.cursorShowX, tw.cursorShowY, tw.cursorCol|(ch&0x00FF))
+	}
 }

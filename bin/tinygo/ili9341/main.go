@@ -52,16 +52,21 @@ func buildUI(screen window.Screen, r *rpn.RPN) (*input.InputWindow, error) {
 	if err != nil {
 		return nil, err
 	}
-	iw, err := input.Init(getInput{}, txtw, r)
+	gi := &getInput{}
+	iw, err := input.Init(gi, txtw, r)
+	gi.lcd = txtw.(*ili9341tw.Ili9341TW)
 	if err != nil {
 		return nil, err
 	}
 	return iw, nil
 }
 
-type getInput struct{}
+type getInput struct {
+	frame uint8
+	lcd   *ili9341tw.Ili9341TW
+}
 
-func (getInput) GetChar() (key.Key, error) {
+func (g *getInput) GetChar() (key.Key, error) {
 	for {
 		c, err := machine.Serial.ReadByte()
 		machine.Serial.WriteByte(c)
@@ -73,5 +78,7 @@ func (getInput) GetChar() (key.Key, error) {
 		}
 
 		time.Sleep(time.Millisecond * 10)
+		g.frame++
+		g.lcd.ShowCursorIfEnabled((g.frame & 0xC0) != 0)
 	}
 }
