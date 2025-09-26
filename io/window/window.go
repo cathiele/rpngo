@@ -1,7 +1,10 @@
 package window
 
 type Screen interface {
+	// Create a NewTextWindow. If a graphics screen, x, y, w and h
+	// are in pixels.
 	NewTextWindow(x, y, w, h int) (TextWindow, error)
+	// Returns size in the smallest possible unit (e.g. pixels)
 	Size() (int, int)
 }
 
@@ -23,13 +26,15 @@ type TextWindow interface {
 	// scrolling should all be supported.
 	Write(byte) error
 
-	// Returns the dimensions of the screen
+	// Returns the dimensions of the screen as text cells
 	Width() int
 	Height() int
 	Size() (int, int)
+
+	// windowXY is in pixels
 	WindowXY() (int, int)
 
-	// Get and set the character position
+	// Get and set the character position in text cells
 	X() int
 	Y() int
 	XY() (int, int)
