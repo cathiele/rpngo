@@ -51,9 +51,9 @@ type Ili9341TW struct {
 
 // Init initializes a text window. x, y, w, and h are all in pixels
 func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
-	tw.cw = int16(freemono.Regular9pt7b.BBox[0] + freemono.Regular9pt7b.BBox[2])
-	tw.cyoffset = int16(-freemono.Regular9pt7b.BBox[3])
-	tw.ch = int16(freemono.Regular9pt7b.BBox[1]) + tw.cyoffset
+	tw.cw = 11
+	tw.ch = 16
+	tw.cyoffset = 11
 	tw.image.Init(tw.cw, tw.ch)
 	tw.device = d
 	tw.Resize(x, y, w, h)
@@ -104,7 +104,7 @@ func (tw *Ili9341TW) ShowBorder(screenw, screenh int) error {
 }
 
 func (tw *Ili9341TW) Write(b byte) error {
-	if (b == 13) || (tw.cx >= tw.textw) {
+	if (b == '\n') || (tw.cx >= tw.textw) {
 		// next line
 		tw.cx = 0
 		tw.cy++
@@ -113,11 +113,13 @@ func (tw *Ili9341TW) Write(b byte) error {
 		// implement later
 		return nil
 	}
-	if tw.chars[tw.cy*tw.textw+tw.cx] != b {
-		tw.chars[tw.cy*tw.textw+tw.cx] = b
-		tw.drawChatAt(tw.cx, tw.cy)
+	if b != '\n' {
+		if tw.chars[tw.cy*tw.textw+tw.cx] != b {
+			tw.chars[tw.cy*tw.textw+tw.cx] = b
+			tw.drawChatAt(tw.cx, tw.cy)
+		}
+		tw.cx++
 	}
-	tw.cx++
 	return nil
 }
 
