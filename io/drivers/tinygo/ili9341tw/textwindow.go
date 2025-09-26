@@ -147,7 +147,7 @@ func (tw *Ili9341TW) updateCharAt(tx, ty int16, r lcdchar) {
 	if r != tw.lastr {
 		tw.lastr = r
 		tw.image.Image.FillSolidColor(r.BGColor())
-		freemono.Regular9pt7b.GetGlyph(rune(r)).Draw(&tw.image, 0, tw.cyoffset, r.FGColor())
+		freemono.Regular9pt7b.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, r.FGColor())
 	}
 	tw.device.DrawBitmap(tw.x+tx*tw.cw, tw.y+ty*tw.ch, tw.image.Image)
 }
