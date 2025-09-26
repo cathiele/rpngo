@@ -75,8 +75,12 @@ func (tw *Ili9341TW) Refresh() {
 	// maybe no need to do this?
 }
 
-func (tw *Ili9341TW) drawChatAt(tx, ty int16) {
-	r := tw.chars[ty*tw.textw+tx]
+func (tw *Ili9341TW) updateCharAt(tx, ty int16, r byte) {
+	oldr := tw.chars[ty*tw.textw+tx]
+	if r == oldr {
+		return
+	}
+	tw.chars[ty*tw.textw+tx] = r
 	if r != tw.lastr {
 		tw.lastr = r
 		tw.image.Image.FillSolidColor(tw.bgcol)
@@ -86,14 +90,11 @@ func (tw *Ili9341TW) drawChatAt(tx, ty int16) {
 }
 
 func (tw *Ili9341TW) Erase() {
-	for i := range tw.chars {
-		tw.chars[i] = ' '
-	}
 	var j int16
 	for j = 0; j < tw.texth; j++ {
 		var i int16
 		for i = 0; i < tw.textw; i++ {
-			tw.drawChatAt(i, j)
+			tw.updateCharAt(i, j, ' ')
 		}
 	}
 }
@@ -110,14 +111,10 @@ func (tw *Ili9341TW) Write(b byte) error {
 		tw.cy++
 	}
 	if tw.cy >= tw.texth {
-		// implement later
-		return nil
+		tw.Scroll(int(tw.texth - tw.cy - 1))
 	}
 	if b != '\n' {
-		if tw.chars[tw.cy*tw.textw+tw.cx] != b {
-			tw.chars[tw.cy*tw.textw+tw.cx] = b
-			tw.drawChatAt(tw.cx, tw.cy)
-		}
+		tw.updateCharAt(tw.cx, tw.cy, b)
 		tw.cx++
 	}
 	return nil
@@ -181,7 +178,41 @@ func (tw *Ili9341TW) Color(fr, fg, fb, br, bg, bb int) error {
 }
 
 func (tw *Ili9341TW) Scroll(i int) {
-	// not implemented yet
+	if i < 0 {
+		tw.scrollUp(-i)
+	} else if i > 0 {
+		tw.scrollDown(i)
+	}
+}
+
+func (tw *Ili9341TW) scrollUp(i int) {
+	if i >= int(tw.texth) {
+		tw.Erase()
+		tw.cy = 0
+		return
+	}
+	tw.cy -= int16(i)
+	maxy := tw.texth - int16(i)
+	var y int16
+	var offset int = i * int(tw.textw)
+	for y = 0; y < maxy; y++ {
+		var x int16
+		for x = 0; x < tw.textw; x++ {
+			tw.updateCharAt(x, y, tw.chars[offset])
+			offset++
+		}
+	}
+	for y < tw.texth {
+		var x int16
+		for x = 0; x < tw.textw; x++ {
+			tw.updateCharAt(x, y, ' ')
+		}
+		y++
+	}
+}
+
+func (tw *Ili9341TW) scrollDown(i int) {
+	// not yet implemented
 }
 
 func (tw *Ili9341TW) Cursor(bool) {
