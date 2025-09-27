@@ -192,6 +192,7 @@ func (tw *Ili9341TW) Write(b byte) error {
 		tw.updateCharAt(tw.cx, tw.cy, tw.fgcol|tw.bgcol|lcdchar(b))
 		tw.cx++
 	}
+	tw.ShowCursorIfEnabled(true)
 	return nil
 }
 

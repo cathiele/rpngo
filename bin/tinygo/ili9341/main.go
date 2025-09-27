@@ -62,8 +62,7 @@ func buildUI(screen window.Screen, r *rpn.RPN) (*input.InputWindow, error) {
 }
 
 type getInput struct {
-	frame uint8
-	lcd   *ili9341tw.Ili9341TW
+	lcd *ili9341tw.Ili9341TW
 }
 
 func (g *getInput) GetChar() (key.Key, error) {
@@ -78,7 +77,6 @@ func (g *getInput) GetChar() (key.Key, error) {
 		}
 
 		time.Sleep(time.Millisecond * 10)
-		g.frame++
-		g.lcd.ShowCursorIfEnabled((g.frame & 0xC0) != 0)
+		g.lcd.ShowCursorIfEnabled(true)
 	}
 }
