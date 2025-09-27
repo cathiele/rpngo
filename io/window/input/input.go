@@ -64,7 +64,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	default:
 		break
 	}
-	r.WindowWidth = iw.txtw.Width()
+	r.TextWidth = iw.txtw.TextWidth()
 	window.Print(iw.gl.txtd, "> ")
 	line, err := iw.gl.get(r)
 	if err := iw.txtw.Color(0, 31, 31, 0, 0, 0); err != nil {
@@ -112,8 +112,8 @@ func (iw *InputWindow) firstRun(r *rpn.RPN) error {
 	return nil
 }
 
-func (iw *InputWindow) Resize(x, y, w, h int) error {
-	return iw.txtw.Resize(x, y, w, h)
+func (iw *InputWindow) ResizeWindow(x, y, w, h int) error {
+	return iw.txtw.ResizeWindow(x, y, w, h)
 }
 
 func (iw *InputWindow) ShowBorder(screenw, screenh int) error {
@@ -124,8 +124,8 @@ func (iw *InputWindow) WindowXY() (int, int) {
 	return iw.txtw.WindowXY()
 }
 
-func (iw *InputWindow) Size() (int, int) {
-	return iw.txtw.Size()
+func (iw *InputWindow) WindowSize() (int, int) {
+	return iw.txtw.WindowSize()
 }
 
 func (iw *InputWindow) Type() string {

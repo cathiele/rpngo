@@ -25,7 +25,7 @@ func (pw *PlotWindow) drawAxis() error {
 	}
 
 	if xok && yok {
-		pw.txtw.SetXY(x, y)
+		pw.txtw.SetCursorXY(x, y)
 		if err := pw.txtw.Write('+'); err != nil {
 			return err
 		}
@@ -35,9 +35,9 @@ func (pw *PlotWindow) drawAxis() error {
 }
 
 func (pw *PlotWindow) drawVerticalAxis(x int) error {
-	h := pw.txtw.Height()
+	h := pw.txtw.TextHeight()
 	for y := 0; y < h; y++ {
-		pw.txtw.SetXY(x, y)
+		pw.txtw.SetCursorXY(x, y)
 		if err := pw.txtw.Write('|'); err != nil {
 			return err
 		}
@@ -55,10 +55,10 @@ const minVerticalSpacing = 5.0
 const maxVerticalSpacing = 10.0
 
 func (pw *PlotWindow) drawVerticalTickMarks(wx int) {
-	wh := pw.txtw.Height()  // height in characters
-	yr := pw.maxy - pw.miny // units
-	cpu := float64(wh) / yr // characters / unit
-	var te float64 = 1      // ticks every (0.5, 1, etc)
+	wh := pw.txtw.TextHeight() // height in characters
+	yr := pw.maxy - pw.miny    // units
+	cpu := float64(wh) / yr    // characters / unit
+	var te float64 = 1         // ticks every (0.5, 1, etc)
 	if cpu > maxVerticalSpacing {
 		te = searchScaleDownward(cpu, minVerticalSpacing)
 	} else if cpu < minVerticalSpacing {
@@ -85,12 +85,12 @@ func (pw *PlotWindow) drawVerticalTickMarks(wx int) {
 }
 
 func (pw *PlotWindow) drawVerticalTick(wx int, y float64) {
-	ww := pw.txtw.Width()
+	ww := pw.txtw.TextWidth()
 	wy, _ := pw.transformY(y)
-	pw.txtw.SetXY(wx, wy)
+	pw.txtw.SetCursorXY(wx, wy)
 	window.PutByte(pw.txtw, '+')
 	if (wx + 10) < ww {
-		pw.txtw.SetXY(wx+3, wy)
+		pw.txtw.SetCursorXY(wx+3, wy)
 		window.Print(pw.txtw, fmt.Sprintf("%.2f", y))
 	}
 }
@@ -151,8 +151,8 @@ func searchScaleUpward(cpu, maxSpacing float64) float64 {
 }
 
 func (pw *PlotWindow) drawHorizontalAxis(y int) error {
-	w := pw.txtw.Width()
-	pw.txtw.SetXY(0, y)
+	w := pw.txtw.TextWidth()
+	pw.txtw.SetCursorXY(0, y)
 	for x := 0; x < w; x++ {
 		if err := pw.txtw.Write('-'); err != nil {
 			return err
@@ -166,10 +166,10 @@ const minHorizontalSpacing = 9.0
 const maxHorizontalSpacing = 18.0
 
 func (pw *PlotWindow) drawHorizontalTickMarks(wy int) {
-	ww := pw.txtw.Width()   // width in characters
-	xr := pw.maxx - pw.minx // units
-	cpu := float64(ww) / xr // characters / unit
-	var te float64 = 1      // ticks every (0.5, 1, etc)
+	ww := pw.txtw.TextWidth() // width in characters
+	xr := pw.maxx - pw.minx   // units
+	cpu := float64(ww) / xr   // characters / unit
+	var te float64 = 1        // ticks every (0.5, 1, etc)
 	if cpu > maxHorizontalSpacing {
 		te = searchScaleDownward(cpu, minHorizontalSpacing)
 	} else if cpu < minHorizontalSpacing {
@@ -196,15 +196,15 @@ func (pw *PlotWindow) drawHorizontalTickMarks(wy int) {
 const horizontalNumberPad = 5
 
 func (pw *PlotWindow) drawHorizontalTick(x float64, wy int) {
-	ww, wh := pw.txtw.Size()
+	ww, wh := pw.txtw.TextSize()
 	wx, _ := pw.transformX(x)
 	if wy >= 0 {
-		pw.txtw.SetXY(wx, wy)
+		pw.txtw.SetCursorXY(wx, wy)
 		window.PutByte(pw.txtw, '+')
 	}
 	if (wx > horizontalNumberPad) && (wx < (ww - horizontalNumberPad)) && (wy+1) < wh {
 		s := fmt.Sprintf("%.2f", x)
-		pw.txtw.SetXY(wx-len(s)/2, wy+1)
+		pw.txtw.SetCursorXY(wx-len(s)/2, wy+1)
 		window.Print(pw.txtw, s)
 	}
 }

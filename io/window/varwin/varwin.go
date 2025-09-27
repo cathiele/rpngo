@@ -21,8 +21,8 @@ func Init(txtw window.TextWindow) (*VariableWindow, error) {
 	return w, nil
 }
 
-func (vw *VariableWindow) Resize(x, y, w, h int) error {
-	return vw.txtw.Resize(x, y, w, h)
+func (vw *VariableWindow) ResizeWindow(x, y, w, h int) error {
+	return vw.txtw.ResizeWindow(x, y, w, h)
 }
 
 func (vw *VariableWindow) ShowBorder(screenw, screenh int) error {
@@ -33,8 +33,8 @@ func (vw *VariableWindow) WindowXY() (int, int) {
 	return vw.txtw.WindowXY()
 }
 
-func (vw *VariableWindow) Size() (int, int) {
-	return vw.txtw.Size()
+func (vw *VariableWindow) WindowSize() (int, int) {
+	return vw.txtw.WindowSize()
 }
 
 func (vw *VariableWindow) Type() string {
@@ -66,7 +66,7 @@ func (vw *VariableWindow) ListProps() []string {
 
 func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	vw.txtw.Erase()
-	w, h := vw.txtw.Size()
+	w, h := vw.txtw.TextSize()
 	nv := rpn.AllVariableNamesAndValues()
 	n := len(nv)
 	allShown := true
@@ -74,7 +74,7 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 		n = h - 1
 		allShown = false
 	}
-	vw.txtw.SetXY(0, 0)
+	vw.txtw.SetCursorXY(0, 0)
 	for i := 0; i < n; i++ {
 		name := nv[i].Name + ": "
 		val := framesToString(nv[i].Values)

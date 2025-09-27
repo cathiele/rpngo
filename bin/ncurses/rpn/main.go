@@ -65,11 +65,13 @@ func interactive(r *rpn.RPN) error {
 	if err := io.OSStartup(r); err != nil {
 		return err
 	}
-	if err := root.Update(r, screen.Width(), screen.Height(), true); err != nil {
+	w, h := screen.WindowSize()
+	if err := root.Update(r, w, h, true); err != nil {
 		return err
 	}
 	for {
-		if err := root.Update(r, screen.Width(), screen.Height(), true); err != nil {
+		w, h = screen.WindowSize()
+		if err := root.Update(r, w, h, true); err != nil {
 			if errors.Is(err, input.ErrExit) {
 				return nil
 			}
@@ -93,7 +95,7 @@ func setupSignals() chan bool {
 }
 
 func buildUI(screen *curses.Curses, r *rpn.RPN) (*window.WindowRoot, error) {
-	w, h := screen.Size()
+	w, h := screen.WindowSize()
 	root := window.NewWindowRoot(w, h)
 	if err := addInputWindow(screen, root, r); err != nil {
 		return nil, err

@@ -36,7 +36,7 @@ func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
 	tw := &Curses{
 		rgbToPair: c.rgbToPair,
 	}
-	if err := tw.Resize(x, y, w, h); err != nil {
+	if err := tw.ResizeWindow(x, y, w, h); err != nil {
 		return nil, err
 	}
 	return tw, nil
@@ -76,7 +76,7 @@ func (c *Curses) Cursor(on bool) {
 	goncurses.Cursor(val)
 }
 
-func (c *Curses) Resize(x, y, w, h int) error {
+func (c *Curses) ResizeWindow(x, y, w, h int) error {
 	if c.border != nil {
 		// erase the contents so that artifacts do no collect on the screen
 		c.border.Erase()
@@ -140,29 +140,39 @@ func (c *Curses) Write(b byte) error {
 }
 
 func (c *Curses) newLine() error {
-	y := c.Y()
-	h := c.Height()
+	y := c.CursorY()
+	h := c.TextHeight()
 	if y < (h - 1) {
 		y++
 	} else {
 		y = h - 1
 		c.Scroll(1)
 	}
-	c.SetXY(0, y)
+	c.SetCursorXY(0, y)
 	return nil
 }
 
-func (c *Curses) Width() int {
+func (c *Curses) TextWidth() int {
 	_, x := c.window.MaxYX()
 	return x
 }
 
-func (c *Curses) Height() int {
+func (c *Curses) TextHeight() int {
 	y, _ := c.window.MaxYX()
 	return y
 }
 
-func (c *Curses) Size() (int, int) {
+func (c *Curses) TextSize() (int, int) {
+	y, x := c.window.MaxYX()
+	return x, y
+}
+
+func (c *Curses) WindowSize() (int, int) {
+	y, x := c.window.MaxYX()
+	return x, y
+}
+
+func (c *Curses) ScreenSize() (int, int) {
 	y, x := c.window.MaxYX()
 	return x, y
 }
@@ -172,30 +182,30 @@ func (c *Curses) WindowXY() (int, int) {
 	return x, y
 }
 
-func (c *Curses) X() int {
+func (c *Curses) CursorX() int {
 	_, x := c.window.CursorYX()
 	return x
 }
 
-func (c *Curses) Y() int {
+func (c *Curses) CursorY() int {
 	y, _ := c.window.CursorYX()
 	return y
 }
 
-func (c *Curses) XY() (int, int) {
+func (c *Curses) CursorXY() (int, int) {
 	y, x := c.window.CursorYX()
 	return x, y
 }
 
-func (c *Curses) SetX(x int) {
-	c.window.Move(c.Y(), x)
+func (c *Curses) SetCursorX(x int) {
+	c.window.Move(c.CursorY(), x)
 }
 
-func (c *Curses) SetY(y int) {
-	c.window.Move(y, c.X())
+func (c *Curses) SetCursorY(y int) {
+	c.window.Move(y, c.CursorX())
 }
 
-func (c *Curses) SetXY(x int, y int) {
+func (c *Curses) SetCursorXY(x int, y int) {
 	c.window.Move(y, x)
 }
 

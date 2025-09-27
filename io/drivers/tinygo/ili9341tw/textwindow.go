@@ -83,15 +83,17 @@ type Ili9341TW struct {
 	// screen to send chars to
 	device *ili9341.Device
 
-	// upper left corner pixel offset
-	x int16
-	y int16
+	// window dimensions in pixels
+	wx int16
+	wy int16
+	ww int16
+	wh int16
 
-	// current character position
+	// character position in text cells
 	cx int16
 	cy int16
 
-	// character width and height in pixels
+	// character dimension in pixels
 	cw int16
 	ch int16
 
@@ -130,16 +132,18 @@ func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
 	tw.cursorEn = true
 	tw.cursorCol = 0x0000
 	tw.cursorShowing = false
-	tw.Resize(x, y, w, h)
+	tw.ResizeWindow(x, y, w, h)
 }
 
-func (tw *Ili9341TW) Resize(x, y, w, h int) error {
-	tw.x = int16(x)
-	tw.y = int16(y)
+func (tw *Ili9341TW) ResizeWindow(x, y, w, h int) error {
+	tw.wx = int16(x)
+	tw.wy = int16(y)
 	tw.cx = 0
 	tw.cy = 0
 	tw.textw = int16(w) / tw.cw
 	tw.texth = int16(h) / tw.ch
+	tw.ww = int16(w)
+	tw.wh = int16(h)
 	tw.chars = make([]lcdchar, int(tw.textw)*int(tw.texth))
 	tw.Erase()
 	return nil
@@ -160,7 +164,7 @@ func (tw *Ili9341TW) updateCharAt(tx, ty int16, r lcdchar) {
 		tw.image.Image.FillSolidColor(r.BGColor())
 		freemono.Regular9pt7b.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, r.FGColor())
 	}
-	tw.device.DrawBitmap(tw.x+tx*tw.cw, tw.y+ty*tw.ch, tw.image.Image)
+	tw.device.DrawBitmap(tw.wx+tx*tw.cw, tw.wy+ty*tw.ch, tw.image.Image)
 }
 
 func (tw *Ili9341TW) Erase() {
@@ -196,45 +200,49 @@ func (tw *Ili9341TW) Write(b byte) error {
 	return nil
 }
 
-func (tw *Ili9341TW) Width() int {
+func (tw *Ili9341TW) TextWidth() int {
 	return int(tw.textw)
 }
 
-func (tw *Ili9341TW) Height() int {
+func (tw *Ili9341TW) TextHeight() int {
 	return int(tw.texth)
 }
 
-func (tw *Ili9341TW) Size() (int, int) {
+func (tw *Ili9341TW) TextSize() (int, int) {
 	return int(tw.texth), int(tw.texth)
 }
 
 func (tw *Ili9341TW) WindowXY() (int, int) {
-	return int(tw.x), int(tw.y)
+	return int(tw.wx), int(tw.wy)
 }
 
-func (tw *Ili9341TW) X() int {
+func (tw *Ili9341TW) WindowSize() (int, int) {
+	return int(tw.ww), int(tw.wh)
+}
+
+func (tw *Ili9341TW) CursorX() int {
 	return int(tw.cx)
 }
 
-func (tw *Ili9341TW) Y() int {
+func (tw *Ili9341TW) CursorY() int {
 	return int(tw.cy)
 }
 
-func (tw *Ili9341TW) XY() (int, int) {
+func (tw *Ili9341TW) CursorXY() (int, int) {
 	return int(tw.cx), int(tw.cy)
 }
 
-func (tw *Ili9341TW) SetX(x int) {
+func (tw *Ili9341TW) SetCursorX(x int) {
 	tw.ShowCursorIfEnabled(false)
 	tw.cx = int16(x)
 }
 
-func (tw *Ili9341TW) SetY(y int) {
+func (tw *Ili9341TW) SetCursorY(y int) {
 	tw.ShowCursorIfEnabled(false)
 	tw.cy = int16(y)
 }
 
-func (tw *Ili9341TW) SetXY(x, y int) {
+func (tw *Ili9341TW) SetCursorXY(x, y int) {
 	tw.ShowCursorIfEnabled(false)
 	tw.cx = int16(x)
 	tw.cy = int16(y)

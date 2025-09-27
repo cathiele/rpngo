@@ -61,8 +61,8 @@ func Init(txtw window.TextWindow) (*PlotWindow, error) {
 	return w, nil
 }
 
-func (pw *PlotWindow) Resize(x, y, w, h int) error {
-	return pw.txtw.Resize(x, y, w, h)
+func (pw *PlotWindow) ResizeWindow(x, y, w, h int) error {
+	return pw.txtw.ResizeWindow(x, y, w, h)
 }
 
 func (pw *PlotWindow) ShowBorder(screenw, screenh int) error {
@@ -73,8 +73,8 @@ func (pw *PlotWindow) WindowXY() (int, int) {
 	return pw.txtw.WindowXY()
 }
 
-func (pw *PlotWindow) Size() (int, int) {
-	return pw.txtw.Size()
+func (pw *PlotWindow) WindowSize() (int, int) {
+	return pw.txtw.WindowSize()
 }
 
 func (pw *PlotWindow) Type() string {

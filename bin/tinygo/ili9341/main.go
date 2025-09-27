@@ -47,7 +47,7 @@ func run() error {
 }
 
 func buildUI(screen window.Screen, r *rpn.RPN) (*input.InputWindow, error) {
-	w, h := screen.Size()
+	w, h := screen.ScreenSize()
 	txtw, err := screen.NewTextWindow(0, 0, w, h)
 	if err != nil {
 		return nil, err

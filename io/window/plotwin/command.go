@@ -102,7 +102,7 @@ func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
 		return err
 	}
 	err = r.Exec(fields)
-	w, h := wc.screen.Size()
+	w, h := wc.screen.ScreenSize()
 	if uerr := wc.root.Update(r, w, h, false); uerr != nil {
 		log.Printf("initPlot.Update error: %v", uerr)
 	}

@@ -8,10 +8,10 @@ import (
 
 type Window interface {
 	Update(*rpn.RPN) error
-	Resize(x, y, w, h int) error
+	ResizeWindow(x, y, w, h int) error
 	ShowBorder(screenw, screenh int) error
 	WindowXY() (int, int)
-	Size() (int, int)
+	WindowSize() (int, int)
 	Type() string
 	SetProp(name string, val rpn.Frame) error
 	GetProp(name string) (rpn.Frame, error)
@@ -30,7 +30,7 @@ func (wge *windowGroupEntry) resize(x, y, w, h int) {
 	if wge.group != nil {
 		wge.group.resize(x, y, w, h)
 	} else if wge.window != nil {
-		wge.window.Resize(x, y, w, h)
+		wge.window.ResizeWindow(x, y, w, h)
 	}
 }
 
@@ -126,7 +126,7 @@ func (wg *windowGroup) dump(lines []string, name string, indent int, weight int)
 		}
 		if c.window != nil {
 			x, y := c.window.WindowXY()
-			w, h := c.window.Size()
+			w, h := c.window.WindowSize()
 			lines = append(
 				lines,
 				fmt.Sprintf(

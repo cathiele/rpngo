@@ -23,6 +23,6 @@ func (s *Ili9341Screen) NewTextWindow(x, y, w, h int) (window.TextWindow, error)
 	return tw, nil
 }
 
-func (s *Ili9341Screen) Size() (int, int) {
+func (s *Ili9341Screen) ScreenSize() (int, int) {
 	return 320, 240
 }

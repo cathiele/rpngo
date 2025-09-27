@@ -3,18 +3,15 @@ package window
 type Screen interface {
 	// Create a NewTextWindow. If a graphics screen, x, y, w and h
 	// are in pixels.
-	NewTextWindow(x, y, w, h int) (TextWindow, error)
+	NewTextWindow(px, py, pw, ph int) (TextWindow, error)
 	// Returns size in the smallest possible unit (e.g. pixels)
-	Size() (int, int)
+	ScreenSize() (int, int)
 }
 
 // TextWindow is output for a screen that displays monospaced text
 type TextWindow interface {
 	// Refresh the display
 	Refresh()
-
-	// Resize the window
-	Resize(x, y, w, h int) error
 
 	// Erase the display
 	Erase()
@@ -27,20 +24,22 @@ type TextWindow interface {
 	Write(byte) error
 
 	// Returns the dimensions of the screen as text cells
-	Width() int
-	Height() int
-	Size() (int, int)
+	TextWidth() int
+	TextHeight() int
+	TextSize() (int, int)
 
 	// windowXY is in pixels
 	WindowXY() (int, int)
+	WindowSize() (int, int)
+	ResizeWindow(px, py, pw, ph int) error
 
 	// Get and set the character position in text cells
-	X() int
-	Y() int
-	XY() (int, int)
-	SetX(int)
-	SetY(int)
-	SetXY(x, y int)
+	CursorX() int
+	CursorY() int
+	CursorXY() (int, int)
+	SetCursorX(int)
+	SetCursorY(int)
+	SetCursorXY(x, y int)
 
 	// Change the foreground and background colors (approximately) to the given
 	// r, g, b values. each value ranges from 0 to 32 (foreground, then background)

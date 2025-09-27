@@ -143,7 +143,7 @@ func (r *RPN) dumpMap(title string, m map[string]string) {
 			line = append(line, ' ')
 		}
 		nextCol += colWidth
-		if nextCol > r.WindowWidth {
+		if nextCol > r.TextWidth {
 			r.Println(string(line))
 			line = line[:2]
 			nextCol = len(line) + colWidth

@@ -36,12 +36,12 @@ type RPN struct {
 	variables []map[string]Frame
 	functions map[string]func(*RPN) error
 	// maps are category -> command -> help
-	help        map[string]map[string]string
-	Print       func(string)
-	Input       func(*RPN) (string, error)
-	Interrupt   chan bool
-	WindowWidth int
-	conv        *convert.Conversion
+	help      map[string]map[string]string
+	Print     func(string)
+	Input     func(*RPN) (string, error)
+	Interrupt chan bool
+	TextWidth int
+	conv      *convert.Conversion
 }
 
 // Init initializes an RPNCalc object
@@ -57,7 +57,7 @@ func (r *RPN) Init() {
 	r.Register("vpop", popVariableFrame, CatVariables, popVariableFrameHelp)
 	r.Print = DefaultPrint
 	r.conv = convert.Init()
-	r.WindowWidth = 80
+	r.TextWidth = 80
 }
 
 // Register adds a new function

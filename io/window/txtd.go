@@ -24,14 +24,14 @@ func PutByte(txtd TextWindow, b byte) {
 }
 
 func Shift(txtd TextWindow, n int) {
-	x, y := txtd.XY()
+	x, y := txtd.CursorXY()
 	x += n
 	if x < 0 {
-		x += txtd.Width()
+		x += txtd.TextWidth()
 		y -= 1
 		if y < 0 {
 			y = 0
 		}
 	}
-	txtd.SetXY(x, y)
+	txtd.SetCursorXY(x, y)
 }

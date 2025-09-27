@@ -103,7 +103,7 @@ func (pw *PlotWindow) plotPoints(points []Point) error {
 		if !yok {
 			continue
 		}
-		pw.txtw.SetXY(x, y)
+		pw.txtw.SetCursorXY(x, y)
 		if err := pw.txtw.Write('*'); err != nil {
 			return err
 		}
@@ -116,8 +116,8 @@ func (pw *PlotWindow) transformX(x float64) (int, bool) {
 	if x < 0 {
 		return 0, false
 	}
-	xi := int(float64(pw.txtw.Width())*x + 0.5)
-	if xi < 0 || xi >= pw.txtw.Width() {
+	xi := int(float64(pw.txtw.TextWidth())*x + 0.5)
+	if xi < 0 || xi >= pw.txtw.TextWidth() {
 		return 0, false
 	}
 	return xi, true
@@ -128,8 +128,8 @@ func (pw *PlotWindow) transformY(y float64) (int, bool) {
 	if y < 0 {
 		return 0, false
 	}
-	py := pw.txtw.Height() - int(float64(pw.txtw.Height())*y+0.5) - 1
-	if py < 0 || py > pw.txtw.Height() {
+	py := pw.txtw.TextHeight() - int(float64(pw.txtw.TextHeight())*y+0.5) - 1
+	if py < 0 || py > pw.txtw.TextHeight() {
 		return 0, false
 	}
 	return py, true

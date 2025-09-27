@@ -21,8 +21,8 @@ func Init(txtw window.TextWindow) (*StackWindow, error) {
 	return w, nil
 }
 
-func (sw *StackWindow) Resize(x, y, w, h int) error {
-	return sw.txtw.Resize(x, y, w, h)
+func (sw *StackWindow) ResizeWindow(x, y, w, h int) error {
+	return sw.txtw.ResizeWindow(x, y, w, h)
 }
 
 func (sw *StackWindow) ShowBorder(screenw, screenh int) error {
@@ -33,8 +33,8 @@ func (sw *StackWindow) WindowXY() (int, int) {
 	return sw.txtw.WindowXY()
 }
 
-func (sw *StackWindow) Size() (int, int) {
-	return sw.txtw.Size()
+func (sw *StackWindow) WindowSize() (int, int) {
+	return sw.txtw.WindowSize()
 }
 
 func (sw *StackWindow) Type() string {
@@ -55,7 +55,7 @@ func (sw *StackWindow) ListProps() []string {
 
 func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 	sw.txtw.Erase()
-	w, h := sw.txtw.Size()
+	w, h := sw.txtw.TextSize()
 	framesBack := h
 	if rpn.Size() < framesBack {
 		framesBack = rpn.Size()
@@ -65,7 +65,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 		if err != nil {
 			return err
 		}
-		sw.txtw.SetXY(0, h-i-1)
+		sw.txtw.SetCursorXY(0, h-i-1)
 		s := fmt.Sprintf("%d: %v", i, f.String(true))
 		if len(s) > w {
 			s = s[:w]
