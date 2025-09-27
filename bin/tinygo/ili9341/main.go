@@ -82,7 +82,7 @@ func (g *getInput) GetChar() (key.Key, error) {
 			time.Sleep(time.Millisecond * 10)
 			continue
 		}
-		log.Printf("got char: %v", c)
+		//log.Printf("got char: %v", c)
 		switch state {
 		case NORMAL:
 			switch c {

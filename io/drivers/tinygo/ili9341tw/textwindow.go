@@ -6,6 +6,7 @@ package ili9341tw
 
 import (
 	"image/color"
+	"log"
 	"mattwach/rpngo/io/drivers/tinygo/pixel565"
 
 	"tinygo.org/x/drivers/ili9341"
@@ -185,6 +186,10 @@ func (tw *Ili9341TW) ShowBorder(screenw, screenh int) error {
 
 func (tw *Ili9341TW) Write(b byte) error {
 	tw.ShowCursorIfEnabled(false)
+	if b != '\n' {
+		tw.updateCharAt(tw.cx, tw.cy, tw.fgcol|tw.bgcol|lcdchar(b))
+		tw.cx++
+	}
 	if (b == '\n') || (tw.cx >= tw.textw) {
 		// next line
 		tw.cx = 0
@@ -192,10 +197,6 @@ func (tw *Ili9341TW) Write(b byte) error {
 	}
 	if tw.cy >= tw.texth {
 		tw.Scroll(int(tw.texth - tw.cy - 1))
-	}
-	if b != '\n' {
-		tw.updateCharAt(tw.cx, tw.cy, tw.fgcol|tw.bgcol|lcdchar(b))
-		tw.cx++
 	}
 	return nil
 }
@@ -307,12 +308,14 @@ func (tw *Ili9341TW) ShowCursorIfEnabled(show bool) {
 	}
 	tw.cursorShowing = !tw.cursorShowing
 	if show {
+		log.Printf("show x=%v y=%v\n", tw.cx, tw.cy)
 		ch := tw.chars[tw.cy*tw.textw+tw.cx]
 		tw.cursorCol = ch & 0xFF00
 		tw.updateCharAt(tw.cx, tw.cy, 0x0F00|(ch&0x00FF))
 		tw.cursorShowX = tw.cx
 		tw.cursorShowY = tw.cy
 	} else {
+		log.Printf("hide x=%v y=%v\n", tw.cursorShowX, tw.cursorShowY)
 		ch := tw.chars[tw.cursorShowY*tw.textw+tw.cursorShowX]
 		tw.updateCharAt(tw.cursorShowX, tw.cursorShowY, tw.cursorCol|(ch&0x00FF))
 	}
