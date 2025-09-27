@@ -180,6 +180,7 @@ func (tw *Ili9341TW) ShowBorder(screenw, screenh int) error {
 }
 
 func (tw *Ili9341TW) Write(b byte) error {
+	tw.ShowCursorIfEnabled(false)
 	if (b == '\n') || (tw.cx >= tw.textw) {
 		// next line
 		tw.cx = 0
@@ -192,7 +193,6 @@ func (tw *Ili9341TW) Write(b byte) error {
 		tw.updateCharAt(tw.cx, tw.cy, tw.fgcol|tw.bgcol|lcdchar(b))
 		tw.cx++
 	}
-	tw.ShowCursorIfEnabled(true)
 	return nil
 }
 
@@ -225,14 +225,17 @@ func (tw *Ili9341TW) XY() (int, int) {
 }
 
 func (tw *Ili9341TW) SetX(x int) {
+	tw.ShowCursorIfEnabled(false)
 	tw.cx = int16(x)
 }
 
 func (tw *Ili9341TW) SetY(y int) {
+	tw.ShowCursorIfEnabled(false)
 	tw.cy = int16(y)
 }
 
 func (tw *Ili9341TW) SetXY(x, y int) {
+	tw.ShowCursorIfEnabled(false)
 	tw.cx = int16(x)
 	tw.cy = int16(y)
 }

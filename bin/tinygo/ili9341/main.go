@@ -65,18 +65,50 @@ type getInput struct {
 	lcd *ili9341tw.Ili9341TW
 }
 
-func (g *getInput) GetChar() (key.Key, error) {
-	for {
-		c, err := machine.Serial.ReadByte()
-		if err == nil {
-			log.Printf("got char: %v", c)
-			if c == 13 {
-				return '\n', nil
-			}
-			return key.Key(c), nil
-		}
+type TermState int
 
-		time.Sleep(time.Millisecond * 10)
+const (
+	NORMAL TermState = iota
+	ESC
+	ARROW
+)
+
+func (g *getInput) GetChar() (key.Key, error) {
+	var state TermState = NORMAL
+	for {
 		g.lcd.ShowCursorIfEnabled(true)
+		c, err := machine.Serial.ReadByte()
+		if err != nil {
+			time.Sleep(time.Millisecond * 10)
+			continue
+		}
+		log.Printf("got char: %v", c)
+		switch state {
+		case NORMAL:
+			switch c {
+			case 13:
+				return '\n', nil
+			case 27:
+				state = ESC
+			default:
+				state = NORMAL
+				return key.Key(c), nil
+			}
+		case ESC:
+			switch c {
+			case 91:
+				state = ARROW
+			default:
+				state = NORMAL
+			}
+		case ARROW:
+			state = NORMAL
+			switch c {
+			case 67:
+				return key.KEY_RIGHT, nil
+			case 68:
+				return key.KEY_LEFT, nil
+			}
+		}
 	}
 }
