@@ -90,13 +90,14 @@ func (g *getInput) GetChar() (key.Key, error) {
 				return '\n', nil
 			case 27:
 				state = ESC
+			case 127:
+				return key.KEY_BACKSPACE, nil
 			default:
-				state = NORMAL
 				return key.Key(c), nil
 			}
 		case ESC:
 			switch c {
-			case 91:
+			case '[':
 				state = ARROW
 			default:
 				state = NORMAL
@@ -104,9 +105,13 @@ func (g *getInput) GetChar() (key.Key, error) {
 		case ARROW:
 			state = NORMAL
 			switch c {
-			case 67:
+			case 'A':
+				return key.KEY_UP, nil
+			case 'B':
+				return key.KEY_DOWN, nil
+			case 'C':
 				return key.KEY_RIGHT, nil
-			case 68:
+			case 'D':
 				return key.KEY_LEFT, nil
 			}
 		}
