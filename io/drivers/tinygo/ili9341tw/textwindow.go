@@ -6,12 +6,11 @@ package ili9341tw
 
 import (
 	"image/color"
-	"log"
+	"mattwach/rpngo/io/drivers/tinygo/fonts"
 	"mattwach/rpngo/io/drivers/tinygo/pixel565"
 
 	"tinygo.org/x/drivers/ili9341"
 	"tinygo.org/x/drivers/pixel"
-	"tinygo.org/x/tinyfont/freemono"
 )
 
 // The character and color info packed into 1 16-bit value
@@ -163,7 +162,7 @@ func (tw *Ili9341TW) updateCharAt(tx, ty int16, r lcdchar) {
 	if r != tw.lastr {
 		tw.lastr = r
 		tw.image.Image.FillSolidColor(r.BGColor())
-		freemono.Regular9pt7b.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, r.FGColor())
+		fonts.NotoMonoRegular8p.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, r.FGColor())
 	}
 	tw.device.DrawBitmap(tw.wx+tx*tw.cw, tw.wy+ty*tw.ch, tw.image.Image)
 }
@@ -308,14 +307,12 @@ func (tw *Ili9341TW) ShowCursorIfEnabled(show bool) {
 	}
 	tw.cursorShowing = !tw.cursorShowing
 	if show {
-		log.Printf("show x=%v y=%v\n", tw.cx, tw.cy)
 		ch := tw.chars[tw.cy*tw.textw+tw.cx]
 		tw.cursorCol = ch & 0xFF00
 		tw.updateCharAt(tw.cx, tw.cy, 0x0F00|(ch&0x00FF))
 		tw.cursorShowX = tw.cx
 		tw.cursorShowY = tw.cy
 	} else {
-		log.Printf("hide x=%v y=%v\n", tw.cursorShowX, tw.cursorShowY)
 		ch := tw.chars[tw.cursorShowY*tw.textw+tw.cursorShowX]
 		tw.updateCharAt(tw.cursorShowX, tw.cursorShowY, tw.cursorCol|(ch&0x00FF))
 	}
