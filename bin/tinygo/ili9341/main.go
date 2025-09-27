@@ -68,8 +68,8 @@ type getInput struct {
 func (g *getInput) GetChar() (key.Key, error) {
 	for {
 		c, err := machine.Serial.ReadByte()
-		machine.Serial.WriteByte(c)
 		if err == nil {
+			log.Printf("got char: %v", c)
 			if c == 13 {
 				return '\n', nil
 			}
