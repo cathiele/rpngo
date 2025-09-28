@@ -209,7 +209,7 @@ func (tw *Ili9341TW) TextHeight() int {
 }
 
 func (tw *Ili9341TW) TextSize() (int, int) {
-	return int(tw.texth), int(tw.texth)
+	return int(tw.textw), int(tw.texth)
 }
 
 func (tw *Ili9341TW) WindowXY() (int, int) {
