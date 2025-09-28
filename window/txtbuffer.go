@@ -61,12 +61,13 @@ func (tb *TextBuffer) Erase() {
 }
 
 func (tb *TextBuffer) Write(b byte) error {
-	if b == '\n' {
+	if (b == '\n') || (tb.cx >= tb.w) {
 		// next line
+		tb.cx = 0
 		tb.cy++
 	}
-	if (tb.cx >= tb.w) || (tb.cy >= tb.h) {
-		// no support for wrapping or scrolling as it may not be needed
+	if tb.cy >= tb.h {
+		// no scrolling as it may not be needed
 		return nil
 	}
 	if b != '\n' {

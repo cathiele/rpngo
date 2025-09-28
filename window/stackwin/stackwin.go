@@ -13,9 +13,7 @@ type StackWindow struct {
 }
 
 func Init(txtw window.TextWindow) (*StackWindow, error) {
-	w := &StackWindow{
-		txtw: txtw,
-	}
+	w := &StackWindow{txtw: txtw}
 	w.txtb.TextColor(window.White)
 	return w, nil
 }
