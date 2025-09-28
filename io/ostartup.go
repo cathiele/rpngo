@@ -3,6 +3,7 @@ package io
 import (
 	"errors"
 	"fmt"
+	"log"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 	"os"
@@ -32,9 +33,9 @@ const defaultConfigFile = `
 
 # some useful equations
 'vpush
- c= $0 neg bn= b= $0 2 * 2a= a= $b sq 4 $a $c * * - sqrt root=
- $bn $root + $2a /
- $bn $root - $2a /
+ c= $0 neg bn= b= $0 2 * a2= a= $b sq 4 $a $c * * - sqrt root=
+ $bn $root + $a2 /
+ $bn $root - $a2 /
  vpop' quad=
 `
 
@@ -44,12 +45,15 @@ const configName = ".rpngo"
 // filesystem available)
 func OSStartup(r *rpn.RPN) error {
 	configPath, err := genConfigPath()
+	var s string
 	if err != nil {
-		return err
-	}
-	s, err := loadOrCreateConfigFile(configPath)
-	if err != nil {
-		return fmt.Errorf("while loading %s: %w", configPath, err)
+		log.Printf("Could generate configPath: %s", err)
+		s = defaultConfigFile
+	} else {
+		s, err = loadOrCreateConfigFile(configPath)
+		if err != nil {
+			return fmt.Errorf("while loading %s: %w", configPath, err)
+		}
 	}
 	fields, err := parse.Fields(s)
 	if err != nil {

@@ -9,6 +9,7 @@ import (
 	"log"
 	"machine"
 	"mattwach/rpngo/functions"
+	"mattwach/rpngo/io"
 	"mattwach/rpngo/io/drivers/tinygo/ili9341tw"
 	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
@@ -43,6 +44,9 @@ func run() error {
 	}
 	_ = commands.InitWindowCommands(&r, root, &screen)
 	_ = plotwin.InitPlotCommands(&r, root, &screen)
+	if err := io.OSStartup(&r); err != nil {
+		return err
+	}
 	w, h := screen.ScreenSize()
 	if err := root.Update(&r, w, h, true); err != nil {
 		return err
