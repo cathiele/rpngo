@@ -6,6 +6,7 @@ package ili9341tw
 
 import (
 	"image/color"
+	"mattwach/rpngo/drivers/tinygo"
 	"mattwach/rpngo/drivers/tinygo/fonts"
 	"mattwach/rpngo/drivers/tinygo/pixel565"
 
@@ -157,11 +158,13 @@ func (tw *Ili9341TW) Refresh() {
 }
 
 func (tw *Ili9341TW) updateCharAt(tx, ty int16, r lcdchar) {
-	oldr := tw.chars[ty*tw.textw+tx]
+	idx := ty*tw.textw + tx
+	tinygo.Check("updateCharAt", int(idx), len(tw.chars))
+	oldr := tw.chars[idx]
 	if r == oldr {
 		return
 	}
-	tw.chars[ty*tw.textw+tx] = r
+	tw.chars[idx] = r
 	if r != tw.lastr {
 		tw.lastr = r
 		tw.image.Image.FillSolidColor(r.BGColor())
@@ -278,6 +281,7 @@ func (tw *Ili9341TW) scrollUp(i int) {
 	for y = 0; y < maxy; y++ {
 		var x int16
 		for x = 0; x < tw.textw; x++ {
+			tinygo.Check("scrollUp", int(offset), len(tw.chars))
 			tw.updateCharAt(x, y, tw.chars[offset])
 			offset++
 		}
@@ -318,12 +322,14 @@ func (tw *Ili9341TW) ShowCursorIfEnabled(show bool) {
 		if tw.cy >= tw.texth {
 			tw.Scroll(int(tw.texth - tw.cy - 1))
 		}
+		tinygo.Check("show", int(tw.cy*tw.textw+tw.cx), len(tw.chars))
 		ch := tw.chars[tw.cy*tw.textw+tw.cx]
 		tw.cursorCol = ch & 0xFF00
 		tw.updateCharAt(tw.cx, tw.cy, 0x0F00|(ch&0x00FF))
 		tw.cursorShowX = tw.cx
 		tw.cursorShowY = tw.cy
 	} else {
+		tinygo.Check("hide", int(tw.cursorShowY*tw.textw+tw.cursorShowX), len(tw.chars))
 		ch := tw.chars[tw.cursorShowY*tw.textw+tw.cursorShowX]
 		tw.updateCharAt(tw.cursorShowX, tw.cursorShowY, tw.cursorCol|(ch&0x00FF))
 	}
