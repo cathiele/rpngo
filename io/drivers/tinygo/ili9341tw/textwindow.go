@@ -124,9 +124,9 @@ type Ili9341TW struct {
 
 // Init initializes a text window. x, y, w, and h are all in pixels
 func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
-	tw.cw = 11
-	tw.ch = 16
-	tw.cyoffset = 11
+	tw.cw = 8
+	tw.ch = 12
+	tw.cyoffset = 10
 	tw.image.Init(tw.cw, tw.ch)
 	tw.device = d
 	tw.cursorEn = true
@@ -162,7 +162,7 @@ func (tw *Ili9341TW) updateCharAt(tx, ty int16, r lcdchar) {
 	if r != tw.lastr {
 		tw.lastr = r
 		tw.image.Image.FillSolidColor(r.BGColor())
-		fonts.NotoMonoRegular8p.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, r.FGColor())
+		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, r.FGColor())
 	}
 	tw.device.DrawBitmap(tw.wx+tx*tw.cw, tw.wy+ty*tw.ch, tw.image.Image)
 }
