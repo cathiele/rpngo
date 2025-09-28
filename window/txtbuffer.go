@@ -113,7 +113,6 @@ func (tb *TextBuffer) SetCursorXY(x, y int) {
 	tb.cy = int16(y)
 }
 
-func (tb *TextBuffer) TextColor(col ColorChar) error {
+func (tb *TextBuffer) TextColor(col ColorChar) {
 	tb.col = col
-	return nil
 }
