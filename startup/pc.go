@@ -3,7 +3,6 @@ package startup
 import (
 	"errors"
 	"fmt"
-	"log"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 	"os"
@@ -26,18 +25,7 @@ const defaultConfigFile = `
 # Plot defaults
 'p1' plot.win=
 '$plot.win w.new.plot $plot.win "g1" w.move.end' plot.init=
-
-# set some useful vars
-3.141592653589793 pi=
-2.718281828459045 e=
-
-# some useful equations
-'vpush
- c= $0 neg bn= b= $0 2 * a2= a= $b sq 4 $a $c * * - sqrt root=
- $bn $root + $a2 /
- $bn $root - $a2 /
- vpop' quad=
-`
+` + commonStartup
 
 const configName = ".rpngo"
 
@@ -45,15 +33,12 @@ const configName = ".rpngo"
 // filesystem available)
 func OSStartup(r *rpn.RPN) error {
 	configPath, err := genConfigPath()
-	var s string
 	if err != nil {
-		log.Printf("Could generate configPath: %s", err)
-		s = defaultConfigFile
-	} else {
-		s, err = loadOrCreateConfigFile(configPath)
-		if err != nil {
-			return fmt.Errorf("while loading %s: %w", configPath, err)
-		}
+		return err
+	}
+	s, err := loadOrCreateConfigFile(configPath)
+	if err != nil {
+		return fmt.Errorf("while loading %s: %w", configPath, err)
 	}
 	fields, err := parse.Fields(s)
 	if err != nil {

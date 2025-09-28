@@ -44,7 +44,7 @@ func run() error {
 	}
 	_ = commands.InitWindowCommands(&r, root, &screen)
 	_ = plotwin.InitPlotCommands(&r, root, &screen)
-	if err := startup.OSStartup(&r); err != nil {
+	if err := startup.LCD320Startup(&r); err != nil {
 		return err
 	}
 	w, h := screen.ScreenSize()
