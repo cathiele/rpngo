@@ -15,6 +15,7 @@ const lcd320ConfigFile = `
 'v' 'g1' w.move.end
 's' 'g1' w.move.end
 'i' 'g1' w.move.end
+'i' 50 w.weight
 
 # Plot defaults
 'p1' plot.win=
