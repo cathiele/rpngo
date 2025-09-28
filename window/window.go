@@ -29,10 +29,7 @@ type TextArea interface {
 	SetCursorY(int)
 	SetCursorXY(x, y int)
 
-	// Change the foreground and background colors (approximately) to the given
-	// r, g, b values. each value ranges from 0 to 32 (foreground, then background)
-	// If the display does not support color, these commands do nothing.
-	Color(fr, fg, fb, br, bg, bb int) error
+	TextColor(ColorChar)
 }
 
 // TextWindow is output for a screen that displays monospaced text

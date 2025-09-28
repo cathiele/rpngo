@@ -54,9 +54,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 			return err
 		}
 	}
-	if err := iw.txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
-		return err
-	}
+	iw.txtw.TextColor(window.White)
 	// clear any pending ctrl-c
 	select {
 	case <-r.Interrupt:
@@ -67,9 +65,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	r.TextWidth = iw.txtw.TextWidth()
 	window.Print(iw.gl.txtd, "> ")
 	line, err := iw.gl.get(r)
-	if err := iw.txtw.Color(0, 31, 31, 0, 0, 0); err != nil {
-		return err
-	}
+	iw.txtw.TextColor(window.Cyan)
 	if err != nil {
 		window.PrintErr(iw.txtw, err)
 		return nil
@@ -102,13 +98,9 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 func (iw *InputWindow) firstRun(r *rpn.RPN) error {
 	iw.firstInput = false
 	r.RegisterConceptHelp(map[string]string{"exiting": "Enter exit or type Ctrl-D to exit the program"})
-	if err := iw.txtw.Color(0, 31, 31, 0, 0, 0); err != nil {
-		return err
-	}
+	iw.txtw.TextColor(window.Cyan)
 	window.Print(iw.txtw, "Enter ? to list help topics, topic? for more details\n")
-	if err := iw.txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
-		return err
-	}
+	iw.txtw.TextColor(window.White)
 	return nil
 }
 

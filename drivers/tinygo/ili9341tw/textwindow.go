@@ -48,8 +48,7 @@ type Ili9341TW struct {
 	lastr window.ColorChar
 
 	// text color
-	fgcol window.ColorChar
-	bgcol window.ColorChar
+	col window.ColorChar
 
 	// cusror flash state
 	cursorEn bool
@@ -134,7 +133,7 @@ func (tw *Ili9341TW) updateCharAt(tx, ty int16, r window.ColorChar) {
 
 func (tw *Ili9341TW) Erase() {
 	var j int16
-	b := tw.fgcol | tw.bgcol | window.ColorChar(' ')
+	b := tw.col | window.ColorChar(' ')
 	for j = 0; j < tw.texth; j++ {
 		var i int16
 		for i = 0; i < tw.textw; i++ {
@@ -159,7 +158,7 @@ func (tw *Ili9341TW) Write(b byte) error {
 		tw.Scroll(int(tw.texth - tw.cy - 1))
 	}
 	if b != '\n' {
-		tw.updateCharAt(tw.cx, tw.cy, tw.fgcol|tw.bgcol|window.ColorChar(b))
+		tw.updateCharAt(tw.cx, tw.cy, tw.col|window.ColorChar(b))
 		tw.cx++
 	}
 	return nil
@@ -213,10 +212,8 @@ func (tw *Ili9341TW) SetCursorXY(x, y int) {
 	tw.cy = int16(y)
 }
 
-func (tw *Ili9341TW) Color(fr, fg, fb, br, bg, bb int) error {
-	tw.fgcol = window.NewColorCharFGColor(uint16(fr), uint16(fg), uint16(fb))
-	tw.bgcol = window.NewColorCharBGColor(uint16(br), uint16(bg), uint16(bb))
-	return nil
+func (tw *Ili9341TW) TextColor(col window.ColorChar) {
+	tw.col = col
 }
 
 func (tw *Ili9341TW) Scroll(i int) {
@@ -245,7 +242,7 @@ func (tw *Ili9341TW) scrollUp(i int) {
 			offset++
 		}
 	}
-	b := tw.fgcol | tw.bgcol | window.ColorChar(' ')
+	b := tw.col | window.ColorChar(' ')
 	for y < tw.texth {
 		var x int16
 		for x = 0; x < tw.textw; x++ {

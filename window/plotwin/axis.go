@@ -6,10 +6,7 @@ import (
 )
 
 func (pw *PlotWindow) drawAxis() error {
-	if err := pw.txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
-		return err
-	}
-
+	pw.txtw.TextColor(window.White)
 	x, xok := pw.transformX(0)
 	if xok {
 		if err := pw.drawVerticalAxis(x); err != nil {

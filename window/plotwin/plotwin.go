@@ -8,24 +8,24 @@ import (
 )
 
 // colors to autorotate through
-var colorWheel = []uint16{
-	31 << 10,               // red
-	31 << 5,                // green
-	31,                     // blue
-	(31 << 10) | (31 << 5), // yellow
-	(31 << 10) | 31,        // magenta
-	(31 << 5) | 31,         // cyan
+var colorWheel = []window.ColorChar{
+	window.Red,
+	window.Green,
+	window.Blue,
+	window.Yellow,
+	window.Magenta,
+	window.Cyan,
 }
 
 type Point struct {
 	x     float64
 	y     float64
-	color uint16
+	color window.ColorChar
 }
 
 type Plot struct {
 	fn           []string
-	color        uint16
+	color        window.ColorChar
 	isParametric bool
 }
 
@@ -35,7 +35,7 @@ type PlotWindow struct {
 	maxx     float64
 	miny     float64
 	maxy     float64
-	color    uint16
+	color    window.ColorChar
 	coloridx int
 	autox    bool
 	autoy    bool
@@ -55,9 +55,7 @@ func Init(txtw window.TextWindow) (*PlotWindow, error) {
 		maxv:  1,
 		steps: 250,
 	}
-	if err := txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
-		return nil, err
-	}
+	txtw.TextColor(window.White)
 	return w, nil
 }
 

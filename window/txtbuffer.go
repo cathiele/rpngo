@@ -19,22 +19,19 @@ type TextBuffer struct {
 	h int16
 
 	// text color
-	fgcol ColorChar
-	bgcol ColorChar
+	col ColorChar
 }
 
 func (tb *TextBuffer) UpdateTextWindow(tw TextWindow) {
 	tw.SetCursorXY(0, 0)
 	var col ColorChar
-	tw.Color(0, 0, 0, 0, 0, 0)
+	tw.TextColor(Black)
 	for i := range tb.chars {
 		c := tb.chars[i]
 		newcol := c & 0xFF00
 		if newcol != col {
 			col = newcol
-			fr, fg, fb := c.FGColor5()
-			br, bg, bb := c.BGColor5()
-			tw.Color(int(fr), int(fg), int(fb), int(br), int(bg), int(bb))
+			tw.TextColor(col)
 		}
 		tw.Write(c.Char())
 	}
@@ -57,7 +54,7 @@ func (tb *TextBuffer) MaybeResize(w, h int16) {
 }
 
 func (tb *TextBuffer) Erase() {
-	b := tb.fgcol | tb.bgcol | ColorChar(' ')
+	b := tb.col | ColorChar(' ')
 	for i := range tb.chars {
 		tb.chars[i] = b
 	}
@@ -73,7 +70,7 @@ func (tb *TextBuffer) Write(b byte) error {
 		return nil
 	}
 	if b != '\n' {
-		tb.chars[tb.cy*tb.w+tb.cx] = tb.fgcol | tb.bgcol | ColorChar(b)
+		tb.chars[tb.cy*tb.w+tb.cx] = tb.col | ColorChar(b)
 		tb.cx++
 	}
 	return nil
@@ -116,8 +113,7 @@ func (tb *TextBuffer) SetCursorXY(x, y int) {
 	tb.cy = int16(y)
 }
 
-func (tb *TextBuffer) Color(fr, fg, fb, br, bg, bb int) error {
-	tb.fgcol = NewColorCharFGColor(uint16(fr), uint16(fg), uint16(fb))
-	tb.bgcol = NewColorCharBGColor(uint16(br), uint16(bg), uint16(bb))
+func (tb *TextBuffer) TextColor(col ColorChar) error {
+	tb.col = col
 	return nil
 }

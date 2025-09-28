@@ -3,7 +3,6 @@ package curses
 
 import (
 	"mattwach/rpngo/key"
-	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
 
 	"github.com/gbin/goncurses"
@@ -43,7 +42,7 @@ func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
 }
 
 func (c *Curses) ShowBorder(screenw, screenh int) error {
-	ch, err := c.colorPairFor(31, 0, 31, 0, 0, 9)
+	ch, err := c.colorPairFor(window.Magenta)
 	if err != nil {
 		return err
 	}
@@ -52,7 +51,7 @@ func (c *Curses) ShowBorder(screenw, screenh int) error {
 		return err
 	}
 	c.border.Refresh()
-	ch, err = c.colorPairFor(31, 31, 31, 0, 0, 0)
+	ch, err = c.colorPairFor(window.White)
 	if err != nil {
 		return err
 	}
@@ -214,27 +213,20 @@ func (c *Curses) Scroll(n int) {
 	c.window.Scroll(n)
 }
 
-func (c *Curses) Color(fr, fg, fb, br, bg, bb int) error {
-	ch, err := c.colorPairFor(fr, fg, fb, br, bg, bb)
+func (c *Curses) TextColor(col window.ColorChar) {
+	ch, err := c.colorPairFor(col)
 	if err != nil {
-		return err
+		return
 	}
 	c.window.AttrSet(ch)
-	return nil
 }
 
-func (c *Curses) colorPairFor(fr, fg, fb, br, bg, bb int) (goncurses.Char, error) {
-	if err := checkColorRange(fr, fg, fb); err != nil {
-		return 0, err
-	}
-	if err := checkColorRange(br, bg, bb); err != nil {
-		return 0, err
-	}
+func (c *Curses) colorPairFor(col window.ColorChar) (goncurses.Char, error) {
 	if !goncurses.HasColors() {
 		return 0, nil
 	}
-	fc := colorIndexFor(fr, fg, fb)
-	bc := colorIndexFor(br, bg, bb)
+	fc := idxToCol[uint8(col>>12)]
+	bc := idxToCol[uint8((col&0x0F00)>>8)]
 	pc := (uint32(fc) << 15) | uint32(bc)
 	pidx, ok := c.rgbToPair[pc]
 	if !ok {
@@ -248,49 +240,20 @@ func (c *Curses) colorPairFor(fr, fg, fb, br, bg, bb int) (goncurses.Char, error
 }
 
 var idxToCol = map[uint8]int16{
-	0: goncurses.C_BLACK,
-	1: goncurses.C_BLUE,
-	2: goncurses.C_GREEN,
-	3: goncurses.C_CYAN,
-	4: goncurses.C_RED,
-	5: goncurses.C_MAGENTA,
-	6: goncurses.C_YELLOW,
-	7: goncurses.C_WHITE,
-}
-
-func colorIndexFor(r, g, b int) int16 {
-	var v uint8 = 0
-	if r > 15 {
-		v |= 4
-	}
-	if g > 15 {
-		v |= 2
-	}
-	if b > 15 {
-		v |= 1
-	}
-	col := idxToCol[v]
-	return col
-}
-
-func checkColorRange(r, g, b int) error {
-	if r < 0 {
-		return rpn.ErrInvalidColor
-	}
-	if r > 31 {
-		return rpn.ErrInvalidColor
-	}
-	if g < 0 {
-		return rpn.ErrInvalidColor
-	}
-	if g > 31 {
-		return rpn.ErrInvalidColor
-	}
-	if b < 0 {
-		return rpn.ErrInvalidColor
-	}
-	if b > 31 {
-		return rpn.ErrInvalidColor
-	}
-	return nil
+	0b0000: goncurses.C_BLACK,
+	0b0001: goncurses.C_BLUE,
+	0b0010: goncurses.C_GREEN,
+	0b0011: goncurses.C_BLUE,
+	0b0100: goncurses.C_GREEN,
+	0b0101: goncurses.C_CYAN,
+	0b0110: goncurses.C_GREEN,
+	0b0111: goncurses.C_CYAN,
+	0b1000: goncurses.C_RED,
+	0b1001: goncurses.C_MAGENTA,
+	0b1010: goncurses.C_RED,
+	0b1011: goncurses.C_MAGENTA,
+	0b1100: goncurses.C_YELLOW,
+	0b1101: goncurses.C_WHITE,
+	0b1110: goncurses.C_YELLOW,
+	0b1111: goncurses.C_WHITE,
 }

@@ -3,6 +3,7 @@ package plotwin
 import (
 	"fmt"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
 )
 
 func (pw *PlotWindow) Update(r *rpn.RPN) error {
@@ -89,11 +90,11 @@ func (pw *PlotWindow) adjustAutoY(points []Point) {
 }
 
 func (pw *PlotWindow) plotPoints(points []Point) error {
-	var color uint16
+	var color window.ColorChar
 	for _, p := range points {
 		if p.color != color {
 			color = p.color
-			pw.txtw.Color(int(color>>10), int((color>>5)&31), int(color&31), 0, 0, 0)
+			pw.txtw.TextColor(color)
 		}
 		x, xok := pw.transformX(p.x)
 		if !xok {

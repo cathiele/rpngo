@@ -15,9 +15,7 @@ type VariableWindow struct {
 
 func Init(txtw window.TextWindow) (*VariableWindow, error) {
 	w := &VariableWindow{txtw: txtw}
-	if err := txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
-		return nil, err
-	}
+	txtw.TextColor(window.White)
 	return w, nil
 }
 
@@ -81,9 +79,9 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 		if !vw.multiline {
 			val = makeSingleLine(val, w-len(name))
 		}
-		vw.txtw.Color(31, 31, 31, 0, 0, 0)
+		vw.txtw.TextColor(window.White)
 		window.Print(vw.txtw, name)
-		vw.txtw.Color(0, 31, 31, 0, 0, 0)
+		vw.txtw.TextColor(window.Cyan)
 		window.Print(vw.txtw, val)
 		window.PutByte(vw.txtw, '\n')
 	}

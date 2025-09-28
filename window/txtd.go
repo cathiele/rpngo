@@ -5,10 +5,10 @@ func Print(txtd TextArea, msg string) {
 }
 
 func PrintErr(txtd TextArea, err error) {
-	txtd.Color(31, 0, 0, 0, 0, 0)
+	txtd.TextColor(Red)
 	Print(txtd, err.Error())
 	PutByte(txtd, '\n')
-	txtd.Color(31, 31, 31, 0, 0, 0)
+	txtd.TextColor(White)
 }
 
 func PrintBytes(txtd TextArea, msg []byte) {

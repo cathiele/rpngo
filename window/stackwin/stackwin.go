@@ -15,9 +15,7 @@ func Init(txtw window.TextWindow) (*StackWindow, error) {
 	w := &StackWindow{
 		txtw: txtw,
 	}
-	if err := txtw.Color(31, 31, 31, 0, 0, 0); err != nil {
-		return nil, err
-	}
+	txtw.TextColor(window.White)
 	return w, nil
 }
 

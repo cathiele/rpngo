@@ -7,6 +7,19 @@ package window
 // FFFF BBBB HHHH HHHH
 type ColorChar uint16
 
+// some color that can be selected
+const (
+	Black       ColorChar = 0x0000
+	Red         ColorChar = 0x8000
+	Green       ColorChar = 0x6000
+	Blue        ColorChar = 0x1000
+	Yellow      ColorChar = 0xE000
+	Magenta     ColorChar = 0x9000
+	Cyan        ColorChar = 0x7000
+	White       ColorChar = 0xF000
+	CursorColor ColorChar = 0x0F00
+)
+
 // rgb are 5 bit values
 func NewColorCharFGColor(r, g, b uint16) ColorChar {
 	return ColorChar(((r >> 4) << 15) | ((g >> 3) << 13) | ((b >> 4) << 12))
