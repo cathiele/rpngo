@@ -14,6 +14,8 @@ import (
 	"tinygo.org/x/drivers/pixel"
 )
 
+const textPad = 3
+
 type Ili9341TW struct {
 	// holds the characters that make up the text grid
 	chars []window.ColorChar
@@ -85,11 +87,11 @@ func (tw *Ili9341TW) ResizeWindow(x, y, w, h int) error {
 	tw.cursorShowY = 0
 
 	if (tw.ww != int16(w)) || (tw.wh != int16(h)) {
-		tw.textw = int16(w) / tw.cw
+		tw.textw = (int16(w) - textPad*2) / tw.cw
 		if tw.textw <= 0 {
 			tw.textw = 1
 		}
-		tw.texth = int16(h) / tw.ch
+		tw.texth = (int16(h) - textPad*2) / tw.ch
 		if tw.texth <= 0 {
 			tw.texth = 1
 		}
@@ -97,7 +99,12 @@ func (tw *Ili9341TW) ResizeWindow(x, y, w, h int) error {
 		tw.wh = int16(h)
 		tw.chars = make([]window.ColorChar, int(tw.textw)*int(tw.texth))
 	}
-	tw.Erase()
+	tw.device.FillRectangle(int16(x), int16(y), int16(w), int16(h), color.RGBA{})
+	var j int16
+	b := window.ColorChar(' ')
+	for j = 0; j < tw.texth; j++ {
+		tw.chars[j] = b
+	}
 	return nil
 }
 
@@ -128,7 +135,7 @@ func (tw *Ili9341TW) updateCharAt(tx, ty int16, r window.ColorChar) {
 		tw.image.Image.FillSolidColor(bgColor(r))
 		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, fgColor(r))
 	}
-	tw.device.DrawBitmap(tw.wx+tx*tw.cw, tw.wy+ty*tw.ch, tw.image.Image)
+	tw.device.DrawBitmap(tw.wx+tx*tw.cw+textPad, tw.wy+ty*tw.ch+textPad, tw.image.Image)
 }
 
 func (tw *Ili9341TW) Erase() {
@@ -143,7 +150,11 @@ func (tw *Ili9341TW) Erase() {
 }
 
 func (tw *Ili9341TW) ShowBorder(screenw, screenh int) error {
-	// implement later
+	c := color.RGBA{R: 100, G: 0, B: 100}
+	tw.device.DrawFastHLine(tw.wx, tw.wx+tw.ww, tw.wy, c)
+	tw.device.DrawFastHLine(tw.wx, tw.wx+tw.ww, tw.wy+tw.wh, c)
+	tw.device.DrawFastVLine(tw.wx, tw.wy, tw.wy+tw.wh, c)
+	tw.device.DrawFastVLine(tw.wx+tw.wh, tw.wy, tw.wy+tw.wh, c)
 	return nil
 }
 
