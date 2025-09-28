@@ -2,7 +2,7 @@ package plotwin
 
 import (
 	"fmt"
-	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/window"
 )
 
 func (pw *PlotWindow) drawAxis() error {

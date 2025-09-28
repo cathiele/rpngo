@@ -3,8 +3,8 @@ package plotwin
 
 import (
 	"fmt"
-	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
 )
 
 // colors to autorotate through

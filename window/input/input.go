@@ -4,10 +4,10 @@ package input
 
 import (
 	"errors"
-	"mattwach/rpngo/io/key"
-	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/key"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
 	"strings"
 )
 

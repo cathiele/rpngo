@@ -6,8 +6,8 @@ package ili9341tw
 
 import (
 	"image/color"
-	"mattwach/rpngo/io/drivers/tinygo/fonts"
-	"mattwach/rpngo/io/drivers/tinygo/pixel565"
+	"mattwach/rpngo/drivers/tinygo/fonts"
+	"mattwach/rpngo/drivers/tinygo/pixel565"
 
 	"tinygo.org/x/drivers/ili9341"
 	"tinygo.org/x/drivers/pixel"

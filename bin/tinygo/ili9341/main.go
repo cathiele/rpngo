@@ -8,15 +8,15 @@ import (
 	"errors"
 	"log"
 	"machine"
+	"mattwach/rpngo/drivers/tinygo/ili9341tw"
 	"mattwach/rpngo/functions"
-	"mattwach/rpngo/io"
-	"mattwach/rpngo/io/drivers/tinygo/ili9341tw"
-	"mattwach/rpngo/io/key"
-	"mattwach/rpngo/io/window"
-	"mattwach/rpngo/io/window/commands"
-	"mattwach/rpngo/io/window/input"
-	"mattwach/rpngo/io/window/plotwin"
+	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/startup"
+	"mattwach/rpngo/window"
+	"mattwach/rpngo/window/commands"
+	"mattwach/rpngo/window/input"
+	"mattwach/rpngo/window/plotwin"
 	"os"
 	"time"
 )
@@ -44,7 +44,7 @@ func run() error {
 	}
 	_ = commands.InitWindowCommands(&r, root, &screen)
 	_ = plotwin.InitPlotCommands(&r, root, &screen)
-	if err := io.OSStartup(&r); err != nil {
+	if err := startup.OSStartup(&r); err != nil {
 		return err
 	}
 	w, h := screen.ScreenSize()

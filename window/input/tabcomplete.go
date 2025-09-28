@@ -1,8 +1,8 @@
 package input
 
 import (
-	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
 	"sort"
 	"strings"
 )

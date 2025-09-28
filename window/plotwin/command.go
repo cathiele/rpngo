@@ -3,9 +3,9 @@ package plotwin
 import (
 	"fmt"
 	"log"
-	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
 )
 
 type PlotCommands struct {

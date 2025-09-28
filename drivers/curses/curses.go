@@ -2,9 +2,9 @@
 package curses
 
 import (
-	"mattwach/rpngo/io/key"
-	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
 
 	"github.com/gbin/goncurses"
 )

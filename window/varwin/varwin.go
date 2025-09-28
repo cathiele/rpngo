@@ -3,8 +3,8 @@ package varwin
 
 import (
 	"fmt"
-	"mattwach/rpngo/io/window"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
 	"strings"
 )
 

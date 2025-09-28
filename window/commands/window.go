@@ -2,11 +2,11 @@
 package commands
 
 import (
-	"mattwach/rpngo/io/window"
-	"mattwach/rpngo/io/window/plotwin"
-	"mattwach/rpngo/io/window/stackwin"
-	"mattwach/rpngo/io/window/varwin"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
+	"mattwach/rpngo/window/plotwin"
+	"mattwach/rpngo/window/stackwin"
+	"mattwach/rpngo/window/varwin"
 )
 
 type WindowCommands struct {

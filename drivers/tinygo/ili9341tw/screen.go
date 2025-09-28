@@ -1,7 +1,7 @@
 package ili9341tw
 
 import (
-	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/window"
 
 	"tinygo.org/x/drivers/ili9341"
 )

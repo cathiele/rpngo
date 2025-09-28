@@ -5,14 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"mattwach/rpngo/drivers/curses"
 	"mattwach/rpngo/functions"
-	"mattwach/rpngo/io"
-	"mattwach/rpngo/io/drivers/curses"
-	"mattwach/rpngo/io/window"
-	"mattwach/rpngo/io/window/commands"
-	"mattwach/rpngo/io/window/input"
-	"mattwach/rpngo/io/window/plotwin"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/startup"
+	"mattwach/rpngo/window"
+	"mattwach/rpngo/window/commands"
+	"mattwach/rpngo/window/input"
+	"mattwach/rpngo/window/plotwin"
 	"os"
 	"os/signal"
 )
@@ -62,7 +62,7 @@ func interactive(r *rpn.RPN) error {
 	}
 	_ = commands.InitWindowCommands(r, root, screen)
 	_ = plotwin.InitPlotCommands(r, root, screen)
-	if err := io.OSStartup(r); err != nil {
+	if err := startup.OSStartup(r); err != nil {
 		return err
 	}
 	w, h := screen.ScreenSize()

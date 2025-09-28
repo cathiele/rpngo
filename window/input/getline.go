@@ -2,9 +2,9 @@ package input
 
 import (
 	"log"
-	"mattwach/rpngo/io/key"
-	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
 	"os"
 	"path/filepath"
 	"strings"
