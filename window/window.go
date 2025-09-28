@@ -8,30 +8,18 @@ type Screen interface {
 	ScreenSize() (int, int)
 }
 
-// TextWindow is output for a screen that displays monospaced text
-type TextWindow interface {
-	// Refresh the display
-	Refresh()
-
-	// Erase the display
-	Erase()
-
-	// Activate / remove display borders
-	ShowBorder(screenw, screenh int) error
-
+type TextArea interface {
 	// Write a charaacter to the display, wrap, newlines, and
 	// scrolling should all be supported.
 	Write(byte) error
+
+	// Erase the display
+	Erase()
 
 	// Returns the dimensions of the screen as text cells
 	TextWidth() int
 	TextHeight() int
 	TextSize() (int, int)
-
-	// windowXY is in pixels
-	WindowXY() (int, int)
-	WindowSize() (int, int)
-	ResizeWindow(px, py, pw, ph int) error
 
 	// Get and set the character position in text cells
 	CursorX() int
@@ -45,6 +33,22 @@ type TextWindow interface {
 	// r, g, b values. each value ranges from 0 to 32 (foreground, then background)
 	// If the display does not support color, these commands do nothing.
 	Color(fr, fg, fb, br, bg, bb int) error
+}
+
+// TextWindow is output for a screen that displays monospaced text
+type TextWindow interface {
+	TextArea
+
+	// Refresh the display
+	Refresh()
+
+	// Activate / remove display borders
+	ShowBorder(screenw, screenh int) error
+
+	// windowXY is in pixels
+	WindowXY() (int, int)
+	WindowSize() (int, int)
+	ResizeWindow(px, py, pw, ph int) error
 
 	// Scroll the display up or down
 	Scroll(int)
