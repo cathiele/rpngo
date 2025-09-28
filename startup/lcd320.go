@@ -8,14 +8,12 @@ import (
 
 const lcd320ConfigFile = `
 'root' w.columns
-'v' w.new.var
 's' w.new.stack
 'g1' w.new.group
-'g1' 50 w.weight
-'v' 'g1' w.move.end
-'s' 'g1' w.move.end
+'g1' 60 w.weight
 'i' 'g1' w.move.end
-'i' 50 w.weight
+'s' 'g1' w.move.end
+'s' 40 w.weight
 
 # Plot defaults
 'p1' plot.win=
