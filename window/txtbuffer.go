@@ -1,0 +1,123 @@
+package window
+
+// A text buffer is intended to avoid the flash effect of erasing, then
+// redrawing text.  Due to some smarts of not redrawing the same character,
+// it's also faster.
+//
+// Usage: instead of writing text directly to a text window, write it
+// to a text buffer, then have the buffer write to the
+type TextBuffer struct {
+	// holds the characters that make up the text grid
+	chars []ColorChar
+
+	// character position
+	cx int16
+	cy int16
+
+	// width and height
+	w int16
+	h int16
+
+	// text color
+	fgcol ColorChar
+	bgcol ColorChar
+}
+
+func (tb *TextBuffer) UpdateTextWindow(tw TextWindow) {
+	tw.SetCursorXY(0, 0)
+	var col ColorChar
+	tw.Color(0, 0, 0, 0, 0, 0)
+	for i := range tb.chars {
+		c := tb.chars[i]
+		newcol := c & 0xFF00
+		if newcol != col {
+			col = newcol
+			fr, fg, fb := c.FGColor5()
+			br, bg, bb := c.BGColor5()
+			tw.Color(int(fr), int(fg), int(fb), int(br), int(bg), int(bb))
+		}
+		tw.Write(c.Char())
+	}
+}
+
+func (tb *TextBuffer) MaybeResize(w, h int16) {
+	if (tb.w == w) && (tb.h == h) {
+		return
+	}
+	if w <= 0 {
+		w = 1
+	}
+	if h <= 0 {
+		h = 1
+	}
+	tb.w = w
+	tb.h = h
+	tb.chars = make([]ColorChar, w*h)
+	tb.Erase()
+}
+
+func (tb *TextBuffer) Erase() {
+	b := tb.fgcol | tb.bgcol | ColorChar(' ')
+	for i := range tb.chars {
+		tb.chars[i] = b
+	}
+}
+
+func (tb *TextBuffer) Write(b byte) error {
+	if b == '\n' {
+		// next line
+		tb.cy++
+	}
+	if (tb.cx >= tb.w) || (tb.cy >= tb.h) {
+		// no support for wrapping or scrolling as it may not be needed
+		return nil
+	}
+	if b != '\n' {
+		tb.chars[tb.cy*tb.w+tb.cx] = tb.fgcol | tb.bgcol | ColorChar(b)
+		tb.cx++
+	}
+	return nil
+}
+
+func (tb *TextBuffer) TextWidth() int {
+	return int(tb.w)
+}
+
+func (tb *TextBuffer) TextHeight() int {
+	return int(tb.h)
+}
+
+func (tb *TextBuffer) TextSize() (int, int) {
+	return int(tb.w), int(tb.h)
+}
+
+func (tb *TextBuffer) CursorX() int {
+	return int(tb.cx)
+}
+
+func (tb *TextBuffer) CursorY() int {
+	return int(tb.cy)
+}
+
+func (tb *TextBuffer) CursorXY() (int, int) {
+	return int(tb.cx), int(tb.cy)
+}
+
+func (tb *TextBuffer) SetCursorX(x int) {
+	tb.cx = int16(x)
+}
+
+func (tb *TextBuffer) SetCursorY(y int) {
+	tb.cy = int16(y)
+}
+
+func (tb *TextBuffer) SetCursorXY(x, y int) {
+	tb.cx = int16(x)
+	tb.cy = int16(y)
+}
+
+func (tb *TextBuffer) Color(fr, fg, fb, br, bg, bb int) error {
+	tb.fgcol = NewColorCharFGColor(uint16(fr), uint16(fg), uint16(fb))
+	tb.bgcol = NewColorCharBGColor(uint16(br), uint16(bg), uint16(bb))
+	return nil
+}

@@ -21,7 +21,28 @@ func (l ColorChar) Char() byte {
 	return byte(l & 0xFF)
 }
 
-func (l ColorChar) FGColor() (uint8, uint8, uint8) {
+func (l ColorChar) FGColor5() (uint8, uint8, uint8) {
+	var r uint8 = 0
+	if (l & 0x8000) != 0 {
+		r = 31
+	}
+	var g uint8 = 0
+	switch l & 0x6000 {
+	case 0x6000:
+		g = 31
+	case 0x4000:
+		g = 20
+	case 0x2000:
+		g = 10
+	}
+	var b uint8 = 0
+	if (l & 0x1000) != 0 {
+		b = 31
+	}
+	return r, g, b
+}
+
+func (l ColorChar) FGColor8() (uint8, uint8, uint8) {
 	var r uint8 = 0
 	if (l & 0x8000) != 0 {
 		r = 0xFF
@@ -42,7 +63,7 @@ func (l ColorChar) FGColor() (uint8, uint8, uint8) {
 	return r, g, b
 }
 
-func (l ColorChar) BGColor() (uint8, uint8, uint8) {
+func (l ColorChar) BGColor8() (uint8, uint8, uint8) {
 	var r uint8 = 0
 	if (l & 0x800) != 0 {
 		r = 0xFF
@@ -59,6 +80,27 @@ func (l ColorChar) BGColor() (uint8, uint8, uint8) {
 	var b uint8 = 0
 	if (l & 0x100) != 0 {
 		b = 0xFF
+	}
+	return r, g, b
+}
+
+func (l ColorChar) BGColor5() (uint8, uint8, uint8) {
+	var r uint8 = 0
+	if (l & 0x800) != 0 {
+		r = 31
+	}
+	var g uint8 = 0
+	switch l & 0x600 {
+	case 0x600:
+		g = 31
+	case 0x400:
+		g = 20
+	case 0x200:
+		g = 10
+	}
+	var b uint8 = 0
+	if (l & 0x100) != 0 {
+		b = 31
 	}
 	return r, g, b
 }

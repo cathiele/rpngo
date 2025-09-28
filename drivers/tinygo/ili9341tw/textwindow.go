@@ -74,6 +74,9 @@ func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
 }
 
 func (tw *Ili9341TW) ResizeWindow(x, y, w, h int) error {
+	if (tw.wx == int16(x)) && (tw.wy == int16(y)) && (tw.ww == int16(w)) && (tw.wh == int16(h)) {
+		return nil
+	}
 	tw.wx = int16(x)
 	tw.wy = int16(y)
 	tw.cx = 0
@@ -81,17 +84,20 @@ func (tw *Ili9341TW) ResizeWindow(x, y, w, h int) error {
 	tw.cursorShowing = false
 	tw.cursorShowX = 0
 	tw.cursorShowY = 0
-	tw.textw = int16(w) / tw.cw
-	if tw.textw <= 0 {
-		tw.textw = 1
+
+	if (tw.ww != int16(w)) || (tw.wh != int16(h)) {
+		tw.textw = int16(w) / tw.cw
+		if tw.textw <= 0 {
+			tw.textw = 1
+		}
+		tw.texth = int16(h) / tw.ch
+		if tw.texth <= 0 {
+			tw.texth = 1
+		}
+		tw.ww = int16(w)
+		tw.wh = int16(h)
+		tw.chars = make([]window.ColorChar, int(tw.textw)*int(tw.texth))
 	}
-	tw.texth = int16(h) / tw.ch
-	if tw.texth <= 0 {
-		tw.texth = 1
-	}
-	tw.ww = int16(w)
-	tw.wh = int16(h)
-	tw.chars = make([]window.ColorChar, int(tw.textw)*int(tw.texth))
 	tw.Erase()
 	return nil
 }
@@ -101,12 +107,12 @@ func (tw *Ili9341TW) Refresh() {
 }
 
 func fgColor(c window.ColorChar) color.RGBA {
-	r, g, b := c.FGColor()
+	r, g, b := c.FGColor8()
 	return color.RGBA{R: r, G: g, B: b}
 }
 
 func bgColor(c window.ColorChar) pixel.RGB565BE {
-	r, g, b := c.BGColor()
+	r, g, b := c.BGColor8()
 	return pixel.NewRGB565BE(r, g, b)
 }
 
