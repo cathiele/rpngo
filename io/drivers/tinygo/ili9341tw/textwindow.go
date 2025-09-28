@@ -140,6 +140,9 @@ func (tw *Ili9341TW) ResizeWindow(x, y, w, h int) error {
 	tw.wy = int16(y)
 	tw.cx = 0
 	tw.cy = 0
+	tw.cursorShowing = false
+	tw.cursorShowX = 0
+	tw.cursorShowY = 0
 	tw.textw = int16(w) / tw.cw
 	tw.texth = int16(h) / tw.ch
 	tw.ww = int16(w)
