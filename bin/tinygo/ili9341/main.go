@@ -5,13 +5,16 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"machine"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/io/drivers/tinygo/ili9341tw"
 	"mattwach/rpngo/io/key"
 	"mattwach/rpngo/io/window"
+	"mattwach/rpngo/io/window/commands"
 	"mattwach/rpngo/io/window/input"
+	"mattwach/rpngo/io/window/plotwin"
 	"mattwach/rpngo/rpn"
 	"os"
 	"time"
@@ -34,31 +37,50 @@ func run() error {
 
 	var screen ili9341tw.Ili9341Screen
 	screen.Init()
-	input, err := buildUI(&screen, &r)
+	root, err := buildUI(&screen, &r)
 	if err != nil {
 		return err
 	}
-
+	_ = commands.InitWindowCommands(&r, root, &screen)
+	_ = plotwin.InitPlotCommands(&r, root, &screen)
+	w, h := screen.ScreenSize()
+	if err := root.Update(&r, w, h, true); err != nil {
+		return err
+	}
 	for {
-		if err := input.Update(&r); err != nil {
+		w, h = screen.ScreenSize()
+		if err := root.Update(&r, w, h, true); err != nil {
+			if errors.Is(err, input.ErrExit) {
+				return nil
+			}
 			return err
 		}
 	}
 }
 
-func buildUI(screen window.Screen, r *rpn.RPN) (*input.InputWindow, error) {
+func buildUI(screen window.Screen, r *rpn.RPN) (*window.WindowRoot, error) {
+	w, h := screen.ScreenSize()
+	root := window.NewWindowRoot(w, h)
+	if err := addInputWindow(screen, root, r); err != nil {
+		return nil, err
+	}
+	return root, nil
+}
+
+func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) error {
 	w, h := screen.ScreenSize()
 	txtw, err := screen.NewTextWindow(0, 0, w, h)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	gi := &getInput{}
 	iw, err := input.Init(gi, txtw, r)
 	gi.lcd = txtw.(*ili9341tw.Ili9341TW)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return iw, nil
+	root.AddWindowChild(iw, "i", 100)
+	return nil
 }
 
 type getInput struct {
