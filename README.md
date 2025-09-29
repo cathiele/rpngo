@@ -10,7 +10,6 @@
 
 ## TODO Features
 
-- S: Add w.refresh
 - L: Implement PixelWindow
 - L: Implement large output viewer
 - M: Add stack output formatting options
@@ -21,6 +20,7 @@
 ## Wishlist
 
 - Integrated editor?
+- SD Card support?
 - Look into using picocalc memory layout for bootloader compatibility
 
 This library is intended to serve as a backend engine and implements a
