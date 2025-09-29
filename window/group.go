@@ -6,12 +6,9 @@ import (
 	"strings"
 )
 
-type Window interface {
+type WindowWithProps interface {
+	WindowBase
 	Update(*rpn.RPN) error
-	ResizeWindow(x, y, w, h int) error
-	ShowBorder(screenw, screenh int) error
-	WindowXY() (int, int)
-	WindowSize() (int, int)
 	Type() string
 	SetProp(name string, val rpn.Frame) error
 	GetProp(name string) (rpn.Frame, error)
@@ -23,7 +20,7 @@ type windowGroupEntry struct {
 	weight int
 	// Only one of the following should be non-nil
 	group  *windowGroup
-	window Window
+	window WindowWithProps
 }
 
 func (wge *windowGroupEntry) resize(x, y, w, h int) {

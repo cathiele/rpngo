@@ -32,12 +32,10 @@ type TextArea interface {
 	TextColor(ColorChar)
 }
 
-// TextWindow is output for a screen that displays monospaced text
-type TextWindow interface {
-	TextArea
-
-	// Refresh the display
-	Refresh()
+// WindowBase contains common methods to all windows
+type WindowBase interface {
+	// Change the window size and location (in pixels)
+	ResizeWindow(x, y, w, h int) error
 
 	// Activate / remove display borders
 	ShowBorder(screenw, screenh int) error
@@ -45,7 +43,15 @@ type TextWindow interface {
 	// windowXY is in pixels
 	WindowXY() (int, int)
 	WindowSize() (int, int)
-	ResizeWindow(px, py, pw, ph int) error
+}
+
+// TextWindow is output for a screen that displays monospaced text
+type TextWindow interface {
+	WindowBase
+	TextArea
+
+	// Refresh the display
+	Refresh()
 
 	// Scroll the display up or down
 	Scroll(int)

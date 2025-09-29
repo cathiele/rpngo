@@ -18,7 +18,7 @@ func NewWindowRoot(w, h int) *WindowRoot {
 	return wr
 }
 
-func (wr *WindowRoot) FindWindow(name string) Window {
+func (wr *WindowRoot) FindWindow(name string) WindowWithProps {
 	wge := wr.group.findwindowGroupEntry(name)
 	if wge == nil {
 		return nil
@@ -106,7 +106,7 @@ func (wr *WindowRoot) AddNewWindowGroupChild(name string, weight int) {
 	wr.adjustNeeded = true
 }
 
-func (wr *WindowRoot) AddWindowChild(window Window, name string, weight int) {
+func (wr *WindowRoot) AddWindowChild(window WindowWithProps, name string, weight int) {
 	wr.group.children = append(wr.group.children, &windowGroupEntry{name: name, weight: weight, window: window})
 	wr.adjustNeeded = true
 }

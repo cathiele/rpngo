@@ -6,8 +6,6 @@
 
 ## TODO Cleanup
 
-- Windowgroup Window interface can probably be merged into window.cpp
-
 ## TODO Features
 
 - L: Implement PixelWindow
@@ -15,6 +13,7 @@
 - M: Add stack output formatting options
 - M: Add free memory command
 - S: Blink on panic
+- L: Rewrite readme doc
 
 ## Wishlist
 
