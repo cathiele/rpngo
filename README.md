@@ -13,7 +13,6 @@
 - L: Implement PixelWindow
 - L: Implement large output viewer
 - M: Add stack output formatting options
-- S: Add infoline when stack and var views are empty
 - M: Add free memory command
 - S: Blink on panic
 

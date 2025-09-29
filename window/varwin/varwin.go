@@ -88,6 +88,10 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	if len(nv) > h {
 		window.Print(&vw.txtb, fmt.Sprintf("+ %d more\n", len(nv)-h+1))
 	}
+	if len(nv) == 0 {
+		vw.txtb.TextColor(window.Cyan)
+		window.Print(&vw.txtb, "No Vars")
+	}
 	vw.txtb.UpdateTextWindow(vw.txtw)
 	vw.txtw.Refresh()
 	return nil

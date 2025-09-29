@@ -2,9 +2,9 @@
 package stackwin
 
 import (
-	"fmt"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
+	"strconv"
 )
 
 type StackWindow struct {
@@ -64,7 +64,26 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 			return err
 		}
 		sw.txtb.SetCursorXY(0, h-i-1)
-		s := fmt.Sprintf("%d: %v", i, f.String(true))
+		sw.txtb.TextColor(window.White)
+		s := strconv.Itoa(i) + ": "
+		if len(s) > w {
+			s = s[:w]
+		}
+		window.Print(&sw.txtb, s)
+		lw := w - len(s)
+		if lw > 0 {
+			sw.txtb.TextColor(window.Cyan)
+			s := f.String(true)
+			if len(s) > lw {
+				s = s[:lw]
+			}
+			window.Print(&sw.txtb, s)
+		}
+	}
+	if (rpn.Size() == 0) && (h > 0) {
+		sw.txtb.SetCursorXY(0, h-1)
+		sw.txtb.TextColor(window.Cyan)
+		s := "Stack Empty"
 		if len(s) > w {
 			s = s[:w]
 		}
