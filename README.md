@@ -1,5 +1,28 @@
 #RPNGO
 
+## TODO Bugs
+
+- Border rendering on LCD is sometimes incomplete
+
+## TODO Cleanup
+
+- Windowgroup Window interface can probably be merged into window.cpp
+
+## TODO Features
+
+- S: Add w.refresh
+- L: Implement PixelWindow
+- L: Implement large output viewer
+- M: Add stack output formatting options
+- S: Add infoline when stack and var views are empty
+- M: Add free memory command
+- S: Blink on panic
+
+## Wishlist
+
+- Integrated editor?
+- Look into using picocalc memory layout for bootloader compatibility
+
 This library is intended to serve as a backend engine and implements a
 programmable RPN calculator. Included is a simple commandline frontend for
 getting a taste of what the program can do.
