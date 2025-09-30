@@ -6,6 +6,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"machine"
 	"mattwach/rpngo/drivers/tinygo/ili9341tw"
@@ -79,6 +80,8 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	}
 	gi := &getInput{}
 	iw, err := input.Init(gi, txtw, r)
+	e := &echo{inputPrint: r.Print}
+	r.Print = e.print
 	gi.lcd = txtw.(*ili9341tw.Ili9341TW)
 	if err != nil {
 		return err
@@ -98,6 +101,15 @@ const (
 	ESC
 	ARROW
 )
+
+type echo struct {
+	inputPrint func(string)
+}
+
+func (e *echo) print(s string) {
+	e.inputPrint(s)
+	fmt.Print(s)
+}
 
 func (g *getInput) GetChar() (key.Key, error) {
 	var state TermState = NORMAL
