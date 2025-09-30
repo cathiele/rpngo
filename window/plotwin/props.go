@@ -6,7 +6,7 @@ import (
 
 const maxSteps = 50000
 
-func (pw *PlotWindow) SetProp(name string, val rpn.Frame) error {
+func (pw *PlotWindowCommon) setProp(name string, val rpn.Frame) error {
 	switch name {
 	case "minx":
 		if val.Type != rpn.COMPLEX_FRAME {
@@ -89,7 +89,7 @@ func (pw *PlotWindow) SetProp(name string, val rpn.Frame) error {
 	return nil
 }
 
-func (pw *PlotWindow) GetProp(name string) (rpn.Frame, error) {
+func (pw *PlotWindowCommon) getProp(name string) (rpn.Frame, error) {
 	switch name {
 	case "minx":
 		return rpn.Frame{Type: rpn.COMPLEX_FRAME, Complex: complex(pw.minx, 0)}, nil
@@ -113,6 +113,6 @@ func (pw *PlotWindow) GetProp(name string) (rpn.Frame, error) {
 	return rpn.Frame{}, rpn.ErrUnknownProperty
 }
 
-func (pw *PlotWindow) ListProps() []string {
+func (pw *TxtPlotWindow) ListProps() []string {
 	return []string{"autox", "autoy", "minv", "maxv", "minx", "maxx", "miny", "maxy", "steps"}
 }

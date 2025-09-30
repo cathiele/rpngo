@@ -89,7 +89,7 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 		return fmt.Errorf("%s has the wrong window type: %s", wname, pw.Type())
 	}
 
-	return pw.(*PlotWindow).AddPlot(r, fields, isParametric)
+	return pw.(*TxtPlotWindow).AddPlot(r, fields, isParametric)
 }
 
 func (wc *PlotCommands) initPlot(r *rpn.RPN) error {

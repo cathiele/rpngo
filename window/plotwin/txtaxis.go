@@ -5,16 +5,16 @@ import (
 	"mattwach/rpngo/window"
 )
 
-func (pw *PlotWindow) drawAxis() error {
+func (pw *TxtPlotWindow) drawAxis() error {
 	pw.txtw.TextColor(window.White)
-	x, xok := pw.transformX(0)
+	x, xok := pw.common.transformX(0, pw.txtw.TextWidth())
 	if xok {
 		if err := pw.drawVerticalAxis(x); err != nil {
 			return err
 		}
 	}
 
-	y, yok := pw.transformY(0)
+	y, yok := pw.common.transformY(0, pw.txtw.TextHeight())
 	if yok {
 		if err := pw.drawHorizontalAxis(y); err != nil {
 			return err
@@ -31,7 +31,7 @@ func (pw *PlotWindow) drawAxis() error {
 	return nil
 }
 
-func (pw *PlotWindow) drawVerticalAxis(x int) error {
+func (pw *TxtPlotWindow) drawVerticalAxis(x int) error {
 	h := pw.txtw.TextHeight()
 	for y := 0; y < h; y++ {
 		pw.txtw.SetCursorXY(x, y)
@@ -51,11 +51,11 @@ func (pw *PlotWindow) drawVerticalAxis(x int) error {
 const minVerticalSpacing = 5.0
 const maxVerticalSpacing = 10.0
 
-func (pw *PlotWindow) drawVerticalTickMarks(wx int) {
-	wh := pw.txtw.TextHeight() // height in characters
-	yr := pw.maxy - pw.miny    // units
-	cpu := float64(wh) / yr    // characters / unit
-	var te float64 = 1         // ticks every (0.5, 1, etc)
+func (pw *TxtPlotWindow) drawVerticalTickMarks(wx int) {
+	wh := pw.txtw.TextHeight()            // height in characters
+	yr := pw.common.maxy - pw.common.miny // units
+	cpu := float64(wh) / yr               // characters / unit
+	var te float64 = 1                    // ticks every (0.5, 1, etc)
 	if cpu > maxVerticalSpacing {
 		te = searchScaleDownward(cpu, minVerticalSpacing)
 	} else if cpu < minVerticalSpacing {
@@ -65,13 +65,13 @@ func (pw *PlotWindow) drawVerticalTickMarks(wx int) {
 	// becuase te was carefully selected to provide a limited number
 	// of tick marks, we can use a simple loop to determine the min te
 	stepsBack := 0
-	for (float64(stepsBack-1) * te) > pw.miny {
+	for (float64(stepsBack-1) * te) > pw.common.miny {
 		stepsBack--
 	}
 
 	for {
 		y := float64(stepsBack) * te
-		if y >= pw.maxy {
+		if y >= pw.common.maxy {
 			break
 		}
 		if stepsBack != 0 {
@@ -81,9 +81,9 @@ func (pw *PlotWindow) drawVerticalTickMarks(wx int) {
 	}
 }
 
-func (pw *PlotWindow) drawVerticalTick(wx int, y float64) {
+func (pw *TxtPlotWindow) drawVerticalTick(wx int, y float64) {
 	ww := pw.txtw.TextWidth()
-	wy, _ := pw.transformY(y)
+	wy, _ := pw.common.transformY(y, pw.txtw.TextHeight())
 	pw.txtw.SetCursorXY(wx, wy)
 	window.PutByte(pw.txtw, '+')
 	if (wx + 10) < ww {
@@ -147,7 +147,7 @@ func searchScaleUpward(cpu, maxSpacing float64) float64 {
 	return te
 }
 
-func (pw *PlotWindow) drawHorizontalAxis(y int) error {
+func (pw *TxtPlotWindow) drawHorizontalAxis(y int) error {
 	w := pw.txtw.TextWidth()
 	pw.txtw.SetCursorXY(0, y)
 	for x := 0; x < w; x++ {
@@ -162,11 +162,11 @@ func (pw *PlotWindow) drawHorizontalAxis(y int) error {
 const minHorizontalSpacing = 9.0
 const maxHorizontalSpacing = 18.0
 
-func (pw *PlotWindow) drawHorizontalTickMarks(wy int) {
-	ww := pw.txtw.TextWidth() // width in characters
-	xr := pw.maxx - pw.minx   // units
-	cpu := float64(ww) / xr   // characters / unit
-	var te float64 = 1        // ticks every (0.5, 1, etc)
+func (pw *TxtPlotWindow) drawHorizontalTickMarks(wy int) {
+	ww := pw.txtw.TextWidth()             // width in characters
+	xr := pw.common.maxx - pw.common.minx // units
+	cpu := float64(ww) / xr               // characters / unit
+	var te float64 = 1                    // ticks every (0.5, 1, etc)
 	if cpu > maxHorizontalSpacing {
 		te = searchScaleDownward(cpu, minHorizontalSpacing)
 	} else if cpu < minHorizontalSpacing {
@@ -174,13 +174,13 @@ func (pw *PlotWindow) drawHorizontalTickMarks(wy int) {
 	}
 
 	stepsBack := 0
-	for (float64(stepsBack-1) * te) > pw.minx {
+	for (float64(stepsBack-1) * te) > pw.common.minx {
 		stepsBack--
 	}
 
 	for {
 		x := float64(stepsBack) * te
-		if x >= pw.maxx {
+		if x >= pw.common.maxx {
 			break
 		}
 		if stepsBack != 0 {
@@ -192,9 +192,9 @@ func (pw *PlotWindow) drawHorizontalTickMarks(wy int) {
 
 const horizontalNumberPad = 5
 
-func (pw *PlotWindow) drawHorizontalTick(x float64, wy int) {
+func (pw *TxtPlotWindow) drawHorizontalTick(x float64, wy int) {
 	ww, wh := pw.txtw.TextSize()
-	wx, _ := pw.transformX(x)
+	wx, _ := pw.common.transformX(x, pw.txtw.TextWidth())
 	if wy >= 0 {
 		pw.txtw.SetCursorXY(wx, wy)
 		window.PutByte(pw.txtw, '+')
