@@ -1,6 +1,6 @@
 //go:build pico
 
-package ili9341tw
+package ili9341
 
 import (
 	"image/color"

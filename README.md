@@ -14,6 +14,7 @@
 - M: Add free memory command
 - S: Blink on panic
 - L: Rewrite readme doc
+- L: Add I2C keyboard support
 
 ## Wishlist
 

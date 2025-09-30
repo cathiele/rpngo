@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"log"
 	"machine"
-	"mattwach/rpngo/drivers/tinygo/ili9341tw"
+	"mattwach/rpngo/drivers/tinygo/ili9341"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
@@ -37,7 +37,7 @@ func run() error {
 	r.Init()
 	functions.RegisterAll(&r)
 
-	var screen ili9341tw.Ili9341Screen
+	var screen ili9341.Ili9341Screen
 	screen.Init()
 	root, err := buildUI(&screen, &r)
 	if err != nil {
@@ -82,7 +82,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	iw, err := input.Init(gi, txtw, r)
 	e := &echo{inputPrint: r.Print}
 	r.Print = e.print
-	gi.lcd = txtw.(*ili9341tw.Ili9341TW)
+	gi.lcd = txtw.(*ili9341.Ili9341TxtW)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 }
 
 type getInput struct {
-	lcd *ili9341tw.Ili9341TW
+	lcd *ili9341.Ili9341TxtW
 }
 
 type TermState int

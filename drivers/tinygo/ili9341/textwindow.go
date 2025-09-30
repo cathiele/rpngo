@@ -2,7 +2,7 @@
 //
 // Currently this targets the ili9341.  If/when more
 // devices are supported, some refactoring may need to occcur.
-package ili9341tw
+package ili9341
 
 import (
 	"image/color"
@@ -16,7 +16,7 @@ import (
 
 const textPad = 3
 
-type Ili9341TW struct {
+type Ili9341TxtW struct {
 	// holds the characters that make up the text grid
 	chars []window.ColorChar
 
@@ -62,8 +62,8 @@ type Ili9341TW struct {
 }
 
 // Init initializes a text window. x, y, w, and h are all in pixels
-func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
-	tw.cw = 8
+func (tw *Ili9341TxtW) Init(d *ili9341.Device, x, y, w, h int) {
+	tw.cw = FontCharWidth
 	tw.ch = 12
 	tw.cyoffset = 10
 	tw.image.Init(tw.cw, tw.ch)
@@ -74,7 +74,7 @@ func (tw *Ili9341TW) Init(d *ili9341.Device, x, y, w, h int) {
 	tw.ResizeWindow(x, y, w, h)
 }
 
-func (tw *Ili9341TW) ResizeWindow(x, y, w, h int) error {
+func (tw *Ili9341TxtW) ResizeWindow(x, y, w, h int) error {
 	if (tw.wx == int16(x)) && (tw.wy == int16(y)) && (tw.ww == int16(w)) && (tw.wh == int16(h)) {
 		return nil
 	}
@@ -108,7 +108,7 @@ func (tw *Ili9341TW) ResizeWindow(x, y, w, h int) error {
 	return nil
 }
 
-func (tw *Ili9341TW) Refresh() {
+func (tw *Ili9341TxtW) Refresh() {
 	// maybe no need to do this?
 }
 
@@ -122,7 +122,7 @@ func bgColor(c window.ColorChar) pixel.RGB565BE {
 	return pixel.NewRGB565BE(r, g, b)
 }
 
-func (tw *Ili9341TW) updateCharAt(tx, ty int16, r window.ColorChar) {
+func (tw *Ili9341TxtW) updateCharAt(tx, ty int16, r window.ColorChar) {
 	idx := ty*tw.textw + tx
 	//tinygo.Check("updateCharAt", int(idx), len(tw.chars))
 	oldr := tw.chars[idx]
@@ -138,7 +138,7 @@ func (tw *Ili9341TW) updateCharAt(tx, ty int16, r window.ColorChar) {
 	tw.device.DrawBitmap(tw.wx+tx*tw.cw+textPad, tw.wy+ty*tw.ch+textPad, tw.image.Image)
 }
 
-func (tw *Ili9341TW) Erase() {
+func (tw *Ili9341TxtW) Erase() {
 	var j int16
 	b := tw.col | window.ColorChar(' ')
 	for j = 0; j < tw.texth; j++ {
@@ -149,7 +149,7 @@ func (tw *Ili9341TW) Erase() {
 	}
 }
 
-func (tw *Ili9341TW) ShowBorder(screenw, screenh int) error {
+func (tw *Ili9341TxtW) ShowBorder(screenw, screenh int) error {
 	c := color.RGBA{R: 100, G: 0, B: 100}
 	tw.device.DrawFastHLine(tw.wx, tw.wx+tw.ww-1, tw.wy, c)
 	tw.device.DrawFastHLine(tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, c)
@@ -158,7 +158,7 @@ func (tw *Ili9341TW) ShowBorder(screenw, screenh int) error {
 	return nil
 }
 
-func (tw *Ili9341TW) Write(b byte) error {
+func (tw *Ili9341TxtW) Write(b byte) error {
 	tw.ShowCursorIfEnabled(false)
 	if (b == '\n') || (tw.cx >= tw.textw) {
 		// next line
@@ -175,59 +175,59 @@ func (tw *Ili9341TW) Write(b byte) error {
 	return nil
 }
 
-func (tw *Ili9341TW) TextWidth() int {
+func (tw *Ili9341TxtW) TextWidth() int {
 	return int(tw.textw)
 }
 
-func (tw *Ili9341TW) TextHeight() int {
+func (tw *Ili9341TxtW) TextHeight() int {
 	return int(tw.texth)
 }
 
-func (tw *Ili9341TW) TextSize() (int, int) {
+func (tw *Ili9341TxtW) TextSize() (int, int) {
 	return int(tw.textw), int(tw.texth)
 }
 
-func (tw *Ili9341TW) WindowXY() (int, int) {
+func (tw *Ili9341TxtW) WindowXY() (int, int) {
 	return int(tw.wx), int(tw.wy)
 }
 
-func (tw *Ili9341TW) WindowSize() (int, int) {
+func (tw *Ili9341TxtW) WindowSize() (int, int) {
 	return int(tw.ww), int(tw.wh)
 }
 
-func (tw *Ili9341TW) CursorX() int {
+func (tw *Ili9341TxtW) CursorX() int {
 	return int(tw.cx)
 }
 
-func (tw *Ili9341TW) CursorY() int {
+func (tw *Ili9341TxtW) CursorY() int {
 	return int(tw.cy)
 }
 
-func (tw *Ili9341TW) CursorXY() (int, int) {
+func (tw *Ili9341TxtW) CursorXY() (int, int) {
 	return int(tw.cx), int(tw.cy)
 }
 
-func (tw *Ili9341TW) SetCursorX(x int) {
+func (tw *Ili9341TxtW) SetCursorX(x int) {
 	tw.ShowCursorIfEnabled(false)
 	tw.cx = int16(x)
 }
 
-func (tw *Ili9341TW) SetCursorY(y int) {
+func (tw *Ili9341TxtW) SetCursorY(y int) {
 	tw.ShowCursorIfEnabled(false)
 	tw.cy = int16(y)
 }
 
-func (tw *Ili9341TW) SetCursorXY(x, y int) {
+func (tw *Ili9341TxtW) SetCursorXY(x, y int) {
 	tw.ShowCursorIfEnabled(false)
 	tw.cx = int16(x)
 	tw.cy = int16(y)
 }
 
-func (tw *Ili9341TW) TextColor(col window.ColorChar) {
+func (tw *Ili9341TxtW) TextColor(col window.ColorChar) {
 	tw.col = col
 }
 
-func (tw *Ili9341TW) Scroll(i int) {
+func (tw *Ili9341TxtW) Scroll(i int) {
 	if i < 0 {
 		tw.scrollUp(-i)
 	} else if i > 0 {
@@ -235,7 +235,7 @@ func (tw *Ili9341TW) Scroll(i int) {
 	}
 }
 
-func (tw *Ili9341TW) scrollUp(i int) {
+func (tw *Ili9341TxtW) scrollUp(i int) {
 	if i >= int(tw.texth) {
 		tw.Erase()
 		tw.cy = 0
@@ -263,16 +263,16 @@ func (tw *Ili9341TW) scrollUp(i int) {
 	}
 }
 
-func (tw *Ili9341TW) scrollDown(i int) {
+func (tw *Ili9341TxtW) scrollDown(i int) {
 	// not yet implemented
 }
 
-func (tw *Ili9341TW) Cursor(en bool) {
+func (tw *Ili9341TxtW) Cursor(en bool) {
 	tw.ShowCursorIfEnabled(en)
 	tw.cursorEn = en
 }
 
-func (tw *Ili9341TW) ShowCursorIfEnabled(show bool) {
+func (tw *Ili9341TxtW) ShowCursorIfEnabled(show bool) {
 	if !tw.cursorEn {
 		return
 	}

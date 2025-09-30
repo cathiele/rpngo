@@ -1,5 +1,7 @@
 package window
 
+import "image/color"
+
 type Screen interface {
 	// Create a NewTextWindow. If a graphics screen, x, y, w and h
 	// are in pixels.
@@ -59,4 +61,23 @@ type TextWindow interface {
 	// Show/hide cursor, this may affect other windows and should be set back to
 	// off if it's turned on.
 	Cursor(bool)
+}
+
+// PixelWindow is used to display pixels
+// Note that nothing is guaranteed to actually
+type PixelWindow interface {
+	WindowBase
+
+	// Change color
+	Color(color.RGBA)
+
+	// Set a point
+	SetPoint(x int, y int)
+
+	// Drawing all relative to window x, y most with
+	// lower overhead than SetPoint
+	HLine(x, y, w int)
+	VLine(x, y, h int)
+	FilledRect(x, y, w, h int)
+	Text(s string, x, y int)
 }
