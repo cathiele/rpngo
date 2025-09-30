@@ -17,9 +17,6 @@ type Plot struct {
 	isParametric bool
 }
 
-type PlotWindow interface {
-}
-
 type plotWindowCommon struct {
 	minx     float64
 	maxx     float64

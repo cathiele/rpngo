@@ -43,7 +43,16 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	_ = commands.InitWindowCommands(&r, root, &screen)
+	newPixelPlotWindow := func() (window.WindowWithProps, error) {
+		var ppw plotwin.PixelPlotWindow
+		pw, err := screen.NewPixelWindow()
+		if err != nil {
+			return nil, err
+		}
+		ppw.Init(pw)
+		return &ppw, nil
+	}
+	_ = commands.InitWindowCommands(&r, root, &screen, newPixelPlotWindow)
 	_ = plotwin.InitPlotCommands(&r, root, &screen, plotwin.AddPixelPlotFn)
 	if err := startup.LCD320Startup(&r); err != nil {
 		return err
@@ -73,8 +82,7 @@ func buildUI(screen window.Screen, r *rpn.RPN) (*window.WindowRoot, error) {
 }
 
 func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) error {
-	w, h := screen.ScreenSize()
-	txtw, err := screen.NewTextWindow(0, 0, w, h)
+	txtw, err := screen.NewTextWindow()
 	if err != nil {
 		return err
 	}

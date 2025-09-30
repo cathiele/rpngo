@@ -17,12 +17,18 @@ func (s *Ili9341Screen) Init() {
 	s.Device = InitDisplay()
 }
 
-// NewTextWindow creates a new text window on the given screen.
-// x, y, w, and h are all in pixels.
-func (s *Ili9341Screen) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
+func (s *Ili9341Screen) NewTextWindow() (window.TextWindow, error) {
 	tw := &Ili9341TxtW{}
-	tw.Init(s.Device, x, y, w, h)
+	w, h := s.ScreenSize()
+	tw.Init(s.Device, w, h)
 	return tw, nil
+}
+
+func (s *Ili9341Screen) NewPixelWindow() (window.PixelWindow, error) {
+	pw := &Ili9341PixW{}
+	w, h := s.ScreenSize()
+	pw.Init(s.Device, w, h)
+	return pw, nil
 }
 
 func (s *Ili9341Screen) ScreenSize() (int, int) {

@@ -4,17 +4,21 @@ package commands
 import (
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
-	"mattwach/rpngo/window/plotwin"
 	"mattwach/rpngo/window/stackwin"
 	"mattwach/rpngo/window/varwin"
 )
 
 type WindowCommands struct {
-	root   *window.WindowRoot
-	screen window.Screen
+	root            *window.WindowRoot
+	screen          window.Screen
+	newPlotWindowFn func() (window.WindowWithProps, error)
 }
 
-func InitWindowCommands(r *rpn.RPN, root *window.WindowRoot, screen window.Screen) *WindowCommands {
+func InitWindowCommands(
+	r *rpn.RPN,
+	root *window.WindowRoot,
+	screen window.Screen,
+	newPlotWindowFn func() (window.WindowWithProps, error)) *WindowCommands {
 	conceptHelp := map[string]string{
 		"window.layout": "Windows are arranged with window groups.  There\n" +
 			"is always a window group named 'root' which is the parent of all \n" +
@@ -38,7 +42,7 @@ func InitWindowCommands(r *rpn.RPN, root *window.WindowRoot, screen window.Scree
 			"See Also: window.layout, window.props",
 	}
 	r.RegisterConceptHelp(conceptHelp)
-	wc := WindowCommands{root: root, screen: screen}
+	wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn}
 	r.Register("w.columns", wc.WColumns, rpn.CatWindow, WColumnsHelp)
 	r.Register("w.del", wc.WDelete, rpn.CatWindow, WDeleteHelp)
 	r.Register("w.dump", wc.WDump, rpn.CatWindow, WDumpHelp)
@@ -166,13 +170,15 @@ const WNewPlotHelp = "Creates a new plot window with the given name and\n" +
 	"adds it to the root window. Example: 'p1' w.new.plot"
 
 func (wc *WindowCommands) WNewPlot(r *rpn.RPN) error {
-	txtw, name, err := wc.newTextWindow(r)
+	name, err := wc.newWindowNameFromStack(r)
 	if err != nil {
 		return err
 	}
-	var pw plotwin.TxtPlotWindow
-	pw.Init(txtw)
-	wc.root.AddWindowChild(&pw, name, 100)
+	pw, err := wc.newPlotWindowFn()
+	if err != nil {
+		return err
+	}
+	wc.root.AddWindowChild(pw, name, 100)
 	return nil
 }
 
@@ -197,7 +203,7 @@ func (wc *WindowCommands) newTextWindow(r *rpn.RPN) (window.TextWindow, string, 
 	if err != nil {
 		return nil, "", err
 	}
-	txtw, err := wc.screen.NewTextWindow(0, 0, 10, 5)
+	txtw, err := wc.screen.NewTextWindow()
 	return txtw, name, err
 }
 

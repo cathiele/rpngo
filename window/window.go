@@ -3,9 +3,12 @@ package window
 import "image/color"
 
 type Screen interface {
-	// Create a NewTextWindow. If a graphics screen, x, y, w and h
+	// Create a new TextWindow. If a graphics screen, x, y, w and h
 	// are in pixels.
-	NewTextWindow(px, py, pw, ph int) (TextWindow, error)
+	NewTextWindow() (TextWindow, error)
+	// Create a new PixelWindow. may panic on non-graphics displays
+	// (don't configure non-graphic dsiplays with pixel windows)
+	NewPixelWindow() (PixelWindow, error)
 	// Returns size in the smallest possible unit (e.g. pixels)
 	ScreenSize() (int, int)
 }

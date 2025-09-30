@@ -60,7 +60,16 @@ func interactive(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	_ = commands.InitWindowCommands(r, root, screen)
+	newTextPlotWindow := func() (window.WindowWithProps, error) {
+		var tpw plotwin.TxtPlotWindow
+		pw, err := screen.NewTextWindow()
+		if err != nil {
+			return nil, err
+		}
+		tpw.Init(pw)
+		return &tpw, nil
+	}
+	_ = commands.InitWindowCommands(r, root, screen, newTextPlotWindow)
 	_ = plotwin.InitPlotCommands(r, root, screen, plotwin.AddTxtPlotFn)
 	if err := startup.OSStartup(r); err != nil {
 		return err
@@ -104,7 +113,7 @@ func buildUI(screen *curses.Curses, r *rpn.RPN) (*window.WindowRoot, error) {
 }
 
 func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) error {
-	txtw, err := screen.NewTextWindow(0, 0, 10, 5)
+	txtw, err := screen.NewTextWindow()
 	if err != nil {
 		return err
 	}

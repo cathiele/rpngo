@@ -31,14 +31,19 @@ func Init() (*Curses, error) {
 	return tw, nil
 }
 
-func (c *Curses) NewTextWindow(x, y, w, h int) (window.TextWindow, error) {
+func (c *Curses) NewTextWindow() (window.TextWindow, error) {
 	tw := &Curses{
 		rgbToPair: c.rgbToPair,
 	}
-	if err := tw.ResizeWindow(x, y, w, h); err != nil {
+	w, h := c.ScreenSize()
+	if err := tw.ResizeWindow(0, 0, w, h); err != nil {
 		return nil, err
 	}
 	return tw, nil
+}
+
+func (c *Curses) NewPixelWindow() (window.PixelWindow, error) {
+	panic("ncurses does not support pixel-based windows")
 }
 
 func (c *Curses) ShowBorder(screenw, screenh int) error {

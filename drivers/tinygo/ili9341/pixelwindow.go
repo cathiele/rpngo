@@ -24,9 +24,9 @@ type Ili9341PixW struct {
 }
 
 // Init initializes a pixel window. x, y, w, and h are all in pixels
-func (tw *Ili9341PixW) Init(d *ili9341.Device, x, y, w, h int) {
+func (tw *Ili9341PixW) Init(d *ili9341.Device, w, h int) {
 	tw.device = d
-	tw.ResizeWindow(x, y, w, h)
+	tw.ResizeWindow(0, 0, w, h)
 }
 
 func (tw *Ili9341PixW) ResizeWindow(x, y, w, h int) error {
