@@ -150,10 +150,7 @@ func (wr *WindowRoot) Update(r *rpn.RPN, screenw, screenh int, updateInput bool)
 
 func (wr *WindowRoot) UpdateByName(r *rpn.RPN, name string) error {
 	if name == "root" {
-		if err := wr.Update(r, wr.group.w, wr.group.y, false); err != nil {
-			return err
-		}
-		return wr.group.showBorder(wr.group.w, wr.group.h)
+		return wr.Update(r, wr.group.w, wr.group.y, false)
 	}
 	wge := wr.group.findwindowGroupEntry(name)
 	if wge == nil {
