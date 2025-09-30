@@ -48,18 +48,18 @@ func (pw *TxtPlotWindow) drawVerticalAxis(x int) error {
 // We are going for rounded tick marks (e.g. 0.25, 1.0, ...)
 // and reasonable pixels per mark
 
-const minVerticalSpacing = 5.0
-const maxVerticalSpacing = 10.0
+const minTxtVerticalSpacing = 5.0
+const maxTxtVerticalSpacing = 10.0
 
 func (pw *TxtPlotWindow) drawVerticalTickMarks(wx int) {
 	wh := pw.txtw.TextHeight()            // height in characters
 	yr := pw.common.maxy - pw.common.miny // units
 	cpu := float64(wh) / yr               // characters / unit
 	var te float64 = 1                    // ticks every (0.5, 1, etc)
-	if cpu > maxVerticalSpacing {
-		te = searchScaleDownward(cpu, minVerticalSpacing)
-	} else if cpu < minVerticalSpacing {
-		te = searchScaleUpward(cpu, maxVerticalSpacing)
+	if cpu > maxTxtVerticalSpacing {
+		te = searchScaleDownward(cpu, minTxtVerticalSpacing)
+	} else if cpu < minTxtVerticalSpacing {
+		te = searchScaleUpward(cpu, maxTxtVerticalSpacing)
 	}
 
 	// becuase te was carefully selected to provide a limited number
@@ -92,61 +92,6 @@ func (pw *TxtPlotWindow) drawVerticalTick(wx int, y float64) {
 	}
 }
 
-// use a nice-looking scale. 1, 0.5, 0.25, 0.1, 0.05, 0.025, 0.01, etc
-func searchScaleDownward(cpu, minSpacing float64) float64 {
-	tens := 1.0
-	partial := 1
-	te := 1.0
-
-	for {
-		switch partial {
-		case 1:
-			partial = 2
-		case 2:
-			partial = 4
-		case 4:
-			partial = 1
-			tens *= 10
-		}
-
-		newte := 1.0 / (tens * float64(partial))
-		if (cpu * newte) < minSpacing {
-			// too far
-			break
-		}
-		te = newte
-	}
-
-	return te
-}
-
-func searchScaleUpward(cpu, maxSpacing float64) float64 {
-	tens := 1.0
-	partialDeci := 10
-	te := 1.0
-
-	for {
-		switch partialDeci {
-		case 10:
-			partialDeci = 25
-		case 25:
-			partialDeci = 50
-		case 50:
-			partialDeci = 10
-			tens *= 10
-		}
-
-		newte := tens * float64(partialDeci) / 10.0
-		if (cpu * newte) > maxSpacing {
-			// too far
-			break
-		}
-		te = newte
-	}
-
-	return te
-}
-
 func (pw *TxtPlotWindow) drawHorizontalAxis(y int) error {
 	w := pw.txtw.TextWidth()
 	pw.txtw.SetCursorXY(0, y)
@@ -159,18 +104,18 @@ func (pw *TxtPlotWindow) drawHorizontalAxis(y int) error {
 	return nil
 }
 
-const minHorizontalSpacing = 9.0
-const maxHorizontalSpacing = 18.0
+const minTxtHorizontalSpacing = 9.0
+const maxTxtHorizontalSpacing = 18.0
 
 func (pw *TxtPlotWindow) drawHorizontalTickMarks(wy int) {
 	ww := pw.txtw.TextWidth()             // width in characters
 	xr := pw.common.maxx - pw.common.minx // units
 	cpu := float64(ww) / xr               // characters / unit
 	var te float64 = 1                    // ticks every (0.5, 1, etc)
-	if cpu > maxHorizontalSpacing {
-		te = searchScaleDownward(cpu, minHorizontalSpacing)
-	} else if cpu < minHorizontalSpacing {
-		te = searchScaleUpward(cpu, maxHorizontalSpacing)
+	if cpu > maxTxtHorizontalSpacing {
+		te = searchScaleDownward(cpu, minTxtHorizontalSpacing)
+	} else if cpu < minTxtHorizontalSpacing {
+		te = searchScaleUpward(cpu, maxTxtHorizontalSpacing)
 	}
 
 	stepsBack := 0
@@ -190,7 +135,7 @@ func (pw *TxtPlotWindow) drawHorizontalTickMarks(wy int) {
 	}
 }
 
-const horizontalNumberPad = 5
+const horizontalTxtNumberPad = 5
 
 func (pw *TxtPlotWindow) drawHorizontalTick(x float64, wy int) {
 	ww, wh := pw.txtw.TextSize()
@@ -199,7 +144,7 @@ func (pw *TxtPlotWindow) drawHorizontalTick(x float64, wy int) {
 		pw.txtw.SetCursorXY(wx, wy)
 		window.PutByte(pw.txtw, '+')
 	}
-	if (wx > horizontalNumberPad) && (wx < (ww - horizontalNumberPad)) && (wy+1) < wh {
+	if (wx > horizontalTxtNumberPad) && (wx < (ww - horizontalTxtNumberPad)) && (wy+1) < wh {
 		s := fmt.Sprintf("%.2f", x)
 		pw.txtw.SetCursorXY(wx-len(s)/2, wy+1)
 		window.Print(pw.txtw, s)

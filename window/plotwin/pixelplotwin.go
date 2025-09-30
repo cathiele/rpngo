@@ -58,11 +58,7 @@ func (pw *PixelPlotWindow) Update(r *rpn.RPN) error {
 	w, h := pw.pixw.WindowSize()
 	pw.pixw.Color(color.RGBA{})
 	pw.pixw.FilledRect(0, 0, w, h)
-	/*
-		if err := pw.drawAxis(); err != nil {
-			return err
-		}
-	*/
+	pw.drawAxis()
 	if err := pw.plotPoints(points); err != nil {
 		return err
 	}

@@ -17,6 +17,9 @@ type Plot struct {
 	isParametric bool
 }
 
+type PlotWindow interface {
+}
+
 type plotWindowCommon struct {
 	minx     float64
 	maxx     float64
@@ -208,4 +211,59 @@ func (pw *plotWindowCommon) transformY(y float64, h int) (int, bool) {
 		return 0, false
 	}
 	return py, true
+}
+
+// use a nice-looking scale. 1, 0.5, 0.25, 0.1, 0.05, 0.025, 0.01, etc
+func searchScaleDownward(cpu, minSpacing float64) float64 {
+	tens := 1.0
+	partial := 1
+	te := 1.0
+
+	for {
+		switch partial {
+		case 1:
+			partial = 2
+		case 2:
+			partial = 4
+		case 4:
+			partial = 1
+			tens *= 10
+		}
+
+		newte := 1.0 / (tens * float64(partial))
+		if (cpu * newte) < minSpacing {
+			// too far
+			break
+		}
+		te = newte
+	}
+
+	return te
+}
+
+func searchScaleUpward(cpu, maxSpacing float64) float64 {
+	tens := 1.0
+	partialDeci := 10
+	te := 1.0
+
+	for {
+		switch partialDeci {
+		case 10:
+			partialDeci = 25
+		case 25:
+			partialDeci = 50
+		case 50:
+			partialDeci = 10
+			tens *= 10
+		}
+
+		newte := tens * float64(partialDeci) / 10.0
+		if (cpu * newte) > maxSpacing {
+			// too far
+			break
+		}
+		te = newte
+	}
+
+	return te
 }
