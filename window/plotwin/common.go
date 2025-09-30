@@ -17,7 +17,7 @@ type Plot struct {
 	isParametric bool
 }
 
-type PlotWindowCommon struct {
+type plotWindowCommon struct {
 	minx     float64
 	maxx     float64
 	miny     float64
@@ -31,7 +31,7 @@ type PlotWindowCommon struct {
 	plots    []Plot
 }
 
-func (pw *PlotWindowCommon) init() {
+func (pw *plotWindowCommon) init() {
 	pw.autox = true
 	pw.autoy = true
 	pw.minv = -1
@@ -39,14 +39,14 @@ func (pw *PlotWindowCommon) init() {
 	pw.steps = 250
 }
 
-func (pw *PlotWindowCommon) nextColor(numColors uint8) {
+func (pw *plotWindowCommon) nextColor(numColors uint8) {
 	pw.coloridx++
 	if pw.coloridx >= numColors {
 		pw.coloridx = 0
 	}
 }
 
-func (pw *PlotWindowCommon) addPlot(r *rpn.RPN, fn []string, isParametric bool, numColors uint8) error {
+func (pw *plotWindowCommon) addPlot(r *rpn.RPN, fn []string, isParametric bool, numColors uint8) error {
 	pw.nextColor(numColors)
 	if len(fn) == 0 {
 		return nil
@@ -84,7 +84,7 @@ func slicesAreEqual(a []string, b []string) bool {
 	return true
 }
 
-func (pw *PlotWindowCommon) createPoints(r *rpn.RPN) ([]Point, error) {
+func (pw *plotWindowCommon) createPoints(r *rpn.RPN) ([]Point, error) {
 	var points []Point
 	for _, plot := range pw.plots {
 		var err error
@@ -103,7 +103,7 @@ func (pw *PlotWindowCommon) createPoints(r *rpn.RPN) ([]Point, error) {
 	return points, nil
 }
 
-func (pw *PlotWindowCommon) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point, error) {
+func (pw *plotWindowCommon) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point, error) {
 	startlen := r.StackLen()
 	step := (pw.maxv - pw.minv) / float64(pw.steps)
 	var x complex128
@@ -138,7 +138,7 @@ func (pw *PlotWindowCommon) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]
 	return points, nil
 }
 
-func (pw *PlotWindowCommon) adjustAutoX(points []Point) {
+func (pw *plotWindowCommon) adjustAutoX(points []Point) {
 	if len(points) == 0 {
 		pw.minx = 0
 		pw.maxx = 0
@@ -160,7 +160,7 @@ func (pw *PlotWindowCommon) adjustAutoX(points []Point) {
 	}
 }
 
-func (pw *PlotWindowCommon) adjustAutoY(points []Point) {
+func (pw *plotWindowCommon) adjustAutoY(points []Point) {
 	if len(points) == 0 {
 		pw.miny = 0
 		pw.maxy = 0
@@ -186,7 +186,7 @@ func (pw *PlotWindowCommon) adjustAutoY(points []Point) {
 	pw.miny -= delta
 }
 
-func (pw *PlotWindowCommon) transformX(x float64, w int) (int, bool) {
+func (pw *plotWindowCommon) transformX(x float64, w int) (int, bool) {
 	x = (x - pw.minx) / (pw.maxx - pw.minx)
 	if x < 0 {
 		return 0, false
@@ -198,7 +198,7 @@ func (pw *PlotWindowCommon) transformX(x float64, w int) (int, bool) {
 	return xi, true
 }
 
-func (pw *PlotWindowCommon) transformY(y float64, h int) (int, bool) {
+func (pw *plotWindowCommon) transformY(y float64, h int) (int, bool) {
 	y = (y - pw.miny) / (pw.maxy - pw.miny)
 	if y < 0 {
 		return 0, false

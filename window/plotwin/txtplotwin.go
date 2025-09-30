@@ -18,16 +18,16 @@ var colorWheelTxt = []window.ColorChar{
 
 type TxtPlotWindow struct {
 	txtw   window.TextWindow
-	common PlotWindowCommon
+	common plotWindowCommon
 }
 
-func Init(txtw window.TextWindow) (*TxtPlotWindow, error) {
-	w := &TxtPlotWindow{
-		txtw: txtw,
-	}
-	w.common.init()
-	txtw.TextColor(window.White)
-	return w, nil
+func AddTxtPlotFn(w window.WindowWithProps, r *rpn.RPN, fn []string, isParametric bool) error {
+	return w.(*TxtPlotWindow).common.addPlot(r, fn, isParametric, uint8(len(colorWheelTxt)))
+}
+
+func (pw *TxtPlotWindow) Init(txtw window.TextWindow) {
+	pw.txtw = txtw
+	pw.common.init()
 }
 
 func (pw *TxtPlotWindow) ResizeWindow(x, y, w, h int) error {
@@ -48,10 +48,6 @@ func (pw *TxtPlotWindow) WindowSize() (int, int) {
 
 func (pw *TxtPlotWindow) Type() string {
 	return "plot"
-}
-
-func (pw *TxtPlotWindow) AddPlot(r *rpn.RPN, fn []string, isParametric bool) error {
-	return pw.common.addPlot(r, fn, isParametric, uint8(len(colorWheelTxt)))
 }
 
 func (pw *TxtPlotWindow) Update(r *rpn.RPN) error {
@@ -76,6 +72,10 @@ func (pw *TxtPlotWindow) SetProp(name string, val rpn.Frame) error {
 
 func (pw *TxtPlotWindow) GetProp(name string) (rpn.Frame, error) {
 	return pw.common.getProp(name)
+}
+
+func (pw *TxtPlotWindow) ListProps() []string {
+	return pw.common.ListProps()
 }
 
 func (pw *TxtPlotWindow) plotPoints(points []Point) error {

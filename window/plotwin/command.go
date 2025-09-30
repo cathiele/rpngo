@@ -9,11 +9,16 @@ import (
 )
 
 type PlotCommands struct {
-	root   *window.WindowRoot
-	screen window.Screen
+	root      *window.WindowRoot
+	screen    window.Screen
+	addPlotFn func(w window.WindowWithProps, r *rpn.RPN, fn []string, isParametric bool) error
 }
 
-func InitPlotCommands(r *rpn.RPN, root *window.WindowRoot, screen window.Screen) *PlotCommands {
+func InitPlotCommands(
+	r *rpn.RPN,
+	root *window.WindowRoot,
+	screen window.Screen,
+	addPlotFn func(window.WindowWithProps, *rpn.RPN, []string, bool) error) *PlotCommands {
 	conceptHelp := map[string]string{
 		"plot": "Plot functions using plot. Plot will push an 'x' value to the stack,\n" +
 			"run the provided string, and pop the value as y value.\n" +
@@ -39,7 +44,7 @@ func InitPlotCommands(r *rpn.RPN, root *window.WindowRoot, screen window.Screen)
 	}
 	r.RegisterConceptHelp(conceptHelp)
 
-	pc := PlotCommands{root: root, screen: screen}
+	pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}
 	r.Register("plot", pc.Plot, rpn.CatPlot, PlotHelp)
 	r.Register("pplot", pc.PPlot, rpn.CatPlot, PPlotHelp)
 	return &pc
@@ -89,7 +94,7 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 		return fmt.Errorf("%s has the wrong window type: %s", wname, pw.Type())
 	}
 
-	return pw.(*TxtPlotWindow).AddPlot(r, fields, isParametric)
+	return pc.addPlotFn(pw, r, fields, isParametric)
 }
 
 func (wc *PlotCommands) initPlot(r *rpn.RPN) error {

@@ -44,7 +44,7 @@ func run() error {
 		return err
 	}
 	_ = commands.InitWindowCommands(&r, root, &screen)
-	_ = plotwin.InitPlotCommands(&r, root, &screen)
+	_ = plotwin.InitPlotCommands(&r, root, &screen, plotwin.AddPixelPlotFn)
 	if err := startup.LCD320Startup(&r); err != nil {
 		return err
 	}

@@ -170,11 +170,9 @@ func (wc *WindowCommands) WNewPlot(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	pw, err := plotwin.Init(txtw)
-	if err != nil {
-		return err
-	}
-	wc.root.AddWindowChild(pw, name, 100)
+	var pw plotwin.TxtPlotWindow
+	pw.Init(txtw)
+	wc.root.AddWindowChild(&pw, name, 100)
 	return nil
 }
 
