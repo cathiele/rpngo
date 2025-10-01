@@ -5,10 +5,35 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-type Point struct {
-	x        float64
-	y        float64
-	coloridx uint8
+type PointStats struct {
+	minx        float64
+	maxx        float64
+	miny        float64
+	maxy        float64
+	initialized bool
+}
+
+func (ps *PointStats) update(x, y float64) {
+	if !ps.initialized {
+		ps.initialized = true
+		ps.minx = x
+		ps.maxx = x
+		ps.miny = y
+		ps.maxy = y
+	} else {
+		if x < ps.minx {
+			ps.minx = x
+		}
+		if x > ps.maxx {
+			ps.maxx = x
+		}
+		if y < ps.miny {
+			ps.miny = y
+		}
+		if y > ps.maxy {
+			ps.maxy = y
+		}
+	}
 }
 
 type Plot struct {
@@ -84,58 +109,65 @@ func slicesAreEqual(a []string, b []string) bool {
 	return true
 }
 
-func (pw *plotWindowCommon) createPoints(r *rpn.RPN) ([]Point, error) {
-	var points []Point
+func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, coloridx uint8)) error {
+	var stats PointStats
 	for _, plot := range pw.plots {
 		var err error
-		points, err = pw.addPoints(r, points, plot)
+		err = pw.addPoints(r, plot, fn, &stats)
 		if err != nil {
 			pw.plots = nil
-			return nil, fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)
+			return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)
 		}
 	}
 	if pw.autox {
-		pw.adjustAutoX(points)
+		pw.adjustAutoX(stats)
 	}
 	if pw.autoy {
-		pw.adjustAutoY(points)
+		pw.adjustAutoY(stats)
 	}
-	return points, nil
+	return nil
 }
 
-func (pw *plotWindowCommon) addPoints(r *rpn.RPN, points []Point, plot Plot) ([]Point, error) {
+func (pw *plotWindowCommon) addPoints(
+	r *rpn.RPN,
+	plot Plot,
+	fn func(x, y float64, coloridx uint8),
+	stats *PointStats) error {
 	startlen := r.StackLen()
 	step := (pw.maxv - pw.minv) / float64(pw.steps)
 	var x complex128
 	for v := pw.minv; v <= pw.maxv; v += step {
 		if err := r.PushComplex(complex(v, 0)); err != nil {
-			return nil, err
+			return err
 		}
 		if err := r.Exec(plot.fn); err != nil {
-			return nil, err
+			return err
 		}
 		y, err := r.PopComplex()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		if plot.isParametric {
 			x, err = r.PopComplex()
 			if err != nil {
-				return nil, err
+				return err
 			}
 		} else {
 			x = complex(v, 0)
 		}
 		nowlen := r.StackLen()
 		if nowlen != startlen {
-			return nil, fmt.Errorf(
+			return fmt.Errorf(
 				"stack changed size running plot string (old: %d, new %d)",
 				startlen,
 				nowlen)
 		}
-		points = append(points, Point{x: real(x), y: real(y), coloridx: plot.coloridx})
+		rx := real(x)
+		ry := real(y)
+		fn(rx, ry, plot.coloridx)
+		stats.update(rx, ry)
 	}
-	return points, nil
+	return nil
 }
 
 func (pw *plotWindowCommon) adjustAutoX(points []Point) {
