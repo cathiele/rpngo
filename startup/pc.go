@@ -17,13 +17,13 @@ const defaultConfigFile = `
 'g2' w.new.group
 'g2' 25 w.weight
 'g2' w.columns
-'s1' w.new.stack
-'s1' 'g2' w.move.end
-'v1' w.new.var
-'v1' 'g2' w.move.end
+'s' w.new.stack
+'s' 'g2' w.move.end
+'v' w.new.var
+'v' 'g2' w.move.end
 
 # Plot defaults
-'p1' plot.win=
+'p' plot.win=
 '$plot.win w.new.plot $plot.win "g1" w.move.end' plot.init=
 ` + commonStartup
 

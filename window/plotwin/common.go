@@ -110,14 +110,12 @@ func slicesAreEqual(a []string, b []string) bool {
 	return true
 }
 
-func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, coloridx uint8) error) error {
+func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) error {
 	// first determine the ranges
 	if pw.autox || pw.autoy {
 		var stats PointStats
 		for _, plot := range pw.plots {
-			var err error
-			err = pw.addPoints(r, plot, stats.update)
-			if err != nil {
+			if err := pw.addPoints(r, plot, stats.update); err != nil {
 				pw.plots = nil
 				return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)
 			}
@@ -129,10 +127,12 @@ func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, color
 			pw.adjustAutoY(stats)
 		}
 	}
+	return nil
+}
+
+func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, coloridx uint8) error) error {
 	for _, plot := range pw.plots {
-		var err error
-		err = pw.addPoints(r, plot, fn)
-		if err != nil {
+		if err := pw.addPoints(r, plot, fn); err != nil {
 			pw.plots = nil
 			return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)
 		}

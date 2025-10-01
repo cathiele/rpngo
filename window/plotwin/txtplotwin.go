@@ -54,6 +54,9 @@ func (pw *TxtPlotWindow) Type() string {
 func (pw *TxtPlotWindow) Update(r *rpn.RPN) error {
 	pw.txtw.Erase()
 	defer pw.txtw.Refresh()
+	if err := pw.common.setAxisMinMax(r); err != nil {
+		return err
+	}
 	if err := pw.drawAxis(); err != nil {
 		return err
 	}

@@ -55,6 +55,9 @@ func (pw *PixelPlotWindow) Update(r *rpn.RPN) error {
 	w, h := pw.pixw.WindowSize()
 	pw.pixw.Color(color.RGBA{})
 	pw.pixw.FilledRect(0, 0, w, h)
+	if err := pw.common.setAxisMinMax(r); err != nil {
+		return err
+	}
 	pw.drawAxis()
 	pw.lastcolidx = 255
 	return pw.common.createPoints(r, pw.plotPoint)
