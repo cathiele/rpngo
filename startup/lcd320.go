@@ -7,17 +7,12 @@ import (
 )
 
 const lcd320ConfigFile = `
-'root' w.columns
 's' w.new.stack
-'g1' w.new.group
-'g1' 60 w.weight
-'i' 'g1' w.move.end
-'s' 'g1' w.move.end
-'s' 40 w.weight
+'s' 30 w.weight
 
 # Plot defaults
 'p' plot.win=
-'w.reset $plot.win w.new.plot $plot.win "root" w.move.beg $plot.win 200 w.weight' plot.init=
+'w.reset $plot.win w.new.plot $plot.win "root" w.move.beg $plot.win $plot.win 200 w.weight' plot.init=
 ` + commonStartup
 
 // LCD320Startup is startup logic when using a 320x240 display

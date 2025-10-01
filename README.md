@@ -15,6 +15,7 @@
 - S: Blink on panic
 - L: Rewrite readme doc
 - L: Add I2C keyboard support
+- M: Ad F or ctrl key macro shortcuts
 
 ## Wishlist
 

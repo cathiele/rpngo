@@ -197,8 +197,8 @@ func (pw *plotWindowCommon) adjustAutoY(stats PointStats) {
 		pw.miny -= 1.0
 		pw.maxy += 1.0
 	}
-	// open up the y a bit (20% or so)
-	delta := (pw.maxy - pw.miny) / 10
+	// open up the y a bit
+	delta := (pw.maxy - pw.miny) / 5
 	pw.maxy += delta
 	pw.miny -= delta
 }
