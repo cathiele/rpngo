@@ -17,8 +17,9 @@ var colorWheelTxt = []window.ColorChar{
 }
 
 type TxtPlotWindow struct {
-	txtw   window.TextWindow
-	common plotWindowCommon
+	txtw       window.TextWindow
+	common     plotWindowCommon
+	lastcolidx uint8
 }
 
 func AddTxtPlotFn(w window.WindowWithProps, r *rpn.RPN, fn []string, isParametric bool) error {
@@ -51,19 +52,13 @@ func (pw *TxtPlotWindow) Type() string {
 }
 
 func (pw *TxtPlotWindow) Update(r *rpn.RPN) error {
-	points, err := pw.common.createPoints(r)
-	if err != nil {
-		return err
-	}
 	pw.txtw.Erase()
 	defer pw.txtw.Refresh()
 	if err := pw.drawAxis(); err != nil {
 		return err
 	}
-	if err := pw.plotPoints(points); err != nil {
-		return err
-	}
-	return nil
+	pw.lastcolidx = 255
+	return pw.common.createPoints(r, pw.plotPoint)
 }
 
 func (pw *TxtPlotWindow) SetProp(name string, val rpn.Frame) error {
@@ -78,27 +73,23 @@ func (pw *TxtPlotWindow) ListProps() []string {
 	return pw.common.ListProps()
 }
 
-func (pw *TxtPlotWindow) plotPoints(points []Point) error {
-	var lastcolidx uint8 = 255
-	w := pw.txtw.TextWidth()
-	h := pw.txtw.TextHeight()
-	for _, p := range points {
-		if p.coloridx != lastcolidx {
-			lastcolidx = p.coloridx
-			pw.txtw.TextColor(colorWheelTxt[lastcolidx])
-		}
-		x, xok := pw.common.transformX(p.x, w)
-		if !xok {
-			continue
-		}
-		y, yok := pw.common.transformY(p.y, h)
-		if !yok {
-			continue
-		}
-		pw.txtw.SetCursorXY(x, y)
-		if err := pw.txtw.Write('*'); err != nil {
-			return err
-		}
+func (pw *TxtPlotWindow) plotPoint(x, y float64, colidx uint8) error {
+	w, h := pw.txtw.TextSize()
+	if colidx != pw.lastcolidx {
+		pw.lastcolidx = colidx
+		pw.txtw.TextColor(colorWheelTxt[colidx])
+	}
+	tx, xok := pw.common.transformX(x, w)
+	if !xok {
+		return nil
+	}
+	ty, yok := pw.common.transformY(y, h)
+	if !yok {
+		return nil
+	}
+	pw.txtw.SetCursorXY(tx, ty)
+	if err := pw.txtw.Write('*'); err != nil {
+		return err
 	}
 	return nil
 }

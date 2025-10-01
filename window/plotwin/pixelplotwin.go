@@ -17,8 +17,9 @@ var colorWheelPixel = []color.RGBA{
 }
 
 type PixelPlotWindow struct {
-	pixw   window.PixelWindow
-	common plotWindowCommon
+	pixw       window.PixelWindow
+	common     plotWindowCommon
+	lastcolidx uint8
 }
 
 func AddPixelPlotFn(w window.WindowWithProps, r *rpn.RPN, fn []string, isParametric bool) error {
@@ -51,18 +52,12 @@ func (pw *PixelPlotWindow) Type() string {
 }
 
 func (pw *PixelPlotWindow) Update(r *rpn.RPN) error {
-	points, err := pw.common.createPoints(r)
-	if err != nil {
-		return err
-	}
 	w, h := pw.pixw.WindowSize()
 	pw.pixw.Color(color.RGBA{})
 	pw.pixw.FilledRect(0, 0, w, h)
 	pw.drawAxis()
-	if err := pw.plotPoints(points); err != nil {
-		return err
-	}
-	return nil
+	pw.lastcolidx = 255
+	return pw.common.createPoints(r, pw.plotPoint)
 }
 
 func (pw *PixelPlotWindow) SetProp(name string, val rpn.Frame) error {
@@ -77,23 +72,20 @@ func (pw *PixelPlotWindow) ListProps() []string {
 	return pw.common.ListProps()
 }
 
-func (pw *PixelPlotWindow) plotPoints(points []Point) error {
-	var lastcolidx uint8 = 255
+func (pw *PixelPlotWindow) plotPoint(x, y float64, colidx uint8) error {
 	w, h := pw.pixw.WindowSize()
-	for _, p := range points {
-		if p.coloridx != lastcolidx {
-			lastcolidx = p.coloridx
-			pw.pixw.Color(colorWheelPixel[lastcolidx])
-		}
-		x, xok := pw.common.transformX(p.x, w)
-		if !xok {
-			continue
-		}
-		y, yok := pw.common.transformY(p.y, h)
-		if !yok {
-			continue
-		}
-		pw.pixw.SetPoint(x, y)
+	if colidx != pw.lastcolidx {
+		pw.lastcolidx = colidx
+		pw.pixw.Color(colorWheelPixel[colidx])
 	}
+	wx, xok := pw.common.transformX(x, w)
+	if !xok {
+		return nil
+	}
+	wy, yok := pw.common.transformY(y, h)
+	if !yok {
+		return nil
+	}
+	pw.pixw.SetPoint(wx, wy)
 	return nil
 }
