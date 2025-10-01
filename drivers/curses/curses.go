@@ -35,8 +35,7 @@ func (c *Curses) NewTextWindow() (window.TextWindow, error) {
 	tw := &Curses{
 		rgbToPair: c.rgbToPair,
 	}
-	w, h := c.ScreenSize()
-	if err := tw.ResizeWindow(0, 0, w, h); err != nil {
+	if err := tw.ResizeWindow(0, 0, 8, 8); err != nil {
 		return nil, err
 	}
 	return tw, nil

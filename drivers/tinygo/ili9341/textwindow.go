@@ -62,7 +62,7 @@ type Ili9341TxtW struct {
 }
 
 // Init initializes a text window. x, y, w, and h are all in pixels
-func (tw *Ili9341TxtW) Init(d *ili9341.Device, w, h int) {
+func (tw *Ili9341TxtW) Init(d *ili9341.Device) {
 	tw.cw = FontCharWidth
 	tw.ch = 12
 	tw.cyoffset = 10
@@ -71,7 +71,7 @@ func (tw *Ili9341TxtW) Init(d *ili9341.Device, w, h int) {
 	tw.cursorEn = true
 	tw.cursorCol = 0x0000
 	tw.cursorShowing = false
-	tw.ResizeWindow(0, 0, w, h)
+	tw.ResizeWindow(0, 0, 1, 1)
 }
 
 func (tw *Ili9341TxtW) ResizeWindow(x, y, w, h int) error {

@@ -19,15 +19,13 @@ func (s *Ili9341Screen) Init() {
 
 func (s *Ili9341Screen) NewTextWindow() (window.TextWindow, error) {
 	tw := &Ili9341TxtW{}
-	w, h := s.ScreenSize()
-	tw.Init(s.Device, w, h)
+	tw.Init(s.Device)
 	return tw, nil
 }
 
 func (s *Ili9341Screen) NewPixelWindow() (window.PixelWindow, error) {
 	pw := &Ili9341PixW{}
-	w, h := s.ScreenSize()
-	pw.Init(s.Device, w, h)
+	pw.Init(s.Device)
 	return pw, nil
 }
 
