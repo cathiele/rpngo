@@ -71,6 +71,9 @@ type TextWindow interface {
 type PixelWindow interface {
 	WindowBase
 
+	// Size without the border
+	PixelSize() (int, int)
+
 	// Change color
 	Color(color.RGBA)
 

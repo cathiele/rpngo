@@ -52,7 +52,7 @@ func (pw *PixelPlotWindow) Type() string {
 }
 
 func (pw *PixelPlotWindow) Update(r *rpn.RPN) error {
-	w, h := pw.pixw.WindowSize()
+	w, h := pw.pixw.PixelSize()
 	pw.pixw.Color(color.RGBA{})
 	pw.pixw.FilledRect(0, 0, w, h)
 	if err := pw.common.setAxisMinMax(r); err != nil {
@@ -76,7 +76,7 @@ func (pw *PixelPlotWindow) ListProps() []string {
 }
 
 func (pw *PixelPlotWindow) plotPoint(x, y float64, colidx uint8) error {
-	w, h := pw.pixw.WindowSize()
+	w, h := pw.pixw.PixelSize()
 	if colidx != pw.lastcolidx {
 		pw.lastcolidx = colidx
 		pw.pixw.Color(colorWheelPixel[colidx])

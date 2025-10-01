@@ -9,7 +9,7 @@ var white = color.RGBA{R: 255, G: 255, B: 255, A: 255}
 
 func (pw *PixelPlotWindow) drawAxis() {
 	pw.pixw.Color(white)
-	w, h := pw.pixw.WindowSize()
+	w, h := pw.pixw.PixelSize()
 	pw.drawVerticalAxis(w, h)
 	pw.drawHorizontalAxis(w, h)
 }
