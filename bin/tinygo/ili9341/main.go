@@ -69,7 +69,6 @@ func run() error {
 			}
 			return err
 		}
-		freeMemOverlay(screen)
 	}
 }
 
