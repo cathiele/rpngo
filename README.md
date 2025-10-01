@@ -16,6 +16,7 @@
 - L: Rewrite readme doc
 - L: Add I2C keyboard support
 - M: Ad F or ctrl key macro shortcuts
+- M: Make variables able to start with a . and hide them by default
 
 ## Wishlist
 
