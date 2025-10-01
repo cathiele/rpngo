@@ -2,6 +2,8 @@ package window
 
 import "image/color"
 
+var BorderColor = color.RGBA{R: 100, B: 100}
+
 type Screen interface {
 	// Create a new TextWindow. If a graphics screen, x, y, w and h
 	// are in pixels.

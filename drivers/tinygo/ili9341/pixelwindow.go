@@ -6,6 +6,7 @@ import (
 	"errors"
 	"image/color"
 	"mattwach/rpngo/drivers/tinygo/fonts"
+	"mattwach/rpngo/window"
 
 	"tinygo.org/x/drivers/ili9341"
 )
@@ -68,16 +69,15 @@ func (tw *Ili9341PixW) PixelSize() (int, int) {
 }
 
 func (tw *Ili9341PixW) ShowBorder(screenw, screenh int) error {
-	c := color.RGBA{R: 100, G: 0, B: 100}
 	// Need to expand by one pixel as the main window does not include the border.
 	x0 := tw.wx
 	x1 := tw.wx + tw.ww - 1
 	y0 := tw.wy
 	y1 := tw.wy + tw.wh - 1
-	tw.device.DrawFastHLine(x0, x1, y0, c)
-	tw.device.DrawFastHLine(x0, x1, y1, c)
-	tw.device.DrawFastVLine(x0, y0+1, y1-1, c)
-	tw.device.DrawFastVLine(x1, y0+1, y1-1, c)
+	tw.device.DrawFastHLine(x0, x1, y0, window.BorderColor)
+	tw.device.DrawFastHLine(x0, x1, y1, window.BorderColor)
+	tw.device.DrawFastVLine(x0, y0+1, y1-1, window.BorderColor)
+	tw.device.DrawFastVLine(x1, y0+1, y1-1, window.BorderColor)
 	return nil
 }
 
