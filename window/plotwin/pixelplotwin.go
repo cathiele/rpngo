@@ -32,7 +32,13 @@ func (pw *PixelPlotWindow) Init(pixw window.PixelWindow) {
 }
 
 func (pw *PixelPlotWindow) ResizeWindow(x, y, w, h int) error {
-	return pw.pixw.ResizeWindow(x, y, w, h)
+	if err := pw.pixw.ResizeWindow(x, y, w, h); err != nil {
+		return err
+	}
+	pw.pixw.Color(color.RGBA{})
+	psw, psh := pw.pixw.PixelSize()
+	pw.pixw.FilledRect(0, 0, psw, psh)
+	return nil
 }
 
 func (pw *PixelPlotWindow) ShowBorder(screenw, screenh int) error {
@@ -52,15 +58,16 @@ func (pw *PixelPlotWindow) Type() string {
 }
 
 func (pw *PixelPlotWindow) Update(r *rpn.RPN) error {
-	w, h := pw.pixw.PixelSize()
-	pw.pixw.Color(color.RGBA{})
-	pw.pixw.FilledRect(0, 0, w, h)
 	if err := pw.common.setAxisMinMax(r); err != nil {
 		return err
 	}
 	pw.drawAxis()
 	pw.lastcolidx = 255
-	return pw.common.createPoints(r, pw.plotPoint)
+	if err := pw.common.createPoints(r, pw.plotPoint); err != nil {
+		return err
+	}
+	pw.pixw.Refresh()
+	return nil
 }
 
 func (pw *PixelPlotWindow) SetProp(name string, val rpn.Frame) error {

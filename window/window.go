@@ -73,6 +73,9 @@ type TextWindow interface {
 type PixelWindow interface {
 	WindowBase
 
+	// Refresh the display
+	Refresh()
+
 	// Size without the border
 	PixelSize() (int, int)
 

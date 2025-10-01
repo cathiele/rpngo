@@ -37,6 +37,8 @@ func (tw *Ili9341PixW) Init(d *ili9341.Device) {
 	tw.ResizeWindow(0, 0, 5, 5)
 }
 
+func (tw *Ili9341PixW) Refresh() {}
+
 func (tw *Ili9341PixW) ResizeWindow(x, y, w, h int) error {
 	if (tw.wx == int16(x)) && (tw.wy == int16(y)) && (tw.ww == int16(w)) && (tw.wh == int16(h)) {
 		return nil

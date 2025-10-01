@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"machine"
+	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/ili9341"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
@@ -49,7 +50,9 @@ func run() error {
 		if err != nil {
 			return nil, err
 		}
-		ppw.Init(pw)
+		var pb pixelwinbuffer.PixelBuffer
+		pb.Init(pw)
+		ppw.Init(&pb)
 		return &ppw, nil
 	}
 	_ = commands.InitWindowCommands(&r, root, &screen, newPixelPlotWindow)
