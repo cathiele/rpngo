@@ -23,6 +23,17 @@ func popVariableFrame(r *RPN) error {
 	return nil
 }
 
+const listVariablesHelp = "Prints all variable names"
+
+func listVariables(r *RPN) error {
+	names := r.AllVariableNames()
+	for _, n := range names {
+		r.Print(n)
+		r.Print("\n")
+	}
+	return nil
+}
+
 // Sets a variable
 func (r *RPN) SetVariable(name string) error {
 	f, err := r.PopFrame()
@@ -197,7 +208,7 @@ type NameAndValues struct {
 }
 
 // Gets all variable names
-func (r *RPN) AllVariableNamesAndValues() []NameAndValues {
+func (r *RPN) AllVariableNames() []string {
 	var names []string
 	for i := 0; i < len(r.variables); i++ {
 		for k := range r.variables[i] {
@@ -208,6 +219,12 @@ func (r *RPN) AllVariableNamesAndValues() []NameAndValues {
 		return nil
 	}
 	sort.Strings(names)
+	return names
+}
+
+// Gets all variable names
+func (r *RPN) AllVariableNamesAndValues() []NameAndValues {
+	names := r.AllVariableNames()
 	// names may contain duplicates
 	var lastName string
 	var results []NameAndValues

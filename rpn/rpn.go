@@ -53,6 +53,7 @@ func (r *RPN) Init() {
 	r.Register("ssize", stackSize, CatStack, stackSizeHelp)
 	r.Register("spush", pushStack, CatStack, pushStackHelp)
 	r.Register("spop", popStack, CatStack, popStackHelp)
+	r.Register("vlist", listVariables, CatVariables, listVariablesHelp)
 	r.Register("vpush", pushVariableFrame, CatVariables, pushVariableFrameHelp)
 	r.Register("vpop", popVariableFrame, CatVariables, popVariableFrameHelp)
 	r.Print = DefaultPrint
