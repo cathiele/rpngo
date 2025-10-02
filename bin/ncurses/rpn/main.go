@@ -8,6 +8,7 @@ import (
 	"mattwach/rpngo/drivers/curses"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/shell"
 	"mattwach/rpngo/startup"
 	"mattwach/rpngo/window"
 	"mattwach/rpngo/window/commands"
@@ -29,6 +30,7 @@ func run() error {
 	var r rpn.RPN
 	r.Init()
 	functions.RegisterAll(&r)
+	shell.Register(&r)
 
 	if len(os.Args) > 1 {
 		return cli(&r)
