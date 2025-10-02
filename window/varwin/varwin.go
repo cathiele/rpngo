@@ -11,11 +11,12 @@ import (
 type VariableWindow struct {
 	txtb      window.TextBuffer
 	txtw      window.TextWindow
+	hidedot   bool
 	multiline bool
 }
 
 func Init(txtw window.TextWindow) (*VariableWindow, error) {
-	w := &VariableWindow{txtw: txtw}
+	w := &VariableWindow{txtw: txtw, hidedot: true}
 	w.txtb.TextColor(window.White)
 	return w, nil
 }
@@ -41,26 +42,37 @@ func (vw *VariableWindow) Type() string {
 }
 
 func (vw *VariableWindow) SetProp(name string, val rpn.Frame) error {
-	if name == "multiline" {
+	switch name {
+	case "hidedot":
 		if val.Type != rpn.BOOL_FRAME {
 			return rpn.ErrExpectedABoolean
 		}
-		vw.multiline = val.Int != 0
-	} else {
+		vw.hidedot = val.Bool()
+		return nil
+	case "multiline":
+		if val.Type != rpn.BOOL_FRAME {
+			return rpn.ErrExpectedABoolean
+		}
+		vw.multiline = val.Bool()
+		return nil
+	default:
 		return rpn.ErrUnknownProperty
 	}
-	return nil
 }
 
 func (vw *VariableWindow) GetProp(name string) (rpn.Frame, error) {
-	if name == "multiline" {
+	switch name {
+	case "hidedot":
+		return rpn.BoolFrame(vw.hidedot), nil
+	case "multiline":
 		return rpn.BoolFrame(vw.multiline), nil
+	default:
+		return rpn.Frame{}, rpn.ErrUnknownProperty
 	}
-	return rpn.Frame{}, rpn.ErrUnknownProperty
 }
 
 func (vw *VariableWindow) ListProps() []string {
-	return []string{"multiline"}
+	return []string{"hidedot", "multiline"}
 }
 
 func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
@@ -68,33 +80,46 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	vw.txtb.MaybeResize(int16(w), int16(h))
 	vw.txtb.Erase()
 	nv := rpn.AllVariableNamesAndValues()
-	n := len(nv)
-	if n > h {
-		n = h - 1
-	}
 	vw.txtb.SetCursorXY(0, 0)
-	for i := 0; i < n; i++ {
-		name := nv[i].Name + ": "
-		val := framesToString(nv[i].Values)
-		if !vw.multiline {
-			val = makeSingleLine(val, w-len(name))
+	hidden := 0
+	row := 0
+	for i := 0; i < len(nv); i++ {
+		if vw.hidedot && (len(nv[i].Name) > 0) && (nv[i].Name[0] == '.') {
+			hidden++
+			continue
 		}
-		vw.txtb.TextColor(window.White)
-		window.Print(&vw.txtb, name)
-		vw.txtb.TextColor(window.Cyan)
-		window.Print(&vw.txtb, val)
-		window.PutByte(&vw.txtb, '\n')
+		if row < (h - 1) {
+			name := nv[i].Name + ": "
+			val := framesToString(nv[i].Values)
+			if !vw.multiline {
+				val = makeSingleLine(val, w-len(name))
+			} else {
+				row += countCRs(val)
+			}
+			vw.txtb.TextColor(window.White)
+			window.Print(&vw.txtb, name)
+			vw.txtb.TextColor(window.Cyan)
+			window.Print(&vw.txtb, val)
+			window.PutByte(&vw.txtb, '\n')
+			row++
+		}
 	}
-	if len(nv) > h {
-		window.Print(&vw.txtb, fmt.Sprintf("+ %d more\n", len(nv)-h+1))
-	}
-	if len(nv) == 0 {
-		vw.txtb.TextColor(window.Cyan)
-		window.Print(&vw.txtb, "No Vars")
-	}
+	vw.txtb.TextColor(window.Blue)
+	vw.txtb.SetCursorXY(0, h-1)
+	window.Print(&vw.txtb, fmt.Sprintf("num: %v hidden:%v", len(nv), hidden))
 	vw.txtb.UpdateTextWindow(vw.txtw)
 	vw.txtw.Refresh()
 	return nil
+}
+
+func countCRs(val string) int {
+	n := 0
+	for _, c := range val {
+		if c == '\n' {
+			n++
+		}
+	}
+	return n
 }
 
 func framesToString(frames []rpn.Frame) string {
