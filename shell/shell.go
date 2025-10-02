@@ -10,6 +10,8 @@ import (
 
 func Register(r *rpn.RPN) {
 	r.Register("sh", Shell, rpn.CatIO, ShellHelp)
+	r.Register("source", Source, rpn.CatIO, SourceHelp)
+	r.Register(".", Source, rpn.CatIO, SourceHelp)
 }
 
 const ShellHelp = `Executes a string as a shell command.

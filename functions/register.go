@@ -40,7 +40,6 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("sqrt", SquareRoot, rpn.CatEng, SquareRootHelp)
 	r.Register("tan", Tan, rpn.CatEng, TanHelp)
 
-	r.Register("load", Load, rpn.CatIO, LoadHelp)
 	r.Register("print", Print, rpn.CatIO, PrintHelp)
 	r.Register("printall", PrintAll, rpn.CatIO, PrintAllHelp)
 	r.Register("println", Println, rpn.CatIO, PrintlnHelp)

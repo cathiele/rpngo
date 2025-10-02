@@ -1,4 +1,4 @@
-package functions
+package shell
 
 import (
 	"mattwach/rpngo/parse"
@@ -6,10 +6,10 @@ import (
 	"os"
 )
 
-const LoadHelp = "Loads the given path and executes commands within it.\n" +
-	"Example: 'myfile.txt' load"
+const SourceHelp = "Loads the given path and executes commands within it.\n" +
+	"Example: 'myfile.txt' source"
 
-func Load(r *rpn.RPN) error {
+func Source(r *rpn.RPN) error {
 	path, err := r.PopString()
 	if err != nil {
 		return err
