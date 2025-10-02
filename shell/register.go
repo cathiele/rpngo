@@ -4,6 +4,7 @@ import "mattwach/rpngo/rpn"
 
 func Register(r *rpn.RPN) {
 	r.Register(".", Source, rpn.CatIO, SourceHelp)
+	r.Register("append", Append, rpn.CatIO, AppendHelp)
 	r.Register("cd", ChangeDir, rpn.CatIO, ChangeDirHelp)
 	r.Register("load", Load, rpn.CatIO, LoadHelp)
 	r.Register("save", Save, rpn.CatIO, SaveHelp)
