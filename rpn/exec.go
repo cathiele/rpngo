@@ -20,7 +20,7 @@ func (rpn *RPN) exec(arg string) error {
 	if len(arg) > 1 {
 		switch arg[len(arg)-1] {
 		case '=':
-			return rpn.setVariable(arg[:len(arg)-1])
+			return rpn.SetVariable(arg[:len(arg)-1])
 		case '/':
 			return rpn.clearVariable(arg[:len(arg)-1])
 		case '>':
@@ -30,7 +30,7 @@ func (rpn *RPN) exec(arg string) error {
 		}
 		switch arg[0] {
 		case '$':
-			f, err := rpn.getVariable(arg[1:])
+			f, err := rpn.GetVariable(arg[1:])
 			if err != nil {
 				return err
 			}

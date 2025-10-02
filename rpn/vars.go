@@ -24,7 +24,7 @@ func popVariableFrame(r *RPN) error {
 }
 
 // Sets a variable
-func (r *RPN) setVariable(name string) error {
+func (r *RPN) SetVariable(name string) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func (r *RPN) clearVariable(name string) error {
 }
 
 // Gets a variable
-func (r *RPN) getVariable(name string) (Frame, error) {
+func (r *RPN) GetVariable(name string) (Frame, error) {
 	if len(name) == 0 {
 		return Frame{}, ErrIllegalName
 	}
@@ -147,7 +147,7 @@ func (r *RPN) moveHeadStackVariable(name string) error {
 
 // gets a variable as a string
 func (r *RPN) GetStringVariable(name string) (string, error) {
-	v, err := r.getVariable(name)
+	v, err := r.GetVariable(name)
 	if err != nil {
 		return "", err
 	}
@@ -159,7 +159,7 @@ func (r *RPN) GetStringVariable(name string) (string, error) {
 
 // gets a variable as a complex
 func (r *RPN) GetComplexVariable(name string) (complex128, error) {
-	v, err := r.getVariable(name)
+	v, err := r.GetVariable(name)
 	if err != nil {
 		return 0, err
 	}
@@ -223,7 +223,7 @@ func (r *RPN) AllVariableNamesAndValues() []NameAndValues {
 
 // Executes a Variables as a macro
 func (r *RPN) execVariableAsMacro(name string) error {
-	f, err := r.getVariable(name)
+	f, err := r.GetVariable(name)
 	if err != nil {
 		return err
 	}
