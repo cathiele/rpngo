@@ -88,6 +88,12 @@ func (p *parseData) token(c rune) {
 
 func (p *parseData) str(c rune, quoteChar rune) {
 	if p.nextIsLiteral {
+		switch c {
+		case 'n':
+			c = '\n'
+		case 't':
+			c = '\t'
+		}
 		p.t = append(p.t, c)
 		p.nextIsLiteral = false
 		return

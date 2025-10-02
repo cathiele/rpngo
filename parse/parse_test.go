@@ -32,6 +32,10 @@ func TestFields(t *testing.T) {
 			want: []string{"'a bc  def'"},
 		},
 		{
+			val:  "'a\\nb'",
+			want: []string{"'a\nb'"},
+		},
+		{
 			val:     "'a",
 			wantErr: ErrUnterminatedSingleQuote,
 		},
