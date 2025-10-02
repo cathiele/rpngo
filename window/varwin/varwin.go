@@ -11,12 +11,12 @@ import (
 type VariableWindow struct {
 	txtb      window.TextBuffer
 	txtw      window.TextWindow
-	hidedot   bool
+	showdot   bool
 	multiline bool
 }
 
 func Init(txtw window.TextWindow) (*VariableWindow, error) {
-	w := &VariableWindow{txtw: txtw, hidedot: true}
+	w := &VariableWindow{txtw: txtw}
 	w.txtb.TextColor(window.White)
 	return w, nil
 }
@@ -43,11 +43,11 @@ func (vw *VariableWindow) Type() string {
 
 func (vw *VariableWindow) SetProp(name string, val rpn.Frame) error {
 	switch name {
-	case "hidedot":
+	case "showdot":
 		if val.Type != rpn.BOOL_FRAME {
 			return rpn.ErrExpectedABoolean
 		}
-		vw.hidedot = val.Bool()
+		vw.showdot = val.Bool()
 		return nil
 	case "multiline":
 		if val.Type != rpn.BOOL_FRAME {
@@ -62,8 +62,8 @@ func (vw *VariableWindow) SetProp(name string, val rpn.Frame) error {
 
 func (vw *VariableWindow) GetProp(name string) (rpn.Frame, error) {
 	switch name {
-	case "hidedot":
-		return rpn.BoolFrame(vw.hidedot), nil
+	case "showdot":
+		return rpn.BoolFrame(vw.showdot), nil
 	case "multiline":
 		return rpn.BoolFrame(vw.multiline), nil
 	default:
@@ -72,7 +72,7 @@ func (vw *VariableWindow) GetProp(name string) (rpn.Frame, error) {
 }
 
 func (vw *VariableWindow) ListProps() []string {
-	return []string{"hidedot", "multiline"}
+	return []string{"showdot", "multiline"}
 }
 
 func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
@@ -84,7 +84,7 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	hidden := 0
 	row := 0
 	for i := 0; i < len(nv); i++ {
-		if vw.hidedot && (len(nv[i].Name) > 0) && (nv[i].Name[0] == '.') {
+		if !vw.showdot && (len(nv[i].Name) > 0) && (nv[i].Name[0] == '.') {
 			hidden++
 			continue
 		}
