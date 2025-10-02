@@ -11,8 +11,8 @@ const lcd320ConfigFile = `
 's' 30 w.weight
 
 # Plot defaults
-'p' plot.win=
-'w.reset $plot.win w.new.plot $plot.win "root" w.move.beg $plot.win $plot.win 200 w.weight' plot.init=
+'p' .plotwin=
+'w.reset $.plotwin w.new.plot $.plotwin "root" w.move.beg $.plotwin $.plotwin 200 w.weight' .plotinit=
 ` + commonStartup
 
 // LCD320Startup is startup logic when using a 320x240 display

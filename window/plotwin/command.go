@@ -26,12 +26,12 @@ func InitPlotCommands(
 			"    '2 *' plot # plots y = x * 2\n" +
 			"    'sq' plot # plots y = x * x\n" +
 			"    'sin' plot # plots y = sin(x)\n" +
-			"Various properties can be set on the plot window to change the number\n" +
+			"Various properties can be set on the .plotwindow to change the number\n" +
 			"of points and the boundaries of the plot.\n" +
 			"There are some special variables that plot uses:\n" +
-			"    plot.win  : Name of the window to send plots to (there can be more than one)\n" +
+			"    .plotwin  : Name of the window to send plots to (there can be more than one)\n" +
 			"                at a time.\n" +
-			"    plot.init : If no plot window exists, this string is executed and is expected\n" +
+			"    .plotinit : If no .plotwindow exists, this string is executed and is expected\n" +
 			"                create one. Making this a variable allows for user customization.\n" +
 			"See Also: window.props, plot.parametric",
 
@@ -51,7 +51,7 @@ func InitPlotCommands(
 }
 
 const PlotHelp = "Run a value from $plot.min to $plot.max with $plot.steps\n" +
-	"executing the provided string and plotting to the window $plot.win\n" +
+	"executing the provided string and plotting to the window $.plotwin\n" +
 	"Example (y = x * x): 'c *' plot"
 
 func (pc *PlotCommands) Plot(r *rpn.RPN) error {
@@ -59,7 +59,7 @@ func (pc *PlotCommands) Plot(r *rpn.RPN) error {
 }
 
 const PPlotHelp = "Run a value from $plot.min to $plot.max with $plot.steps\n" +
-	"executing the provided string and plotting (x, y) to the window $plot.win\n" +
+	"executing the provided string and plotting (x, y) to the window $.plotwin\n" +
 	"Example (arc): 'c sin sw cos"
 
 func (wc *PlotCommands) PPlot(r *rpn.RPN) error {
@@ -75,7 +75,7 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	if err != nil {
 		return err
 	}
-	wname, err := r.GetStringVariable("plot.win")
+	wname, err := r.GetStringVariable(".plotwin")
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 		pw = pc.root.FindWindow(wname)
 	}
 	if pw == nil {
-		return fmt.Errorf("executing $plot.init did not result in a window: %s", wname)
+		return fmt.Errorf("executing $.plotinit did not result in a window: %s", wname)
 	}
 
 	if pw.Type() != "plot" {
@@ -98,7 +98,7 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 }
 
 func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
-	macro, err := r.GetStringVariable("plot.init")
+	macro, err := r.GetStringVariable(".plotinit")
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
 		log.Printf("initPlot.Update error: %v", uerr)
 	}
 	if err != nil {
-		return fmt.Errorf("while executing $plot.init: %v", err)
+		return fmt.Errorf("while executing $.plotinit: %v", err)
 	}
 	return nil
 }

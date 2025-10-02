@@ -11,9 +11,9 @@ import (
 
 const defaultConfigFile = `
 # Create and layout windows
-'g1' w.new.group
-'g1' w.columns
-'i' 'g1' w.move.end
+'g' w.new.group
+'g' w.columns
+'i' 'g' w.move.end
 'g2' w.new.group
 'g2' 25 w.weight
 'g2' w.columns
@@ -23,8 +23,8 @@ const defaultConfigFile = `
 'v' 'g2' w.move.end
 
 # Plot defaults
-'p' plot.win=
-'$plot.win w.new.plot $plot.win "g1" w.move.end' plot.init=
+'p' .plotwin=
+'$.plotwin w.new.plot $.plotwin "g" w.move.end' .plotinit=
 ` + commonStartup
 
 const configName = ".rpngo"
