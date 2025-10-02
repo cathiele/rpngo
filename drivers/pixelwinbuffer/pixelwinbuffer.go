@@ -22,6 +22,8 @@ import (
 	"mattwach/rpngo/window"
 )
 
+var bgcol = color.RGBA{}
+
 // pixelBufferDisplayer is an adapter that will allow tinyfont to route pixels
 // through the buffer
 type pixelBufferDisplayer struct {
@@ -49,19 +51,20 @@ type PixelBuffer struct {
 	pw        int
 	ph        int
 	col       color.RGBA
+	skipbit   bool
 	displayer pixelBufferDisplayer
 }
 
 func (pb *PixelBuffer) Init(target window.PixelWindow) error {
 	pb.target = target
 	pb.displayer.buffer = pb
-	return pb.ResizeWindow(0, 0, 1, 1)
+	return pb.ResizeWindow(0, 0, 5, 5)
 }
 
 func (pb *PixelBuffer) Refresh() {
 	var mask uint8 = 0x80
 	boffset := 0
-	pb.target.Color(color.RGBA{})
+	pb.target.Color(bgcol)
 	for y := 0; y < pb.ph; y++ {
 		for x := 0; x < pb.pw; x++ {
 			if ((pb.previous[boffset] & mask) != 0) && ((pb.current[boffset] & mask) == 0) {
@@ -99,12 +102,7 @@ func (pb *PixelBuffer) ResizeWindow(x, y, w, h int) error {
 }
 
 func (pb *PixelBuffer) ShowBorder(sw, sh int) error {
-	w, h := pb.target.WindowSize()
-	pb.target.Color(window.BorderColor)
-	pb.HLine(-1, -1, w)
-	pb.HLine(-1, h-1, w)
-	pb.VLine(-1, -1, h)
-	pb.VLine(w-1, -1, h)
+	pb.target.ShowBorder(sw, sh)
 	return nil
 }
 
@@ -121,6 +119,8 @@ func (pb *PixelBuffer) PixelSize() (int, int) {
 }
 
 func (pb *PixelBuffer) Color(c color.RGBA) {
+	pb.skipbit = c == bgcol
+	pb.col = c
 	pb.target.Color(c)
 }
 
@@ -130,44 +130,57 @@ func (pb *PixelBuffer) setBit(x, y int) {
 }
 
 func (pb *PixelBuffer) setBitHline(x, y, w int) {
-	maxy := y + w - 1
-	for y <= maxy {
-		if ((y & 0x07) == 0) && ((maxy - y) >= 8) {
-			poffset := y*pb.pw + x
+	maxx := x + w - 1
+	for x <= maxx {
+		poffset := y*pb.pw + x
+		if ((x & 0x07) == 0) && ((maxx - x) >= 8) {
 			pb.current[poffset>>3] = 0xFF
+			x += 8
 		} else {
-			pb.setBit(x, y)
-			y++
+			pb.current[poffset>>3] |= (0x80 >> (poffset & 7))
+			x++
 		}
 	}
 }
 
 func (pb *PixelBuffer) SetPoint(x, y int) {
-	pb.setBit(x, y)
 	pb.target.SetPoint(x, y)
+	if pb.skipbit {
+		return
+	}
+	pb.setBit(x, y)
 }
 
 func (pb *PixelBuffer) HLine(x, y, w int) {
-	pb.setBitHline(x, y, w)
 	pb.target.HLine(x, y, w)
+	if pb.skipbit {
+		return
+	}
+	pb.setBitHline(x, y, w)
 }
 
 func (pb *PixelBuffer) VLine(x, y, h int) {
-	ymax := y + h - 1
+	pb.target.VLine(x, y, h)
+	if pb.skipbit {
+		return
+	}
+	ymax := y + h
 	for y < ymax {
 		pb.setBit(x, y)
 		y++
 	}
-	pb.target.VLine(x, y, h)
 }
 
 func (pb *PixelBuffer) FilledRect(x, y, w, h int) {
+	pb.target.FilledRect(x, y, w, h)
+	if pb.skipbit {
+		return
+	}
 	ymax := y + h - 1
 	for y < ymax {
 		pb.setBitHline(x, y, w)
 		y++
 	}
-	pb.target.FilledRect(x, y, w, h)
 }
 
 func (pb *PixelBuffer) Text(s string, x, y int) {

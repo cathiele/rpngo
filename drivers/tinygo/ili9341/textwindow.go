@@ -151,10 +151,16 @@ func (tw *Ili9341TxtW) Erase() {
 
 func (tw *Ili9341TxtW) ShowBorder(screenw, screenh int) error {
 	c := color.RGBA{R: 100, G: 0, B: 100}
-	tw.device.DrawFastHLine(tw.wx, tw.wx+tw.ww-1, tw.wy, c)
-	tw.device.DrawFastHLine(tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, c)
-	tw.device.DrawFastVLine(tw.wx, tw.wy, tw.wy+tw.wh-1, c)
-	tw.device.DrawFastVLine(tw.wx+tw.ww-1, tw.wy, tw.wy+tw.wh-1, c)
+	/*
+		tw.device.DrawFastHLine(tw.wx, tw.wx+tw.ww-1, tw.wy, c)
+		tw.device.DrawFastHLine(tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, c)
+		tw.device.DrawFastVLine(tw.wx, tw.wy, tw.wy+tw.wh-1, c)
+		tw.device.DrawFastVLine(tw.wx+tw.ww-1, tw.wy, tw.wy+tw.wh-1, c)
+	*/
+	slowHline(tw.device, tw.wx, tw.wx+tw.ww-1, tw.wy, c)
+	slowHline(tw.device, tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, c)
+	slowVline(tw.device, tw.wx, tw.wy, tw.wy+tw.wh-1, c)
+	slowVline(tw.device, tw.wx+tw.ww-1, tw.wy, tw.wy+tw.wh-1, c)
 	return nil
 }
 

@@ -76,10 +76,16 @@ func (tw *Ili9341PixW) ShowBorder(screenw, screenh int) error {
 	x1 := tw.wx + tw.ww - 1
 	y0 := tw.wy
 	y1 := tw.wy + tw.wh - 1
-	tw.device.DrawFastHLine(x0, x1, y0, window.BorderColor)
-	tw.device.DrawFastHLine(x0, x1, y1, window.BorderColor)
-	tw.device.DrawFastVLine(x0, y0+1, y1-1, window.BorderColor)
-	tw.device.DrawFastVLine(x1, y0+1, y1-1, window.BorderColor)
+	/*
+		tw.device.DrawFastHLine(x0, x1, y0, window.BorderColor)
+		tw.device.DrawFastHLine(x0, x1, y1, window.BorderColor)
+		tw.device.DrawFastVLine(x0, y0+1, y1-1, window.BorderColor)
+		tw.device.DrawFastVLine(x1, y0+1, y1-1, window.BorderColor)
+	*/
+	slowHline(tw.device, x0, x1, y0, window.BorderColor)
+	slowHline(tw.device, x0, x1, y1, window.BorderColor)
+	slowVline(tw.device, x0, y0+1, y1-1, window.BorderColor)
+	slowVline(tw.device, x1, y0+1, y1-1, window.BorderColor)
 	return nil
 }
 
@@ -92,11 +98,13 @@ func (tw *Ili9341PixW) SetPoint(x, y int) {
 }
 
 func (tw *Ili9341PixW) HLine(x, y, w int) {
-	tw.device.DrawFastHLine(tw.px+int16(x), tw.px+int16(x+w)-1, tw.py+int16(y), tw.col)
+	//tw.device.DrawFastHLine(tw.px+int16(x), tw.px+int16(x+w)-1, tw.py+int16(y), tw.col)
+	slowHline(tw.device, tw.px+int16(x), tw.px+int16(x+w)-1, tw.py+int16(y), tw.col)
 }
 
 func (tw *Ili9341PixW) VLine(x, y, h int) {
-	tw.device.DrawFastVLine(tw.px+int16(x), tw.py+int16(y), tw.py+int16(y+h)-1, tw.col)
+	//tw.device.DrawFastVLine(tw.px+int16(x), tw.py+int16(y), tw.py+int16(y+h)-1, tw.col)
+	slowVline(tw.device, tw.px+int16(x), tw.py+int16(y), tw.py+int16(y+h)-1, tw.col)
 }
 
 func (tw *Ili9341PixW) FilledRect(x, y, w, h int) {
