@@ -53,7 +53,7 @@ func checkVariableName(name string) error {
 }
 
 func isAlpha(r rune) bool {
-	return (r == '_') || ((r >= 'A') && (r <= 'Z')) || ((r >= 'a') && (r <= 'z'))
+	return (r == '.') || (r == '_') || ((r >= 'A') && (r <= 'Z')) || ((r >= 'a') && (r <= 'z'))
 }
 
 func isNum(r rune) bool {
