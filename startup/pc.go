@@ -28,6 +28,8 @@ const defaultConfigFile = `
 @.init
 
 'w.reset @.init' .f1=
+'w.reset "root" w.columns "i" 30 w.weight' .f2=
+'w.reset "root" w.columns "v" w.new.var "v" "showdot" true w.setp' .f3=
 
 # Plot defaults
 'p' .plotwin=
