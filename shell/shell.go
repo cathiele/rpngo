@@ -19,7 +19,7 @@ variables control the behavior:
 .env    - If set, environment variabls will be set using KEY=VALUE with
           one variable per line
 
-The exit code of the shell command is set to the variable $.rc.
+The exit code of the shell command is set to the variable $rc.
 `
 
 func Shell(r *rpn.RPN) error {
@@ -48,12 +48,15 @@ func Shell(r *rpn.RPN) error {
 	output, err := cmd.CombinedOutput()
 	rc := 0
 	if err != nil {
-		// TODO handle RC better.
-		rc = 1
+		if exitError, ok := err.(*exec.ExitError); ok {
+			rc = exitError.ExitCode()
+		} else {
+			rc = 1
+		}
 		r.Print("Error: " + err.Error() + " " + string(output) + "\n")
 	}
 	r.PushInt(int64(rc), rpn.INTEGER_FRAME)
-	r.SetVariable(".rc")
+	r.SetVariable("rc")
 	if err == nil {
 		if err := setCmdOutput(r, string(output)); err != nil {
 			return err
