@@ -76,7 +76,7 @@ func isAlphaNum(r rune) bool {
 }
 
 // Clears a variable
-func (r *RPN) clearVariable(name string) error {
+func (r *RPN) ClearVariable(name string) error {
 	if len(name) == 0 {
 		return ErrIllegalName
 	}

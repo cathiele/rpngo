@@ -117,7 +117,10 @@ func (wr *WindowRoot) addWindowGroupEntry(r *rpn.RPN, wge *windowGroupEntry) {
 	parentname, addend, weight := determineWindowParms(r)
 	parent, err := wr.FindwindowGroup(parentname)
 	if err != nil {
-		// wondow not found, use the root group
+		// window not found, use the root group
+		fr := rpn.Frame{Type: rpn.STRING_FRAME, Str: "root"}
+		r.PushFrame(fr)
+		r.SetVariable(".wtarget")
 		parent = wr.group
 	}
 	wge.weight = weight
@@ -130,16 +133,23 @@ func (wr *WindowRoot) addWindowGroupEntry(r *rpn.RPN, wge *windowGroupEntry) {
 }
 
 func determineWindowParms(r *rpn.RPN) (parentname string, addend bool, weight int) {
-	parentname = "root"
-	fr, err := r.GetVariable(".wtarget")
-	if err == nil {
-		parentname = fr.String(false)
-	}
+	// save any parentname errors for addWindowGroupEntry
+	parentname, _ = r.GetStringVariable(".wtarget")
 
-	fr, _ = r.GetVariable(".wend")
+	fr, err := r.GetVariable(".wend")
+	if err != nil {
+		fr = rpn.Frame{Type: rpn.BOOL_FRAME, Int: 1}
+		r.PushFrame(fr)
+		r.SetVariable(".wend")
+	}
 	addend = fr.Bool()
 
-	fr, _ = r.GetVariable(".wweight")
+	fr, err = r.GetVariable(".wweight")
+	if err != nil {
+		fr = rpn.Frame{Type: rpn.INTEGER_FRAME, Int: 100}
+		r.PushFrame(fr)
+		r.SetVariable(".wweight")
+	}
 	if fr.Type == rpn.COMPLEX_FRAME {
 		fr.Int = int64(real(fr.Complex))
 	}
@@ -211,4 +221,31 @@ func (wr *WindowRoot) RemoveAllChildren() {
 func (wr *WindowRoot) Dump(r *rpn.RPN) {
 	lines := wr.group.dump(nil, "root", 0, 100)
 	r.Println(strings.Join(lines, "\n"))
+	r.Print("\n.wtarget=")
+	target, err := r.GetStringVariable(".wtarget")
+	if err != nil {
+		r.Print("root (unset)")
+	} else {
+		r.Print(target)
+	}
+
+	r.Print(" .wend=")
+	fr, err := r.GetVariable(".wend")
+	if err != nil {
+		r.Print("true (unset)")
+	} else if fr.Type != rpn.BOOL_FRAME {
+		r.Print("true (not a bool)")
+	} else {
+		r.Print(fr.String(false))
+	}
+
+	r.Print(" .wweight=")
+	fr, err = r.GetVariable(".wweight")
+	if err != nil {
+		r.Println("100 (unset)")
+	} else if (fr.Type == rpn.COMPLEX_FRAME) || (fr.IsInt()) {
+		r.Println(fr.String(false))
+	} else {
+		r.Println("100 (bad type)")
+	}
 }

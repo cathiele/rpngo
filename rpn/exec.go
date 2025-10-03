@@ -22,7 +22,7 @@ func (rpn *RPN) exec(arg string) error {
 		case '=':
 			return rpn.SetVariable(arg[:len(arg)-1])
 		case '/':
-			return rpn.clearVariable(arg[:len(arg)-1])
+			return rpn.ClearVariable(arg[:len(arg)-1])
 		case '>':
 			return rpn.moveStackVariableToHead(arg[:len(arg)-1])
 		case '<':

@@ -15,13 +15,14 @@ const defaultConfigFile = `
 'g' w.new.group
 'g' w.columns
 'i' 'g' w.move.end
+'i' 25 w.weight
 'g2' w.new.group
 'g2' 25 w.weight
 'g2' w.columns
+'g2' .wtarget=
 's' w.new.stack
-'s' 'g2' w.move.end
 'v' w.new.var
-'v' 'g2' w.move.end
+'g' .wtarget=
 " .init=
 
 @.init
@@ -30,7 +31,7 @@ const defaultConfigFile = `
 
 # Plot defaults
 'p' .plotwin=
-'$.plotwin w.new.plot $.plotwin "g" w.move.end' .plotinit=
+'$.plotwin w.new.plot' .plotinit=
 ` + commonStartup
 
 const configName = ".rpngo"

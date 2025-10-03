@@ -28,6 +28,11 @@ func InitWindowCommands(
 			"- Change the weight of a window or group with w.weight (default weight is 100).\n" +
 			"- Change the layout mode of a window group to columns with w.columns.\n" +
 			"- Print info on all existing windows and groups with w.dump.\n" +
+			"- You may also set .wtarget, .wend, and .wweight to direct how and\n" +
+			"  where the next window/group will be create.  w.reset resets these\n" +
+			"  to .wtarget=root, .wend=true, .wweight=100. Using illegal types or\n" +
+			"  values for these variables will cause them to revert to the defaults\n" +
+			"  as well.\n" +
 			"See Also: windows, window.props",
 
 		"window.props": "Each window supports properties that changes how the window operates\n" +
@@ -81,6 +86,12 @@ func (wc *WindowCommands) WDump(r *rpn.RPN) error {
 const WResetHelp = "Resets window configuration to just a single input window"
 
 func (wc *WindowCommands) WReset(r *rpn.RPN) error {
+	r.PushString("root")
+	r.SetVariable(".wtarget")
+	r.PushBool(true)
+	r.SetVariable(".wend")
+	r.PushInt(100, rpn.INTEGER_FRAME)
+	r.SetVariable(".wweight")
 	iw := wc.root.FindWindow("i")
 	if iw == nil {
 		return rpn.ErrInputWindowNotFound
