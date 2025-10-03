@@ -11,6 +11,7 @@ import (
 
 const defaultConfigFile = `
 # Create and layout windows
+"
 'g' w.new.group
 'g' w.columns
 'i' 'g' w.move.end
@@ -21,6 +22,11 @@ const defaultConfigFile = `
 's' 'g2' w.move.end
 'v' w.new.var
 'v' 'g2' w.move.end
+" .init=
+
+@.init
+
+'w.reset @.init' .f1=
 
 # Plot defaults
 'p' .plotwin=

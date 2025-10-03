@@ -156,6 +156,30 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 			line, idx = gl.tabComplete(r, line, idx)
 		case key.KEY_EOF:
 			return "exit", nil
+		case key.KEY_F1:
+			return gl.execMacro(r, idx, "@.f1")
+		case key.KEY_F2:
+			return gl.execMacro(r, idx, "@.f2")
+		case key.KEY_F3:
+			return gl.execMacro(r, idx, "@.f3")
+		case key.KEY_F4:
+			return gl.execMacro(r, idx, "@.f4")
+		case key.KEY_F5:
+			return gl.execMacro(r, idx, "@.f5")
+		case key.KEY_F6:
+			return gl.execMacro(r, idx, "@.f6")
+		case key.KEY_F7:
+			return gl.execMacro(r, idx, "@.f7")
+		case key.KEY_F8:
+			return gl.execMacro(r, idx, "@.f8")
+		case key.KEY_F9:
+			return gl.execMacro(r, idx, "@.f9")
+		case key.KEY_F10:
+			return gl.execMacro(r, idx, "@.f10")
+		case key.KEY_F11:
+			return gl.execMacro(r, idx, "@.f11")
+		case key.KEY_F12:
+			return gl.execMacro(r, idx, "@.f12")
 		default:
 			b := byte(c)
 			if b == '\n' {
@@ -168,6 +192,15 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 			idx++
 		}
 	}
+}
+
+func (gl *getLine) execMacro(r *rpn.RPN, idx int, name string) (string, error) {
+	window.Shift(gl.txtd, -idx)
+	for idx > 0 {
+		window.PutByte(gl.txtd, ' ')
+		idx--
+	}
+	return name, nil
 }
 
 func (gl *getLine) addChar(line []byte, idx int, b byte) []byte {

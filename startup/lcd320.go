@@ -7,8 +7,14 @@ import (
 )
 
 const lcd320ConfigFile = `
+"
 's' w.new.stack
 's' 30 w.weight
+" .init=
+
+@.init
+
+'w.reset @.init' .f1=
 
 # Plot defaults
 'p' .plotwin=

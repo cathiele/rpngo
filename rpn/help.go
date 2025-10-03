@@ -40,12 +40,16 @@ func (rpn *RPN) initHelp() {
 		"complex": "Enter a complex value as i, -i, 3+i or 3-i\n" +
 			"Do not use spaces.",
 
+		"keymacros": "The variables .f1 to .f12 can be set to a string.\n" +
+			"Pressing the corresponding function key will execute the string\n" +
+			"as a macro.",
+
 		"macros": "Execute a variable as @name.  Execute a string with just @\n" +
 			"Convert any value to a string with str.\n" +
 			"Example:\n" +
 			"'. 3.14159 * *' cirarea=\n" +
 			"5 @cirarea\n" +
-			"See Also: variables",
+			"See Also: keymacros, variables",
 
 		"printing": "There are various printing functions that print values\n" +
 			"at the head of the stack. These include:\n" +

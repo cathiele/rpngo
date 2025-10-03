@@ -11,12 +11,10 @@
 - L: Implement PixelWindow
 - L: Implement large output viewer
 - M: Add stack output formatting options
-- M: Add free memory command
 - S: Blink on panic
 - L: Rewrite readme doc
 - L: Add I2C keyboard support
 - M: Ad F or ctrl key macro shortcuts
-- M: Make variables able to start with a . and hide them by default
 
 ## Wishlist
 

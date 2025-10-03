@@ -119,6 +119,18 @@ var charMap = map[goncurses.Key]key.Key{
 	goncurses.KEY_END:       key.KEY_END,
 	goncurses.KEY_HOME:      key.KEY_HOME,
 	4:                       key.KEY_EOF,
+	goncurses.KEY_F1:        key.KEY_F1,
+	goncurses.KEY_F2:        key.KEY_F2,
+	goncurses.KEY_F3:        key.KEY_F3,
+	goncurses.KEY_F4:        key.KEY_F4,
+	goncurses.KEY_F5:        key.KEY_F5,
+	goncurses.KEY_F6:        key.KEY_F6,
+	goncurses.KEY_F7:        key.KEY_F7,
+	goncurses.KEY_F8:        key.KEY_F8,
+	goncurses.KEY_F9:        key.KEY_F9,
+	goncurses.KEY_F10:       key.KEY_F10,
+	goncurses.KEY_F11:       key.KEY_F11,
+	goncurses.KEY_F12:       key.KEY_F11,
 }
 
 func (c *Curses) GetChar() (key.Key, error) {
