@@ -100,15 +100,56 @@ func (wr *WindowRoot) SetWindowWeight(name string, w int) error {
 	return nil
 }
 
-func (wr *WindowRoot) AddNewWindowGroupChild(name string, weight int) {
-	group := &windowGroup{}
-	wr.group.children = append(wr.group.children, &windowGroupEntry{name: name, weight: weight, group: group})
+func (wr *WindowRoot) AddNewWindowGroupChild(r *rpn.RPN, name string) {
+	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, group: &windowGroup{}})
+}
+
+func (wr *WindowRoot) AddWindowChildToRoot(window WindowWithProps, name string, weight int) {
+	wr.group.children = append(wr.group.children, &windowGroupEntry{name: name, weight: weight, window: window})
 	wr.adjustNeeded = true
 }
 
-func (wr *WindowRoot) AddWindowChild(window WindowWithProps, name string, weight int) {
-	wr.group.children = append(wr.group.children, &windowGroupEntry{name: name, weight: weight, window: window})
+func (wr *WindowRoot) AddWindowChild(r *rpn.RPN, window WindowWithProps, name string) {
+	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, window: window})
+}
+
+func (wr *WindowRoot) addWindowGroupEntry(r *rpn.RPN, wge *windowGroupEntry) {
+	parentname, addend, weight := determineWindowParms(r)
+	parent, err := wr.FindwindowGroup(parentname)
+	if err != nil {
+		// wondow not found, use the root group
+		parent = wr.group
+	}
+	wge.weight = weight
+	if addend {
+		parent.children = append(parent.children, wge)
+	} else {
+		parent.children = append([]*windowGroupEntry{wge}, parent.children...)
+	}
 	wr.adjustNeeded = true
+}
+
+func determineWindowParms(r *rpn.RPN) (parentname string, addend bool, weight int) {
+	parentname = "root"
+	fr, err := r.GetVariable(".wtarget")
+	if err == nil {
+		parentname = fr.String(false)
+	}
+
+	fr, _ = r.GetVariable(".wend")
+	addend = fr.Bool()
+
+	fr, _ = r.GetVariable(".wweight")
+	if fr.Type == rpn.COMPLEX_FRAME {
+		fr.Int = int64(real(fr.Complex))
+	}
+	weight = int(fr.Int)
+	if weight < 10 {
+		weight = 10
+	} else if weight > 10000 {
+		weight = 10000
+	}
+	return
 }
 
 func (wr *WindowRoot) UseColumnLayout(name string, v bool) error {

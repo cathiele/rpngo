@@ -1,6 +1,9 @@
 package startup
 
 const commonStartup = `
+"root" .wtarget=
+true .wend=
+100 .wweight=
 
 # set some useful vars
 3.141592653589793 pi=

@@ -87,7 +87,7 @@ func (wc *WindowCommands) WReset(r *rpn.RPN) error {
 	}
 	wc.root.RemoveAllChildren()
 	wc.root.UseColumnLayout("root", false)
-	wc.root.AddWindowChild(iw, "i", 100)
+	wc.root.AddWindowChildToRoot(iw, "i", 100)
 	return nil
 }
 
@@ -146,7 +146,7 @@ func (wc *WindowCommands) WNewGroup(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	wc.root.AddNewWindowGroupChild(name, 100)
+	wc.root.AddNewWindowGroupChild(r, name)
 	return nil
 }
 
@@ -162,7 +162,7 @@ func (wc *WindowCommands) WNewStack(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	wc.root.AddWindowChild(sw, name, 100)
+	wc.root.AddWindowChild(r, sw, name)
 	return nil
 }
 
@@ -178,7 +178,7 @@ func (wc *WindowCommands) WNewPlot(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	wc.root.AddWindowChild(pw, name, 100)
+	wc.root.AddWindowChild(r, pw, name)
 	return nil
 }
 
@@ -194,7 +194,7 @@ func (wc *WindowCommands) WNewVar(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	wc.root.AddWindowChild(sw, name, 100)
+	wc.root.AddWindowChild(r, sw, name)
 	return nil
 }
 
