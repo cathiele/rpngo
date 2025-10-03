@@ -1,14 +1,15 @@
-package functions
+package shell
 
 import (
 	"errors"
+	"mattwach/rpngo/functions"
 	"mattwach/rpngo/rpn"
 	"os"
 	"path/filepath"
 	"testing"
 )
 
-func TestLoad(t *testing.T) {
+func TestSource(t *testing.T) {
 	data := []struct {
 		filedata string
 		want     string
@@ -42,8 +43,9 @@ func TestLoad(t *testing.T) {
 			}
 			var r rpn.RPN
 			r.Init()
-			RegisterAll(&r)
-			err := r.Exec([]string{"'" + filePath + "'", "load"})
+			functions.RegisterAll(&r)
+			Register(&r)
+			err := r.Exec([]string{"'" + filePath + "'", "source"})
 			if !errors.Is(err, d.wantErr) {
 				t.Errorf("err=%v, want: %v", err, d.wantErr)
 			}
