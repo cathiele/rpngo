@@ -130,15 +130,15 @@ func (pb *PixelBuffer) setBit(x, y int) {
 }
 
 func (pb *PixelBuffer) setBitHline(x, y, w int) {
-	maxx := x + w - 1
-	for x <= maxx {
-		poffset := y*pb.pw + x
-		if ((x & 0x07) == 0) && ((maxx - x) >= 8) {
-			pb.current[poffset>>3] = 0xFF
-			x += 8
+	offset := y*pb.pw + x
+	maxoffset := offset + w - 1
+	for offset <= maxoffset {
+		if ((offset & 0x07) == 0) && ((maxoffset - offset) >= 8) {
+			pb.current[offset>>3] = 0xFF
+			offset += 8
 		} else {
-			pb.current[poffset>>3] |= (0x80 >> (poffset & 7))
-			x++
+			pb.current[offset>>3] |= (0x80 >> (offset & 7))
+			offset++
 		}
 	}
 }
