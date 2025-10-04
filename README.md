@@ -40,6 +40,46 @@ Core functions that are available (can be all be added, or selectively added):
 - Arithimetic: +, -, \*, /, **
 - Scientific: sqrt, sin, cos, tan, asin, acos, atan
 
+## Build
+
+You'll first need to install golang.
+
+There is a `bin/` directory thast contains various different builds of rpn
+for the computer and for microtrollers.  Try the ones you like and ignore the rest/  Here is an overview:
+
+- bin/minimal/rpn - The most basic version.  Parses args and exsts.
+- bin/ncurses/rpn - Uses ncurses to support multiple view windows and even text-based plotting
+- bin/tinygo/serialonly - The most basic version that runs on vaious microtrollers and uses serial console to talk to the host pc
+- bin/tinygo/ili9341 - A tinygo mcrocontroller build that still uses serial fo input, but uses an ili9341 color LCD for output.  Supports fancy pixel-based graping.  The pins are configured for a raspberry pi pico or pico2.  By adding a pin mappiong file, it should be possible to support other microcontrollers too.
+
+To build the normal build versions, you cd into the directory you want and type
+
+```
+go build
+```
+
+For tinygo builds, you'll need to install tinygo. After that, the command is along the lines of.
+
+```
+tinygo build -target=pico
+```
+
+Adjusting to the miccrocontroller you are using and perhaps using `flash` instead of `build`.
+
+Note that th ncurses build will likely give you an error unless you have `libncurses-dev` already installed.  In Ubntu/Debian, the fix is:
+
+```
+sudo apt install libncurses-dev
+```
+
+In the top-level directory, you can type
+
+```
+make
+```
+
+To run all unit tests and build all targets/  This will only work if you have tinygo installed.
+
 ## RPN Introduction
 
 RPN is an old and proven way to do calculations that is popular in engineering fields.

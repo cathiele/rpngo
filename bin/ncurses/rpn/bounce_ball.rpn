@@ -8,15 +8,15 @@
   0 y=
   0.05 diameter=
   '$0 cos $diameter * $x + 1> sin $diameter * $y +' pplot
-  'p1' 'minv' 0 w.setp
-  'p1' 'maxv' $pi 2 * w.setp
-  'p1' 'minx' -1 w.setp
-  'p1' 'maxx' 1 w.setp
-  'p1' 'miny' -1 w.setp
-  'p1' 'maxy' 1 w.setp
-  'p1' 'steps' 30 w.setp
+  'p' 'minv' 0 w.setp
+  'p' 'maxv' $pi 2 * w.setp
+  'p' 'minx' -1 w.setp
+  'p' 'maxx' 1 w.setp
+  'p' 'miny' -1 w.setp
+  'p' 'maxy' 1 w.setp
+  'p' 'steps' 30 w.setp
   '@next_frame $i 1 + i= $i 1000 <' for
-  'p1' w.del
+  'p' w.del
   vpop
 " bounce_ball=
 
@@ -27,7 +27,7 @@
   $y $yv +
   $0 abs 1 > '$yv neg yv= $yv + y=' 'y=' ifelse @
 
-  'p1' w.update
+  'p' w.update
   1 60 / delay
 " next_frame=
 
