@@ -126,7 +126,7 @@ func (sw *StackWindow) roundedString(f rpn.Frame) string {
 	idx := 0
 	for _, c := range s {
 		if inDecimal {
-			if c < '0' || c > '9' {
+			if c != '.' && (c < '0' || c > '9') {
 				if sw.round > 0 {
 					iv, _ := strconv.Atoi(string(dec[:didx]))
 					if didx > sw.round {
