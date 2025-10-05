@@ -8,13 +8,15 @@ import (
 )
 
 type StackWindow struct {
-	txtb window.TextBuffer
-	txtw window.TextWindow
+	txtb  window.TextBuffer
+	txtw  window.TextWindow
+	round int8
 }
 
 func Init(txtw window.TextWindow) (*StackWindow, error) {
 	w := &StackWindow{txtw: txtw}
 	w.txtb.TextColor(window.White)
+	w.round = -1
 	return w, nil
 }
 
@@ -39,15 +41,33 @@ func (sw *StackWindow) Type() string {
 }
 
 func (sw *StackWindow) SetProp(name string, val rpn.Frame) error {
-	return rpn.ErrNotSupported
+	switch name {
+	case "round":
+		if val.Type == rpn.COMPLEX_FRAME {
+			val.Type = rpn.INTEGER_FRAME
+			val.Int = int64(real(val.Complex))
+		}
+		if !val.IsInt() || (val.Int < -1) || (val.Int > 10) {
+			return rpn.ErrIllegalValue
+		}
+		sw.round = int8(val.Int)
+		return nil
+	default:
+		return rpn.ErrUnknownProperty
+	}
 }
 
 func (sw *StackWindow) GetProp(name string) (rpn.Frame, error) {
-	return rpn.Frame{}, rpn.ErrNotSupported
+	switch name {
+	case "round":
+		return rpn.Frame{Type: rpn.INTEGER_FRAME, Int: int64(sw.round)}, nil
+	default:
+		return rpn.Frame{}, rpn.ErrNotSupported
+	}
 }
 
 func (sw *StackWindow) ListProps() []string {
-	return nil
+	return []string{"round"}
 }
 
 func (sw *StackWindow) Update(rpn *rpn.RPN) error {
@@ -73,7 +93,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 		lw := w - len(s)
 		if lw > 0 {
 			sw.txtb.TextColor(window.Cyan)
-			s := f.String(true)
+			s := sw.roundedString(f)
 			if len(s) > lw {
 				s = s[:lw]
 			}
@@ -92,4 +112,48 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 	sw.txtb.UpdateTextWindow(sw.txtw)
 	sw.txtw.Refresh()
 	return nil
+}
+
+func (sw *StackWindow) roundedString(f rpn.Frame) string {
+	s := f.String(true)
+	if (f.Type != rpn.COMPLEX_FRAME) || (sw.round < 0) {
+		return s
+	}
+	var buff [32]byte
+	var dec [12]byte
+	inDecimal := false
+	var didx int8
+	idx := 0
+	for _, c := range s {
+		if inDecimal {
+			if c < '0' || c > '9' {
+				if sw.round > 0 {
+					iv, _ := strconv.Atoi(string(dec[:didx]))
+					if didx > sw.round {
+						iv = (iv + 5) / 10
+					}
+					for _, b := range strconv.Itoa(int(iv)) {
+						buff[idx] = byte(b)
+						idx++
+					}
+				}
+				inDecimal = false
+			} else if didx <= sw.round {
+				dec[didx] = byte(c)
+				didx++
+			}
+		}
+		if !inDecimal {
+			buff[idx] = byte(c)
+			idx++
+			if c == '.' {
+				didx = 0
+				inDecimal = true
+				if sw.round == 0 {
+					idx--
+				}
+			}
+		}
+	}
+	return string(buff[:idx])
 }

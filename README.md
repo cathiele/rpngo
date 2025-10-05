@@ -8,7 +8,6 @@
 
 ## TODO Features
 
-- L: Implement PixelWindow
 - L: Implement large output viewer
 - M: Add stack output formatting options
 - S: Blink on panic
