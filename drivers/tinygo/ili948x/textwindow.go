@@ -98,7 +98,7 @@ func (tw *Ili948xTxtW) ResizeWindow(x, y, w, h int) error {
 		tw.wh = int16(h)
 		tw.chars = make([]window.ColorChar, int(tw.textw)*int(tw.texth))
 	}
-	tw.device.FillRectangle(int16(x), int16(y), int16(w), int16(h), color.RGBA{})
+	tw.device.FillRectangle(int16(x), int16(y), int16(w), int16(h), 0) // fill with black
 	var j int16
 	b := window.ColorChar(' ')
 	for j = 0; j < tw.texth; j++ {
@@ -149,7 +149,7 @@ func (tw *Ili948xTxtW) Erase() {
 }
 
 func (tw *Ili948xTxtW) ShowBorder(screenw, screenh int) error {
-	var c uint32 = 0xFF00FF
+	c := pixel.NewRGB565BE(255, 0, 255)
 	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy, c)
 	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, c)
 	tw.device.DrawVLine(tw.wx, tw.wy, tw.wy+tw.wh-1, c)

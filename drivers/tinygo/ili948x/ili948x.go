@@ -2,9 +2,11 @@ package ili948x
 
 import (
 	"errors"
-	"io"
+	"image/color"
 	"machine"
 	"time"
+
+	"tinygo.org/x/drivers/pixel"
 )
 
 type Rotation uint8
@@ -17,9 +19,12 @@ const ( // clock-wise rotation
 )
 
 const (
-	TFT_DEFAULT_WIDTH  uint16 = 320 // rot_0
-	TFT_DEFAULT_HEIGHT uint16 = 480
+	TFT_DEFAULT_WIDTH  int16 = 320 // rot_0
+	TFT_DEFAULT_HEIGHT int16 = 480
 )
+
+// Image buffer type used in the ili9341.
+type Image = pixel.Image[pixel.RGB565BE]
 
 type Ili948x struct {
 	trans  iTransport
@@ -27,16 +32,16 @@ type Ili948x struct {
 	dc     machine.Pin // tft data / command
 	bl     machine.Pin // tft backlight
 	rst    machine.Pin // tft reset
-	width  uint16      // tft pixel width
-	height uint16      // tft pixel height
+	width  int16       // tft pixel width
+	height int16       // tft pixel height
 	rot    Rotation    // tft orientation
 	mirror bool        // mirror tft output
 	bgr    bool        // tft blue-green-red mode
-	x0, x1 uint16      // current address window for
-	y0, y1 uint16      //  CMD_PASET and CMD_CASET
+	x0, x1 int16       // current address window for
+	y0, y1 int16       //  CMD_PASET and CMD_CASET
 }
 
-func NewIli9488(trans iTransport, cs, dc, bl, rst machine.Pin, width, height uint16) *Ili948x {
+func NewIli9488(trans iTransport, cs, dc, bl, rst machine.Pin, width, height int16) *Ili948x {
 	if width == 0 {
 		width = TFT_DEFAULT_WIDTH
 	}
@@ -96,7 +101,7 @@ func NewIli9488(trans iTransport, cs, dc, bl, rst machine.Pin, width, height uin
 }
 
 // Size returns the current size of the display.
-func (disp *Ili948x) Size() (uint16, uint16) {
+func (disp *Ili948x) Size() (int16, int16) {
 	if disp.rot == Rot_0 || disp.rot == Rot_180 {
 		return disp.width, disp.height
 	}
@@ -104,61 +109,76 @@ func (disp *Ili948x) Size() (uint16, uint16) {
 }
 
 // DrawPixel draws a single pixel with the specified color.
-func (disp *Ili948x) DrawPixel(x, y uint16, color uint32) error {
-	return disp.FillRectangle(x, y, 1, 1, color)
+func (disp *Ili948x) SetPoint(x, y int16, c pixel.RGB565BE) {
+	disp.setWindow(x, y, 1, 1)
+
+	disp.writeCmd(CMD_RAMWR)
+	disp.startWrite()
+	disp.trans.write16(uint16(c))
+	disp.endWrite()
+}
+
+func (disp *Ili948x) SetPixel(x, y int16, c color.RGBA) {
+	disp.setWindow(x, y, 1, 1)
+
+	c16 := pixel.NewRGB565BE(c.R, c.G, c.B)
+
+	disp.writeCmd(CMD_RAMWR)
+	disp.startWrite()
+	disp.trans.write16(uint16(c16))
+	disp.endWrite()
 }
 
 // DrawHLine draws a horizontal line with the specified color.
-func (disp *Ili948x) DrawHLine(x0, x1, y uint16, color uint32) error {
+func (disp *Ili948x) DrawHLine(x0, x1, y int16, c pixel.RGB565BE) {
 	if x0 > x1 {
 		x0, x1 = x1, x0
 	}
-	return disp.FillRectangle(x0, y, x1-x0+1, 1, color)
+	disp.FillRectangle(x0, y, x1-x0+1, 1, c)
 }
 
 // DrawVLine draws a vertical line with the specified color.
-func (disp *Ili948x) DrawVLine(x, y0, y1 uint16, color uint32) error {
+func (disp *Ili948x) DrawVLine(x, y0, y1 int16, c pixel.RGB565BE) {
 	if y0 > y1 {
 		y0, y1 = y1, y0
 	}
-	return disp.FillRectangle(x, y0, 1, y1-y0+1, color)
+	disp.FillRectangle(x, y0, 1, y1-y0+1, c)
 }
 
 // FillScreen fills the screen with the specified color.
-func (disp *Ili948x) FillScreen(color uint32) {
+func (disp *Ili948x) FillScreen(c pixel.RGB565BE) {
 	if disp.rot == Rot_0 || disp.rot == Rot_180 {
-		disp.FillRectangle(0, 0, disp.width, disp.height, color)
+		disp.FillRectangle(0, 0, disp.width, disp.height, c)
 	} else {
-		disp.FillRectangle(0, 0, disp.height, disp.width, color)
+		disp.FillRectangle(0, 0, disp.height, disp.width, c)
 	}
 }
 
 // FillRectangle fills a rectangle at given coordinates and dimensions with the specified color.
-func (disp *Ili948x) FillRectangle(x, y, width, height uint16, color uint32) error {
+func (disp *Ili948x) FillRectangle(x, y, width, height int16, c pixel.RGB565BE) {
 	w, h := disp.Size()
-	if x >= w || (x+width) > w || y >= h || (y+height) > h {
-		return errors.New("rectangle coordinates outside display area")
+	if x < 0 || x >= w || (x+width) > w || y <= 0 || y >= h || (y+height) > h {
+		return
 	}
 	disp.setWindow(x, y, width, height)
 
 	disp.writeCmd(CMD_RAMWR)
 	disp.startWrite()
-	disp.trans.write24n(color, int(width)*int(height))
+	disp.trans.write16n(uint16(c), int(width)*int(height))
 	disp.endWrite()
-
-	return nil
 }
 
+/*
 // DisplayBitmap renders the streamed image at given coordinates and dimensions.
-func (disp *Ili948x) DisplayBitmap(x, y, width, height uint16, bpp uint8, r io.Reader) error {
+func (disp *Ili948x) DisplayBitmap(x, y, width, height int, bpp uint8, r io.Reader) {
 	w, h := disp.Size()
-	if x >= w || (x+width) > w || y >= h || (y+height) > h {
-		return errors.New("rectangle coordinates outside display area")
+	if x < 0 || x >= w || (x+width) > w || y < 0 || y >= h || (y+height) > h {
+		return
 	}
 	disp.setWindow(x, y, width, height)
 
 	disp.writeCmd(CMD_RAMWR)
-	buf := make([]uint8, width*uint16(bpp/3))
+	buf := make([]uint8, width*int(bpp/3))
 	for {
 		n, err := r.Read(buf)
 		if n == 0 || err == io.EOF {
@@ -169,13 +189,34 @@ func (disp *Ili948x) DisplayBitmap(x, y, width, height uint16, bpp uint8, r io.R
 		disp.trans.write8sl(buf[:n])
 		disp.endWrite()
 	}
+}*/
 
+// DrawRGBBitmap8 copies an RGB bitmap to the internal buffer at given coordinates
+//
+// Deprecated: use DrawBitmap instead.
+func (d *Ili948x) DrawRGBBitmap8(x, y int16, data []uint8, w, h int16) error {
+	k, i := d.Size()
+	if x < 0 || y < 0 || w <= 0 || h <= 0 ||
+		x >= k || (x+w) > k || y >= i || (y+h) > i {
+		return errors.New("rectangle coordinates outside display area")
+	}
+	d.setWindow(x, y, w, h)
+	d.startWrite()
+	d.trans.write8sl(data)
+	d.endWrite()
 	return nil
+}
+
+// DrawBitmap copies the bitmap to the internal buffer on the screen at the
+// given coordinates. It returns once the image data has been sent completely.
+func (d *Ili948x) DrawBitmap(x, y int16, bitmap Image) error {
+	width, height := bitmap.Size()
+	return d.DrawRGBBitmap8(x, y, bitmap.RawBuffer(), int16(width), int16(height))
 }
 
 // SetScrollArea sets an area to scroll with fixed top/bottom or left/right parts of the display
 // Rotation affects scroll direction
-func (disp *Ili948x) SetScrollArea(topFixedArea, bottomFixedArea uint16) {
+func (disp *Ili948x) SetScrollArea(topFixedArea, bottomFixedArea int16) {
 	vertScrollArea := disp.height - topFixedArea - bottomFixedArea
 	disp.writeCmd(CMD_VSCRDEF,
 		uint8(topFixedArea>>8),
@@ -253,7 +294,7 @@ func (disp *Ili948x) Reset() {
 }
 
 // setWindow defines the output area for subsequent calls to CMD_RAMWR
-func (disp *Ili948x) setWindow(x, y, w, h uint16) {
+func (disp *Ili948x) setWindow(x, y, w, h int16) {
 	x1 := x + w - 1
 	if x != disp.x0 || x1 != disp.x1 {
 		disp.writeCmd(CMD_CASET,
@@ -329,7 +370,7 @@ func (disp *Ili948x) init() {
 		0x40) // VCM_OUT
 
 	disp.writeCmd(CMD_PIXFMT,
-		0x66) // DPI/DBI: 18 bits / pixel
+		0x55) // DPI/DBI: 16 bits / pixel
 
 	disp.writeCmd(CMD_FRMCTRL1,
 		0xa0, // FRS: 60.76  DIVA: 0
@@ -346,11 +387,13 @@ func (disp *Ili948x) init() {
 	disp.writeCmd(CMD_ETMOD,
 		0xc6) // EPF: 11 (db5 -> r0,g0,b0)
 
+	/* We are not using 18-bit RGB
 	disp.writeCmd(CMD_ADJCTRL3,
 		0xa9, //
 		0x51, //
 		0x2c, //
 		0x82) // DSI_18_option:
+	*/
 
 	disp.updateMadctl()
 
@@ -384,4 +427,8 @@ func (disp *Ili948x) endWrite() {
 	if disp.cs != machine.NoPin {
 		disp.cs.High()
 	}
+}
+
+func (disp *Ili948x) Display() error {
+	return nil
 }

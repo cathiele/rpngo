@@ -6,7 +6,8 @@ import (
 	"errors"
 	"image/color"
 	"mattwach/rpngo/drivers/tinygo/fonts"
-	"mattwach/rpngo/window"
+
+	"tinygo.org/x/drivers/pixel"
 )
 
 type Ili948xPixW struct {
@@ -26,7 +27,7 @@ type Ili948xPixW struct {
 	ph int16
 
 	// current color
-	col color.RGBA
+	col pixel.RGB565BE
 }
 
 // Init initializes a pixel window. x, y, w, and h are all in pixels
@@ -52,7 +53,7 @@ func (tw *Ili948xPixW) ResizeWindow(x, y, w, h int) error {
 	tw.py = tw.wy + 1
 	tw.pw = tw.ww - 2
 	tw.ph = tw.wh - 2
-	tw.device.FillRectangle(int16(x), int16(y), int16(w), int16(h), color.RGBA{})
+	tw.device.FillRectangle(int16(x), int16(y), int16(w), int16(h), 0) // black
 	return nil
 }
 
@@ -74,19 +75,20 @@ func (tw *Ili948xPixW) ShowBorder(screenw, screenh int) error {
 	x1 := tw.wx + tw.ww - 1
 	y0 := tw.wy
 	y1 := tw.wy + tw.wh - 1
-	tw.device.DrawHLine(x0, x1, y0, window.BorderColor)
-	tw.device.DrawHLine(x0, x1, y1, window.BorderColor)
-	tw.device.DrawVLine(x0, y0+1, y1-1, window.BorderColor)
-	tw.device.DrawVLine(x1, y0+1, y1-1, window.BorderColor)
+	c := pixel.NewRGB565BE(255, 0, 255)
+	tw.device.DrawHLine(x0, x1, y0, c)
+	tw.device.DrawHLine(x0, x1, y1, c)
+	tw.device.DrawVLine(x0, y0+1, y1-1, c)
+	tw.device.DrawVLine(x1, y0+1, y1-1, c)
 	return nil
 }
 
 func (tw *Ili948xPixW) Color(c color.RGBA) {
-	tw.col = c
+	tw.col = pixel.NewRGB565BE(c.R, c.G, c.B)
 }
 
 func (tw *Ili948xPixW) SetPoint(x, y int) {
-	tw.device.SetPixel(tw.px+int16(x), tw.py+int16(y), tw.col)
+	tw.device.SetPoint(tw.px+int16(x), tw.py+int16(y), tw.col)
 }
 
 func (tw *Ili948xPixW) HLine(x, y, w int) {
@@ -103,9 +105,13 @@ func (tw *Ili948xPixW) FilledRect(x, y, w, h int) {
 
 func (tw *Ili948xPixW) Text(s string, x, y int) {
 	// do it lower level to avoid importing a bunch of tinyfont code
+	c := color.RGBA{
+		R: uint8(tw.col>>10) * 16,
+		G: uint8((tw.col>>5)&0x3F) * 8,
+		B: uint8(tw.col&0x1F) * 16}
 	for _, r := range s {
 		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(
-			tw.device, tw.px+int16(x), tw.py+int16(y), tw.col)
+			tw.device, tw.px+int16(x), tw.py+int16(y), c)
 		x += FontCharWidth
 	}
 }
