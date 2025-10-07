@@ -3,7 +3,6 @@ set -e
 set -x
 cd bin
 base=$(pwd)
-cd $base/ncurses/rpn && go build
 cd $base/minimal/rpn && go build
 cd $base/tinygo/serialonly && tinygo build -target pico
 cd $base/tinygo/ili9341 && tinygo build -target pico

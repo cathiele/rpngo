@@ -169,11 +169,9 @@ func (wc *WindowCommands) WNewStack(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	sw, err := stackwin.Init(txtw)
-	if err != nil {
-		return err
-	}
-	wc.root.AddWindowChild(r, sw, name)
+	var sw stackwin.StackWindow
+	sw.Init(txtw)
+	wc.root.AddWindowChild(r, &sw, name)
 	return nil
 }
 
