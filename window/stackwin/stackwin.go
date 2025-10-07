@@ -13,11 +13,9 @@ type StackWindow struct {
 	round int8
 }
 
-func Init(txtw window.TextWindow) (*StackWindow, error) {
-	w := &StackWindow{txtw: txtw}
-	w.txtb.TextColor(window.White)
-	w.round = -1
-	return w, nil
+func (sw *StackWindow) Init(txtw window.TextWindow) {
+	sw.txtw = txtw
+	sw.round = -1
 }
 
 func (sw *StackWindow) ResizeWindow(x, y, w, h int) error {
@@ -62,7 +60,7 @@ func (sw *StackWindow) GetProp(name string) (rpn.Frame, error) {
 	case "round":
 		return rpn.Frame{Type: rpn.INTEGER_FRAME, Int: int64(sw.round)}, nil
 	default:
-		return rpn.Frame{}, rpn.ErrNotSupported
+		return rpn.Frame{}, rpn.ErrUnknownProperty
 	}
 }
 
@@ -124,20 +122,27 @@ func (sw *StackWindow) roundedString(f rpn.Frame) string {
 	inDecimal := false
 	var didx int8
 	idx := 0
+
+	leftDecimalFn := func() {
+		if sw.round > 0 {
+			iv, _ := strconv.Atoi(string(dec[:didx]))
+			if didx > sw.round {
+				iv = (iv + 5) / 10
+			}
+			for _, b := range strconv.Itoa(int(iv)) {
+				buff[idx] = byte(b)
+				idx++
+			}
+		}
+		inDecimal = false
+	}
+
 	for _, c := range s {
 		if inDecimal {
-			if c != '.' && (c < '0' || c > '9') {
-				if sw.round > 0 {
-					iv, _ := strconv.Atoi(string(dec[:didx]))
-					if didx > sw.round {
-						iv = (iv + 5) / 10
-					}
-					for _, b := range strconv.Itoa(int(iv)) {
-						buff[idx] = byte(b)
-						idx++
-					}
-				}
-				inDecimal = false
+			if c == '.' {
+				// skip
+			} else if (c < '0') || (c > '9') {
+				leftDecimalFn()
 			} else if didx <= sw.round {
 				dec[didx] = byte(c)
 				didx++
@@ -155,5 +160,10 @@ func (sw *StackWindow) roundedString(f rpn.Frame) string {
 			}
 		}
 	}
+
+	if inDecimal {
+		leftDecimalFn()
+	}
+
 	return string(buff[:idx])
 }
