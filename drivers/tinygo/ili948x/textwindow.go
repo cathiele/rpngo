@@ -7,10 +7,7 @@ package ili948x
 import (
 	"image/color"
 	"mattwach/rpngo/drivers/tinygo/fonts"
-	"mattwach/rpngo/drivers/tinygo/pixel565"
 	"mattwach/rpngo/window"
-
-	"tinygo.org/x/drivers/pixel"
 )
 
 const textPad = 3
@@ -44,7 +41,7 @@ type Ili948xTxtW struct {
 	texth int16
 
 	// A cell to draw the characters in
-	image pixel565.Pixel565
+	bitmap Bitmap
 	// saves a little performance in drawing
 	lastr window.ColorChar
 
@@ -65,7 +62,7 @@ func (tw *Ili948xTxtW) Init(d *Ili948x) {
 	tw.cw = FontCharWidth
 	tw.ch = 12
 	tw.cyoffset = 10
-	tw.image.Init(tw.cw, tw.ch)
+	tw.bitmap.Init(tw.cw, tw.ch)
 	tw.device = d
 	tw.cursorEn = true
 	tw.cursorCol = 0x0000
@@ -116,9 +113,9 @@ func fgColor(c window.ColorChar) color.RGBA {
 	return color.RGBA{R: r, G: g, B: b}
 }
 
-func bgColor(c window.ColorChar) pixel.RGB565BE {
+func bgColor(c window.ColorChar) RGB565 {
 	r, g, b := c.BGColor8()
-	return pixel.NewRGB565BE(r, g, b)
+	return NewRGB565(r>>3, g>>2, b>>3)
 }
 
 func (tw *Ili948xTxtW) updateCharAt(tx, ty int16, r window.ColorChar) {
@@ -131,10 +128,10 @@ func (tw *Ili948xTxtW) updateCharAt(tx, ty int16, r window.ColorChar) {
 	tw.chars[idx] = r
 	if r != tw.lastr {
 		tw.lastr = r
-		tw.image.Image.FillSolidColor(bgColor(r))
-		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, fgColor(r))
+		tw.bitmap.FillWith(bgColor(r))
+		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(&tw.bitmap, 0, tw.cyoffset, fgColor(r))
 	}
-	tw.device.DrawBitmap(tw.wx+tx*tw.cw+textPad, tw.wy+ty*tw.ch+textPad, tw.image.Image)
+	tw.device.DrawBitmap(tw.wx+tx*tw.cw+textPad, tw.wy+ty*tw.ch+textPad, &tw.bitmap)
 }
 
 func (tw *Ili948xTxtW) Erase() {
@@ -149,11 +146,10 @@ func (tw *Ili948xTxtW) Erase() {
 }
 
 func (tw *Ili948xTxtW) ShowBorder(screenw, screenh int) error {
-	c := pixel.NewRGB565BE(255, 0, 255)
-	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy, c)
-	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, c)
-	tw.device.DrawVLine(tw.wx, tw.wy, tw.wy+tw.wh-1, c)
-	tw.device.DrawVLine(tw.wx+tw.ww-1, tw.wy, tw.wy+tw.wh-1, c)
+	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy, MAGENTA)
+	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, MAGENTA)
+	tw.device.DrawVLine(tw.wx, tw.wy, tw.wy+tw.wh-1, MAGENTA)
+	tw.device.DrawVLine(tw.wx+tw.ww-1, tw.wy, tw.wy+tw.wh-1, MAGENTA)
 	return nil
 }
 

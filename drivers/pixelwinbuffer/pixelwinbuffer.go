@@ -18,7 +18,6 @@ import (
 	"errors"
 	"image/color"
 	"mattwach/rpngo/drivers/tinygo/fonts"
-	"mattwach/rpngo/drivers/tinygo/ili9341"
 	"mattwach/rpngo/window"
 )
 
@@ -188,6 +187,6 @@ func (pb *PixelBuffer) Text(s string, x, y int) {
 	for _, r := range s {
 		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(
 			&pb.displayer, int16(x), int16(y), pb.col)
-		x += ili9341.FontCharWidth
+		x += fonts.FontCharWidth
 	}
 }

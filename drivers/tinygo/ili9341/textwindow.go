@@ -63,7 +63,7 @@ type Ili9341TxtW struct {
 
 // Init initializes a text window. x, y, w, and h are all in pixels
 func (tw *Ili9341TxtW) Init(d *ili9341.Device) {
-	tw.cw = FontCharWidth
+	tw.cw = fonts.FontCharWidth
 	tw.ch = 12
 	tw.cyoffset = 10
 	tw.image.Init(tw.cw, tw.ch)

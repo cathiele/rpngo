@@ -6,8 +6,6 @@ import (
 	"errors"
 	"image/color"
 	"mattwach/rpngo/drivers/tinygo/fonts"
-
-	"tinygo.org/x/drivers/pixel"
 )
 
 type Ili948xPixW struct {
@@ -27,7 +25,7 @@ type Ili948xPixW struct {
 	ph int16
 
 	// current color
-	col pixel.RGB565BE
+	col RGB565
 }
 
 // Init initializes a pixel window. x, y, w, and h are all in pixels
@@ -75,20 +73,19 @@ func (tw *Ili948xPixW) ShowBorder(screenw, screenh int) error {
 	x1 := tw.wx + tw.ww - 1
 	y0 := tw.wy
 	y1 := tw.wy + tw.wh - 1
-	c := pixel.NewRGB565BE(255, 0, 255)
-	tw.device.DrawHLine(x0, x1, y0, c)
-	tw.device.DrawHLine(x0, x1, y1, c)
-	tw.device.DrawVLine(x0, y0+1, y1-1, c)
-	tw.device.DrawVLine(x1, y0+1, y1-1, c)
+	tw.device.DrawHLine(x0, x1, y0, MAGENTA)
+	tw.device.DrawHLine(x0, x1, y1, MAGENTA)
+	tw.device.DrawVLine(x0, y0+1, y1-1, MAGENTA)
+	tw.device.DrawVLine(x1, y0+1, y1-1, MAGENTA)
 	return nil
 }
 
 func (tw *Ili948xPixW) Color(c color.RGBA) {
-	tw.col = pixel.NewRGB565BE(c.R, c.G, c.B)
+	tw.col = RGBA2RGB565(c)
 }
 
 func (tw *Ili948xPixW) SetPoint(x, y int) {
-	tw.device.SetPoint(tw.px+int16(x), tw.py+int16(y), tw.col)
+	tw.device.SetPixel565(tw.px+int16(x), tw.py+int16(y), tw.col)
 }
 
 func (tw *Ili948xPixW) HLine(x, y, w int) {

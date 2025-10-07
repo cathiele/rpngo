@@ -7,8 +7,6 @@ import (
 	"tinygo.org/x/drivers/ili9341"
 )
 
-const FontCharWidth = 8
-
 type Ili9341Screen struct {
 	// Control the LCD.
 	Device *ili9341.Device

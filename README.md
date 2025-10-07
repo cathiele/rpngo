@@ -2,7 +2,7 @@
 
 ## TODO Bugs
 
-- Border rendering on LCD is sometimes incomplete
+- stack rounding logic still needs work and probably unit tests.
 
 ## TODO Cleanup
 

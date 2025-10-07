@@ -28,5 +28,5 @@ func (s *Ili948xScreen) NewPixelWindow() (window.PixelWindow, error) {
 }
 
 func (s *Ili948xScreen) ScreenSize() (int, int) {
-	return 320, 480
+	return 320, 320
 }

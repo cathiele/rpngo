@@ -1,15 +1,14 @@
-//go:build pico
+//go:build pico2
 
 package ili948x
 
 import (
-	"image/color"
 	"machine"
 )
 
 // InitDisplay initializes the display of each board.
 func InitDisplay() *Ili948x {
-	machine.SPI0.Configure(machine.SPIConfig{
+	machine.SPI1.Configure(machine.SPIConfig{
 		SCK:       machine.GP10,
 		SDO:       machine.GP11,
 		SDI:       machine.GP12,
@@ -18,14 +17,12 @@ func InitDisplay() *Ili948x {
 
 	display := NewIli9488(
 		NewSPITransport(*machine.SPI1),
-		machine.GP13,  // chip select
-		machine.GP14,  // data / command
-		machine.NoPin, // backlight
-		machine.GP15,  // reset
-		TFT_DEFAULT_WIDTH,
-		TFT_DEFAULT_HEIGHT)
+		machine.GP13, // chip select
+		machine.GP14, // data / command
+		machine.GP15, // reset
+	)
 
-	display.FillScreen(color.RGBA{255, 255, 255, 255})
+	display.FillScreen(0)
 
 	return display
 }

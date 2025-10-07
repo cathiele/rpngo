@@ -116,6 +116,6 @@ func (tw *Ili9341PixW) Text(s string, x, y int) {
 	for _, r := range s {
 		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(
 			tw.device, tw.px+int16(x), tw.py+int16(y), tw.col)
-		x += FontCharWidth
+		x += fonts.FontCharWidth
 	}
 }

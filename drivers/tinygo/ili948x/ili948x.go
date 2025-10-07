@@ -1,8 +1,15 @@
+// The starting point for this code was https://github.com/inindev/ili948x
+// but it's been heavily modified to the point where it shares little in common
+// with the original.  Some changes:
+//
+// 1) Use RGB565 instead of RGB666 for faster screen updates
+// 2) Introduce compatbility with the tinygo displayer interface
+// 3) Add RGB565 and Bitmap for efficient (basically direct) pixel operations.
 package ili948x
 
 import (
-	"errors"
 	"image/color"
+
 	"machine"
 	"time"
 
@@ -10,60 +17,69 @@ import (
 )
 
 type Rotation uint8
+type RGB565 uint16
 
-const ( // clock-wise rotation
-	Rot_0   Rotation = iota // 320x480
-	Rot_90                  // 480x320
-	Rot_180                 // 320x480
-	Rot_270                 // 480x320
+// By experimantal observation, I discovered the pixel format
+// from uint16 (the way it's unpacked in spi_transport) to be:
+//
+// BBBBBGGGGGGRRRRR
+// 4321021054343210
+//
+// rpn:
+// '11 << 1> 5 << | 1> | hex' rgb565=
+const (
+	BLACK RGB565 = 0x0000
+	WHITE RGB565 = 0xFFFF
+
+	RED     RGB565 = 0x001f
+	ORANGE  RGB565 = 0x03ff
+	YELLOW  RGB565 = 0x07ff
+	GREEN   RGB565 = 0x07E0
+	BLUE    RGB565 = 0xf800
+	CYAN    RGB565 = 0xffe0
+	MAGENTA RGB565 = 0xF81F
 )
 
+func RGBA2RGB565(c color.RGBA) RGB565 {
+	return (RGB565(c.R) >> 3) |
+		((RGB565(c.G) >> 2) << 5) |
+		((RGB565(c.B) >> 3) << 11)
+}
+
+// r -> 0-31, g -> 0-63, b -> 0-31
+func NewRGB565(r, g, b uint8) RGB565 {
+	return RGB565(uint16(r) | (uint16(g) << 5) | (uint16(b) << 11))
+}
+
 const (
-	TFT_DEFAULT_WIDTH  int16 = 320 // rot_0
-	TFT_DEFAULT_HEIGHT int16 = 480
+	TFT_WIDTH  = 320
+	TFT_HEIGHT = 320
 )
 
 // Image buffer type used in the ili9341.
 type Image = pixel.Image[pixel.RGB565BE]
 
 type Ili948x struct {
-	trans  iTransport
+	trans  *spiTransport
 	cs     machine.Pin // spi chip select
 	dc     machine.Pin // tft data / command
-	bl     machine.Pin // tft backlight
 	rst    machine.Pin // tft reset
 	width  int16       // tft pixel width
 	height int16       // tft pixel height
-	rot    Rotation    // tft orientation
-	mirror bool        // mirror tft output
-	bgr    bool        // tft blue-green-red mode
 	x0, x1 int16       // current address window for
 	y0, y1 int16       //  CMD_PASET and CMD_CASET
 }
 
-func NewIli9488(trans iTransport, cs, dc, bl, rst machine.Pin, width, height int16) *Ili948x {
-	if width == 0 {
-		width = TFT_DEFAULT_WIDTH
-	}
-	if height == 0 {
-		height = TFT_DEFAULT_HEIGHT
-	}
-
+func NewIli9488(trans *spiTransport, cs, dc, rst machine.Pin) *Ili948x {
 	disp := &Ili948x{
-		trans:  trans,
-		cs:     cs,
-		dc:     dc,
-		bl:     bl,
-		rst:    rst,
-		width:  width,
-		height: height,
-		rot:    Rot_0,
-		mirror: false,
-		bgr:    false,
-		x0:     0,
-		x1:     0,
-		y0:     0,
-		y1:     0,
+		trans: trans,
+		cs:    cs,
+		dc:    dc,
+		rst:   rst,
+		x0:    0,
+		x1:    0,
+		y0:    0,
+		y1:    0,
 	}
 
 	// chip select pin
@@ -75,12 +91,6 @@ func NewIli9488(trans iTransport, cs, dc, bl, rst machine.Pin, width, height int
 	// data/command pin
 	dc.Configure(machine.PinConfig{Mode: machine.PinOutput})
 	dc.High()
-
-	// backlight pin
-	if bl != machine.NoPin {
-		bl.Configure(machine.PinConfig{Mode: machine.PinOutput})
-		bl.Low() // display off
-	}
 
 	// reset pin
 	if rst != machine.NoPin {
@@ -94,189 +104,128 @@ func NewIli9488(trans iTransport, cs, dc, bl, rst machine.Pin, width, height int
 	// init display settings
 	disp.init()
 
-	// display backlight on
-	disp.SetBacklight(true)
-
 	return disp
 }
 
+// For compatibility with https://github.com/tinygo-org/drivers/blob/release/displayer.go
 // Size returns the current size of the display.
 func (disp *Ili948x) Size() (int16, int16) {
-	if disp.rot == Rot_0 || disp.rot == Rot_180 {
-		return disp.width, disp.height
-	}
-	return disp.height, disp.width
+	return disp.width, disp.height
 }
 
-// DrawPixel draws a single pixel with the specified color.
-func (disp *Ili948x) SetPoint(x, y int16, c pixel.RGB565BE) {
+// For compatibility with https://github.com/tinygo-org/drivers/blob/release/displayer.go
+// Use SetPixel565 for better performance
+func (disp *Ili948x) SetPixel(x, y int16, c color.RGBA) {
 	disp.setWindow(x, y, 1, 1)
+	disp.writeCmd(CMD_RAMWR)
+	disp.startWrite()
+	disp.trans.write16(uint16(RGBA2RGB565(c)))
+	disp.endWrite()
+}
 
+func (disp *Ili948x) SetPixel565(x, y int16, c RGB565) {
+	disp.setWindow(x, y, 1, 1)
 	disp.writeCmd(CMD_RAMWR)
 	disp.startWrite()
 	disp.trans.write16(uint16(c))
 	disp.endWrite()
 }
 
-func (disp *Ili948x) SetPixel(x, y int16, c color.RGBA) {
-	disp.setWindow(x, y, 1, 1)
-
-	c16 := pixel.NewRGB565BE(c.R, c.G, c.B)
-
-	disp.writeCmd(CMD_RAMWR)
-	disp.startWrite()
-	disp.trans.write16(uint16(c16))
-	disp.endWrite()
-}
-
 // DrawHLine draws a horizontal line with the specified color.
-func (disp *Ili948x) DrawHLine(x0, x1, y int16, c pixel.RGB565BE) {
+func (disp *Ili948x) DrawHLine(x0, x1, y int16, c RGB565) {
 	if x0 > x1 {
 		x0, x1 = x1, x0
 	}
-	disp.FillRectangle(x0, y, x1-x0+1, 1, c)
+	if x0 < 0 {
+		x0 = 0
+	}
+	if x1 >= TFT_WIDTH {
+		x1 = TFT_WIDTH - 1
+	}
+	width := x1 - x0 + 1
+	if width > 0 {
+		disp.setWindow(x0, y, width, 1)
+		disp.writeCmd(CMD_RAMWR)
+		disp.startWrite()
+		disp.trans.write16n(uint16(c), int(width))
+		disp.endWrite()
+	}
 }
 
 // DrawVLine draws a vertical line with the specified color.
-func (disp *Ili948x) DrawVLine(x, y0, y1 int16, c pixel.RGB565BE) {
+func (disp *Ili948x) DrawVLine(x, y0, y1 int16, c RGB565) {
 	if y0 > y1 {
 		y0, y1 = y1, y0
 	}
-	disp.FillRectangle(x, y0, 1, y1-y0+1, c)
+	if y0 < 0 {
+		y0 = 0
+	}
+	if y1 >= TFT_HEIGHT {
+		y1 = TFT_HEIGHT - 1
+	}
+	height := y1 - y0 + 1
+	if height > 0 {
+		disp.setWindow(x, y0, 1, height)
+		disp.writeCmd(CMD_RAMWR)
+		disp.startWrite()
+		disp.trans.write16n(uint16(c), int(height))
+		disp.endWrite()
+	}
 }
 
 // FillScreen fills the screen with the specified color.
-func (disp *Ili948x) FillScreen(c pixel.RGB565BE) {
-	if disp.rot == Rot_0 || disp.rot == Rot_180 {
-		disp.FillRectangle(0, 0, disp.width, disp.height, c)
-	} else {
-		disp.FillRectangle(0, 0, disp.height, disp.width, c)
-	}
+func (disp *Ili948x) FillScreen(c RGB565) {
+	disp.FillRectangle(0, 0, disp.height, disp.width, c)
 }
 
 // FillRectangle fills a rectangle at given coordinates and dimensions with the specified color.
-func (disp *Ili948x) FillRectangle(x, y, width, height int16, c pixel.RGB565BE) {
-	w, h := disp.Size()
-	if x < 0 || x >= w || (x+width) > w || y <= 0 || y >= h || (y+height) > h {
+func (disp *Ili948x) FillRectangle(x, y, width, height int16, c RGB565) {
+	if x < 0 {
+		width += x
+		x = 0
+	}
+	if (x + width) > TFT_WIDTH {
+		width = TFT_WIDTH - x
+	}
+	if width <= 0 {
+		return
+	}
+	if y < 0 {
+		height += y
+		y = 0
+	}
+	if (y + height) > TFT_HEIGHT {
+		height = TFT_HEIGHT - y
+	}
+	if height <= 0 {
 		return
 	}
 	disp.setWindow(x, y, width, height)
-
 	disp.writeCmd(CMD_RAMWR)
 	disp.startWrite()
 	disp.trans.write16n(uint16(c), int(width)*int(height))
 	disp.endWrite()
 }
 
-/*
-// DisplayBitmap renders the streamed image at given coordinates and dimensions.
-func (disp *Ili948x) DisplayBitmap(x, y, width, height int, bpp uint8, r io.Reader) {
-	w, h := disp.Size()
-	if x < 0 || x >= w || (x+width) > w || y < 0 || y >= h || (y+height) > h {
+// DrawBitmap copies an RGB565 bitmap to the internal buffer at given coordinates
+func (disp *Ili948x) DrawBitmap(x, y int16, bm *Bitmap) {
+	if x < 0 {
 		return
 	}
-	disp.setWindow(x, y, width, height)
-
+	if y < 0 {
+		return
+	}
+	if (x + bm.Width) >= TFT_WIDTH {
+		return
+	}
+	if (y + bm.Height) >= TFT_HEIGHT {
+		return
+	}
+	disp.setWindow(x, y, bm.Width, bm.Height)
 	disp.writeCmd(CMD_RAMWR)
-	buf := make([]uint8, width*int(bpp/3))
-	for {
-		n, err := r.Read(buf)
-		if n == 0 || err == io.EOF {
-			break
-		}
-
-		disp.startWrite()
-		disp.trans.write8sl(buf[:n])
-		disp.endWrite()
-	}
-}*/
-
-// DrawRGBBitmap8 copies an RGB bitmap to the internal buffer at given coordinates
-//
-// Deprecated: use DrawBitmap instead.
-func (d *Ili948x) DrawRGBBitmap8(x, y int16, data []uint8, w, h int16) error {
-	k, i := d.Size()
-	if x < 0 || y < 0 || w <= 0 || h <= 0 ||
-		x >= k || (x+w) > k || y >= i || (y+h) > i {
-		return errors.New("rectangle coordinates outside display area")
-	}
-	d.setWindow(x, y, w, h)
-	d.startWrite()
-	d.trans.write8sl(data)
-	d.endWrite()
-	return nil
-}
-
-// DrawBitmap copies the bitmap to the internal buffer on the screen at the
-// given coordinates. It returns once the image data has been sent completely.
-func (d *Ili948x) DrawBitmap(x, y int16, bitmap Image) error {
-	width, height := bitmap.Size()
-	return d.DrawRGBBitmap8(x, y, bitmap.RawBuffer(), int16(width), int16(height))
-}
-
-// SetScrollArea sets an area to scroll with fixed top/bottom or left/right parts of the display
-// Rotation affects scroll direction
-func (disp *Ili948x) SetScrollArea(topFixedArea, bottomFixedArea int16) {
-	vertScrollArea := disp.height - topFixedArea - bottomFixedArea
-	disp.writeCmd(CMD_VSCRDEF,
-		uint8(topFixedArea>>8),
-		uint8(topFixedArea),
-		uint8(vertScrollArea>>8),
-		uint8(vertScrollArea),
-		uint8(bottomFixedArea>>8),
-		uint8(bottomFixedArea))
-}
-
-// SetScroll sets the vertical scroll address of the display.
-func (disp *Ili948x) SetScroll(line uint16) {
-	disp.writeCmd(CMD_VSCRSADD,
-		uint8(line>>8),
-		uint8(line))
-}
-
-// StopScroll returns the display to its normal state
-func (disp *Ili948x) StopScroll() {
-	disp.writeCmd(CMD_NORON)
-}
-
-// GetRotation returns the current rotation of the display.
-func (disp *Ili948x) GetRotation() Rotation {
-	return disp.rot
-}
-
-// SetRotation sets the clock-wise rotation of the display.
-func (disp *Ili948x) SetRotation(rot Rotation) {
-	disp.rot = rot
-	disp.updateMadctl()
-}
-
-// GetMirror returns true if the display set to display a mirrored image.
-func (disp *Ili948x) GetMirror() bool {
-	return disp.mirror
-}
-
-// SetMirror switches the display between mirrored image and non-mirrored image mode.
-func (disp *Ili948x) SetMirror(mirror bool) {
-	disp.mirror = mirror
-	disp.updateMadctl()
-}
-
-// GetBGR returns true if the display is in blue-green-red (BGR) mode.
-func (disp *Ili948x) GetBGR() bool {
-	return disp.bgr
-}
-
-// SetBGR switches the display between blue-green-red (BGR) and red-green-blue (RGB) mode.
-func (disp *Ili948x) SetBGR(bgr bool) {
-	disp.bgr = bgr
-	disp.updateMadctl()
-}
-
-// SetBacklight turns the TFT backlight on / off.
-func (disp *Ili948x) SetBacklight(b bool) {
-	if disp.bl != machine.NoPin {
-		disp.bl.Set(b)
-	}
+	disp.startWrite()
+	disp.trans.writeRGB565(bm.Data)
+	disp.endWrite()
 }
 
 // Reset performs a hardware reset if rst pin present, otherwise performs a CMD_SWRESET software reset of the TFT display.
@@ -317,43 +266,6 @@ func (disp *Ili948x) setWindow(x, y, w, h int16) {
 	}
 }
 
-// updateMadctl updates CMD_MADCTRL based settings (mirror, rotation, RGB/BGR)
-func (disp *Ili948x) updateMadctl() {
-	madctl := uint8(0)
-
-	if !disp.mirror {
-		// regular
-		switch disp.rot {
-		case Rot_0:
-			madctl = 0
-		case Rot_90:
-			madctl = MADCTRL_MX | MADCTRL_MH | MADCTRL_MV
-		case Rot_180:
-			madctl = MADCTRL_MX | MADCTRL_MH | MADCTRL_MY | MADCTRL_ML
-		case Rot_270:
-			madctl = MADCTRL_MV | MADCTRL_MY | MADCTRL_ML
-		}
-	} else {
-		// mirrored
-		switch disp.rot {
-		case Rot_0:
-			madctl = MADCTRL_MX | MADCTRL_MH
-		case Rot_90:
-			madctl = MADCTRL_MX | MADCTRL_MH | MADCTRL_MY | MADCTRL_ML | MADCTRL_MV
-		case Rot_180:
-			madctl = MADCTRL_MY | MADCTRL_ML
-		case Rot_270:
-			madctl = MADCTRL_MV
-		}
-	}
-
-	if disp.bgr {
-		madctl |= MADCTRL_BGR
-	}
-
-	disp.writeCmd(CMD_MADCTRL, madctl)
-}
-
 // init performs base-level initialization and setup of the TFT display
 func (disp *Ili948x) init() {
 	disp.writeCmd(CMD_PWCTRL1,
@@ -376,26 +288,15 @@ func (disp *Ili948x) init() {
 		0xa0, // FRS: 60.76  DIVA: 0
 		0x11) // RTNA: 17 clocks
 
-	disp.writeCmd(CMD_INVCTRL,
-		0x02) // DINV: 2 dot inversion
-
 	disp.writeCmd(CMD_DISCTRL,
 		0x02, // PT: AGND
 		0x22, // SS: S960 -> S1  ISC: 5 frames
-		0x3b) // NL: 8 * (3b + 1) = 480 lines
+		0x27) // NL: 8 * (3b + 1) = 320 lines
 
-	disp.writeCmd(CMD_ETMOD,
-		0xc6) // EPF: 11 (db5 -> r0,g0,b0)
+	disp.writeCmd(CMD_INVON) // make it actually RGB
 
-	/* We are not using 18-bit RGB
-	disp.writeCmd(CMD_ADJCTRL3,
-		0xa9, //
-		0x51, //
-		0x2c, //
-		0x82) // DSI_18_option:
-	*/
-
-	disp.updateMadctl()
+	// need to mirror the display for picocalc
+	disp.writeCmd(CMD_MADCTRL, MADCTRL_MX|MADCTRL_MH)
 
 	disp.writeCmd(CMD_SLPOUT)
 	time.Sleep(time.Millisecond * 120)
@@ -429,6 +330,7 @@ func (disp *Ili948x) endWrite() {
 	}
 }
 
+// For compatibility with https://github.com/tinygo-org/drivers/blob/release/displayer.go
 func (disp *Ili948x) Display() error {
 	return nil
 }
