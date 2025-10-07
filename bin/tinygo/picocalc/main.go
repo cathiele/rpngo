@@ -10,7 +10,7 @@ import (
 	"log"
 	"machine"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
-	"mattwach/rpngo/drivers/tinygo/ili948x"
+	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
