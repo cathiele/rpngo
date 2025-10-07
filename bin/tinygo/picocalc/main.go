@@ -6,11 +6,11 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
-	"machine"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
+	"mattwach/rpngo/drivers/tinygo/picocalc/i2ckbd"
 	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
+	"mattwach/rpngo/drivers/tinygo/serialconsole"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
@@ -90,9 +90,8 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 		return err
 	}
 	gi := &getInput{}
+	gi.Init()
 	iw, err := input.Init(gi, txtw, r)
-	e := &echo{inputPrint: r.Print}
-	r.Print = e.print
 	gi.lcd = txtw.(*ili948x.Ili948xTxtW)
 	if err != nil {
 		return err
@@ -102,67 +101,28 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 }
 
 type getInput struct {
-	lcd *ili948x.Ili948xTxtW
+	lcd      *ili948x.Ili948xTxtW
+	serialc  serialconsole.SerialConsole
+	keyboard i2ckbd.I2CKbd
 }
 
-type TermState int
-
-const (
-	NORMAL TermState = iota
-	ESC
-	ARROW
-)
-
-type echo struct {
-	inputPrint func(string)
+func (gi *getInput) Init() {
+	if err := gi.keyboard.Init(); err != nil {
+		log.Printf("failed to init keyboard: %v", err)
+	}
 }
 
-func (e *echo) print(s string) {
-	e.inputPrint(s)
-	fmt.Print(s)
-}
-
-func (g *getInput) GetChar() (key.Key, error) {
-	var state TermState = NORMAL
+func (gi *getInput) GetChar() (key.Key, error) {
 	for {
-		g.lcd.ShowCursorIfEnabled(true)
-		c, err := machine.Serial.ReadByte()
-		if err != nil {
-			time.Sleep(time.Millisecond * 10)
-			continue
+		gi.lcd.ShowCursorIfEnabled(true)
+		k := gi.serialc.GetChar()
+		if k != 0 {
+			return k, nil
 		}
-		//log.Printf("got char: %v", c)
-		switch state {
-		case NORMAL:
-			switch c {
-			case 13:
-				return '\n', nil
-			case 27:
-				state = ESC
-			case 127:
-				return key.KEY_BACKSPACE, nil
-			default:
-				return key.Key(c), nil
-			}
-		case ESC:
-			switch c {
-			case '[':
-				state = ARROW
-			default:
-				state = NORMAL
-			}
-		case ARROW:
-			state = NORMAL
-			switch c {
-			case 'A':
-				return key.KEY_UP, nil
-			case 'B':
-				return key.KEY_DOWN, nil
-			case 'C':
-				return key.KEY_RIGHT, nil
-			case 'D':
-				return key.KEY_LEFT, nil
-			}
+		var err error
+		k, err = gi.keyboard.GetChar()
+		if (k != 0) || (err != nil) {
+			return k, nil
 		}
 	}
 }
