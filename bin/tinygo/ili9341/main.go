@@ -105,6 +105,7 @@ type getInput struct {
 
 func (gi *getInput) GetChar() (key.Key, error) {
 	for {
+		time.Sleep(20 * time.Millisecond)
 		gi.lcd.ShowCursorIfEnabled(true)
 		k := gi.serialc.GetChar()
 		if k != 0 {

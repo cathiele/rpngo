@@ -114,6 +114,7 @@ func (gi *getInput) Init() {
 
 func (gi *getInput) GetChar() (key.Key, error) {
 	for {
+		time.Sleep(20 * time.Millisecond)
 		gi.lcd.ShowCursorIfEnabled(true)
 		k := gi.serialc.GetChar()
 		if k != 0 {
@@ -121,7 +122,10 @@ func (gi *getInput) GetChar() (key.Key, error) {
 		}
 		var err error
 		k, err = gi.keyboard.GetChar()
-		if (k != 0) || (err != nil) {
+		if err != nil {
+			log.Printf("keyboard error: %v", err)
+			time.Sleep(1 * time.Second)
+		} else if k != 0 {
 			return k, nil
 		}
 	}
