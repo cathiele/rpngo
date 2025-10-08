@@ -10,8 +10,7 @@ import (
 func TestExecInterrupted(t *testing.T) {
 	var r RPN
 	r.Init()
-	r.Interrupt = make(chan bool, 1)
-	r.Interrupt <- true
+	r.Interrupt = func() bool { return true }
 	err := r.exec("5")
 	if !errors.Is(err, ErrInterrupted) {
 		t.Errorf("err got %v, want %v", err, ErrInterrupted)

@@ -37,9 +37,9 @@ type RPN struct {
 	functions map[string]func(*RPN) error
 	// maps are category -> command -> help
 	help      map[string]map[string]string
+	Interrupt func() bool
 	Print     func(string)
 	Input     func(*RPN) (string, error)
-	Interrupt chan bool
 	TextWidth int
 	conv      *convert.Conversion
 }
@@ -57,6 +57,7 @@ func (r *RPN) Init() {
 	r.Register("vpush", pushVariableFrame, CatVariables, pushVariableFrameHelp)
 	r.Register("vpop", popVariableFrame, CatVariables, popVariableFrameHelp)
 	r.Print = DefaultPrint
+	r.Interrupt = DefaultInterrupt
 	r.conv = convert.Init()
 	r.TextWidth = 80
 }
@@ -83,6 +84,10 @@ func (rpn *RPN) AllFunctionNames() []string {
 
 func DefaultPrint(msg string) {
 	fmt.Print(msg)
+}
+
+func DefaultInterrupt() bool {
+	return false
 }
 
 func (r *RPN) Println(msg string) {

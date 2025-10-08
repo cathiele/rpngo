@@ -55,13 +55,6 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		}
 	}
 	iw.txtw.TextColor(window.White)
-	// clear any pending ctrl-c
-	select {
-	case <-r.Interrupt:
-		break
-	default:
-		break
-	}
 	r.TextWidth = iw.txtw.TextWidth()
 	window.Print(iw.gl.txtd, "> ")
 	line, err := iw.gl.get(r)

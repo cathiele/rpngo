@@ -52,7 +52,9 @@ func cli(r *rpn.RPN) error {
 }
 
 func interactive(r *rpn.RPN) error {
-	r.Interrupt = setupSignals()
+	var inter interrupt
+	inter.init()
+	r.Interrupt = inter.interrupt
 	screen, err := curses.Init()
 	if err != nil {
 		return err
@@ -91,18 +93,22 @@ func interactive(r *rpn.RPN) error {
 	}
 }
 
-func setupSignals() chan bool {
-	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc, os.Interrupt)
-	interrupt := make(chan bool, 1)
-	go func() {
-		for {
-			<-sigc
-			interrupt <- true
-		}
-	}()
-	return interrupt
+type interrupt struct {
+	sigc chan os.Signal
+}
 
+func (i *interrupt) init() {
+	i.sigc = make(chan os.Signal, 1)
+	signal.Notify(i.sigc, os.Interrupt)
+}
+
+func (i *interrupt) interrupt() bool {
+	select {
+	case <-i.sigc:
+		return true
+	default:
+		return false
+	}
 }
 
 func buildUI(screen *curses.Curses, r *rpn.RPN) (*window.WindowRoot, error) {
