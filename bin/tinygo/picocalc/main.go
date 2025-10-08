@@ -24,12 +24,21 @@ import (
 )
 
 func main() {
-	if err := run(); err != nil {
+	var screen ili948x.Ili948xScreen
+	screen.Init()
+	// This only seeems to work for panics I throw and not errors
+	// like array out of bounds.
+	defer func() {
+		if r := recover(); r != nil {
+			handlePanic(screen.Device, r)
+		}
+	}()
+	if err := run(&screen); err != nil {
 		panic(err)
 	}
 }
 
-func run() error {
+func run(screen *ili948x.Ili948xScreen) error {
 	time.Sleep(2 * time.Second)
 
 	log.SetOutput(os.Stdout)
@@ -38,9 +47,7 @@ func run() error {
 	r.Init()
 	functions.RegisterAll(&r)
 
-	var screen ili948x.Ili948xScreen
-	screen.Init()
-	root, err := buildUI(&screen, &r)
+	root, err := buildUI(screen, &r)
 	if err != nil {
 		return err
 	}
@@ -55,8 +62,8 @@ func run() error {
 		ppw.Init(&pb)
 		return &ppw, nil
 	}
-	_ = commands.InitWindowCommands(&r, root, &screen, newPixelPlotWindow)
-	_ = plotwin.InitPlotCommands(&r, root, &screen, plotwin.AddPixelPlotFn)
+	_ = commands.InitWindowCommands(&r, root, screen, newPixelPlotWindow)
+	_ = plotwin.InitPlotCommands(&r, root, screen, plotwin.AddPixelPlotFn)
 	if err := startup.LCD320Startup(&r); err != nil {
 		return err
 	}

@@ -6,7 +6,6 @@ package ili948x
 
 import (
 	"image/color"
-	"log"
 	"mattwach/rpngo/drivers/tinygo/fonts"
 	"mattwach/rpngo/window"
 )
@@ -61,7 +60,7 @@ type Ili948xTxtW struct {
 // Init initializes a text window. x, y, w, and h are all in pixels
 func (tw *Ili948xTxtW) Init(d *Ili948x) {
 	tw.cw = FontCharWidth
-	tw.ch = 12
+	tw.ch = 13
 	tw.cyoffset = 10
 	tw.bitmap.Init(tw.cw, tw.ch)
 	tw.device = d
@@ -130,12 +129,9 @@ func (tw *Ili948xTxtW) updateCharAt(tx, ty int16, r window.ColorChar) {
 	if r != tw.lastr {
 		tw.lastr = r
 		tw.bitmap.FillWith(bgColor(r))
-		log.Printf("getglyph: %04x", r)
 		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(&tw.bitmap, 0, tw.cyoffset, fgColor(r))
 	}
-	log.Printf("drwabm: x=%v, y=%v", tw.wx+tx*tw.cw+textPad, tw.wy+ty*tw.ch+textPad)
 	tw.device.DrawBitmap(tw.wx+tx*tw.cw+textPad, tw.wy+ty*tw.ch+textPad, &tw.bitmap)
-	log.Printf("ok\n")
 }
 
 func (tw *Ili948xTxtW) Erase() {

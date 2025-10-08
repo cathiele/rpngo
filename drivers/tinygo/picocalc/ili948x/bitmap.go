@@ -1,6 +1,8 @@
 package ili948x
 
-import "image/color"
+import (
+	"image/color"
+)
 
 type Bitmap struct {
 	Data   []RGB565
@@ -23,6 +25,10 @@ func (bm *Bitmap) Size() (int16, int16) {
 // For compatibility with https://github.com/tinygo-org/drivers/blob/release/displayer.go
 // Use SetPixel565 for better performance
 func (bm *Bitmap) SetPixel(x, y int16, c color.RGBA) {
+	// This can be uncommented for debugging / checking
+	//if (x < 0) || (x >= bm.Width) || (y < 0) || (y >= bm.Height) {
+	//	panic(fmt.Sprintf("SetPixel x=%v y=%v", x, y))
+	//}
 	bm.Data[y*bm.Width+x] = RGBA2RGB565(c)
 }
 
