@@ -16,11 +16,10 @@ type VariableWindow struct {
 	namesAndValues []rpn.NameAndValues
 }
 
-func Init(txtw window.TextWindow) (*VariableWindow, error) {
-	w := &VariableWindow{txtw: txtw} // object allocated on the heap: escapes at line 21
+func (w *VariableWindow) Init(txtw window.TextWindow) {
+	w.txtw = txtw
 	w.txtb.TextColor(window.White)
 	w.namesAndValues = make([]rpn.NameAndValues, 0, 16)
-	return w, nil
 }
 
 func (vw *VariableWindow) ResizeWindow(x, y, w, h int) error {
@@ -73,8 +72,10 @@ func (vw *VariableWindow) GetProp(name string) (rpn.Frame, error) {
 	}
 }
 
+var props = []string{"showdot", "multiline"}
+
 func (vw *VariableWindow) ListProps() []string {
-	return []string{"showdot", "multiline"} // object allocated on the heap: escapes at line 75
+	return props
 }
 
 func (vw *VariableWindow) Update(r *rpn.RPN) error {

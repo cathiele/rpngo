@@ -64,8 +64,11 @@ func (sw *StackWindow) GetProp(name string) (rpn.Frame, error) {
 	}
 }
 
+var props = []string{"round"}
+
+// Lists props.  Do not nodify return value.
 func (sw *StackWindow) ListProps() []string {
-	return []string{"round"}  // object allocated on the heap: escapes at line 68
+	return props
 }
 
 func (sw *StackWindow) Update(rpn *rpn.RPN) error {
@@ -112,16 +115,16 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 	return nil
 }
 
-func (sw *StackWindow) roundedString(f rpn.Frame) string {  // object allocated on the heap: escapes at line 126
+func (sw *StackWindow) roundedString(f rpn.Frame) string { // object allocated on the heap: escapes at line 126
 	s := f.String(true)
 	if (f.Type != rpn.COMPLEX_FRAME) || (sw.round < 0) {
 		return s
 	}
 	var buff [32]byte  // object allocated on the heap: escapes at line 126
-	var dec [12]byte  // object allocated on the heap: escapes at line 126
-	inDecimal := false  // object allocated on the heap: escapes at line 126
-	var didx int8  // object allocated on the heap: escapes at line 126
-	idx := 0  // object allocated on the heap: escapes at line 126
+	var dec [12]byte   // object allocated on the heap: escapes at line 126
+	inDecimal := false // object allocated on the heap: escapes at line 126
+	var didx int8      // object allocated on the heap: escapes at line 126
+	idx := 0           // object allocated on the heap: escapes at line 126
 
 	leftDecimalFn := func() {
 		if sw.round > 0 {

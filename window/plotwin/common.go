@@ -13,6 +13,10 @@ type PointStats struct {
 	initialized bool
 }
 
+func (ps *PointStats) reset() {
+	ps.initialized = false
+}
+
 func (ps *PointStats) update(x, y float64, colidx uint8) error {
 	if !ps.initialized {
 		ps.initialized = true
@@ -44,17 +48,19 @@ type Plot struct {
 }
 
 type plotWindowCommon struct {
-	minx     float64
-	maxx     float64
-	miny     float64
-	maxy     float64
-	coloridx uint8
-	autox    bool
-	autoy    bool
-	minv     float64
-	maxv     float64
-	steps    uint32
-	plots    []Plot
+	minx      float64
+	maxx      float64
+	miny      float64
+	maxy      float64
+	coloridx  uint8
+	autox     bool
+	autoy     bool
+	minv      float64
+	maxv      float64
+	steps     uint32
+	autosteps uint32
+	plots     []Plot
+	stats     PointStats
 }
 
 func (pw *plotWindowCommon) init() {
@@ -62,6 +68,7 @@ func (pw *plotWindowCommon) init() {
 	pw.autoy = true
 	pw.minv = -1
 	pw.maxv = 1
+	pw.autosteps = 50
 	pw.steps = 250
 }
 
@@ -84,12 +91,12 @@ func (pw *plotWindowCommon) addPlot(r *rpn.RPN, fn []string, isParametric bool, 
 			return nil
 		}
 	}
-	fncopy := make([]string, len(fn))  // object allocated on the heap: size is not constant
+	fncopy := make([]string, len(fn)) // object allocated on the heap (OK)
 	copy(fncopy, fn)
 	plot := Plot{fn: fncopy, coloridx: pw.coloridx, isParametric: isParametric}
 
 	// do a dry run of creating the points
-	err := pw.addPoints(r, plot, func(x, y float64, c uint8) error { return nil })
+	err := pw.addPoints(r, plot, pw.steps, func(x, y float64, c uint8) error { return nil })
 	if err != nil {
 		return err
 	}
@@ -113,18 +120,18 @@ func slicesAreEqual(a []string, b []string) bool {
 func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) error {
 	// first determine the ranges
 	if pw.autox || pw.autoy {
-		var stats PointStats  // object allocated on the heap: escapes at line 118
+		pw.stats.reset()
 		for _, plot := range pw.plots {
-			if err := pw.addPoints(r, plot, stats.update); err != nil {
+			if err := pw.addPoints(r, plot, pw.autosteps, pw.stats.update); err != nil {
 				pw.plots = nil
-				return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)  // object allocated on the heap: escapes at line 120
+				return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err) // object allocated on the heap (OK)
 			}
 		}
 		if pw.autox {
-			pw.adjustAutoX(stats)
+			pw.adjustAutoX()
 		}
 		if pw.autoy {
-			pw.adjustAutoY(stats)
+			pw.adjustAutoY()
 		}
 	}
 	return nil
@@ -132,17 +139,17 @@ func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) error {
 
 func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, coloridx uint8) error) error {
 	for _, plot := range pw.plots {
-		if err := pw.addPoints(r, plot, fn); err != nil {
+		if err := pw.addPoints(r, plot, pw.steps, fn); err != nil {
 			pw.plots = nil
-			return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)  // object allocated on the heap: escapes at line 137
+			return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err) // object allocated on the heap (OK)
 		}
 	}
 	return nil
 }
 
-func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, fn func(x, y float64, coloridx uint8) error) error {
+func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, steps uint32, fn func(x, y float64, coloridx uint8) error) error {
 	startlen := r.StackLen()
-	step := (pw.maxv - pw.minv) / float64(pw.steps)
+	step := (pw.maxv - pw.minv) / float64(steps)
 	var x complex128
 	for v := pw.minv; v <= pw.maxv; v += step {
 		if err := r.PushComplex(complex(v, 0)); err != nil {
@@ -179,9 +186,9 @@ func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, fn func(x, y float6
 	return nil
 }
 
-func (pw *plotWindowCommon) adjustAutoX(stats PointStats) {
-	pw.minx = stats.minx
-	pw.maxx = stats.maxx
+func (pw *plotWindowCommon) adjustAutoX() {
+	pw.minx = pw.stats.minx
+	pw.maxx = pw.stats.maxx
 	if pw.minx == pw.maxx {
 		// create a little spread to avoid math issues
 		pw.minx -= 1.0
@@ -189,9 +196,9 @@ func (pw *plotWindowCommon) adjustAutoX(stats PointStats) {
 	}
 }
 
-func (pw *plotWindowCommon) adjustAutoY(stats PointStats) {
-	pw.miny = stats.miny
-	pw.maxy = stats.maxy
+func (pw *plotWindowCommon) adjustAutoY() {
+	pw.miny = pw.stats.miny
+	pw.maxy = pw.stats.maxy
 	if pw.miny == pw.maxy {
 		// create a little spread to avoid math issues
 		pw.miny -= 1.0

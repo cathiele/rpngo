@@ -8,6 +8,18 @@ const maxSteps = 50000
 
 func (pw *plotWindowCommon) setProp(name string, val rpn.Frame) error {
 	switch name {
+	case "autosteps":
+		if val.Type != rpn.COMPLEX_FRAME {
+			return rpn.ErrExpectedANumber
+		}
+		v := real(val.Complex)
+		if v < 1 {
+			return rpn.ErrIllegalValue
+		}
+		if v > maxSteps {
+			return rpn.ErrIllegalValue
+		}
+		pw.autosteps = uint32(v)
 	case "minx":
 		if val.Type != rpn.COMPLEX_FRAME {
 			return rpn.ErrExpectedANumber
@@ -91,6 +103,8 @@ func (pw *plotWindowCommon) setProp(name string, val rpn.Frame) error {
 
 func (pw *plotWindowCommon) getProp(name string) (rpn.Frame, error) {
 	switch name {
+	case "autosteps":
+		return rpn.Frame{Type: rpn.COMPLEX_FRAME, Complex: complex(float64(pw.autosteps), 0)}, nil
 	case "minx":
 		return rpn.Frame{Type: rpn.COMPLEX_FRAME, Complex: complex(pw.minx, 0)}, nil
 	case "maxx":
@@ -113,6 +127,8 @@ func (pw *plotWindowCommon) getProp(name string) (rpn.Frame, error) {
 	return rpn.Frame{}, rpn.ErrUnknownProperty
 }
 
+var props = []string{"autox", "autoy", "minv", "maxv", "minx", "maxx", "miny", "maxy", "steps"}
+
 func (pw *plotWindowCommon) ListProps() []string {
-	return []string{"autox", "autoy", "minv", "maxv", "minx", "maxx", "miny", "maxy", "steps"}  // object allocated on the heap: escapes at line 117
+	return props
 }
