@@ -114,5 +114,5 @@ func (pw *plotWindowCommon) getProp(name string) (rpn.Frame, error) {
 }
 
 func (pw *plotWindowCommon) ListProps() []string {
-	return []string{"autox", "autoy", "minv", "maxv", "minx", "maxx", "miny", "maxy", "steps"}
+	return []string{"autox", "autoy", "minv", "maxv", "minx", "maxx", "miny", "maxy", "steps"}  // object allocated on the heap: escapes at line 117
 }

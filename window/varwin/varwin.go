@@ -9,15 +9,17 @@ import (
 )
 
 type VariableWindow struct {
-	txtb      window.TextBuffer
-	txtw      window.TextWindow
-	showdot   bool
-	multiline bool
+	txtb           window.TextBuffer
+	txtw           window.TextWindow
+	showdot        bool
+	multiline      bool
+	namesAndValues []rpn.NameAndValues
 }
 
 func Init(txtw window.TextWindow) (*VariableWindow, error) {
-	w := &VariableWindow{txtw: txtw}
+	w := &VariableWindow{txtw: txtw} // object allocated on the heap: escapes at line 21
 	w.txtb.TextColor(window.White)
+	w.namesAndValues = make([]rpn.NameAndValues, 0, 16)
 	return w, nil
 }
 
@@ -72,25 +74,25 @@ func (vw *VariableWindow) GetProp(name string) (rpn.Frame, error) {
 }
 
 func (vw *VariableWindow) ListProps() []string {
-	return []string{"showdot", "multiline"}
+	return []string{"showdot", "multiline"} // object allocated on the heap: escapes at line 75
 }
 
-func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
+func (vw *VariableWindow) Update(r *rpn.RPN) error {
 	w, h := vw.txtw.TextSize()
 	vw.txtb.MaybeResize(int16(w), int16(h))
 	vw.txtb.Erase()
-	nv := rpn.AllVariableNamesAndValues()
+	vw.namesAndValues = r.AppendAllVariableNamesAndValues(vw.namesAndValues[:0])
 	vw.txtb.SetCursorXY(0, 0)
 	hidden := 0
 	row := 0
-	for i := 0; i < len(nv); i++ {
-		if !vw.showdot && (len(nv[i].Name) > 0) && (nv[i].Name[0] == '.') {
+	for i := 0; i < len(vw.namesAndValues); i++ {
+		if !vw.showdot && (len(vw.namesAndValues[i].Name) > 0) && (vw.namesAndValues[i].Name[0] == '.') {
 			hidden++
 			continue
 		}
 		if row < (h - 1) {
-			name := nv[i].Name + ": "
-			val := framesToString(nv[i].Values)
+			name := vw.namesAndValues[i].Name + ": "
+			val := framesToString(vw.namesAndValues[i].Values)
 			if !vw.multiline {
 				val = makeSingleLine(val, w-len(name))
 			} else {
@@ -106,7 +108,7 @@ func (vw *VariableWindow) Update(rpn *rpn.RPN) error {
 	}
 	vw.txtb.TextColor(window.Blue)
 	vw.txtb.SetCursorXY(0, h-1)
-	window.Print(&vw.txtb, fmt.Sprintf("num: %v hidden:%v", len(nv), hidden))
+	window.Print(&vw.txtb, fmt.Sprintf("num: %v hidden:%v", len(vw.namesAndValues), hidden))
 	vw.txtb.UpdateTextWindow(vw.txtw)
 	vw.txtw.Refresh()
 	return nil

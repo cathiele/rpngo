@@ -44,7 +44,7 @@ func InitPlotCommands(
 	}
 	r.RegisterConceptHelp(conceptHelp)
 
-	pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}
+	pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}  // object allocated on the heap: escapes at line 49
 	r.Register("plot", pc.Plot, rpn.CatPlot, PlotHelp)
 	r.Register("pplot", pc.PPlot, rpn.CatPlot, PPlotHelp)
 	return &pc
@@ -71,12 +71,12 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	if err != nil {
 		return err
 	}
-	fields := make([]string, 32)
+	fields := make([]string, 32)  // object allocated on the heap: escapes at line 75
 	fields, err = parse.Fields(macro, fields)
 	if err != nil {
 		return err
 	}
-	wname, err := r.GetStringVariable(".plotwin")
+	wname, err := r.GetStringVariable(".plotwin")  // object allocated on the heap: escapes at line 95
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	}
 
 	if pw.Type() != "plot" {
-		return fmt.Errorf("%s has the wrong window type: %s", wname, pw.Type())
+		return fmt.Errorf("%s has the wrong window type: %s", wname, pw.Type())  // object allocated on the heap: escapes at line 95
 	}
 
 	return pc.addPlotFn(pw, r, fields, isParametric)
@@ -103,7 +103,7 @@ func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	fields := make([]string, 32)
+	fields := make([]string, 32)  // object allocated on the heap: escapes at line 107
 	fields, err = parse.Fields(macro, fields)
 	if err != nil {
 		return err
@@ -111,7 +111,7 @@ func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
 	err = r.Exec(fields)
 	w, h := wc.screen.ScreenSize()
 	if uerr := wc.root.Update(r, w, h, false); uerr != nil {
-		log.Printf("initPlot.Update error: %v", uerr)
+		log.Printf("initPlot.Update error: %v", uerr)  // object allocated on the heap: escapes at line 114
 	}
 	if err != nil {
 		return fmt.Errorf("while executing $.plotinit: %v", err)

@@ -11,8 +11,8 @@ type WindowRoot struct {
 }
 
 func NewWindowRoot(w, h int) *WindowRoot {
-	wr := &WindowRoot{
-		group: &windowGroup{},
+	wr := &WindowRoot{  // object allocated on the heap: escapes at line 18
+		group: &windowGroup{},  // object allocated on the heap: escapes at line 15
 	}
 	wr.group.resize(0, 0, w, h)
 	return wr
@@ -76,7 +76,7 @@ func (wr *WindowRoot) MoveWindowOrGroup(src string, dst string, beginning bool) 
 	}
 	srcpg.removeChild(srcwge)
 	if beginning {
-		dstpg.children = append([]*windowGroupEntry{srcwge}, dstpg.children...)
+		dstpg.children = append([]*windowGroupEntry{srcwge}, dstpg.children...)  // object allocated on the heap: escapes at line 79
 	} else {
 		dstpg.children = append(dstpg.children, srcwge)
 	}
@@ -101,16 +101,16 @@ func (wr *WindowRoot) SetWindowWeight(name string, w int) error {
 }
 
 func (wr *WindowRoot) AddNewWindowGroupChild(r *rpn.RPN, name string) {
-	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, group: &windowGroup{}})
+	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, group: &windowGroup{}})  // object allocated on the heap: escapes at line 104
 }
 
 func (wr *WindowRoot) AddWindowChildToRoot(window WindowWithProps, name string, weight int) {
-	wr.group.children = append(wr.group.children, &windowGroupEntry{name: name, weight: weight, window: window})
+	wr.group.children = append(wr.group.children, &windowGroupEntry{name: name, weight: weight, window: window})  // object allocated on the heap: escapes at line 108
 	wr.adjustNeeded = true
 }
 
 func (wr *WindowRoot) AddWindowChild(r *rpn.RPN, window WindowWithProps, name string) {
-	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, window: window})
+	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, window: window})  // object allocated on the heap: escapes at line 113
 }
 
 func (wr *WindowRoot) addWindowGroupEntry(r *rpn.RPN, wge *windowGroupEntry) {
@@ -127,7 +127,7 @@ func (wr *WindowRoot) addWindowGroupEntry(r *rpn.RPN, wge *windowGroupEntry) {
 	if addend {
 		parent.children = append(parent.children, wge)
 	} else {
-		parent.children = append([]*windowGroupEntry{wge}, parent.children...)
+		parent.children = append([]*windowGroupEntry{wge}, parent.children...)  // object allocated on the heap: escapes at line 130
 	}
 	wr.adjustNeeded = true
 }

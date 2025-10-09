@@ -17,8 +17,8 @@ func handlePanic(lcd *ili948x.Ili948x, r any) {
 	led.Configure(machine.PinConfig{Mode: machine.PinOutput})
 	led.High()
 
-	msg := fmt.Sprintf("Panic: %+v", r)
-	log.Println(msg)
+	msg := fmt.Sprintf("Panic: %+v", r) // object allocated on the heap (OK)
+	log.Println(msg)                    // object allocated on the heap (OK)
 	lcd.FillRectangle(0, 0, 320, 100, ili948x.RED)
 	var x int16 = 16
 	var y int16 = 20

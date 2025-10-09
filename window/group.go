@@ -102,8 +102,8 @@ func (wg *windowGroup) resize(x, y, w, h int) {
 	wg.h = h
 }
 
-func (wg *windowGroup) dump(lines []string, name string, indent int, weight int) []string {
-	pad := strings.Repeat("  ", indent)
+func (wg *windowGroup) dump(lines []string, name string, indent int, weight int) []string {  // object allocated on the heap: escapes at line 110
+	pad := strings.Repeat("  ", indent)  // object allocated on the heap: escapes at line 109
 	line := fmt.Sprintf(
 		"%s%s(x=%d, y=%d, w=%d, h=%d, cols=%v, weight=%d):",
 		pad,
@@ -116,7 +116,7 @@ func (wg *windowGroup) dump(lines []string, name string, indent int, weight int)
 		weight,
 	)
 	lines = append(lines, line)
-	pad = strings.Repeat("  ", indent+1)
+	pad = strings.Repeat("  ", indent+1)  // object allocated on the heap: escapes at line 131
 	for _, c := range wg.children {
 		if c.group != nil {
 			lines = c.group.dump(lines, c.name, indent+1, c.weight)
@@ -129,8 +129,8 @@ func (wg *windowGroup) dump(lines []string, name string, indent int, weight int)
 				fmt.Sprintf(
 					"%s%s(type=%s, x=%d, y=%d, w=%d, h=%d, weight=%d)",
 					pad,
-					c.name,
-					c.window.Type(),
+					c.name,  // object allocated on the heap: escapes at line 132
+					c.window.Type(),  // object allocated on the heap: escapes at line 133
 					x,
 					y,
 					w,

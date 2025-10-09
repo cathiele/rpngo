@@ -57,9 +57,9 @@ type I2CKbd struct {
 // Init initialized the i2c driver.  It may be necessary to add the ability to
 // provided an i2c driver if the bus is shared (I don't believe it is currently).
 func (kbd *I2CKbd) Init() error {
-	kbd.write = make([]byte, 1)
+	kbd.write = make([]byte, 1) // object allocated on the heap (OK)
 	kbd.write[0] = i2cGetKey
-	kbd.read = make([]byte, 2)
+	kbd.read = make([]byte, 2) // object allocated on the heap (OK)
 	kbd.i2c = machine.I2C1
 	return kbd.i2c.Configure(machine.I2CConfig{
 		SCL: machine.GP7,

@@ -64,7 +64,7 @@ func (pw *PixelPlotWindow) drawVerticalTickMarks(wx, ww, wh int) {
 	}
 }
 
-func (pw *PixelPlotWindow) drawVerticalTick(wx, ww, wh int, y float64) {
+func (pw *PixelPlotWindow) drawVerticalTick(wx, ww, wh int, y float64) {  // object allocated on the heap: escapes at line 70
 	wy, _ := pw.common.transformY(y, wh)
 	pw.pixw.HLine(wx-tickLength, wy, tickLength*2)
 	s := fmt.Sprintf("%.2f", y)
@@ -113,7 +113,7 @@ func (pw *PixelPlotWindow) drawHorizontalTickMarks(wy, ww, wh int) {
 	}
 }
 
-func (pw *PixelPlotWindow) drawHorizontalTick(x float64, wy, ww, wh int) {
+func (pw *PixelPlotWindow) drawHorizontalTick(x float64, wy, ww, wh int) {  // object allocated on the heap: escapes at line 119
 	wx, _ := pw.common.transformX(x, ww)
 	pw.pixw.VLine(wx, wy-tickLength, tickLength*2)
 	s := fmt.Sprintf("%.2f", x)

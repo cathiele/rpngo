@@ -23,7 +23,7 @@ func (wc *WindowCommands) WListP(r *rpn.RPN) error {
 			// unexpected
 			return err
 		}
-		r.Print(fmt.Sprintf("%s: %s\n", p, f.String(true)))
+		r.Print(fmt.Sprintf("%s: %s\n", p, f.String(true)))  // object allocated on the heap: escapes at line 26
 	}
 	return nil
 }

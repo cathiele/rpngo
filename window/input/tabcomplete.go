@@ -22,7 +22,7 @@ func (gl *getLine) tabComplete(r *rpn.RPN, line []byte, idx int) ([]byte, int) {
 
 	word := string(line[startIdx:idx])
 	//log.Printf("found word: %v", word)
-	newWord := findNewWord(r, word)
+	newWord := gl.findNewWord(r, word)
 
 	if len(newWord) == 0 {
 		return line, idx
@@ -66,17 +66,17 @@ func findStartOfWord(line []byte, idx int) int {
 	return startIdx
 }
 
-func findNewWord(r *rpn.RPN, word string) string {
+func (gl *getLine) findNewWord(r *rpn.RPN, word string) string {
 	var wordList []string
 	var varPrefix string
 	if word[0] == '$' {
 		varPrefix = "$"
 		word = word[1:]
-		wordList = allVariableNames(r)
+		wordList = gl.allVariableNames(r)
 	} else if word[0] == '@' {
 		varPrefix = "@"
 		word = word[1:]
-		wordList = allStringVariables(r)
+		wordList = gl.allStringVariables(r)
 	} else {
 		wordList = r.AllFunctionNames()
 	}
@@ -103,18 +103,20 @@ func findNewWord(r *rpn.RPN, word string) string {
 	return varPrefix + newWord
 }
 
-func allVariableNames(r *rpn.RPN) []string {
+func (gl *getLine) allVariableNames(r *rpn.RPN) []string {
 	var wordList []string
-	for _, nv := range r.AllVariableNamesAndValues() {
+	gl.namesAndValues = r.AppendAllVariableNamesAndValues(gl.namesAndValues[:0])
+	for _, nv := range gl.namesAndValues {
 		wordList = append(wordList, nv.Name)
 	}
 	sort.Strings(wordList)
 	return wordList
 }
 
-func allStringVariables(r *rpn.RPN) []string {
+func (gl *getLine) allStringVariables(r *rpn.RPN) []string {
 	var wordList []string
-	for _, nv := range r.AllVariableNamesAndValues() {
+	gl.namesAndValues = r.AppendAllVariableNamesAndValues(gl.namesAndValues[:0])
+	for _, nv := range gl.namesAndValues {
 		if nv.Values[len(nv.Values)-1].Type == rpn.STRING_FRAME {
 			wordList = append(wordList, nv.Name)
 		}

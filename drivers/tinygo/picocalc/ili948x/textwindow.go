@@ -93,7 +93,7 @@ func (tw *Ili948xTxtW) ResizeWindow(x, y, w, h int) error {
 		}
 		tw.ww = int16(w)
 		tw.wh = int16(h)
-		tw.chars = make([]window.ColorChar, int(tw.textw)*int(tw.texth))
+		tw.chars = make([]window.ColorChar, int(tw.textw)*int(tw.texth)) // object allocated on the heap (OK)
 	}
 	tw.device.FillRectangle(int16(x), int16(y), int16(w), int16(h), 0) // fill with black
 	var j int16
@@ -120,7 +120,6 @@ func bgColor(c window.ColorChar) RGB565 {
 
 func (tw *Ili948xTxtW) updateCharAt(tx, ty int16, r window.ColorChar) {
 	idx := ty*tw.textw + tx
-	//tinygo.Check("updateCharAt", int(idx), len(tw.chars))
 	oldr := tw.chars[idx]
 	if r == oldr {
 		return
@@ -243,7 +242,6 @@ func (tw *Ili948xTxtW) scrollUp(i int) {
 	for y = 0; y < maxy; y++ {
 		var x int16
 		for x = 0; x < tw.textw; x++ {
-			//tinygo.Check("scrollUp", int(offset), len(tw.chars))
 			tw.updateCharAt(x, y, tw.chars[offset])
 			offset++
 		}
@@ -284,14 +282,12 @@ func (tw *Ili948xTxtW) ShowCursorIfEnabled(show bool) {
 		if tw.cy >= tw.texth {
 			tw.Scroll(int(tw.texth - tw.cy - 1))
 		}
-		//tinygo.Check("show", int(tw.cy*tw.textw+tw.cx), len(tw.chars))
 		ch := tw.chars[tw.cy*tw.textw+tw.cx]
 		tw.cursorCol = ch & 0xFF00
 		tw.updateCharAt(tw.cx, tw.cy, 0x0F00|(ch&0x00FF))
 		tw.cursorShowX = tw.cx
 		tw.cursorShowY = tw.cy
 	} else {
-		//tinygo.Check("hide", int(tw.cursorShowY*tw.textw+tw.cursorShowX), len(tw.chars))
 		ch := tw.chars[tw.cursorShowY*tw.textw+tw.cursorShowX]
 		tw.updateCharAt(tw.cursorShowX, tw.cursorShowY, tw.cursorCol|(ch&0x00FF))
 	}

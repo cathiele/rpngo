@@ -71,7 +71,7 @@ type Ili948x struct {
 }
 
 func NewIli9488(trans *spiTransport, cs, dc, rst machine.Pin) *Ili948x {
-	disp := &Ili948x{
+	disp := &Ili948x{ // object allocated on the heap (OK)
 		trans: trans,
 		cs:    cs,
 		dc:    dc,

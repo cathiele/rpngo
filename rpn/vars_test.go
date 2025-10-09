@@ -262,7 +262,8 @@ func TestAllVariableNamesAndValues(t *testing.T) {
 			Values: []Frame{{}, {Type: INTEGER_FRAME, Int: 3}},
 		},
 	}
-	got := r.AllVariableNamesAndValues()
+	var got []NameAndValues = make([]NameAndValues, 0, 16)
+	got = r.AppendAllVariableNamesAndValues(got)
 	if !reflect.DeepEqual(want, got) {
 		t.Errorf("\n got=%+v\nwant=%+v", got, want)
 	}

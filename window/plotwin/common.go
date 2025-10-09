@@ -84,7 +84,7 @@ func (pw *plotWindowCommon) addPlot(r *rpn.RPN, fn []string, isParametric bool, 
 			return nil
 		}
 	}
-	fncopy := make([]string, len(fn))
+	fncopy := make([]string, len(fn))  // object allocated on the heap: size is not constant
 	copy(fncopy, fn)
 	plot := Plot{fn: fncopy, coloridx: pw.coloridx, isParametric: isParametric}
 
@@ -113,11 +113,11 @@ func slicesAreEqual(a []string, b []string) bool {
 func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) error {
 	// first determine the ranges
 	if pw.autox || pw.autoy {
-		var stats PointStats
+		var stats PointStats  // object allocated on the heap: escapes at line 118
 		for _, plot := range pw.plots {
 			if err := pw.addPoints(r, plot, stats.update); err != nil {
 				pw.plots = nil
-				return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)
+				return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)  // object allocated on the heap: escapes at line 120
 			}
 		}
 		if pw.autox {
@@ -134,7 +134,7 @@ func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, color
 	for _, plot := range pw.plots {
 		if err := pw.addPoints(r, plot, fn); err != nil {
 			pw.plots = nil
-			return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)
+			return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)  // object allocated on the heap: escapes at line 137
 		}
 	}
 	return nil

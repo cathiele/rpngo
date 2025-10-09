@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	var screen ili948x.Ili948xScreen
+	var screen ili948x.Ili948xScreen // object allocated on the heap (OK)
 	screen.Init()
 	// This only seeems to work for panics I throw and not errors
 	// like array out of bounds.
@@ -38,12 +38,12 @@ func main() {
 	}
 }
 
-func run(screen *ili948x.Ili948xScreen) error {
-	time.Sleep(2 * time.Second)
+func run(screen *ili948x.Ili948xScreen) error { // object allocated on the heap (OK)
+	time.Sleep(200 * time.Millisecond)
 
 	log.SetOutput(os.Stdout)
-	log.Println("Started")
-	var r rpn.RPN
+	log.Println("Started") // object allocated on the heap (OK)
+	var r rpn.RPN          // object allocated on the heap: (OK)
 	r.Init()
 	functions.RegisterAll(&r)
 
@@ -52,12 +52,12 @@ func run(screen *ili948x.Ili948xScreen) error {
 		return err
 	}
 	newPixelPlotWindow := func() (window.WindowWithProps, error) {
-		var ppw plotwin.PixelPlotWindow
+		var ppw plotwin.PixelPlotWindow // object allocated on the heap (OK)
 		pw, err := screen.NewPixelWindow()
 		if err != nil {
 			return nil, err
 		}
-		var pb pixelwinbuffer.PixelBuffer
+		var pb pixelwinbuffer.PixelBuffer // object allocated on the heap (OK)
 		pb.Init(pw)
 		ppw.Init(&pb)
 		return &ppw, nil
@@ -96,7 +96,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	if err != nil {
 		return err
 	}
-	gi := &getInput{}
+	gi := &getInput{} // object allocated on the heap (OK)
 	gi.Init()
 	iw, err := input.Init(gi, txtw, r)
 	gi.lcd = txtw.(*ili948x.Ili948xTxtW)
@@ -115,7 +115,7 @@ type getInput struct {
 
 func (gi *getInput) Init() {
 	if err := gi.keyboard.Init(); err != nil {
-		log.Printf("failed to init keyboard: %v", err)
+		log.Printf("failed to init keyboard: %v", err) // object allocated on the heap (OK)
 	}
 }
 
@@ -130,7 +130,7 @@ func (gi *getInput) GetChar() (key.Key, error) {
 		var err error
 		k, err = gi.keyboard.GetChar()
 		if err != nil {
-			log.Printf("keyboard error: %v", err)
+			log.Printf("keyboard error: %v", err) // object allocated on the heap (OK)
 			time.Sleep(1 * time.Second)
 		} else if k != 0 {
 			return k, nil

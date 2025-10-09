@@ -183,9 +183,7 @@ func (r *RPN) GetComplexVariable(name string) (complex128, error) {
 	return 0, ErrExpectedANumber
 }
 
-// Gets all variable values as a string
-func (r *RPN) getAllValuesForVariable(name string) []Frame {
-	var values []Frame
+func (r *RPN) appendAllValuesForVariable(name string, values []Frame) []Frame {
 	lastVal := 0
 	for i := 0; i < len(r.variables); i++ {
 		f, ok := r.variables[i][name]
@@ -197,7 +195,7 @@ func (r *RPN) getAllValuesForVariable(name string) []Frame {
 		}
 	}
 	if len(values) == 0 {
-		return []Frame{{Type: EMPTY_FRAME}}
+		values = append(values, Frame{Type: EMPTY_FRAME})
 	}
 	return values[:lastVal+1]
 }
@@ -223,17 +221,16 @@ func (r *RPN) AllVariableNames() []string {
 }
 
 // Gets all variable names
-func (r *RPN) AllVariableNamesAndValues() []NameAndValues {
+func (r *RPN) AppendAllVariableNamesAndValues(results []NameAndValues) []NameAndValues {
 	names := r.AllVariableNames()
 	// names may contain duplicates
 	var lastName string
-	var results []NameAndValues
 	for _, name := range names {
 		if name == lastName {
 			continue
 		}
 		lastName = name
-		results = append(results, NameAndValues{Name: name, Values: r.getAllValuesForVariable(name)})
+		results = append(results, NameAndValues{Name: name, Values: r.appendAllValuesForVariable(name, make([]Frame, 0, 1))})
 	}
 	return results
 }
