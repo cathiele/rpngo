@@ -31,6 +31,8 @@ const defaultConfigFile = `
 'w.reset "root" w.columns "i" 30 w.weight' .f2=
 'w.reset "root" w.columns "v" w.new.var "v" "showdot" true w.setp' .f3=
 
+'time t1= 0 x= "$x 1 + x= $x 3000000 <" for time $t1 - 3000000 1> /' benchmark=
+
 # Plot defaults
 'p' .plotwin=
 '$.plotwin w.new.plot' .plotinit=

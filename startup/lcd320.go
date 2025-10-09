@@ -16,6 +16,8 @@ const lcd320ConfigFile = `
 
 'w.reset @.init' .f1=
 
+'time t1= 0 x= "$x 1 + x= $x 50000 <" for time $t1 - 50000 1> /' benchmark=
+
 # Plot defaults
 'p' .plotwin=
 'w.reset $.plotwin w.new.plot $.plotwin "root" w.move.beg $.plotwin $.plotwin 200 w.weight' .plotinit=
