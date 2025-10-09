@@ -57,7 +57,7 @@ func For(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	fields := make([]string, 32)
+	fields := make([]string, 32) // object allocated on the heap: escapes at line 61 (OK)
 	fields, err = parse.Fields(macro, fields)
 	if err != nil {
 		r.PushString(macro)

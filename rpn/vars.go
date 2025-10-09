@@ -249,7 +249,7 @@ func (r *RPN) execVariableAsMacro(name string) error {
 		return r.PushFrame(f)
 	}
 	// this call can be recursive so we need to allocate here
-	fields := make([]string, 16)
+	fields := make([]string, 16) // object allocated on the heap: escapes at line 253 (OK)
 	fields, err = parse.Fields(f.Str, fields)
 	if err != nil {
 		return err

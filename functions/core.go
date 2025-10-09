@@ -120,7 +120,7 @@ func Exec(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	fields := make([]string, 32)
+	fields := make([]string, 32) // object allocated on the heap: escapes at line 124 (OK)
 	fields, err = parse.Fields(s, fields)
 	if err != nil {
 		return err
