@@ -211,7 +211,7 @@ type conversionData struct {
 }
 
 func Init() *Conversion {
-	c := &Conversion{convertDict: make(map[string]conversionType)}
+	c := &Conversion{convertDict: make(map[string]conversionType)}  // object allocated on the heap: escapes at line 223
 	c.insertKeys("Distance", distantConvert)
 	c.insertKeys("Time", timeConvert)
 	c.insertKeys("Force/Weight/Mass (Planet Earth)", massConvert)
@@ -227,7 +227,7 @@ func (c *Conversion) insertKeys(className string, data []unit) {
 	for _, d := range data {
 		for _, k := range d.names {
 			if _, ok := c.convertDict[k]; ok {
-				log.Printf("Error: duplicate conversion key: %s", k)
+				log.Printf("Error: duplicate conversion key: %s", k)  // object allocated on the heap: escapes at line 230
 			}
 			c.convertDict[k] = conversionType{className, d.scale, d.offset}
 		}
@@ -264,8 +264,8 @@ func (c *Conversion) Convert(value float64, valueType string, targetType string)
 	if source.numeratorName != target.numeratorName {
 		return 0, fmt.Errorf(
 			"incompatible numerator types: %s, %s",
-			source.numeratorName,
-			target.numeratorName)
+			source.numeratorName,  // object allocated on the heap: escapes at line 267
+			target.numeratorName)  // object allocated on the heap: escapes at line 268
 	}
 
 	// check for denominator compatibility, if needed
@@ -273,8 +273,8 @@ func (c *Conversion) Convert(value float64, valueType string, targetType string)
 	if source.isRatio() && source.denominatorName != target.denominatorName {
 		return 0, fmt.Errorf(
 			"incompatible denominator types: %s, %s",
-			source.denominatorName,
-			target.denominatorName)
+			source.denominatorName,  // object allocated on the heap: escapes at line 276
+			target.denominatorName)  // object allocated on the heap: escapes at line 277
 	}
 
 	// scale the value by each numerator
@@ -366,7 +366,7 @@ func (c *Conversion) checkForAliases(numerator []string, denominator []string) (
 }
 
 func initConversionData(numerator, denominator []conversionType) *conversionData {
-	c := &conversionData{numerator: numerator, denominator: denominator}
+	c := &conversionData{numerator: numerator, denominator: denominator}  // object allocated on the heap: escapes at line 372
 	c.numeratorName = c.buildClassName(numerator, denominator)
 	c.denominatorName = c.buildClassName(denominator, numerator)
 	return c

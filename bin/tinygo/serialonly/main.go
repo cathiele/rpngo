@@ -15,7 +15,7 @@ import (
 
 func main() {
 	time.Sleep(2 * time.Second)
-	var r rpn.RPN
+	var r rpn.RPN  // object allocated on the heap: escapes at line 29
 	r.Init()
 	functions.RegisterAll(&r)
 
@@ -31,7 +31,7 @@ func main() {
 
 		if err == nil {
 			r.IterFrames(func(sf rpn.Frame) {
-				fmt.Println(sf.String(true))
+				fmt.Println(sf.String(true))  // object allocated on the heap: escapes at line 34
 			})
 		} else {
 			fmt.Printf("Error: %v\n", err)

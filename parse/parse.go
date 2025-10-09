@@ -117,7 +117,7 @@ func (p *parseData) comment(c rune) {
 }
 
 func Fields(m string) ([]string, error) {
-	var p parseData = parseData{t: make([]rune, 0, 32)}
+	var p parseData = parseData{t: make([]rune, 0, 32)}  // object allocated on the heap: escapes at line 120
 	for _, c := range m {
 		switch p.s {
 		case WHITESPACE:

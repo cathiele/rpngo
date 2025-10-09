@@ -90,11 +90,11 @@ func PrintlnX(r *rpn.RPN) error {
 
 const PrintAllHelp = "Prints the whole stack"
 
-func PrintAll(r *rpn.RPN) error {
-	i := r.Size()
-	r.IterFrames(func(f rpn.Frame) {
+func PrintAll(r *rpn.RPN) error {  // object allocated on the heap: escapes at line 95
+	i := r.Size()  // object allocated on the heap: escapes at line 95
+	r.IterFrames(func(f rpn.Frame) {  // object allocated on the heap: escapes at line 95
 		i--
-		r.Print(fmt.Sprintf("%d: %s\n", i, f.String(true)))
+		r.Print(fmt.Sprintf("%d: %s\n", i, f.String(true)))  // object allocated on the heap: escapes at line 97
 	})
 	return nil
 }

@@ -48,13 +48,13 @@ func (f *Frame) String(quote bool) string {
 		}
 		return "false"
 	case INTEGER_FRAME:
-		return fmt.Sprintf("%vd", f.Int)
+		return fmt.Sprintf("%vd", f.Int)  // object allocated on the heap: escapes at line 51
 	case HEXIDECIMAL_FRAME:
-		return fmt.Sprintf("%xx", f.Int)
+		return fmt.Sprintf("%xx", f.Int)  // object allocated on the heap: escapes at line 53
 	case OCTAL_FRAME:
-		return fmt.Sprintf("%oo", f.Int)
+		return fmt.Sprintf("%oo", f.Int)  // object allocated on the heap: escapes at line 55
 	case BINARY_FRAME:
-		return fmt.Sprintf("%bb", f.Int)
+		return fmt.Sprintf("%bb", f.Int)  // object allocated on the heap: escapes at line 57
 	default:
 		return "BAD_TYPE"
 	}
@@ -62,18 +62,18 @@ func (f *Frame) String(quote bool) string {
 
 func (f *Frame) complexString() string {
 	if imag(f.Complex) == 0 {
-		return fmt.Sprintf("%g", real(f.Complex))
+		return fmt.Sprintf("%g", real(f.Complex))  // object allocated on the heap: escapes at line 65
 	}
 	if real(f.Complex) == 0 {
 		return complexString(imag(f.Complex))
 	}
 	if imag(f.Complex) < 0 {
-		return fmt.Sprintf("%g%s", real(f.Complex), complexString(imag(f.Complex)))
+		return fmt.Sprintf("%g%s", real(f.Complex), complexString(imag(f.Complex)))  // object allocated on the heap: escapes at line 71
 	}
-	return fmt.Sprintf("%g+%s", real(f.Complex), complexString(imag(f.Complex)))
+	return fmt.Sprintf("%g+%s", real(f.Complex), complexString(imag(f.Complex)))  // object allocated on the heap: escapes at line 73
 }
 
-func complexString(v float64) string {
+func complexString(v float64) string {  // object allocated on the heap: escapes at line 83
 	if v == 1 {
 		return "i"
 	}
@@ -376,7 +376,7 @@ func (r *RPN) Size() int {
 const pushStackHelp = "Pushes a copy of the entire stack. spop can be use to recover it."
 
 func pushStack(r *RPN) error {
-	r.pushed = append(r.pushed, make([]Frame, len(r.frames)))
+	r.pushed = append(r.pushed, make([]Frame, len(r.frames)))  // object allocated on the heap: size is not constant
 	copy(r.pushed[len(r.pushed)-1], r.frames)
 	return nil
 }

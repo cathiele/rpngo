@@ -48,7 +48,7 @@ type RPN struct {
 func (r *RPN) Init() {
 	r.Clear()
 	r.functions = make(map[string]func(*RPN) error)
-	r.variables = []map[string]Frame{make(map[string]Frame)}
+	r.variables = []map[string]Frame{make(map[string]Frame)}  // object allocated on the heap: escapes at line 51
 	r.initHelp()
 	r.Register("ssize", stackSize, CatStack, stackSizeHelp)
 	r.Register("spush", pushStack, CatStack, pushStackHelp)
@@ -82,7 +82,7 @@ func (rpn *RPN) AllFunctionNames() []string {
 	return names
 }
 
-func DefaultPrint(msg string) {
+func DefaultPrint(msg string) {  // object allocated on the heap: escapes at line 86
 	fmt.Print(msg)
 }
 

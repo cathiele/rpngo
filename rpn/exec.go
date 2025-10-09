@@ -70,7 +70,7 @@ func (rpn *RPN) exec(arg string) error {
 func (rpn *RPN) Exec(args []string) error {
 	for i, arg := range args {
 		if err := rpn.exec(arg); err != nil {
-			return fmt.Errorf("exec %s: %w", highlightArg(args, i), err)
+			return fmt.Errorf("exec %s: %w", highlightArg(args, i), err)  // object allocated on the heap: escapes at line 73
 		}
 	}
 	return nil
