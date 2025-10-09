@@ -9,10 +9,10 @@ func TestInit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("r.Exec() err=%v", err)
 	}
-	if len(r.frames) != 4 {
-		t.Fatalf("want len(r.frames) = 4, got %v", len(r.frames))
+	if len(r.Frames) != 4 {
+		t.Fatalf("want len(r.frames) = 4, got %v", len(r.Frames))
 	}
-	f := r.frames[3]
+	f := r.Frames[3]
 	if f.Type != INTEGER_FRAME {
 		t.Errorf("want frame.Type = INTEGER_FRAME, got %v", f.Type)
 	}
@@ -32,10 +32,10 @@ func TestRegister(t *testing.T) {
 	if err != nil {
 		t.Fatalf("r.Exec() err=%v", err)
 	}
-	if len(r.frames) != 1 {
-		t.Fatalf("want len(r.frames) = 1, got %v", len(r.frames))
+	if len(r.Frames) != 1 {
+		t.Fatalf("want len(r.frames) = 1, got %v", len(r.Frames))
 	}
-	f := r.frames[0]
+	f := r.Frames[0]
 	if f.Type != INTEGER_FRAME {
 		t.Errorf("want frame.Type = INTEGER_FRAME, got %v", f.Type)
 	}

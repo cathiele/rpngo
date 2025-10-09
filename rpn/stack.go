@@ -85,18 +85,18 @@ func complexString(v float64) string {
 }
 
 func (r *RPN) Clear() {
-	r.frames = r.frames[:0]
+	r.Frames = r.Frames[:0]
 }
 
 func (r *RPN) StackLen() int {
-	return len(r.frames)
+	return len(r.Frames)
 }
 
 func (r *RPN) PushFrame(f Frame) error {
-	if len(r.frames) >= MaxStackDepth {
+	if len(r.Frames) >= MaxStackDepth {
 		return ErrStackFull
 	}
-	r.frames = append(r.frames, f)
+	r.Frames = append(r.Frames, f)
 	return nil
 }
 
@@ -121,12 +121,12 @@ func (r *RPN) PushInt(v int64, t FrameType) error {
 }
 
 func (r *RPN) PopFrame() (sf Frame, err error) {
-	if len(r.frames) == 0 {
+	if len(r.Frames) == 0 {
 		err = ErrStackEmpty
 		return
 	}
-	sf = r.frames[len(r.frames)-1]
-	r.frames = r.frames[:len(r.frames)-1]
+	sf = r.Frames[len(r.Frames)-1]
+	r.Frames = r.Frames[:len(r.Frames)-1]
 	return
 }
 
@@ -232,7 +232,7 @@ func (r *RPN) PopStackIndex() (i int, err error) {
 		err = ErrIllegalValue
 		return
 	}
-	if i >= len(r.frames) {
+	if i >= len(r.Frames) {
 		r.PushFrame(f)
 		err = ErrIllegalValue
 		return
@@ -241,13 +241,13 @@ func (r *RPN) PopStackIndex() (i int, err error) {
 }
 
 func (r *RPN) Pop2Frames() (a Frame, b Frame, err error) {
-	if len(r.frames) < 2 {
+	if len(r.Frames) < 2 {
 		err = ErrNotEnoughStackFrames
 		return
 	}
-	a = r.frames[len(r.frames)-2]
-	b = r.frames[len(r.frames)-1]
-	r.frames = r.frames[:len(r.frames)-2]
+	a = r.Frames[len(r.Frames)-2]
+	b = r.Frames[len(r.Frames)-1]
+	r.Frames = r.Frames[:len(r.Frames)-2]
 	return
 }
 
@@ -329,11 +329,11 @@ func (r *RPN) PeekFrame(framesBack int) (sf Frame, err error) {
 		err = ErrIllegalValue
 		return
 	}
-	if framesBack >= len(r.frames) {
+	if framesBack >= len(r.Frames) {
 		err = ErrNotEnoughStackFrames
 		return
 	}
-	sf = r.frames[len(r.frames)-1-framesBack]
+	sf = r.Frames[len(r.Frames)-1-framesBack]
 	return
 }
 
@@ -342,8 +342,8 @@ func (r *RPN) DeleteFrame(framesBack int) (sf Frame, err error) {
 	if err != nil {
 		return
 	}
-	idx := len(r.frames) - 1 - framesBack
-	r.frames = append(r.frames[:idx], r.frames[idx+1:]...)
+	idx := len(r.Frames) - 1 - framesBack
+	r.Frames = append(r.Frames[:idx], r.Frames[idx+1:]...)
 	return
 }
 
@@ -351,34 +351,24 @@ func (r *RPN) InsertFrame(f Frame, framesBack int) error {
 	if framesBack < 0 {
 		return ErrIllegalValue
 	}
-	if framesBack > len(r.frames) {
+	if framesBack > len(r.Frames) {
 		return ErrNotEnoughStackFrames
 	}
 	if framesBack == 0 {
 		return r.PushFrame(f)
 	}
-	idx := len(r.frames) - framesBack
-	r.frames = append(r.frames, Frame{})
-	copy(r.frames[idx+1:], r.frames[idx:])
-	r.frames[idx] = f
+	idx := len(r.Frames) - framesBack
+	r.Frames = append(r.Frames, Frame{})
+	copy(r.Frames[idx+1:], r.Frames[idx:])
+	r.Frames[idx] = f
 	return nil
-}
-
-func (r *RPN) IterFrames(fn func(Frame)) {
-	for _, sf := range r.frames {
-		fn(sf)
-	}
-}
-
-func (r *RPN) Size() int {
-	return len(r.frames)
 }
 
 const pushStackHelp = "Pushes a copy of the entire stack. spop can be use to recover it."
 
 func pushStack(r *RPN) error {
-	r.pushed = append(r.pushed, make([]Frame, len(r.frames))) // object allocated on the heap (OK)
-	copy(r.pushed[len(r.pushed)-1], r.frames)
+	r.pushed = append(r.pushed, make([]Frame, len(r.Frames))) // object allocated on the heap (OK)
+	copy(r.pushed[len(r.pushed)-1], r.Frames)
 	return nil
 }
 
@@ -388,7 +378,7 @@ func popStack(r *RPN) error {
 	if len(r.pushed) == 0 {
 		return ErrStackEmpty
 	}
-	r.frames = r.pushed[len(r.pushed)-1]
+	r.Frames = r.pushed[len(r.pushed)-1]
 	r.pushed = r.pushed[:len(r.pushed)-1]
 	return nil
 }
@@ -396,5 +386,5 @@ func popStack(r *RPN) error {
 const stackSizeHelp = "Pushes the current stack size to the stack (non-inclusive)."
 
 func stackSize(r *RPN) error {
-	return r.PushInt(int64(len(r.frames)), INTEGER_FRAME)
+	return r.PushInt(int64(len(r.Frames)), INTEGER_FRAME)
 }

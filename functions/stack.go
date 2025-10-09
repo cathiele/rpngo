@@ -1,8 +1,8 @@
 package functions
 
 import (
-	"fmt"
 	"mattwach/rpngo/rpn"
+	"strconv"
 )
 
 const NoOpHelp = "No operation. e.g. 'noop' plot will plot y = x"
@@ -90,12 +90,12 @@ func PrintlnX(r *rpn.RPN) error {
 
 const PrintAllHelp = "Prints the whole stack"
 
-func PrintAll(r *rpn.RPN) error {  // object allocated on the heap: escapes at line 95
-	i := r.Size()  // object allocated on the heap: escapes at line 95
-	r.IterFrames(func(f rpn.Frame) {  // object allocated on the heap: escapes at line 95
+func PrintAll(r *rpn.RPN) error {
+	i := len(r.Frames)
+	for _, f := range r.Frames {
 		i--
-		r.Print(fmt.Sprintf("%d: %s\n", i, f.String(true)))  // object allocated on the heap: escapes at line 97
-	})
+		r.Print(strconv.Itoa(i) + ": " + f.String(true) + "\n")
+	}
 	return nil
 }
 

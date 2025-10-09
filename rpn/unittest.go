@@ -37,7 +37,9 @@ func UnitTestExec(t *testing.T, r *RPN, args, want []string, wantErr error) {
 		t.Fatalf("err=%v, want=%v", err, wantErr)
 	}
 	var got []string
-	r.IterFrames(func(f Frame) { got = append(got, f.String(true)) })
+	for _, f := range r.Frames {
+		got = append(got, f.String(true))
+	}
 	if !reflect.DeepEqual(want, got) {
 		t.Errorf("stack mismatch.  got=%+v, want=%+v", got, want)
 	}

@@ -257,11 +257,11 @@ func TestExec(t *testing.T) {
 			if !errors.Is(err, d.wantErr) {
 				t.Errorf("err got %v, want %v", err, d.wantErr)
 			}
-			if len(r.frames) != d.frameCount {
-				t.Errorf("frame count want %v, got %v", d.frameCount, len(r.frames))
+			if len(r.Frames) != d.frameCount {
+				t.Errorf("frame count want %v, got %v", d.frameCount, len(r.Frames))
 			}
-			if len(r.frames) > 0 {
-				gotf := r.frames[len(r.frames)-1]
+			if len(r.Frames) > 0 {
+				gotf := r.Frames[len(r.Frames)-1]
 				if !reflect.DeepEqual(gotf, d.wantFrame) {
 					t.Errorf("frame got %+v, want %+v", gotf, d.wantFrame)
 				}

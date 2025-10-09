@@ -44,9 +44,9 @@ func cli(r *rpn.RPN) error {
 		return err
 	}
 
-	r.IterFrames(func(sf rpn.Frame) {
-		fmt.Println(sf.String(true))
-	})
+	for _, f := range r.Frames {
+		fmt.Println(f.String(true))
+	}
 
 	return nil
 }

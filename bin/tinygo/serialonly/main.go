@@ -15,7 +15,7 @@ import (
 
 func main() {
 	time.Sleep(2 * time.Second)
-	var r rpn.RPN  // object allocated on the heap: escapes at line 29
+	var r rpn.RPN // object allocated on the heap (OK)
 	r.Init()
 	functions.RegisterAll(&r)
 
@@ -30,9 +30,12 @@ func main() {
 		}
 
 		if err == nil {
-			r.IterFrames(func(sf rpn.Frame) {
-				fmt.Println(sf.String(true))  // object allocated on the heap: escapes at line 34
-			})
+			for _, f := range r.Frames {
+				for _, r := range f.String(true) {
+					machine.Serial.WriteByte(byte(r))
+				}
+				machine.Serial.WriteByte('\n')
+			}
 		} else {
 			fmt.Printf("Error: %v\n", err)
 		}
