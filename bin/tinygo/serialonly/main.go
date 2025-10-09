@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+var fields []string = make([]string, 128)
+
 func main() {
 	time.Sleep(2 * time.Second)
 	var r rpn.RPN // object allocated on the heap (OK)
@@ -23,10 +25,12 @@ func main() {
 
 	for {
 		line := readLine()
-		args, err := parse.Fields(line)
+		fields = fields[:0]
+		var err error
+		fields, err = parse.Fields(line, fields)
 
 		if err == nil {
-			err = r.Exec(args)
+			err = r.Exec(fields)
 		}
 
 		if err == nil {

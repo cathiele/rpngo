@@ -248,7 +248,9 @@ func (r *RPN) execVariableAsMacro(name string) error {
 		// Just push the frame
 		return r.PushFrame(f)
 	}
-	fields, err := parse.Fields(f.Str)
+	// this call can be recursive so we need to allocate here
+	fields := make([]string, 16)
+	fields, err = parse.Fields(f.Str, fields)
 	if err != nil {
 		return err
 	}

@@ -57,7 +57,8 @@ func For(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	fields, err := parse.Fields(macro)
+	fields := make([]string, 32)
+	fields, err = parse.Fields(macro, fields)
 	if err != nil {
 		r.PushString(macro)
 		return err

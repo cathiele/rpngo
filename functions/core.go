@@ -120,7 +120,8 @@ func Exec(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	fields, err := parse.Fields(s)
+	fields := make([]string, 32)
+	fields, err = parse.Fields(s, fields)
 	if err != nil {
 		return err
 	}

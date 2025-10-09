@@ -129,8 +129,12 @@ func (iw *InputWindow) ListProps() []string {
 	return nil
 }
 
+var fields = make([]string, 128)
+
 func parseLine(r *rpn.RPN, line string) (bool, error) {
-	fields, err := parse.Fields(line)
+	fields = fields[:0]
+	var err error
+	fields, err = parse.Fields(line, fields)
 	if err != nil {
 		return false, err
 	}

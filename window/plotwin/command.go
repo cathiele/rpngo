@@ -71,7 +71,8 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	if err != nil {
 		return err
 	}
-	fields, err := parse.Fields(macro)
+	fields := make([]string, 32)
+	fields, err = parse.Fields(macro, fields)
 	if err != nil {
 		return err
 	}
@@ -102,7 +103,8 @@ func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	fields, err := parse.Fields(macro)
+	fields := make([]string, 32)
+	fields, err = parse.Fields(macro, fields)
 	if err != nil {
 		return err
 	}

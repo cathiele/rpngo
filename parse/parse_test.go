@@ -2,7 +2,6 @@ package parse
 
 import (
 	"errors"
-	"reflect"
 	"testing"
 )
 
@@ -98,14 +97,21 @@ func TestFields(t *testing.T) {
 		},
 	}
 
+	fields := make([]string, 16)
+
 	for _, d := range data {
 		t.Run(d.val, func(t *testing.T) {
-			got, err := Fields(d.val)
+			got, err := Fields(d.val, fields)
 			if !errors.Is(err, d.wantErr) {
 				t.Errorf("err = %v, want %v", err, d.wantErr)
 			}
-			if !reflect.DeepEqual(got, d.want) {
-				t.Errorf("\n got: %+v\nwant: %+v", got, d.want)
+			if len(got) != len(d.want) {
+				t.Fatalf("\n got: %+v\nwant: %+v", got, d.want)
+			}
+			for i := range got {
+				if got[i] != d.want[i] {
+					t.Fatalf("\n got: %+v\nwant: %+v", got, d.want)
+				}
 			}
 		})
 	}

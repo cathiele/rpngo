@@ -18,7 +18,8 @@ func Source(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	fields, err := parse.Fields(string(data))
+	fields := make([]string, 256)
+	fields, err = parse.Fields(string(data), fields)
 	if err != nil {
 		return err
 	}

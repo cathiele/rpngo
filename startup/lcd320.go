@@ -24,7 +24,8 @@ const lcd320ConfigFile = `
 // LCD320Startup is startup logic when using a 320x240 display
 // filesystem available)
 func LCD320Startup(r *rpn.RPN) error {
-	fields, err := parse.Fields(lcd320ConfigFile)
+	fields := make([]string, 256)
+	fields, err := parse.Fields(lcd320ConfigFile, fields)
 	if err != nil {
 		return fmt.Errorf("while parsing lcd320ConfigFile var: %w", err)
 	}

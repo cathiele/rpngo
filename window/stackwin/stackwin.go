@@ -73,8 +73,8 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 	sw.txtb.MaybeResize(int16(w), int16(h))
 	sw.txtb.Erase()
 	framesBack := h
-	if rpn.Size() < framesBack {
-		framesBack = rpn.Size()
+	if len(rpn.Frames) < framesBack {
+		framesBack = len(rpn.Frames)
 	}
 	for i := 0; i < framesBack; i++ {
 		f, err := rpn.PeekFrame(i)
@@ -98,7 +98,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 			window.Print(&sw.txtb, s)
 		}
 	}
-	if (rpn.Size() == 0) && (h > 0) {
+	if (len(rpn.Frames) == 0) && (h > 0) {
 		sw.txtb.SetCursorXY(0, h-1)
 		sw.txtb.TextColor(window.Cyan)
 		s := "Stack Empty"

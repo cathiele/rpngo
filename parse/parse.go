@@ -38,6 +38,22 @@ type parseData struct {
 	nextIsLiteral bool
 }
 
+const defaultStaticRunes = 64
+
+// Use a static instance to avoid heap allocations on every Fields call
+var parse parseData = parseData{
+	t: make([]rune, defaultStaticRunes),
+}
+
+func (p *parseData) init(ret []string) {
+	p.s = WHITESPACE
+	if cap(p.t) > defaultStaticRunes {
+		p.t = make([]rune, defaultStaticRunes)
+	}
+	p.t = p.t[:0]
+	p.ret = ret[:0]
+}
+
 func (p *parseData) whitespace(c rune) {
 	if isWhitespace(c) {
 		return
@@ -116,31 +132,33 @@ func (p *parseData) comment(c rune) {
 	}
 }
 
-func Fields(m string) ([]string, error) {
-	var p parseData = parseData{t: make([]rune, 0, 32)}  // object allocated on the heap: escapes at line 120
+// Fields breaks a string into fields, the allocation for fields is provided
+// by the caller to avoid stack allocations in some cases (but recursive cases can not do it)
+func Fields(m string, ret []string) ([]string, error) {
+	parse.init(ret)
 	for _, c := range m {
-		switch p.s {
+		switch parse.s {
 		case WHITESPACE:
-			p.whitespace(c)
+			parse.whitespace(c)
 		case TOKEN:
-			p.token(c)
+			parse.token(c)
 		case STRING_SINGLE:
-			p.str(c, '\'')
+			parse.str(c, '\'')
 		case STRING_DOUBLE:
-			p.str(c, '"')
+			parse.str(c, '"')
 		case COMMENT:
-			p.comment(c)
+			parse.comment(c)
 		}
 	}
-	switch p.s {
+	switch parse.s {
 	case TOKEN:
-		p.token('\n')
+		parse.token('\n')
 	case STRING_SINGLE:
 		return nil, ErrUnterminatedSingleQuote
 	case STRING_DOUBLE:
 		return nil, ErrUnterminatedDouble
 	}
-	return p.ret, nil
+	return parse.ret, nil
 }
 
 func isWhitespace(c rune) bool {
