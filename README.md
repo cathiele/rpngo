@@ -2,7 +2,9 @@
 
 ## TODO Bugs
 
-- stack rounding logic still needs work and probably unit tests.
+- Multiline editing has some bugs
+  - going up lines doesn't seem to work correctly
+  - hitting enter when not at the bottom does print in the right spot
 
 ## TODO Cleanup
 
