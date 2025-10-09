@@ -2,7 +2,6 @@ package rpn
 
 import (
 	"errors"
-	"math"
 	"reflect"
 	"testing"
 )
@@ -272,7 +271,3 @@ func TestExec(t *testing.T) {
 }
 
 const float64EqualityThreshold = 1e-4
-
-func almostEqual(a, b float64) bool {
-	return math.Abs(a-b) <= float64EqualityThreshold
-}

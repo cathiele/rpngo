@@ -70,7 +70,7 @@ func (rpn *RPN) exec(arg string) error {
 func (rpn *RPN) Exec(args []string) error {
 	for i, arg := range args {
 		if err := rpn.exec(arg); err != nil {
-			return fmt.Errorf("exec %s: %w", highlightArg(args, i), err)  // object allocated on the heap: escapes at line 73
+			return fmt.Errorf("exec %s: %w", highlightArg(args, i), err) // object allocated on the heap: escapes at line 73
 		}
 	}
 	return nil
@@ -133,10 +133,11 @@ func parseComplexWithI(arg string) (complex128, error) {
 		b = arg[:len(arg)-1]
 	}
 	b = strings.TrimPrefix(b, "+")
-	if b == "" {
+	switch b {
+	case "":
 		// the user specified just i
 		b = "1"
-	} else if b == "-" {
+	case "-":
 		// the user specified just -i
 		b = "-1"
 	}

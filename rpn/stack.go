@@ -2,7 +2,7 @@
 package rpn
 
 import (
-	"fmt"
+	"strconv"
 )
 
 func (f *Frame) IsInt() bool {
@@ -48,13 +48,13 @@ func (f *Frame) String(quote bool) string {
 		}
 		return "false"
 	case INTEGER_FRAME:
-		return fmt.Sprintf("%vd", f.Int)  // object allocated on the heap: escapes at line 51
+		return strconv.FormatInt(f.Int, 10) + "d"
 	case HEXIDECIMAL_FRAME:
-		return fmt.Sprintf("%xx", f.Int)  // object allocated on the heap: escapes at line 53
+		return strconv.FormatInt(f.Int, 16) + "x"
 	case OCTAL_FRAME:
-		return fmt.Sprintf("%oo", f.Int)  // object allocated on the heap: escapes at line 55
+		return strconv.FormatInt(f.Int, 8) + "o"
 	case BINARY_FRAME:
-		return fmt.Sprintf("%bb", f.Int)  // object allocated on the heap: escapes at line 57
+		return strconv.FormatInt(f.Int, 2) + "b"
 	default:
 		return "BAD_TYPE"
 	}
@@ -62,25 +62,26 @@ func (f *Frame) String(quote bool) string {
 
 func (f *Frame) complexString() string {
 	if imag(f.Complex) == 0 {
-		return fmt.Sprintf("%g", real(f.Complex))  // object allocated on the heap: escapes at line 65
+		return strconv.FormatFloat(real(f.Complex), 'g', 10, 64)
 	}
 	if real(f.Complex) == 0 {
 		return complexString(imag(f.Complex))
 	}
+	r := strconv.FormatFloat(real(f.Complex), 'g', 10, 64)
 	if imag(f.Complex) < 0 {
-		return fmt.Sprintf("%g%s", real(f.Complex), complexString(imag(f.Complex)))  // object allocated on the heap: escapes at line 71
+		return r + complexString(imag(f.Complex))
 	}
-	return fmt.Sprintf("%g+%s", real(f.Complex), complexString(imag(f.Complex)))  // object allocated on the heap: escapes at line 73
+	return r + "+" + complexString(imag(f.Complex))
 }
 
-func complexString(v float64) string {  // object allocated on the heap: escapes at line 83
+func complexString(v float64) string {
 	if v == 1 {
 		return "i"
 	}
 	if v == -1 {
 		return "-i"
 	}
-	return fmt.Sprintf("%gi", v)
+	return strconv.FormatFloat(v, 'g', 10, 64) + "i"
 }
 
 func (r *RPN) Clear() {
@@ -376,7 +377,7 @@ func (r *RPN) Size() int {
 const pushStackHelp = "Pushes a copy of the entire stack. spop can be use to recover it."
 
 func pushStack(r *RPN) error {
-	r.pushed = append(r.pushed, make([]Frame, len(r.frames)))  // object allocated on the heap: size is not constant
+	r.pushed = append(r.pushed, make([]Frame, len(r.frames))) // object allocated on the heap (OK)
 	copy(r.pushed[len(r.pushed)-1], r.frames)
 	return nil
 }

@@ -112,7 +112,7 @@ func (r *RPN) printHelp(topic string) error {
 		}
 	}
 	if help == "" {
-		return fmt.Errorf("Use ? to list all: %w", ErrNotFound)
+		return fmt.Errorf("use ? to list all: %w", ErrNotFound)
 	}
 	r.Print("\n")
 	r.Println(help)
