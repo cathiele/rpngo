@@ -2,7 +2,7 @@ build:
 	tinygo build -target=pico2 -scheduler=tasks -o a.uf2
 
 flash:
-	tinygo flash -target=pico2 -scheduler=tasks
+	tinygo flash -target=pico2 -scheduler=tasks -serial=uart
 	
 
 allocs:
