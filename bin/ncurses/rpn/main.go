@@ -60,7 +60,8 @@ func interactive(r *rpn.RPN) error {
 		return err
 	}
 	defer screen.End()
-	root, err := buildUI(screen, r)
+	var root window.WindowRoot
+	err = buildUI(&root, screen, r)
 	if err != nil {
 		return err
 	}
@@ -73,8 +74,8 @@ func interactive(r *rpn.RPN) error {
 		tpw.Init(pw)
 		return &tpw, nil
 	}
-	_ = commands.InitWindowCommands(r, root, screen, newTextPlotWindow)
-	_ = plotwin.InitPlotCommands(r, root, screen, plotwin.AddTxtPlotFn)
+	_ = commands.InitWindowCommands(r, &root, screen, newTextPlotWindow)
+	_ = plotwin.InitPlotCommands(r, &root, screen, plotwin.AddTxtPlotFn)
 	if err := startup.OSStartup(r); err != nil {
 		return err
 	}
@@ -111,13 +112,13 @@ func (i *interrupt) interrupt() bool {
 	}
 }
 
-func buildUI(screen *curses.Curses, r *rpn.RPN) (*window.WindowRoot, error) {
+func buildUI(root *window.WindowRoot, screen *curses.Curses, r *rpn.RPN) error {
 	w, h := screen.ScreenSize()
-	root := window.NewWindowRoot(w, h)
+	root.Init(w, h)
 	if err := addInputWindow(screen, root, r); err != nil {
-		return nil, err
+		return err
 	}
-	return root, nil
+	return nil
 }
 
 func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) error {

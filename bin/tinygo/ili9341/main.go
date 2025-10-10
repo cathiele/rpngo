@@ -39,7 +39,8 @@ func run() error {
 
 	var screen ili9341.Ili9341Screen
 	screen.Init()
-	root, err := buildUI(&screen, &r)
+	var root window.WindowRoot
+	err := buildUI(&root, &screen, &r)
 	if err != nil {
 		return err
 	}
@@ -54,8 +55,8 @@ func run() error {
 		ppw.Init(&pb)
 		return &ppw, nil
 	}
-	_ = commands.InitWindowCommands(&r, root, &screen, newPixelPlotWindow)
-	_ = plotwin.InitPlotCommands(&r, root, &screen, plotwin.AddPixelPlotFn)
+	_ = commands.InitWindowCommands(&r, &root, &screen, newPixelPlotWindow)
+	_ = plotwin.InitPlotCommands(&r, &root, &screen, plotwin.AddPixelPlotFn)
 	if err := startup.LCD320Startup(&r); err != nil {
 		return err
 	}
@@ -74,13 +75,13 @@ func run() error {
 	}
 }
 
-func buildUI(screen window.Screen, r *rpn.RPN) (*window.WindowRoot, error) {
+func buildUI(root *window.WindowRoot, screen window.Screen, r *rpn.RPN) error {
 	w, h := screen.ScreenSize()
-	root := window.NewWindowRoot(w, h)
+	root.Init(w, h)
 	if err := addInputWindow(screen, root, r); err != nil {
-		return nil, err
+		return err
 	}
-	return root, nil
+	return nil
 }
 
 func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) error {
