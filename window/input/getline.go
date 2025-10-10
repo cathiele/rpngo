@@ -25,7 +25,7 @@ type getLine struct {
 const histFile = ".rpngo_history"
 
 func initGetLine(input Input, txtd window.TextWindow) *getLine {
-	gl := &getLine{ // object allocated on the heap: object size 4028 exceeds maximum stack allocation size 256
+	gl := &getLine{ // object allocated on the heap: (OK)
 		insertMode:     true,
 		input:          input,
 		txtd:           txtd,
@@ -84,7 +84,7 @@ func (gl *getLine) prepareHistory() {
 		line := gl.history[i%MAX_HISTORY_LINES] + "\n"
 		_, err := gl.historyFile.Write([]byte(line))
 		if err != nil {
-			log.Printf("error writing exsiting history: %v", err) // object allocated on the heap: escapes at line 85
+			log.Printf("error writing exsiting history: %v", err) // object allocated on the heap (OK)
 		}
 	}
 }

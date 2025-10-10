@@ -49,7 +49,7 @@ func (tb *TextBuffer) MaybeResize(w, h int16) {
 	}
 	tb.w = w
 	tb.h = h
-	tb.chars = make([]ColorChar, w*h) // object allocated on the heap: size is not constant
+	tb.chars = make([]ColorChar, w*h) // object allocated on the heap (OK)
 	tb.Erase()
 }
 

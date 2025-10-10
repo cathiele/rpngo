@@ -26,7 +26,7 @@ type InputWindow struct {
 }
 
 func Init(input Input, txtw window.TextWindow, r *rpn.RPN) (*InputWindow, error) {
-	iw := &InputWindow{  // object allocated on the heap: escapes at line 36
+	iw := &InputWindow{ // object allocated on the heap (OK)
 		input:      input,
 		txtw:       txtw,
 		gl:         initGetLine(input, txtw),
