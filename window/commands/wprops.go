@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"mattwach/rpngo/rpn"
 )
 
@@ -23,7 +22,9 @@ func (wc *WindowCommands) WListP(r *rpn.RPN) error {
 			// unexpected
 			return err
 		}
-		r.Print(fmt.Sprintf("%s: %s\n", p, f.String(true)))  // object allocated on the heap: escapes at line 26
+		r.Print(p)
+		r.Print(": ")
+		r.Println(f.String(true))
 	}
 	return nil
 }
