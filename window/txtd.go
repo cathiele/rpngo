@@ -26,10 +26,19 @@ func PutByte(txtd TextArea, b byte) {
 func Shift(txtd TextArea, n int) {
 	x, y := txtd.CursorXY()
 	x += n
-	if x < 0 {
+	for x >= txtd.TextWidth() {
+		y += 1
+		if y >= txtd.TextHeight() {
+			txtd.Scroll(-1)
+			y--
+		}
+		x -= txtd.TextWidth()
+	}
+	for x < 0 {
 		x += txtd.TextWidth()
 		y -= 1
 		if y < 0 {
+			txtd.Scroll(1)
 			y = 0
 		}
 	}

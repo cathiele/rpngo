@@ -185,6 +185,7 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 		default:
 			b := byte(c)
 			if b == '\n' {
+				window.Shift(gl.txtd, len(line)-idx)
 				window.PutByte(gl.txtd, b)
 				s := string(line)
 				gl.addToHistory(s)

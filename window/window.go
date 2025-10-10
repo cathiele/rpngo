@@ -32,6 +32,10 @@ type TextArea interface {
 	CursorX() int
 	CursorY() int
 	CursorXY() (int, int)
+
+	// Scroll the display up or down
+	Scroll(int)
+
 	SetCursorX(int)
 	SetCursorY(int)
 	SetCursorXY(x, y int)
@@ -59,9 +63,6 @@ type TextWindow interface {
 
 	// Refresh the display
 	Refresh()
-
-	// Scroll the display up or down
-	Scroll(int)
 
 	// Show/hide cursor, this may affect other windows and should be set back to
 	// off if it's turned on.

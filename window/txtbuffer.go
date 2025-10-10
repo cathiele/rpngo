@@ -49,7 +49,7 @@ func (tb *TextBuffer) MaybeResize(w, h int16) {
 	}
 	tb.w = w
 	tb.h = h
-	tb.chars = make([]ColorChar, w*h)  // object allocated on the heap: size is not constant
+	tb.chars = make([]ColorChar, w*h) // object allocated on the heap: size is not constant
 	tb.Erase()
 }
 
@@ -116,4 +116,8 @@ func (tb *TextBuffer) SetCursorXY(x, y int) {
 
 func (tb *TextBuffer) TextColor(col ColorChar) {
 	tb.col = col
+}
+
+func (tb *TextBuffer) Scroll(i int) {
+	// maybe not needed so not implemented
 }
