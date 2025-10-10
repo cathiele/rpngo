@@ -211,7 +211,7 @@ type conversionData struct {
 }
 
 func Init() *Conversion {
-	c := &Conversion{convertDict: make(map[string]conversionType)}  // object allocated on the heap: escapes at line 223
+	c := &Conversion{convertDict: make(map[string]conversionType)} // object allocated on the heap (OK)
 	c.insertKeys("Distance", distantConvert)
 	c.insertKeys("Time", timeConvert)
 	c.insertKeys("Force/Weight/Mass (Planet Earth)", massConvert)
@@ -227,7 +227,7 @@ func (c *Conversion) insertKeys(className string, data []unit) {
 	for _, d := range data {
 		for _, k := range d.names {
 			if _, ok := c.convertDict[k]; ok {
-				log.Printf("Error: duplicate conversion key: %s", k)  // object allocated on the heap: escapes at line 230
+				log.Printf("Error: duplicate conversion key: %s", k) // object allocated on the heap (OK)
 			}
 			c.convertDict[k] = conversionType{className, d.scale, d.offset}
 		}
@@ -237,12 +237,14 @@ func (c *Conversion) insertKeys(className string, data []unit) {
 func (c *Conversion) Convert(value float64, valueType string, targetType string) (float64, error) {
 	// extract type and class information
 
-	source, err := c.analyzeType(valueType)
+	var source conversionData
+	err := c.analyzeType(valueType, &source)
 	if err != nil {
 		return 0, err
 	}
 
-	target, err := c.analyzeType(targetType)
+	var target conversionData
+	err = c.analyzeType(targetType, &target)
 	if err != nil {
 		return 0, err
 	}
@@ -264,8 +266,8 @@ func (c *Conversion) Convert(value float64, valueType string, targetType string)
 	if source.numeratorName != target.numeratorName {
 		return 0, fmt.Errorf(
 			"incompatible numerator types: %s, %s",
-			source.numeratorName,  // object allocated on the heap: escapes at line 267
-			target.numeratorName)  // object allocated on the heap: escapes at line 268
+			source.numeratorName, // object allocated on the heap (OK)
+			target.numeratorName) // object allocated on the heap (OK)
 	}
 
 	// check for denominator compatibility, if needed
@@ -273,8 +275,8 @@ func (c *Conversion) Convert(value float64, valueType string, targetType string)
 	if source.isRatio() && source.denominatorName != target.denominatorName {
 		return 0, fmt.Errorf(
 			"incompatible denominator types: %s, %s",
-			source.denominatorName,  // object allocated on the heap: escapes at line 276
-			target.denominatorName)  // object allocated on the heap: escapes at line 277
+			source.denominatorName, // object allocated on the heap (OK)
+			target.denominatorName) // object allocated on the heap (OK)
 	}
 
 	// scale the value by each numerator
@@ -304,7 +306,7 @@ func (c *Conversion) Convert(value float64, valueType string, targetType string)
 	return value, nil
 }
 
-func (c *Conversion) analyzeType(t string) (*conversionData, error) {
+func (c *Conversion) analyzeType(t string, data *conversionData) error {
 	numeratorTypeList, denominatorTypeList := c.analyzeTypeStr(t)
 	numeratorTypeList, denominatorTypeList = c.checkForAliases(numeratorTypeList, denominatorTypeList)
 	denominatorTypeList, numeratorTypeList = c.checkForAliases(denominatorTypeList, numeratorTypeList)
@@ -315,7 +317,7 @@ func (c *Conversion) analyzeType(t string) (*conversionData, error) {
 	for _, numeratorType := range numeratorTypeList {
 		n, ok := c.convertDict[numeratorType]
 		if !ok {
-			return nil, fmt.Errorf("unknown conversion type: %v", numeratorType)
+			return fmt.Errorf("unknown conversion type: %v", numeratorType)
 		}
 		numerator = append(numerator, n)
 	}
@@ -323,12 +325,13 @@ func (c *Conversion) analyzeType(t string) (*conversionData, error) {
 	for _, denominatorType := range denominatorTypeList {
 		d, ok := c.convertDict[denominatorType]
 		if !ok {
-			return nil, fmt.Errorf("unknown conversion type: %v", denominatorType)
+			return fmt.Errorf("unknown conversion type: %v", denominatorType)
 		}
 		denominator = append(denominator, d)
 	}
 
-	return initConversionData(numerator, denominator), nil
+	data.init(numerator, denominator)
+	return nil
 }
 
 func (c *Conversion) analyzeTypeStr(t string) ([]string, []string) {
@@ -365,11 +368,11 @@ func (c *Conversion) checkForAliases(numerator []string, denominator []string) (
 	return numerator, denominator
 }
 
-func initConversionData(numerator, denominator []conversionType) *conversionData {
-	c := &conversionData{numerator: numerator, denominator: denominator}  // object allocated on the heap: escapes at line 372
+func (c *conversionData) init(numerator, denominator []conversionType) {
+	c.numerator = numerator
+	c.denominator = denominator
 	c.numeratorName = c.buildClassName(numerator, denominator)
 	c.denominatorName = c.buildClassName(denominator, numerator)
-	return c
 }
 
 func (cd *conversionData) buildClassName(numerator, denominator []conversionType) string {
