@@ -11,6 +11,21 @@ type StackWindow struct {
 	txtb  window.TextBuffer
 	txtw  window.TextWindow
 	round int8
+	rsd   roundedStringData
+}
+
+type roundedStringData struct {
+	buff      [32]byte
+	dec       [12]byte
+	inDecimal bool
+	didx      int8
+	idx       int
+}
+
+func (rsd *roundedStringData) reset() {
+	rsd.inDecimal = false
+	rsd.didx = 0
+	rsd.idx = 0
 }
 
 func (sw *StackWindow) Init(txtw window.TextWindow) {
@@ -120,53 +135,49 @@ func (sw *StackWindow) roundedString(f rpn.Frame) string { // object allocated o
 	if (f.Type != rpn.COMPLEX_FRAME) || (sw.round < 0) {
 		return s
 	}
-	var buff [32]byte  // object allocated on the heap: escapes at line 126
-	var dec [12]byte   // object allocated on the heap: escapes at line 126
-	inDecimal := false // object allocated on the heap: escapes at line 126
-	var didx int8      // object allocated on the heap: escapes at line 126
-	idx := 0           // object allocated on the heap: escapes at line 126
+	sw.rsd.reset() // This is done to avoid heap allocations in tinygo
 
 	leftDecimalFn := func() {
 		if sw.round > 0 {
-			iv, _ := strconv.Atoi(string(dec[:didx]))
-			if didx > sw.round {
+			iv, _ := strconv.Atoi(string(sw.rsd.dec[:sw.rsd.didx]))
+			if sw.rsd.didx > sw.round {
 				iv = (iv + 5) / 10
 			}
 			for _, b := range strconv.Itoa(int(iv)) {
-				buff[idx] = byte(b)
-				idx++
+				sw.rsd.buff[sw.rsd.idx] = byte(b)
+				sw.rsd.idx++
 			}
 		}
-		inDecimal = false
+		sw.rsd.inDecimal = false
 	}
 
 	for _, c := range s {
-		if inDecimal {
+		if sw.rsd.inDecimal {
 			if c == '.' {
 				// skip
 			} else if (c < '0') || (c > '9') {
 				leftDecimalFn()
-			} else if didx <= sw.round {
-				dec[didx] = byte(c)
-				didx++
+			} else if sw.rsd.didx <= sw.round {
+				sw.rsd.dec[sw.rsd.didx] = byte(c)
+				sw.rsd.didx++
 			}
 		}
-		if !inDecimal {
-			buff[idx] = byte(c)
-			idx++
+		if !sw.rsd.inDecimal {
+			sw.rsd.buff[sw.rsd.idx] = byte(c)
+			sw.rsd.idx++
 			if c == '.' {
-				didx = 0
-				inDecimal = true
+				sw.rsd.didx = 0
+				sw.rsd.inDecimal = true
 				if sw.round == 0 {
-					idx--
+					sw.rsd.idx--
 				}
 			}
 		}
 	}
 
-	if inDecimal {
+	if sw.rsd.inDecimal {
 		leftDecimalFn()
 	}
 
-	return string(buff[:idx])
+	return string(sw.rsd.buff[:sw.rsd.idx])
 }
