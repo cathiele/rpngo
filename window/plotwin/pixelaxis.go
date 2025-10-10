@@ -1,8 +1,8 @@
 package plotwin
 
 import (
-	"fmt"
 	"image/color"
+	"strconv"
 )
 
 var white = color.RGBA{R: 255, G: 255, B: 255, A: 255}
@@ -64,10 +64,10 @@ func (pw *PixelPlotWindow) drawVerticalTickMarks(wx, ww, wh int) {
 	}
 }
 
-func (pw *PixelPlotWindow) drawVerticalTick(wx, ww, wh int, y float64) {  // object allocated on the heap: escapes at line 70
+func (pw *PixelPlotWindow) drawVerticalTick(wx, ww, wh int, y float64) {
 	wy, _ := pw.common.transformY(y, wh)
 	pw.pixw.HLine(wx-tickLength, wy, tickLength*2)
-	s := fmt.Sprintf("%.2f", y)
+	s := strconv.FormatFloat(y, 'g', 2, 64)
 	lx := wx + horizTextOffset
 	ly := wy + fontCharHeight/2
 	if (lx > 0) && (lx < (ww - len(s)*fontCharWidth)) && (ly > fontCharHeight) && (ly < wh) {
@@ -113,10 +113,10 @@ func (pw *PixelPlotWindow) drawHorizontalTickMarks(wy, ww, wh int) {
 	}
 }
 
-func (pw *PixelPlotWindow) drawHorizontalTick(x float64, wy, ww, wh int) {  // object allocated on the heap: escapes at line 119
+func (pw *PixelPlotWindow) drawHorizontalTick(x float64, wy, ww, wh int) {
 	wx, _ := pw.common.transformX(x, ww)
 	pw.pixw.VLine(wx, wy-tickLength, tickLength*2)
-	s := fmt.Sprintf("%.2f", x)
+	s := strconv.FormatFloat(x, 'g', 2, 64)
 	lx := wx - len(s)*fontCharWidth/2
 	ly := wy + vertTextOffset
 	if (lx > 0) && (lx < (ww - len(s)*fontCharWidth)) && (ly > fontCharHeight) && (ly < wh) {

@@ -130,7 +130,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 	return nil
 }
 
-func (sw *StackWindow) roundedString(f rpn.Frame) string { // object allocated on the heap: escapes at line 126
+func (sw *StackWindow) roundedString(f rpn.Frame) string {
 	s := f.String(true)
 	if (f.Type != rpn.COMPLEX_FRAME) || (sw.round < 0) {
 		return s
