@@ -1,9 +1,8 @@
 package window
 
 import (
-	"fmt"
 	"mattwach/rpngo/rpn"
-	"strings"
+	"strconv"
 )
 
 type WindowWithProps interface {
@@ -32,7 +31,6 @@ func (wge *windowGroupEntry) resize(x, y, w, h int) {
 }
 
 func (wge *windowGroupEntry) showBorder(screenw, screenh int) error {
-	//log.Printf("showBorder: name=%s sw=%d, sh=%d", wge.name, screenw, screenh)
 	if wge.group != nil {
 		wge.group.showBorder(screenw, screenh)
 	} else if wge.window != nil {
@@ -102,44 +100,53 @@ func (wg *windowGroup) resize(x, y, w, h int) {
 	wg.h = h
 }
 
-func (wg *windowGroup) dump(lines []string, name string, indent int, weight int) []string {  // object allocated on the heap: escapes at line 110
-	pad := strings.Repeat("  ", indent)  // object allocated on the heap: escapes at line 109
-	line := fmt.Sprintf(
-		"%s%s(x=%d, y=%d, w=%d, h=%d, cols=%v, weight=%d):",
-		pad,
-		name,
-		wg.x,
-		wg.y,
-		wg.w,
-		wg.h,
-		wg.isColumn,
-		weight,
-	)
-	lines = append(lines, line)
-	pad = strings.Repeat("  ", indent+1)  // object allocated on the heap: escapes at line 131
+func (wg *windowGroup) dump(r *rpn.RPN, name string, indent int, weight int) {
+	pad(r, indent)
+	r.Print(name)
+	r.Print("(x=")
+	r.Print(strconv.Itoa(wg.x))
+	r.Print(", y=")
+	r.Print(strconv.Itoa(wg.y))
+	r.Print(", w=")
+	r.Print(strconv.Itoa(wg.w))
+	r.Print(", h=")
+	r.Print(strconv.Itoa(wg.h))
+	r.Print(", cols=")
+	r.Print(strconv.FormatBool(wg.isColumn))
+	r.Print(", weight=")
+	r.Print(strconv.Itoa(weight))
+	r.Print("):\n")
+	indent++
 	for _, c := range wg.children {
 		if c.group != nil {
-			lines = c.group.dump(lines, c.name, indent+1, c.weight)
+			c.group.dump(r, c.name, indent, c.weight)
 		}
 		if c.window != nil {
 			x, y := c.window.WindowXY()
 			w, h := c.window.WindowSize()
-			lines = append(
-				lines,
-				fmt.Sprintf(
-					"%s%s(type=%s, x=%d, y=%d, w=%d, h=%d, weight=%d)",
-					pad,
-					c.name,  // object allocated on the heap: escapes at line 132
-					c.window.Type(),  // object allocated on the heap: escapes at line 133
-					x,
-					y,
-					w,
-					h,
-					c.weight,
-				))
+			pad(r, indent)
+			r.Print(c.name)
+			r.Print("(type=")
+			r.Print(c.window.Type())
+			r.Print(", x=")
+			r.Print(strconv.Itoa(x))
+			r.Print(", y=")
+			r.Print(strconv.Itoa(y))
+			r.Print(", w=")
+			r.Print(strconv.Itoa(w))
+			r.Print(", h=")
+			r.Print(strconv.Itoa(h))
+			r.Print(", weight=")
+			r.Print(strconv.Itoa(c.weight))
+			r.Print(")\n")
 		}
 	}
-	return lines
+}
+
+func pad(r *rpn.RPN, indent int) {
+	for range indent {
+		r.Print("  ")
+	}
 }
 
 func (wg *windowGroup) removeAllChildren() {
@@ -153,7 +160,6 @@ func (wg *windowGroup) removeAllChildren() {
 }
 
 func (wg *windowGroup) adjustChildren(screenw, screenh int) error {
-	//log.Printf("adjustChildren: wg=%v sw=%d sh=%d", wg, screenw, screenh)
 	totalWeight := 0
 	for _, c := range wg.children {
 		totalWeight += c.weight
@@ -187,7 +193,6 @@ func (wg *windowGroup) adjustChildrenRow(screenw, screenh, totalWeight int) {
 	for _, c := range wg.children {
 		weightSum += c.weight
 		y2 := wg.y + wg.h*weightSum/totalWeight
-		//log.Printf("adjustChildrenRow: y1=%d y2=%d weightSum=%d totalWeight=%d", y1, y2, weightSum, totalWeight)
 		c.resize(wg.x, y1, wg.w, y2-y1)
 		if c.group != nil {
 			c.group.adjustChildren(screenw, screenh)
