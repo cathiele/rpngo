@@ -143,10 +143,6 @@ func (c *Curses) GetChar() (key.Key, error) {
 	return key.Key(ch), nil
 }
 
-func (c *Curses) Erase() {
-	c.window.Erase()
-}
-
 func (c *Curses) TextWidth() int {
 	_, x := c.window.MaxYX()
 	return x
@@ -175,11 +171,6 @@ func (c *Curses) ScreenSize() (int, int) {
 func (c *Curses) WindowXY() (int, int) {
 	y, x := c.window.YX()
 	return x, y
-}
-
-func (c *Curses) Scroll(n int) {
-	c.window.ScrollOk(true)
-	c.window.Scroll(n)
 }
 
 func (c *Curses) DrawChar(x, y int, ch window.ColorChar) {

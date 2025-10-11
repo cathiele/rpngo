@@ -15,25 +15,6 @@ type Screen interface {
 	ScreenSize() (int, int)
 }
 
-type TextArea interface {
-	// Updates the character at the given x, y.  It's recommended to
-	// have a buffering layer to avoid redrawing identical characters and
-	// thus taking a performance hit on slower displays (which includes
-	// anything SPI)
-	DrawChar(x, y int, char ColorChar)
-
-	// Erase the display
-	Erase()
-
-	// Returns the dimensions of the screen as text cells
-	TextWidth() int
-	TextHeight() int
-	TextSize() (int, int)
-
-	// Scroll the display up or down
-	Scroll(int)
-}
-
 // WindowBase contains common methods to all windows
 type WindowBase interface {
 	// Change the window size and location (in pixels)
@@ -50,7 +31,17 @@ type WindowBase interface {
 // TextWindow is output for a screen that displays monospaced text
 type TextWindow interface {
 	WindowBase
-	TextArea
+
+	// Updates the character at the given x, y.  It's recommended to
+	// have a buffering layer to avoid redrawing identical characters and
+	// thus taking a performance hit on slower displays (which includes
+	// anything SPI)
+	DrawChar(x, y int, char ColorChar)
+
+	// Returns the dimensions of the screen as text cells
+	TextWidth() int
+	TextHeight() int
+	TextSize() (int, int)
 
 	// Refresh the display
 	Refresh()

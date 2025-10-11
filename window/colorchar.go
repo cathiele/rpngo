@@ -31,19 +31,7 @@ func NewColorCharBGColor(r, g, b uint16) ColorChar {
 }
 
 func (l ColorChar) Char() byte {
-	return byte(l & 0x7F)
-}
-
-func (l ColorChar) IsDirty() bool {
-	return (l & 0x80) != 0
-}
-
-func (l *ColorChar) SetDirty() {
-	*l |= 0x0080
-}
-
-func (l *ColorChar) ClearDirty() {
-	*l &= 0xFF7F
+	return byte(l & 0x80)
 }
 
 func (l ColorChar) FGColor5() (uint8, uint8, uint8) {

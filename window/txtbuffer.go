@@ -1,25 +1,58 @@
 package window
 
-// A text buffer is intended to avoid the flash effect of erasing, then
-// redrawing text.  Due to some smarts of not redrawing the same character,
-// it's also faster.
+// TextBuffer serves multiple purposes and allows character drivers (of which
+// we have several LCD and curses variants) have a reduced interface and
+// implementation requirements.  This also increases consistency (by does
+// involve reinventing already-solved issues for some targets - particurlarily
+// the ncurses one).
 //
-// Usage: instead of writing text directly to a text window, write it
-// to a text buffer, then have the buffer write to the
+// Base requirements are:
+//  1. Support color text.  Maybe backgrounds too, although that had not yet
+//     seen any use
+//  2. Do not redraw characters with the same character.  Drawing characters
+//     on a color LCD via SPI is a somehwat expensive process.  A low hanginng
+//     fruit optimization is to not do it when possible.
+//  3. Support scrolling.  It is reasonable for the user to need to look back at
+//     history, especially when a command (such as help) has a multiscreen
+//     result.
+//  5. Keepthe door open for editing support.  Although that will come later.
+//
+// Implementation.
+//
+// We have a char, which is a 16-bit value that combines:
+//   - An 8-bit ASCII byte (expansion to unicode might be needed later, if this
+//     project takes on any international interet).
+//   - A foreground and background color (4 bits each and why we might drop
+//     or reduce the bg bits later.
+//
+// We have a chars slice that contains the entire buffer as a single block.
+// The format is subsequent bytes tracing to the right and wrapping to the next
+// line, which is a typical implementation.
+//
+// We have headidx which is a pointer to 0,0 of the visible area of the LCD
+// Characters before headidx are what you would see if you scrollup and
+// characters after headix+screensize are what you will see if you scroll down.
 type TextBuffer struct {
-	// holds the characters that make up the text grid
-	chars []ColorChar
+	// holds the characters that make up the entire text area
+	buffer []ColorChar
+	// holds the characters the represent the visible screen
+	screen []ColorChar
+
 	// to make scrolling cheaper, we have a head index which starts
 	// at 0 and moves forward when we scroll up
 	headidx int
+	// Scrollback bytes is used to determine how large to make chars and
+	// h.  Set it to zero for no scrolling support
+	scrollbytes int
 
-	// character position
+	// character position, on the screen and not the buffer
 	cx int16
 	cy int16
 
-	// size of chars buffer
-	w int16
-	h int16
+	// height of chars buffer.  Note that bw should equal the TextWindow
+	// width but ch could be larger.
+	bw int16
+	bh int16
 
 	// text color
 	col ColorChar
@@ -28,59 +61,87 @@ type TextBuffer struct {
 	Txtw TextWindow
 }
 
-func (tb *TextBuffer) Init(txtw TextWindow) {
+func (tb *TextBuffer) Init(txtw TextWindow, scrollbytes int) {
 	tb.Txtw = txtw
-
+	tb.scrollbytes = scrollbytes
+	tb.MaybeResize()
 }
 
 func (tb *TextBuffer) Update() {
-	var x int16
-	var y int16
-	var i int = tb.headidx
-	for y = 0; y < tb.h; y++ {
-		for x = 0; x < tb.w; x++ {
-			if tb.chars[i].IsDirty() {
-				tb.chars[i].ClearDirty()
-				tb.Txtw.DrawChar(int(x), int(y), tb.col)
+	var bi int = tb.headidx
+	var si int = 0
+	w, h := tb.Txtw.TextSize()
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			if tb.screen[si] != tb.buffer[bi] {
+				tb.screen[si] = tb.buffer[bi]
+				tb.Txtw.DrawChar(int(x), int(y), tb.screen[si])
 			}
-			i++
-			if i >= len(tb.chars) {
-				i = 0
-			}
+			bi = (bi + 1) % len(tb.buffer)
+			si++
 		}
 	}
 }
 
 func (tb *TextBuffer) MaybeResize() {
 	tw, th := tb.Txtw.TextSize()
-	if (tw == int(tb.w)) && (th == int(tb.h)) {
+	scrollh := tb.scrollbytes / tw
+	if (int(tb.bw) == tw) && (int(tb.bh) == (scrollh + th)) {
+		// already the right size
 		return
 	}
-	tb.w = int16(tw)
-	tb.h = int16(th)
-	tb.chars = make([]ColorChar, tb.w*tb.h) // object allocated on the heap (OK)
+	tb.bw = int16(tw)
+	tb.bh = int16(th + scrollh)
+	tb.buffer = make([]ColorChar, tb.bw*tb.bh) // object allocated on the heap (OK)
+	tb.screen = make([]ColorChar, tw*th)       // object allocated on the heap (OK)
+	// maybe we can reflow the text instead of erasing it after the changes
+	// are proven as stable.
 	tb.Erase()
 }
 
 func (tb *TextBuffer) Erase() {
 	b := tb.col | ColorChar(' ')
-	for i := range tb.chars {
-		tb.chars[i] = b
+	for i := range tb.buffer {
+		tb.buffer[i] = b
 	}
+	tb.Update()
 }
 
-func (tb *TextBuffer) Write(b byte) error {
-	if (b == '\n') || (tb.cx >= tb.w) {
+func (tb *TextBuffer) Write(b byte, updatenow bool) error {
+	tw, th := tb.Txtw.TextSize()
+	if (b == '\n') || (int(tb.cx) >= tw) {
 		// next line
 		tb.cx = 0
 		tb.cy++
 	}
-	if tb.cy >= tb.h {
-		tb.Scroll(-1)
+	scrolled := false
+	if int(tb.cy) >= th {
+		tb.Scroll(1)
+		tb.cy--
+		scrolled = true
 	}
 	if b != '\n' {
-		idx := (tb.headidx + int(tb.cy*tb.w) + int(tb.cx)) % len(tb.chars)
-		tb.chars[idx] = tb.col | ColorChar(b) | 0x80
+		bidx := (tb.headidx + int(tb.cy*tb.bw) + int(tb.cx)) % len(tb.buffer)
+		tb.buffer[bidx] = tb.col | ColorChar(b)
+		if scrolled {
+			// erase rest of the line, which might contain old data
+			for i := 1; i < tw; i++ {
+				tb.buffer[bidx+i] = tb.col | ColorChar(' ')
+			}
+		}
+		if updatenow {
+			if scrolled {
+				// need to update the entire screen
+				tb.Update()
+			} else {
+				// just update this character
+				sidx := tb.cy*tb.bw + tb.cx
+				if tb.screen[sidx] != tb.buffer[bidx] {
+					tb.screen[sidx] = tb.buffer[bidx]
+					tb.Txtw.DrawChar(int(tb.cx), int(tb.cy), tb.screen[sidx])
+				}
+			}
+		}
 		tb.cx++
 	}
 	return nil
@@ -116,31 +177,12 @@ func (tb *TextBuffer) TextColor(col ColorChar) {
 }
 
 func (tb *TextBuffer) Scroll(i int) {
-	tb.Txtw.Scroll(i)
-	oldhead := tb.headidx
-	tb.headidx -= i * int(tb.w)
-	for tb.headidx > len(tb.chars) {
-		tb.headidx -= len(tb.chars)
+	// scrolling is as easy as moving the headidx
+	tb.headidx += i * int(tb.bw)
+	for tb.headidx >= len(tb.buffer) {
+		tb.headidx -= int(tb.bw)
 	}
 	for tb.headidx < 0 {
-		tb.headidx += len(tb.chars)
-	}
-	b := tb.col | ColorChar(' ')
-	if i < 0 {
-		for oldhead != tb.headidx {
-			tb.chars[oldhead] = b
-			oldhead++
-			if oldhead >= len(tb.chars) {
-				oldhead = 0
-			}
-		}
-	} else {
-		for oldhead != tb.headidx {
-			tb.chars[oldhead] = b
-			oldhead--
-			if oldhead < 0 {
-				oldhead = len(tb.chars) - 1
-			}
-		}
+		tb.headidx += int(tb.bw)
 	}
 }

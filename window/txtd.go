@@ -1,19 +1,19 @@
 package window
 
-func Print(tb *TextBuffer, msg string) {
-	PrintBytes(tb, []byte(msg))
+func Print(tb *TextBuffer, msg string, updatenow bool) {
+	PrintBytes(tb, []byte(msg), updatenow)
 }
 
-func PrintErr(tb *TextBuffer, err error) {
+func PrintErr(tb *TextBuffer, err error, updatenow bool) {
 	tb.TextColor(Red)
-	Print(tb, err.Error())
-	tb.Write('\n')
+	Print(tb, err.Error(), updatenow)
+	tb.Write('\n', updatenow)
 	tb.TextColor(White)
 }
 
-func PrintBytes(tb *TextBuffer, msg []byte) {
+func PrintBytes(tb *TextBuffer, msg []byte, updatenow bool) {
 	for _, b := range msg {
-		if err := tb.Write(b); err != nil {
+		if err := tb.Write(b, updatenow); err != nil {
 			return
 		}
 	}
