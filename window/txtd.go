@@ -1,7 +1,11 @@
 package window
 
 func Print(tb *TextBuffer, msg string, updatenow bool) {
-	PrintBytes(tb, []byte(msg), updatenow)
+	for _, b := range msg {
+		if err := tb.Write(byte(b), updatenow); err != nil {
+			return
+		}
+	}
 }
 
 func PrintErr(tb *TextBuffer, err error, updatenow bool) {
@@ -11,10 +15,16 @@ func PrintErr(tb *TextBuffer, err error, updatenow bool) {
 	tb.TextColor(White)
 }
 
-func PrintBytes(tb *TextBuffer, msg []byte, updatenow bool) {
-	for _, b := range msg {
-		if err := tb.Write(b, updatenow); err != nil {
-			return
+func DrawStr(tw TextWindow, x, y int, msg string, col ColorChar) {
+	w, h := tw.TextSize()
+	for _, c := range msg {
+		if (x >= 0) && (x < w) && (y >= 0) && (y < h) {
+			tw.DrawChar(x, y, col|ColorChar(c))
+		}
+		x++
+		if (x >= w) || c == '\n' {
+			x = 0
+			y++
 		}
 	}
 }

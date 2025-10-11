@@ -43,6 +43,9 @@ type TextWindow interface {
 	TextHeight() int
 	TextSize() (int, int)
 
+	// Clear screen to black
+	Erase()
+
 	// Refresh the display
 	Refresh()
 

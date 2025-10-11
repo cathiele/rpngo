@@ -61,10 +61,12 @@ type TextBuffer struct {
 	Txtw TextWindow
 }
 
-func (tb *TextBuffer) Init(txtw TextWindow, scrollbytes int) {
+func (tb *TextBuffer) Init(txtw TextWindow, scrollbytes int) error {
 	tb.Txtw = txtw
 	tb.scrollbytes = scrollbytes
-	tb.MaybeResize()
+	x, y := txtw.WindowXY()
+	w, h := txtw.WindowSize()
+	return tb.ResizeWindow(x, y, w, h)
 }
 
 func (tb *TextBuffer) Update() {
@@ -81,14 +83,18 @@ func (tb *TextBuffer) Update() {
 			si++
 		}
 	}
+	tb.Txtw.Refresh() // ncurses needs this, LCDs do not
 }
 
-func (tb *TextBuffer) MaybeResize() {
+func (tb *TextBuffer) ResizeWindow(x, y, w, h int) error {
+	if err := tb.Txtw.ResizeWindow(x, y, w, h); err != nil {
+		return err
+	}
 	tw, th := tb.Txtw.TextSize()
 	scrollh := tb.scrollbytes / tw
 	if (int(tb.bw) == tw) && (int(tb.bh) == (scrollh + th)) {
 		// already the right size
-		return
+		return nil
 	}
 	tb.bw = int16(tw)
 	tb.bh = int16(th + scrollh)
@@ -97,6 +103,7 @@ func (tb *TextBuffer) MaybeResize() {
 	// maybe we can reflow the text instead of erasing it after the changes
 	// are proven as stable.
 	tb.Erase()
+	return nil
 }
 
 func (tb *TextBuffer) Erase() {
@@ -104,6 +111,7 @@ func (tb *TextBuffer) Erase() {
 	for i := range tb.buffer {
 		tb.buffer[i] = b
 	}
+	tb.headidx = 0
 	tb.Update()
 }
 

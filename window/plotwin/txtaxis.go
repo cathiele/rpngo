@@ -6,7 +6,6 @@ import (
 )
 
 func (pw *TxtPlotWindow) drawAxis() error {
-	pw.txtw.TextColor(window.White)
 	x, xok := pw.common.transformX(0, pw.txtw.TextWidth())
 	if xok {
 		if err := pw.drawVerticalAxis(x); err != nil {
@@ -22,10 +21,7 @@ func (pw *TxtPlotWindow) drawAxis() error {
 	}
 
 	if xok && yok {
-		pw.txtw.SetCursorXY(x, y)
-		if err := pw.txtw.Write('+'); err != nil {
-			return err
-		}
+		pw.txtw.DrawChar(x, y, window.White|'+')
 	}
 
 	return nil
@@ -34,10 +30,7 @@ func (pw *TxtPlotWindow) drawAxis() error {
 func (pw *TxtPlotWindow) drawVerticalAxis(x int) error {
 	h := pw.txtw.TextHeight()
 	for y := 0; y < h; y++ {
-		pw.txtw.SetCursorXY(x, y)
-		if err := pw.txtw.Write('|'); err != nil {
-			return err
-		}
+		pw.txtw.DrawChar(x, y, window.White|'|')
 	}
 	pw.drawVerticalTickMarks(x)
 	return nil
@@ -84,21 +77,16 @@ func (pw *TxtPlotWindow) drawVerticalTickMarks(wx int) {
 func (pw *TxtPlotWindow) drawVerticalTick(wx int, y float64) {
 	ww := pw.txtw.TextWidth()
 	wy, _ := pw.common.transformY(y, pw.txtw.TextHeight())
-	pw.txtw.SetCursorXY(wx, wy)
-	window.PutByte(pw.txtw, '+')
+	pw.txtw.DrawChar(wx, wy, window.White|'+')
 	if (wx + 10) < ww {
-		pw.txtw.SetCursorXY(wx+3, wy)
-		window.Print(pw.txtw, fmt.Sprintf("%.2f", y))
+		window.DrawStr(pw.txtw, wx+3, wy, fmt.Sprintf("%.2f", y), window.White)
 	}
 }
 
 func (pw *TxtPlotWindow) drawHorizontalAxis(y int) error {
 	w := pw.txtw.TextWidth()
-	pw.txtw.SetCursorXY(0, y)
 	for x := 0; x < w; x++ {
-		if err := pw.txtw.Write('-'); err != nil {
-			return err
-		}
+		pw.txtw.DrawChar(x, y, window.White|'-')
 	}
 	pw.drawHorizontalTickMarks(y)
 	return nil
@@ -141,12 +129,10 @@ func (pw *TxtPlotWindow) drawHorizontalTick(x float64, wy int) {
 	ww, wh := pw.txtw.TextSize()
 	wx, _ := pw.common.transformX(x, pw.txtw.TextWidth())
 	if wy >= 0 {
-		pw.txtw.SetCursorXY(wx, wy)
-		window.PutByte(pw.txtw, '+')
+		pw.txtw.DrawChar(wx, wy, window.White|'+')
 	}
 	if (wx > horizontalTxtNumberPad) && (wx < (ww - horizontalTxtNumberPad)) && (wy+1) < wh {
 		s := fmt.Sprintf("%.2f", x)
-		pw.txtw.SetCursorXY(wx-len(s)/2, wy+1)
-		window.Print(pw.txtw, s)
+		window.DrawStr(pw.txtw, wx-len(s)/2, wy+1, s, window.White)
 	}
 }

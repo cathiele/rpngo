@@ -9,7 +9,6 @@ import (
 
 type StackWindow struct {
 	txtb  window.TextBuffer
-	txtw  window.TextWindow
 	round int8
 	rsd   roundedStringData
 }
@@ -29,24 +28,24 @@ func (rsd *roundedStringData) reset() {
 }
 
 func (sw *StackWindow) Init(txtw window.TextWindow) {
-	sw.txtw = txtw
+	sw.txtb.Init(txtw, 0)
 	sw.round = -1
 }
 
 func (sw *StackWindow) ResizeWindow(x, y, w, h int) error {
-	return sw.txtw.ResizeWindow(x, y, w, h)
+	return sw.txtb.ResizeWindow(x, y, w, h)
 }
 
 func (sw *StackWindow) ShowBorder(screenw, screenh int) error {
-	return sw.txtw.ShowBorder(screenw, screenh)
+	return sw.txtb.Txtw.ShowBorder(screenw, screenh)
 }
 
 func (sw *StackWindow) WindowXY() (int, int) {
-	return sw.txtw.WindowXY()
+	return sw.txtb.Txtw.WindowXY()
 }
 
 func (sw *StackWindow) WindowSize() (int, int) {
-	return sw.txtw.WindowSize()
+	return sw.txtb.Txtw.WindowSize()
 }
 
 func (sw *StackWindow) Type() string {
@@ -87,8 +86,7 @@ func (sw *StackWindow) ListProps() []string {
 }
 
 func (sw *StackWindow) Update(rpn *rpn.RPN) error {
-	w, h := sw.txtw.TextSize()
-	sw.txtb.MaybeResize(int16(w), int16(h))
+	w, h := sw.txtb.Txtw.TextSize()
 	sw.txtb.Erase()
 	framesBack := h
 	if len(rpn.Frames) < framesBack {
@@ -105,7 +103,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 		if len(s) > w {
 			s = s[:w]
 		}
-		window.Print(&sw.txtb, s)
+		window.Print(&sw.txtb, s, false)
 		lw := w - len(s)
 		if lw > 0 {
 			sw.txtb.TextColor(window.Cyan)
@@ -113,7 +111,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 			if len(s) > lw {
 				s = s[:lw]
 			}
-			window.Print(&sw.txtb, s)
+			window.Print(&sw.txtb, s, false)
 		}
 	}
 	if (len(rpn.Frames) == 0) && (h > 0) {
@@ -123,10 +121,9 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 		if len(s) > w {
 			s = s[:w]
 		}
-		window.Print(&sw.txtb, s)
+		window.Print(&sw.txtb, s, false)
 	}
-	sw.txtb.UpdateTextWindow(sw.txtw)
-	sw.txtw.Refresh()
+	sw.txtb.Update()
 	return nil
 }
 

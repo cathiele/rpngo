@@ -10,32 +10,31 @@ import (
 
 type VariableWindow struct {
 	txtb           window.TextBuffer
-	txtw           window.TextWindow
 	showdot        bool
 	multiline      bool
 	namesAndValues []rpn.NameAndValues
 }
 
 func (w *VariableWindow) Init(txtw window.TextWindow) {
-	w.txtw = txtw
+	w.txtb.Init(txtw, 0)
 	w.txtb.TextColor(window.White)
 	w.namesAndValues = make([]rpn.NameAndValues, 0, 16)
 }
 
 func (vw *VariableWindow) ResizeWindow(x, y, w, h int) error {
-	return vw.txtw.ResizeWindow(x, y, w, h)
+	return vw.txtb.ResizeWindow(x, y, w, h)
 }
 
 func (vw *VariableWindow) ShowBorder(screenw, screenh int) error {
-	return vw.txtw.ShowBorder(screenw, screenh)
+	return vw.txtb.Txtw.ShowBorder(screenw, screenh)
 }
 
 func (vw *VariableWindow) WindowXY() (int, int) {
-	return vw.txtw.WindowXY()
+	return vw.txtb.Txtw.WindowXY()
 }
 
 func (vw *VariableWindow) WindowSize() (int, int) {
-	return vw.txtw.WindowSize()
+	return vw.txtb.Txtw.WindowSize()
 }
 
 func (vw *VariableWindow) Type() string {
@@ -79,8 +78,7 @@ func (vw *VariableWindow) ListProps() []string {
 }
 
 func (vw *VariableWindow) Update(r *rpn.RPN) error {
-	w, h := vw.txtw.TextSize()
-	vw.txtb.MaybeResize(int16(w), int16(h))
+	w, h := vw.txtb.Txtw.TextSize()
 	vw.txtb.Erase()
 	vw.namesAndValues = r.AppendAllVariableNamesAndValues(vw.namesAndValues[:0])
 	vw.txtb.SetCursorXY(0, 0)
@@ -100,18 +98,17 @@ func (vw *VariableWindow) Update(r *rpn.RPN) error {
 				row += countCRs(val)
 			}
 			vw.txtb.TextColor(window.White)
-			window.Print(&vw.txtb, name)
+			window.Print(&vw.txtb, name, false)
 			vw.txtb.TextColor(window.Cyan)
-			window.Print(&vw.txtb, val)
-			window.PutByte(&vw.txtb, '\n')
+			window.Print(&vw.txtb, val, false)
+			vw.txtb.Write('\n', false)
 			row++
 		}
 	}
 	vw.txtb.TextColor(window.Blue)
 	vw.txtb.SetCursorXY(0, h-1)
-	window.Print(&vw.txtb, fmt.Sprintf("num: %v hidden:%v", len(vw.namesAndValues), hidden))
-	vw.txtb.UpdateTextWindow(vw.txtw)
-	vw.txtw.Refresh()
+	window.Print(&vw.txtb, fmt.Sprintf("num: %v hidden:%v", len(vw.namesAndValues), hidden), false)
+	vw.txtb.Update()
 	return nil
 }
 

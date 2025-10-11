@@ -143,6 +143,10 @@ func (c *Curses) GetChar() (key.Key, error) {
 	return key.Key(ch), nil
 }
 
+func (c *Curses) Erase() {
+	c.window.Erase()
+}
+
 func (c *Curses) TextWidth() int {
 	_, x := c.window.MaxYX()
 	return x
