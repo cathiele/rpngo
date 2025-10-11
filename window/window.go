@@ -16,9 +16,11 @@ type Screen interface {
 }
 
 type TextArea interface {
-	// Write a charaacter to the display, wrap, newlines, and
-	// scrolling should all be supported.
-	Write(byte) error
+	// Updates the character at the given x, y.  It's recommended to
+	// have a buffering layer to avoid redrawing identical characters and
+	// thus taking a performance hit on slower displays (which includes
+	// anything SPI)
+	DrawChar(x, y int, char ColorChar)
 
 	// Erase the display
 	Erase()
@@ -28,19 +30,8 @@ type TextArea interface {
 	TextHeight() int
 	TextSize() (int, int)
 
-	// Get and set the character position in text cells
-	CursorX() int
-	CursorY() int
-	CursorXY() (int, int)
-
 	// Scroll the display up or down
 	Scroll(int)
-
-	SetCursorX(int)
-	SetCursorY(int)
-	SetCursorXY(x, y int)
-
-	TextColor(ColorChar)
 }
 
 // WindowBase contains common methods to all windows

@@ -2,25 +2,20 @@
 
 ## TODO Bugs
 
-- Multiline editing has some bugs
-  - going up lines doesn't seem to work correctly
-  - hitting enter when not at the bottom does print in the right spot
-
 ## TODO Cleanup
 
 ## TODO Features
 
 - L: Implement large output viewer
+- L: Basic text editor
 - M: Add stack output formatting options
-- S: Blink on panic
 - L: Rewrite readme doc
-- L: Add I2C keyboard support
-- M: Ad F or ctrl key macro shortcuts
+- M: Experiement with SD card or on-chip storage
+- S: Develop options for transferring data over serial 
+- M: Improve font
 
 ## Wishlist
 
-- Integrated editor?
-- SD Card support?
 - Look into using picocalc memory layout for bootloader compatibility
 
 This library is intended to serve as a backend engine and implements a

@@ -1,10 +1,10 @@
 package window
 
-// The character and color info packed into 1 16-bit value
+// The character, color, and "diry bit" are packed into 1 16-bit value
 //
 // Format:
-// RGGB RGGB CCCC CCCC
-// FFFF BBBB HHHH HHHH
+// RGGB RGGB DCCC CCCC
+// FFFF BBBB BHHH HHHH
 type ColorChar uint16
 
 // some color that can be selected
@@ -31,7 +31,19 @@ func NewColorCharBGColor(r, g, b uint16) ColorChar {
 }
 
 func (l ColorChar) Char() byte {
-	return byte(l & 0xFF)
+	return byte(l & 0x7F)
+}
+
+func (l ColorChar) IsDirty() bool {
+	return (l & 0x80) != 0
+}
+
+func (l *ColorChar) SetDirty() {
+	*l |= 0x0080
+}
+
+func (l *ColorChar) ClearDirty() {
+	*l &= 0xFF7F
 }
 
 func (l ColorChar) FGColor5() (uint8, uint8, uint8) {

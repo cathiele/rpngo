@@ -12,6 +12,7 @@ type Curses struct {
 	border    *goncurses.Window
 	window    *goncurses.Window
 	rgbToPair map[uint32]int16 // maps color,color values to a pair.
+	col       window.ColorChar
 }
 
 func Init() (*Curses, error) {
@@ -146,27 +147,6 @@ func (c *Curses) Erase() {
 	c.window.Erase()
 }
 
-func (c *Curses) Write(b byte) error {
-	if b == '\n' {
-		return c.newLine()
-	}
-	c.window.AddChar(goncurses.Char(b))
-	return nil
-}
-
-func (c *Curses) newLine() error {
-	y := c.CursorY()
-	h := c.TextHeight()
-	if y < (h - 1) {
-		y++
-	} else {
-		y = h - 1
-		c.Scroll(1)
-	}
-	c.SetCursorXY(0, y)
-	return nil
-}
-
 func (c *Curses) TextWidth() int {
 	_, x := c.window.MaxYX()
 	return x
@@ -197,43 +177,28 @@ func (c *Curses) WindowXY() (int, int) {
 	return x, y
 }
 
-func (c *Curses) CursorX() int {
-	_, x := c.window.CursorYX()
-	return x
-}
-
-func (c *Curses) CursorY() int {
-	y, _ := c.window.CursorYX()
-	return y
-}
-
-func (c *Curses) CursorXY() (int, int) {
-	y, x := c.window.CursorYX()
-	return x, y
-}
-
-func (c *Curses) SetCursorX(x int) {
-	c.window.Move(c.CursorY(), x)
-}
-
-func (c *Curses) SetCursorY(y int) {
-	c.window.Move(y, c.CursorX())
-}
-
-func (c *Curses) SetCursorXY(x int, y int) {
-	c.window.Move(y, x)
-}
-
 func (c *Curses) Scroll(n int) {
 	c.window.ScrollOk(true)
 	c.window.Scroll(n)
 }
 
-func (c *Curses) TextColor(col window.ColorChar) {
+func (c *Curses) DrawChar(x, y int, ch window.ColorChar) {
+	newcol := ch & 0xFF00
+	if newcol != c.col {
+		c.textColor(newcol)
+	}
+	y, x = c.window.CursorYX()
+	c.window.Move(y, x)
+	b := byte(ch & 0xFF)
+	c.window.AddChar(goncurses.Char(b))
+}
+
+func (c *Curses) textColor(col window.ColorChar) {
 	ch, err := c.colorPairFor(col)
 	if err != nil {
 		return
 	}
+	c.col = col
 	c.window.AttrSet(ch)
 }
 

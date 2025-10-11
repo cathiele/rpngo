@@ -9,47 +9,56 @@ package window
 type TextBuffer struct {
 	// holds the characters that make up the text grid
 	chars []ColorChar
+	// to make scrolling cheaper, we have a head index which starts
+	// at 0 and moves forward when we scroll up
+	headidx int
 
 	// character position
 	cx int16
 	cy int16
 
-	// width and height
+	// size of chars buffer
 	w int16
 	h int16
 
 	// text color
 	col ColorChar
+
+	// text area to update
+	Txtw TextWindow
 }
 
-func (tb *TextBuffer) UpdateTextWindow(tw TextWindow) {
-	tw.SetCursorXY(0, 0)
-	var col ColorChar
-	tw.TextColor(Black)
-	for i := range tb.chars {
-		c := tb.chars[i]
-		newcol := c & 0xFF00
-		if newcol != col {
-			col = newcol
-			tw.TextColor(col)
+func (tb *TextBuffer) Init(txtw TextWindow) {
+	tb.Txtw = txtw
+
+}
+
+func (tb *TextBuffer) Update() {
+	var x int16
+	var y int16
+	var i int = tb.headidx
+	for y = 0; y < tb.h; y++ {
+		for x = 0; x < tb.w; x++ {
+			if tb.chars[i].IsDirty() {
+				tb.chars[i].ClearDirty()
+				tb.Txtw.DrawChar(int(x), int(y), tb.col)
+			}
+			i++
+			if i >= len(tb.chars) {
+				i = 0
+			}
 		}
-		tw.Write(c.Char())
 	}
 }
 
-func (tb *TextBuffer) MaybeResize(w, h int16) {
-	if (tb.w == w) && (tb.h == h) {
+func (tb *TextBuffer) MaybeResize() {
+	tw, th := tb.Txtw.TextSize()
+	if (tw == int(tb.w)) && (th == int(tb.h)) {
 		return
 	}
-	if w <= 0 {
-		w = 1
-	}
-	if h <= 0 {
-		h = 1
-	}
-	tb.w = w
-	tb.h = h
-	tb.chars = make([]ColorChar, w*h) // object allocated on the heap (OK)
+	tb.w = int16(tw)
+	tb.h = int16(th)
+	tb.chars = make([]ColorChar, tb.w*tb.h) // object allocated on the heap (OK)
 	tb.Erase()
 }
 
@@ -67,26 +76,14 @@ func (tb *TextBuffer) Write(b byte) error {
 		tb.cy++
 	}
 	if tb.cy >= tb.h {
-		// no scrolling as it may not be needed
-		return nil
+		tb.Scroll(-1)
 	}
 	if b != '\n' {
-		tb.chars[tb.cy*tb.w+tb.cx] = tb.col | ColorChar(b)
+		idx := (tb.headidx + int(tb.cy*tb.w) + int(tb.cx)) % len(tb.chars)
+		tb.chars[idx] = tb.col | ColorChar(b) | 0x80
 		tb.cx++
 	}
 	return nil
-}
-
-func (tb *TextBuffer) TextWidth() int {
-	return int(tb.w)
-}
-
-func (tb *TextBuffer) TextHeight() int {
-	return int(tb.h)
-}
-
-func (tb *TextBuffer) TextSize() (int, int) {
-	return int(tb.w), int(tb.h)
 }
 
 func (tb *TextBuffer) CursorX() int {
@@ -119,5 +116,31 @@ func (tb *TextBuffer) TextColor(col ColorChar) {
 }
 
 func (tb *TextBuffer) Scroll(i int) {
-	// maybe not needed so not implemented
+	tb.Txtw.Scroll(i)
+	oldhead := tb.headidx
+	tb.headidx -= i * int(tb.w)
+	for tb.headidx > len(tb.chars) {
+		tb.headidx -= len(tb.chars)
+	}
+	for tb.headidx < 0 {
+		tb.headidx += len(tb.chars)
+	}
+	b := tb.col | ColorChar(' ')
+	if i < 0 {
+		for oldhead != tb.headidx {
+			tb.chars[oldhead] = b
+			oldhead++
+			if oldhead >= len(tb.chars) {
+				oldhead = 0
+			}
+		}
+	} else {
+		for oldhead != tb.headidx {
+			tb.chars[oldhead] = b
+			oldhead--
+			if oldhead < 0 {
+				oldhead = len(tb.chars) - 1
+			}
+		}
+	}
 }
