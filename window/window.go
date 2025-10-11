@@ -32,10 +32,6 @@ type WindowBase interface {
 type TextWindow interface {
 	WindowBase
 
-	// SetCursorXY is useful for moving the cursor
-	SetCursorXY(x, y int)
-
-
 	// Updates the character at the given x, y.  It's recommended to
 	// have a buffering layer to avoid redrawing identical characters and
 	// thus taking a performance hit on slower displays (which includes
@@ -52,10 +48,6 @@ type TextWindow interface {
 
 	// Refresh the display
 	Refresh()
-
-	// Show/hide cursor, this may affect other windows and should be set back to
-	// off if it's turned on.
-	Cursor(bool)
 }
 
 // PixelWindow is used to display pixels

@@ -72,14 +72,6 @@ func (c *Curses) End() {
 	goncurses.End()
 }
 
-func (c *Curses) Cursor(on bool) {
-	var val byte = 0
-	if on {
-		val = 1
-	}
-	goncurses.Cursor(val)
-}
-
 func (c *Curses) ResizeWindow(x, y, w, h int) error {
 	if c.border != nil {
 		// erase the contents so that artifacts do no collect on the screen
@@ -175,10 +167,6 @@ func (c *Curses) ScreenSize() (int, int) {
 func (c *Curses) WindowXY() (int, int) {
 	y, x := c.window.YX()
 	return x, y
-}
-
-func (c *Curses) SetCursorXY(x, y int) {
-	c.window.Move(y, x)
 }
 
 func (c *Curses) DrawChar(x, y int, ch window.ColorChar) {

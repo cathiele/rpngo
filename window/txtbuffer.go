@@ -46,8 +46,9 @@ type TextBuffer struct {
 	scrollbytes int
 
 	// character position, on the screen and not the buffer
-	cx int16
-	cy int16
+	cx         int16
+	cy         int16
+	showCursor bool
 
 	// height of chars buffer.  Note that bw should equal the TextWindow
 	// width but ch could be larger.
@@ -65,6 +66,17 @@ func (tb *TextBuffer) Init(txtw TextWindow, scrollbytes int) {
 	tb.Txtw = txtw
 	tb.scrollbytes = scrollbytes
 	tb.CheckSize()
+}
+
+func (tb *TextBuffer) Cursor(c bool) {
+	if tb.showCursor != c {
+		tb.showCursor = c
+		if tb.showCursor {
+			tb.drawCursor()
+		} else {
+			tb.eraseCursor()
+		}
+	}
 }
 
 func (tb *TextBuffer) Update() {
@@ -114,32 +126,32 @@ func (tb *TextBuffer) Write(b byte, updatenow bool) error {
 	tw, th := tb.Txtw.TextSize()
 	if (b == '\n') || (int(tb.cx) >= tw) {
 		// next line
+		if tb.showCursor {
+			tb.eraseCursor()
+		}
 		tb.cx = 0
 		tb.cy++
 	}
 	scrolled := false
 	if int(tb.cy) >= th {
-		tb.Scroll(1)
+		tb.scroll(1)
 		tb.cy--
 		scrolled = true
 	}
-	if b != '\n' {
-		bidx := (tb.headidx + int(tb.cy*tb.bw) + int(tb.cx)) % len(tb.buffer)
-		tb.buffer[bidx] = tb.col | ColorChar(b)
-		if scrolled {
-			// erase rest of the line, which might contain old data
-			for i := 1; i < tw; i++ {
-				tb.buffer[bidx+i] = tb.col | ColorChar(' ')
-			}
+	bidx := (tb.headidx + int(tb.cy*tb.bw) + int(tb.cx)) % len(tb.buffer)
+	if scrolled {
+		// erase rest of the line, which might contain old data
+		for i := 1; i < tw; i++ {
+			tb.buffer[bidx+i] = tb.col | ColorChar(' ')
 		}
+	}
+	if b != '\n' {
+		tb.buffer[bidx] = tb.col | ColorChar(b)
 		if updatenow {
-			if scrolled {
-				// need to update the entire screen
-				tb.Update()
-			} else {
+			if !scrolled {
 				// just update this character
 				sidx := tb.cy*tb.bw + tb.cx
-				if tb.screen[sidx] != tb.buffer[bidx] {
+				if tb.showCursor || (tb.screen[sidx] != tb.buffer[bidx]) {
 					tb.screen[sidx] = tb.buffer[bidx]
 					tb.Txtw.DrawChar(int(tb.cx), int(tb.cy), tb.screen[sidx])
 				}
@@ -147,7 +159,26 @@ func (tb *TextBuffer) Write(b byte, updatenow bool) error {
 		}
 		tb.cx++
 	}
+	if scrolled && updatenow {
+		tb.Update()
+	}
+	if tb.showCursor {
+		tb.drawCursor()
+	}
 	return nil
+}
+
+// takes the character under the cursor and redraws it with black text
+// and a white background
+func (tb *TextBuffer) drawCursor() {
+	c := tb.screen[tb.cy*tb.bw+tb.cx] & 0xFF
+	tb.Txtw.DrawChar(int(tb.cx), int(tb.cy), CursorColor|c)
+}
+
+// restore the original properties of the character under the cursor
+func (tb *TextBuffer) eraseCursor() {
+	c := tb.screen[tb.cy*tb.bw+tb.cx]
+	tb.Txtw.DrawChar(int(tb.cx), int(tb.cy), c)
 }
 
 func (tb *TextBuffer) CursorX() int {
@@ -163,31 +194,39 @@ func (tb *TextBuffer) CursorXY() (int, int) {
 }
 
 func (tb *TextBuffer) SetCursorX(x int) {
-	tb.cx = int16(x)
+	tb.SetCursorXY(x, int(tb.cy))
 }
 
 func (tb *TextBuffer) SetCursorY(y int) {
-	tb.cy = int16(y)
+	tb.SetCursorXY(int(tb.cx), y)
 }
 
 func (tb *TextBuffer) SetCursorXY(x, y int) {
+	if (int(tb.cx) == x) && (int(tb.cy) == y) {
+		return
+	}
+	if tb.showCursor {
+		tb.eraseCursor()
+	}
 	tb.cx = int16(x)
 	tb.cy = int16(y)
-	tb.Txtw.SetCursorXY(x, y)
+	if tb.showCursor {
+		tb.drawCursor()
+	}
 }
 
 func (tb *TextBuffer) TextColor(col ColorChar) {
 	tb.col = col
 }
 
-func (tb *TextBuffer) Scroll(i int) {
+func (tb *TextBuffer) scroll(i int) {
 	// scrolling is as easy as moving the headidx
 	tb.headidx += i * int(tb.bw)
 	for tb.headidx >= len(tb.buffer) {
-		tb.headidx -= int(tb.bw)
+		tb.headidx -= len(tb.buffer)
 	}
 	for tb.headidx < 0 {
-		tb.headidx += int(tb.bw)
+		tb.headidx += len(tb.buffer)
 	}
 }
 
@@ -220,7 +259,7 @@ func (tb *TextBuffer) Shift(n int) {
 	for x >= tb.Txtw.TextWidth() {
 		y += 1
 		if y >= tb.Txtw.TextHeight() {
-			tb.Scroll(-1)
+			tb.scroll(-1)
 			y--
 		}
 		x -= tb.Txtw.TextWidth()
@@ -229,7 +268,7 @@ func (tb *TextBuffer) Shift(n int) {
 		x += tb.Txtw.TextWidth()
 		y -= 1
 		if y < 0 {
-			tb.Scroll(1)
+			tb.scroll(1)
 			y = 0
 		}
 	}
