@@ -98,16 +98,16 @@ func (vw *VariableWindow) Update(r *rpn.RPN) error {
 				row += countCRs(val)
 			}
 			vw.txtb.TextColor(window.White)
-			window.Print(&vw.txtb, name, false)
+			vw.txtb.Print(name, false)
 			vw.txtb.TextColor(window.Cyan)
-			window.Print(&vw.txtb, val, false)
+			vw.txtb.Print(val, false)
 			vw.txtb.Write('\n', false)
 			row++
 		}
 	}
 	vw.txtb.TextColor(window.Blue)
 	vw.txtb.SetCursorXY(0, h-1)
-	window.Print(&vw.txtb, fmt.Sprintf("num: %v hidden:%v", len(vw.namesAndValues), hidden), false)
+	vw.txtb.Print(fmt.Sprintf("num: %v hidden:%v", len(vw.namesAndValues), hidden), false)
 	vw.txtb.Update()
 	return nil
 }

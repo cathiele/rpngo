@@ -15,7 +15,7 @@ const MAX_HISTORY_LINES = 500
 type getLine struct {
 	insertMode     bool
 	input          Input
-	txtd           window.TextWindow
+	txtb           *window.TextBuffer
 	history        [MAX_HISTORY_LINES]string
 	historyCount   int
 	historyFile    *os.File
@@ -24,11 +24,11 @@ type getLine struct {
 
 const histFile = ".rpngo_history"
 
-func initGetLine(input Input, txtd window.TextWindow) *getLine {
+func initGetLine(input Input, txtb *window.TextBuffer) *getLine {
 	gl := &getLine{ // object allocated on the heap: (OK)
 		insertMode:     true,
 		input:          input,
-		txtd:           txtd,
+		txtb:           txtb,
 		historyCount:   0,
 		namesAndValues: make([]rpn.NameAndValues, 0, 16),
 	}
@@ -90,8 +90,8 @@ func (gl *getLine) prepareHistory() {
 }
 
 func (gl *getLine) get(r *rpn.RPN) (string, error) {
-	gl.txtd.Cursor(true)
-	defer gl.txtd.Cursor(false)
+	gl.txtb.Txtw.Cursor(true)
+	defer gl.txtb.Txtw.Cursor(false)
 	var line []byte
 	idx := 0
 	// how many steps back into history, with 0 being not in history
@@ -105,12 +105,12 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 		case key.KEY_LEFT:
 			if idx > 0 {
 				idx--
-				window.Shift(gl.txtd, -1)
+				gl.txtb.Shift(-1)
 			}
 		case key.KEY_RIGHT:
 			if idx < len(line) {
 				idx++
-				window.Shift(gl.txtd, 1)
+				gl.txtb.Shift(1)
 			}
 		case key.KEY_UP:
 			if historyIdx < gl.historyCount && historyIdx <= MAX_HISTORY_LINES {
@@ -134,25 +134,25 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 			if idx > 0 {
 				idx--
 				line = delete(line, idx)
-				window.Shift(gl.txtd, -1)
-				window.PrintBytes(gl.txtd, line[idx:])
-				window.PutByte(gl.txtd, ' ')
-				window.Shift(gl.txtd, -(len(line) - idx + 1))
+				gl.txtb.Shift(-1)
+				gl.txtb.PrintBytes(line[idx:], true)
+				gl.txtb.Write(' ', true)
+				gl.txtb.Shift(-(len(line) - idx + 1))
 			}
 		case key.KEY_DEL:
 			if idx < len(line) {
 				line = delete(line, idx)
-				window.PrintBytes(gl.txtd, line[idx:])
-				window.PutByte(gl.txtd, ' ')
-				window.Shift(gl.txtd, -(len(line) - idx + 1))
+				gl.txtb.PrintBytes(line[idx:], true)
+				gl.txtb.Write(' ', true)
+				gl.txtb.Shift(-(len(line) - idx + 1))
 			}
 		case key.KEY_INS:
 			gl.insertMode = !gl.insertMode
 		case key.KEY_END:
-			window.Shift(gl.txtd, len(line)-idx)
+			gl.txtb.Shift(len(line) - idx)
 			idx = len(line)
 		case key.KEY_HOME:
-			window.Shift(gl.txtd, -idx)
+			gl.txtb.Shift(-idx)
 			idx = 0
 		case '\t':
 			line, idx = gl.tabComplete(r, line, idx)
@@ -185,8 +185,8 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 		default:
 			b := byte(c)
 			if b == '\n' {
-				window.Shift(gl.txtd, len(line)-idx)
-				window.PutByte(gl.txtd, b)
+				gl.txtb.Shift(len(line) - idx)
+				gl.txtb.Write(b, true)
 				s := string(line)
 				gl.addToHistory(s)
 				return s, nil
@@ -198,9 +198,9 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 }
 
 func (gl *getLine) execMacro(r *rpn.RPN, idx int, name string) (string, error) {
-	window.Shift(gl.txtd, -idx)
+	gl.txtb.Shift(-idx)
 	for idx > 0 {
-		window.PutByte(gl.txtd, ' ')
+		gl.txtb.Write(' ', true)
 		idx--
 	}
 	return name, nil
@@ -209,16 +209,16 @@ func (gl *getLine) execMacro(r *rpn.RPN, idx int, name string) (string, error) {
 func (gl *getLine) addChar(line []byte, idx int, b byte) []byte {
 	if idx >= len(line) {
 		line = append(line, b)
-		window.PutByte(gl.txtd, b)
+		gl.txtb.Write(b, true)
 	} else if gl.insertMode {
 		line = append(line, 0) // grow the buffer
 		copy(line[idx+1:], line[idx:])
 		line[idx] = b
-		window.Print(gl.txtd, string(line[idx:]))
-		window.Shift(gl.txtd, -(len(line) - idx - 1))
+		gl.txtb.Print(string(line[idx:]), true)
+		gl.txtb.Shift(-(len(line) - idx - 1))
 	} else {
 		line[idx] = b
-		window.PutByte(gl.txtd, b)
+		gl.txtb.Write(b, true)
 	}
 	return line
 }
@@ -243,12 +243,12 @@ func (gl *getLine) addToHistory(line string) {
 func (gl *getLine) replaceLineWithHistory(historyIdx int, oldlen int, idx int) []byte {
 	newl := gl.history[(gl.historyCount-historyIdx)%MAX_HISTORY_LINES]
 	// remove the existing line
-	window.Shift(gl.txtd, -idx)
+	gl.txtb.Shift(-idx)
 	for i := 0; i < oldlen; i++ {
-		window.PutByte(gl.txtd, ' ')
+		gl.txtb.Write(' ', true)
 	}
-	window.Shift(gl.txtd, -oldlen)
-	window.Print(gl.txtd, newl)
+	gl.txtb.Shift(-oldlen)
+	gl.txtb.Print(newl, true)
 	return []byte(newl)
 }
 

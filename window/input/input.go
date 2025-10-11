@@ -20,28 +20,23 @@ type Input interface {
 
 type InputWindow struct {
 	input      Input
-	txtw       window.TextWindow
+	txtb       window.TextBuffer
 	gl         *getLine
 	firstInput bool
 }
 
-func Init(input Input, txtw window.TextWindow, r *rpn.RPN) (*InputWindow, error) {
-	iw := &InputWindow{ // object allocated on the heap (OK)
-		input:      input,
-		txtw:       txtw,
-		gl:         initGetLine(input, txtw),
-		firstInput: true,
-	}
+func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN) {
+	iw.input = input
+	// Make this >0 when we are ready to try scrolling.
+	iw.txtb.Init(txtw, 0)
+	iw.gl = initGetLine(input, &iw.txtb)
+	iw.firstInput = true
 	r.Print = iw.Print
 	r.Input = iw.Input
-	return iw, nil
 }
 
 func (iw *InputWindow) Print(msg string) {
-	window.Print(iw.txtw, msg)
-	if strings.Contains(msg, "\n") {
-		iw.txtw.Refresh()
-	}
+	iw.txtb.Print(msg, true)
 }
 
 func (iw *InputWindow) Input(r *rpn.RPN) (string, error) {
@@ -54,13 +49,13 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 			return err
 		}
 	}
-	iw.txtw.TextColor(window.White)
-	r.TextWidth = iw.txtw.TextWidth()
-	window.Print(iw.gl.txtd, "> ")
+	iw.txtb.TextColor(window.White)
+	r.TextWidth = iw.txtb.Txtw.TextWidth()
+	iw.txtb.Print("> ", true)
 	line, err := iw.gl.get(r)
-	iw.txtw.TextColor(window.Cyan)
+	iw.txtb.TextColor(window.Cyan)
 	if err != nil {
-		window.PrintErr(iw.txtw, err)
+		iw.txtb.PrintErr(err, false)
 		return nil
 	}
 	line = strings.TrimSpace(line)
@@ -72,45 +67,45 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	}
 	action, err := parseLine(r, line)
 	if err != nil {
-		window.PrintErr(iw.txtw, err)
+		iw.txtb.PrintErr(err, false)
 		return nil
 	}
 	if action {
 		frame, err := r.PeekFrame(0)
 		if err == nil {
-			window.Print(iw.txtw, frame.String(true))
-			window.PutByte(iw.txtw, '\n')
+			iw.txtb.Print(frame.String(true), false)
+			iw.txtb.Write('\n', false)
 		} else if !errors.Is(err, rpn.ErrNotEnoughStackFrames) {
-			window.PrintErr(iw.txtw, err)
+			iw.txtb.PrintErr(err, false)
 		}
 	}
-	iw.txtw.Refresh()
+	iw.txtb.Update()
 	return nil
 }
 
 func (iw *InputWindow) firstRun(r *rpn.RPN) error {
 	iw.firstInput = false
 	r.RegisterConceptHelp(map[string]string{"exiting": "Enter exit or type Ctrl-D to exit the program"})
-	iw.txtw.TextColor(window.Cyan)
-	window.Print(iw.txtw, "Enter ? to list help topics, topic? for more details\n")
-	iw.txtw.TextColor(window.White)
+	iw.txtb.TextColor(window.Cyan)
+	iw.txtb.Print("Enter ? to list help topics, topic? for more details\n", true)
+	iw.txtb.TextColor(window.White)
 	return nil
 }
 
 func (iw *InputWindow) ResizeWindow(x, y, w, h int) error {
-	return iw.txtw.ResizeWindow(x, y, w, h)
+	return iw.txtb.ResizeWindow(x, y, w, h)
 }
 
 func (iw *InputWindow) ShowBorder(screenw, screenh int) error {
-	return iw.txtw.ShowBorder(screenw, screenh)
+	return iw.txtb.Txtw.ShowBorder(screenw, screenh)
 }
 
 func (iw *InputWindow) WindowXY() (int, int) {
-	return iw.txtw.WindowXY()
+	return iw.txtb.Txtw.WindowXY()
 }
 
 func (iw *InputWindow) WindowSize() (int, int) {
-	return iw.txtw.WindowSize()
+	return iw.txtb.Txtw.WindowSize()
 }
 
 func (iw *InputWindow) Type() string {

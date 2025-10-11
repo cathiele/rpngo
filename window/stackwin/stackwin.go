@@ -103,7 +103,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 		if len(s) > w {
 			s = s[:w]
 		}
-		window.Print(&sw.txtb, s, false)
+		sw.txtb.Print(s, false)
 		lw := w - len(s)
 		if lw > 0 {
 			sw.txtb.TextColor(window.Cyan)
@@ -111,7 +111,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 			if len(s) > lw {
 				s = s[:lw]
 			}
-			window.Print(&sw.txtb, s, false)
+			sw.txtb.Print(s, false)
 		}
 	}
 	if (len(rpn.Frames) == 0) && (h > 0) {
@@ -121,7 +121,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 		if len(s) > w {
 			s = s[:w]
 		}
-		window.Print(&sw.txtb, s, false)
+		sw.txtb.Print(s, false)
 	}
 	sw.txtb.Update()
 	return nil

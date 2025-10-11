@@ -126,11 +126,12 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	if err != nil {
 		return err
 	}
-	iw, err := input.Init(txtw.(*curses.Curses), txtw, r)
+	var iw input.InputWindow
+	iw.Init(txtw.(*curses.Curses), txtw, r)
 	if err != nil {
 		return err
 	}
-	root.AddWindowChildToRoot(iw, "i", 100)
+	root.AddWindowChildToRoot(&iw, "i", 100)
 	return nil
 }
 

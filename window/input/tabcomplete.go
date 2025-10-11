@@ -2,7 +2,6 @@ package input
 
 import (
 	"mattwach/rpngo/rpn"
-	"mattwach/rpngo/window"
 	"sort"
 	"strings"
 )
@@ -35,16 +34,16 @@ func (gl *getLine) tabComplete(r *rpn.RPN, line []byte, idx int) ([]byte, int) {
 	line = []byte(startLine + newWord + endLine)
 
 	// update the line
-	window.Shift(gl.txtd, startIdx-idx)
-	window.PrintBytes(gl.txtd, line[startIdx:])
+	gl.txtb.Shift(startIdx - idx)
+	gl.txtb.PrintBytes(line[startIdx:], true)
 	numSpaces := len(word) - len(newWord)
 	if numSpaces > 0 {
 		for i := 0; i < numSpaces; i++ {
-			window.PutByte(gl.txtd, ' ')
+			gl.txtb.Write(' ', true)
 		}
-		window.Shift(gl.txtd, -numSpaces)
+		gl.txtb.Shift(-numSpaces)
 	}
-	window.Shift(gl.txtd, -len(endLine))
+	gl.txtb.Shift(-len(endLine))
 
 	idx = idx + len(newWord) - len(word)
 	//log.Printf("idx=%v line=%v", idx, string(line))
