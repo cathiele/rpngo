@@ -44,6 +44,7 @@ func (iw *InputWindow) Input(r *rpn.RPN) (string, error) {
 }
 
 func (iw *InputWindow) Update(r *rpn.RPN) error {
+	iw.txtb.CheckSize()
 	if iw.firstInput {
 		if err := iw.firstRun(r); err != nil {
 			return err
@@ -55,7 +56,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	line, err := iw.gl.get(r)
 	iw.txtb.TextColor(window.Cyan)
 	if err != nil {
-		iw.txtb.PrintErr(err, false)
+		iw.txtb.PrintErr(err, true)
 		return nil
 	}
 	line = strings.TrimSpace(line)
@@ -67,7 +68,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	}
 	action, err := parseLine(r, line)
 	if err != nil {
-		iw.txtb.PrintErr(err, false)
+		iw.txtb.PrintErr(err, true)
 		return nil
 	}
 	if action {
@@ -76,7 +77,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 			iw.txtb.Print(frame.String(true), false)
 			iw.txtb.Write('\n', false)
 		} else if !errors.Is(err, rpn.ErrNotEnoughStackFrames) {
-			iw.txtb.PrintErr(err, false)
+			iw.txtb.PrintErr(err, true)
 		}
 	}
 	iw.txtb.Update()
@@ -93,7 +94,12 @@ func (iw *InputWindow) firstRun(r *rpn.RPN) error {
 }
 
 func (iw *InputWindow) ResizeWindow(x, y, w, h int) error {
-	return iw.txtb.ResizeWindow(x, y, w, h)
+	err := iw.txtb.Txtw.ResizeWindow(x, y, w, h)
+	if err != nil {
+		return err
+	}
+	iw.txtb.CheckSize()
+	return nil
 }
 
 func (iw *InputWindow) ShowBorder(screenw, screenh int) error {

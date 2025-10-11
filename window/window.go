@@ -32,6 +32,10 @@ type WindowBase interface {
 type TextWindow interface {
 	WindowBase
 
+	// SetCursorXY is useful for moving the cursor
+	SetCursorXY(x, y int)
+
+
 	// Updates the character at the given x, y.  It's recommended to
 	// have a buffering layer to avoid redrawing identical characters and
 	// thus taking a performance hit on slower displays (which includes

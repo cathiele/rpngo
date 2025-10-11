@@ -33,7 +33,12 @@ func (sw *StackWindow) Init(txtw window.TextWindow) {
 }
 
 func (sw *StackWindow) ResizeWindow(x, y, w, h int) error {
-	return sw.txtb.ResizeWindow(x, y, w, h)
+	err := sw.txtb.Txtw.ResizeWindow(x, y, w, h)
+	if err != nil {
+		return err
+	}
+	sw.txtb.CheckSize()
+	return nil
 }
 
 func (sw *StackWindow) ShowBorder(screenw, screenh int) error {
@@ -87,6 +92,7 @@ func (sw *StackWindow) ListProps() []string {
 
 func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 	w, h := sw.txtb.Txtw.TextSize()
+	sw.txtb.CheckSize()
 	sw.txtb.Erase()
 	framesBack := h
 	if len(rpn.Frames) < framesBack {

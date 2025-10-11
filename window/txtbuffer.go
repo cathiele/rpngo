@@ -61,12 +61,10 @@ type TextBuffer struct {
 	Txtw TextWindow
 }
 
-func (tb *TextBuffer) Init(txtw TextWindow, scrollbytes int) error {
+func (tb *TextBuffer) Init(txtw TextWindow, scrollbytes int) {
 	tb.Txtw = txtw
 	tb.scrollbytes = scrollbytes
-	x, y := txtw.WindowXY()
-	w, h := txtw.WindowSize()
-	return tb.ResizeWindow(x, y, w, h)
+	tb.CheckSize()
 }
 
 func (tb *TextBuffer) Update() {
@@ -86,15 +84,13 @@ func (tb *TextBuffer) Update() {
 	tb.Txtw.Refresh() // ncurses needs this, LCDs do not
 }
 
-func (tb *TextBuffer) ResizeWindow(x, y, w, h int) error {
-	if err := tb.Txtw.ResizeWindow(x, y, w, h); err != nil {
-		return err
-	}
+// Checks if the underlying window has resized
+func (tb *TextBuffer) CheckSize() {
 	tw, th := tb.Txtw.TextSize()
 	scrollh := tb.scrollbytes / tw
 	if (int(tb.bw) == tw) && (int(tb.bh) == (scrollh + th)) {
 		// already the right size
-		return nil
+		return
 	}
 	tb.bw = int16(tw)
 	tb.bh = int16(th + scrollh)
@@ -103,7 +99,6 @@ func (tb *TextBuffer) ResizeWindow(x, y, w, h int) error {
 	// maybe we can reflow the text instead of erasing it after the changes
 	// are proven as stable.
 	tb.Erase()
-	return nil
 }
 
 func (tb *TextBuffer) Erase() {
@@ -178,6 +173,7 @@ func (tb *TextBuffer) SetCursorY(y int) {
 func (tb *TextBuffer) SetCursorXY(x, y int) {
 	tb.cx = int16(x)
 	tb.cy = int16(y)
+	tb.Txtw.SetCursorXY(x, y)
 }
 
 func (tb *TextBuffer) TextColor(col ColorChar) {

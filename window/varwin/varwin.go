@@ -22,7 +22,12 @@ func (w *VariableWindow) Init(txtw window.TextWindow) {
 }
 
 func (vw *VariableWindow) ResizeWindow(x, y, w, h int) error {
-	return vw.txtb.ResizeWindow(x, y, w, h)
+	err := vw.txtb.Txtw.ResizeWindow(x, y, w, h)
+	if err != nil {
+		return err
+	}
+	vw.txtb.CheckSize()
+	return nil
 }
 
 func (vw *VariableWindow) ShowBorder(screenw, screenh int) error {
@@ -79,6 +84,7 @@ func (vw *VariableWindow) ListProps() []string {
 
 func (vw *VariableWindow) Update(r *rpn.RPN) error {
 	w, h := vw.txtb.Txtw.TextSize()
+	vw.txtb.CheckSize()
 	vw.txtb.Erase()
 	vw.namesAndValues = r.AppendAllVariableNamesAndValues(vw.namesAndValues[:0])
 	vw.txtb.SetCursorXY(0, 0)

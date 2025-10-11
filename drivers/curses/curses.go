@@ -177,12 +177,15 @@ func (c *Curses) WindowXY() (int, int) {
 	return x, y
 }
 
+func (c *Curses) SetCursorXY(x, y int) {
+	c.window.Move(y, x)
+}
+
 func (c *Curses) DrawChar(x, y int, ch window.ColorChar) {
 	newcol := ch & 0xFF00
 	if newcol != c.col {
 		c.textColor(newcol)
 	}
-	y, x = c.window.CursorYX()
 	c.window.Move(y, x)
 	b := byte(ch & 0xFF)
 	c.window.AddChar(goncurses.Char(b))
