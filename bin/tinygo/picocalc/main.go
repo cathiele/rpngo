@@ -96,12 +96,13 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	}
 	gi := &getInput{} // object allocated on the heap (OK)
 	gi.Init()
-	iw, err := input.Init(gi, txtw, r)
+	var iw input.InputWindow
+	iw.Init(gi, txtw, r, 0)
 	gi.lcd = txtw.(*ili948x.Ili948xTxtW)
 	if err != nil {
 		return err
 	}
-	root.AddWindowChildToRoot(iw, "i", 100)
+	root.AddWindowChildToRoot(&iw, "i", 100)
 	return nil
 }
 
@@ -120,7 +121,6 @@ func (gi *getInput) Init() {
 func (gi *getInput) GetChar() (key.Key, error) {
 	for {
 		time.Sleep(20 * time.Millisecond)
-		gi.lcd.ShowCursorIfEnabled(true)
 		k := gi.serialc.GetChar()
 		if k != 0 {
 			return k, nil
