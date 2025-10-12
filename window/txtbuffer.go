@@ -65,7 +65,12 @@ type TextBuffer struct {
 func (tb *TextBuffer) Init(txtw TextWindow, scrollbytes int) {
 	tb.Txtw = txtw
 	tb.scrollbytes = scrollbytes
-	tb.CheckSize()
+	// This check is so that some unit tests (like stackwin) are not required
+	// to provide a TextWindow.  Arguably there should be a shared fake one
+	// that can be used but no tests in stackwin would use it explicitly yet.
+	if txtw != nil {
+		tb.CheckSize()
+	}
 }
 
 func (tb *TextBuffer) Cursor(c bool) {
