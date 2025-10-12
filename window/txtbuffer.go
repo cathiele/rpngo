@@ -129,6 +129,19 @@ func (tb *TextBuffer) Erase() {
 }
 
 func (tb *TextBuffer) Write(b byte, updatenow bool) error {
+	bidx := (tb.headidx + int(tb.cy*tb.bw) + int(tb.cx)) % len(tb.buffer)
+	if b != '\n' {
+		tb.buffer[bidx] = tb.col | ColorChar(b)
+		if updatenow {
+			// just update this character
+			sidx := tb.cy*tb.bw + tb.cx
+			if tb.showCursor || (tb.screen[sidx] != tb.buffer[bidx]) {
+				tb.screen[sidx] = tb.buffer[bidx]
+				tb.Txtw.DrawChar(int(tb.cx), int(tb.cy), tb.screen[sidx])
+			}
+		}
+		tb.cx++
+	}
 	tw, th := tb.Txtw.TextSize()
 	if (b == '\n') || (int(tb.cx) >= tw) {
 		// next line
@@ -138,35 +151,18 @@ func (tb *TextBuffer) Write(b byte, updatenow bool) error {
 		tb.cx = 0
 		tb.cy++
 	}
-	scrolled := false
 	if int(tb.cy) >= th {
-		tb.scroll(1)
-		tb.cy--
-		scrolled = true
-	}
-	bidx := (tb.headidx + int(tb.cy*tb.bw) + int(tb.cx)) % len(tb.buffer)
-	if scrolled {
 		// erase rest of the line, which might contain old data
-		for i := 1; i < tw; i++ {
-			tb.buffer[bidx+i] = tb.col | ColorChar(' ')
+		tb.scroll(1)
+
+		tb.cy--
+		lineidx := (tb.headidx + int(tb.cy*tb.bw)) % len(tb.buffer)
+		for i := 0; i < tw; i++ {
+			tb.buffer[(lineidx+i)%len(tb.buffer)] = tb.col | ColorChar('x')
 		}
-	}
-	if b != '\n' {
-		tb.buffer[bidx] = tb.col | ColorChar(b)
 		if updatenow {
-			if !scrolled {
-				// just update this character
-				sidx := tb.cy*tb.bw + tb.cx
-				if tb.showCursor || (tb.screen[sidx] != tb.buffer[bidx]) {
-					tb.screen[sidx] = tb.buffer[bidx]
-					tb.Txtw.DrawChar(int(tb.cx), int(tb.cy), tb.screen[sidx])
-				}
-			}
+			tb.Update()
 		}
-		tb.cx++
-	}
-	if scrolled && updatenow {
-		tb.Update()
 	}
 	if tb.showCursor {
 		tb.drawCursor()
