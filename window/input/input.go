@@ -25,10 +25,10 @@ type InputWindow struct {
 	firstInput bool
 }
 
-func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN) {
+func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, scrollbytes int) {
 	iw.input = input
 	// Make this >0 when we are ready to try scrolling.
-	iw.txtb.Init(txtw, 0)
+	iw.txtb.Init(txtw, scrollbytes)
 	iw.gl = initGetLine(input, &iw.txtb)
 	iw.firstInput = true
 	r.Print = iw.Print

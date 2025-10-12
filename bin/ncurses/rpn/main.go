@@ -18,6 +18,8 @@ import (
 	"os/signal"
 )
 
+const scrollbytes = 256 * 1024
+
 func run() error {
 	os.RemoveAll("/tmp/rpngo.log")
 	logFile, err := os.Create("/tmp/rpngo.log")
@@ -127,7 +129,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 		return err
 	}
 	var iw input.InputWindow
-	iw.Init(txtw.(*curses.Curses), txtw, r)
+	iw.Init(txtw.(*curses.Curses), txtw, r, scrollbytes)
 	if err != nil {
 		return err
 	}

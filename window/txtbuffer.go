@@ -46,14 +46,14 @@ type TextBuffer struct {
 	scrollbytes int
 
 	// character position, on the screen and not the buffer
-	cx         int16
-	cy         int16
+	cx         int
+	cy         int
 	showCursor bool
 
 	// height of chars buffer.  Note that bw should equal the TextWindow
 	// width but ch could be larger.
-	bw int16
-	bh int16
+	bw int
+	bh int
 
 	// text color
 	col ColorChar
@@ -104,14 +104,14 @@ func (tb *TextBuffer) CheckSize() {
 		// already the right size
 		return
 	}
-	if tb.cx >= int16(tw) {
-		tb.cx = int16(tw - 1)
+	if tb.cx >= tw {
+		tb.cx = tw - 1
 	}
-	if tb.cy >= int16(th) {
-		tb.cy = int16(th - 1)
+	if tb.cy >= th {
+		tb.cy = th - 1
 	}
-	tb.bw = int16(tw)
-	tb.bh = int16(th + scrollh)
+	tb.bw = tw
+	tb.bh = th + scrollh
 	tb.buffer = make([]ColorChar, tb.bw*tb.bh) // object allocated on the heap (OK)
 	tb.screen = make([]ColorChar, tw*th)       // object allocated on the heap (OK)
 	// maybe we can reflow the text instead of erasing it after the changes
@@ -129,7 +129,7 @@ func (tb *TextBuffer) Erase() {
 }
 
 func (tb *TextBuffer) Write(b byte, updatenow bool) error {
-	bidx := (tb.headidx + int(tb.cy*tb.bw) + int(tb.cx)) % len(tb.buffer)
+	bidx := (tb.headidx + int(tb.cy)*tb.bw + int(tb.cx)) % len(tb.buffer)
 	if b != '\n' {
 		tb.buffer[bidx] = tb.col | ColorChar(b)
 		if updatenow {
@@ -210,8 +210,8 @@ func (tb *TextBuffer) SetCursorXY(x, y int) {
 	if tb.showCursor {
 		tb.eraseCursor()
 	}
-	tb.cx = int16(x)
-	tb.cy = int16(y)
+	tb.cx = x
+	tb.cy = y
 	if tb.showCursor {
 		tb.drawCursor()
 	}
