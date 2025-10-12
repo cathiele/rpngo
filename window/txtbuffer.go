@@ -158,7 +158,7 @@ func (tb *TextBuffer) Write(b byte, updatenow bool) error {
 		tb.cy--
 		lineidx := (tb.headidx + int(tb.cy*tb.bw)) % len(tb.buffer)
 		for i := 0; i < tw; i++ {
-			tb.buffer[(lineidx+i)%len(tb.buffer)] = tb.col | ColorChar('x')
+			tb.buffer[(lineidx+i)%len(tb.buffer)] = tb.col | ColorChar(' ')
 		}
 		if updatenow {
 			tb.Update()
