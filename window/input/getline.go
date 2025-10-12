@@ -1,6 +1,16 @@
+// Handles input heystrokes from the user. e.g.an "editor"
+//
+// Many of the implementation choices below are to avoid heap allocations
+// on microcontrollers.  Notably the use of []byte to hold the result
+// as well as the extra code to keep from converting between bytes
+// and strings (which forces a heap allocation).  Heap allocations are
+// not forbidden of course, as this is an interactive session, but since
+// line entry is character-based anyway, using a []byte as a baseline
+// makes sense even if heap allocations were not a concern.
 package input
 
 import (
+	"bytes"
 	"log"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
@@ -16,10 +26,13 @@ type getLine struct {
 	insertMode     bool
 	input          Input
 	txtb           *window.TextBuffer
-	history        [MAX_HISTORY_LINES]string
+	history        [MAX_HISTORY_LINES][]byte
 	historyCount   int
 	historyFile    *os.File
 	namesAndValues []rpn.NameAndValues
+	// line is the current line.  It's kept here to support entering
+	// scrolling mode without losing the current line contents.
+	line []byte
 }
 
 const histFile = ".rpngo_history"
@@ -59,7 +72,10 @@ func (gl *getLine) loadHistory() {
 	for _, line := range strings.Split(string(data), "\n") {
 		line := strings.TrimSpace(line)
 		if len(line) > 0 {
-			gl.history[gl.historyCount%MAX_HISTORY_LINES] = line
+			hidx := gl.historyCount % MAX_HISTORY_LINES
+			for _, c := range line {
+				gl.history[hidx] = append(gl.history[hidx], byte(c))
+			}
 			gl.historyCount++
 		}
 	}
@@ -81,10 +97,14 @@ func (gl *getLine) prepareHistory() {
 		mini = 0
 	}
 	for i := mini; i < gl.historyCount; i++ {
-		line := gl.history[i%MAX_HISTORY_LINES] + "\n"
-		_, err := gl.historyFile.Write([]byte(line))
+		line := gl.history[i%MAX_HISTORY_LINES]
+		_, err := gl.historyFile.Write(line)
 		if err != nil {
-			log.Printf("error writing exsiting history: %v", err) // object allocated on the heap (OK)
+			log.Printf("error writing exsiting history: %v", err)
+		}
+		_, err = gl.historyFile.Write([]byte{'\n'})
+		if err != nil {
+			log.Printf("error writing exsiting history cr: %v", err)
 		}
 	}
 }
@@ -92,7 +112,7 @@ func (gl *getLine) prepareHistory() {
 func (gl *getLine) get(r *rpn.RPN) (string, error) {
 	gl.txtb.Cursor(true)
 	defer gl.txtb.Cursor(false)
-	var line []byte
+	gl.line = gl.line[:0]
 	idx := 0
 	// how many steps back into history, with 0 being not in history
 	historyIdx := 0
@@ -108,54 +128,48 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 				gl.txtb.Shift(-1)
 			}
 		case key.KEY_RIGHT:
-			if idx < len(line) {
+			if idx < len(gl.line) {
 				idx++
 				gl.txtb.Shift(1)
 			}
 		case key.KEY_UP:
 			if historyIdx < gl.historyCount && historyIdx <= MAX_HISTORY_LINES {
 				historyIdx++
-				line = gl.replaceLineWithHistory(
-					historyIdx,
-					len(line),
-					idx)
-				idx = len(line)
+				gl.replaceLineWithHistory(historyIdx, idx)
+				idx = len(gl.line)
 			}
 		case key.KEY_DOWN:
 			if historyIdx > 0 {
 				historyIdx--
-				line = gl.replaceLineWithHistory(
-					historyIdx,
-					len(line),
-					idx)
-				idx = len(line)
+				gl.replaceLineWithHistory(historyIdx, idx)
+				idx = len(gl.line)
 			}
 		case key.KEY_BACKSPACE:
 			if idx > 0 {
 				idx--
-				line = delete(line, idx)
+				gl.line = delete(gl.line, idx)
 				gl.txtb.Shift(-1)
-				gl.txtb.PrintBytes(line[idx:], true)
+				gl.txtb.PrintBytes(gl.line[idx:], true)
 				gl.txtb.Write(' ', true)
-				gl.txtb.Shift(-(len(line) - idx + 1))
+				gl.txtb.Shift(-(len(gl.line) - idx + 1))
 			}
 		case key.KEY_DEL:
-			if idx < len(line) {
-				line = delete(line, idx)
-				gl.txtb.PrintBytes(line[idx:], true)
+			if idx < len(gl.line) {
+				gl.line = delete(gl.line, idx)
+				gl.txtb.PrintBytes(gl.line[idx:], true)
 				gl.txtb.Write(' ', true)
-				gl.txtb.Shift(-(len(line) - idx + 1))
+				gl.txtb.Shift(-(len(gl.line) - idx + 1))
 			}
 		case key.KEY_INS:
 			gl.insertMode = !gl.insertMode
 		case key.KEY_END:
-			gl.txtb.Shift(len(line) - idx)
-			idx = len(line)
+			gl.txtb.Shift(len(gl.line) - idx)
+			idx = len(gl.line)
 		case key.KEY_HOME:
 			gl.txtb.Shift(-idx)
 			idx = 0
 		case '\t':
-			line, idx = gl.tabComplete(r, line, idx)
+			idx = gl.tabComplete(r, idx)
 		case key.KEY_EOF:
 			return "exit", nil
 		case key.KEY_F1:
@@ -185,13 +199,12 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 		default:
 			b := byte(c)
 			if b == '\n' {
-				gl.txtb.Shift(len(line) - idx)
+				gl.txtb.Shift(len(gl.line) - idx)
 				gl.txtb.Write(b, true)
-				s := string(line)
-				gl.addToHistory(s)
-				return s, nil
+				gl.addToHistory()
+				return string(gl.line), nil
 			}
-			line = gl.addChar(line, idx, b)
+			gl.addChar(idx, b)
 			idx++
 		}
 	}
@@ -206,41 +219,47 @@ func (gl *getLine) execMacro(r *rpn.RPN, idx int, name string) (string, error) {
 	return name, nil
 }
 
-func (gl *getLine) addChar(line []byte, idx int, b byte) []byte {
-	if idx >= len(line) {
-		line = append(line, b)
+func (gl *getLine) addChar(idx int, b byte) {
+	if idx >= len(gl.line) {
+		gl.line = append(gl.line, b)
 		gl.txtb.Write(b, true)
 	} else if gl.insertMode {
-		line = append(line, 0) // grow the buffer
-		copy(line[idx+1:], line[idx:])
-		line[idx] = b
-		gl.txtb.Print(string(line[idx:]), true)
-		gl.txtb.Shift(-(len(line) - idx - 1))
+		gl.line = append(gl.line, 0) // grow the buffer
+		copy(gl.line[idx+1:], gl.line[idx:])
+		gl.line[idx] = b
+		gl.txtb.Print(string(gl.line[idx:]), true)
+		gl.txtb.Shift(-(len(gl.line) - idx - 1))
 	} else {
-		line[idx] = b
+		gl.line[idx] = b
 		gl.txtb.Write(b, true)
 	}
-	return line
 }
 
-func (gl *getLine) addToHistory(line string) {
+func (gl *getLine) addToHistory() {
 	// if the last history element is the same as line, don't repeat it
-	if gl.historyCount > 0 && gl.history[(gl.historyCount-1)%MAX_HISTORY_LINES] == line {
+	if gl.historyCount > 0 && bytes.Equal(gl.history[(gl.historyCount-1)%MAX_HISTORY_LINES], gl.line) {
 		return
 	}
-	gl.history[gl.historyCount%MAX_HISTORY_LINES] = line
+	hidx := gl.historyCount % MAX_HISTORY_LINES
+	for _, b := range gl.line {
+		gl.history[hidx] = append(gl.history[hidx], b)
+	}
 	gl.historyCount++
 	if gl.historyFile != nil {
-		line = line + "\n"
-		_, err := gl.historyFile.WriteString(line)
+		_, err := gl.historyFile.Write(gl.line)
 		if err != nil {
 			log.Printf("could not write history line: %v", err) // object allocated on the heap (OK)
+		}
+		_, err = gl.historyFile.Write([]byte{'\n'})
+		if err != nil {
+			log.Printf("could not write history cr: %v", err) // object allocated on the heap (OK)
 		}
 		gl.historyFile.Sync()
 	}
 }
 
-func (gl *getLine) replaceLineWithHistory(historyIdx int, oldlen int, idx int) []byte {
+func (gl *getLine) replaceLineWithHistory(historyIdx int, idx int) {
+	oldlen := len(gl.line)
 	newl := gl.history[(gl.historyCount-historyIdx)%MAX_HISTORY_LINES]
 	// remove the existing line
 	gl.txtb.Shift(-idx)
@@ -248,8 +267,11 @@ func (gl *getLine) replaceLineWithHistory(historyIdx int, oldlen int, idx int) [
 		gl.txtb.Write(' ', true)
 	}
 	gl.txtb.Shift(-oldlen)
-	gl.txtb.Print(newl, true)
-	return []byte(newl)
+	gl.txtb.PrintBytes(newl, true)
+	gl.line = gl.line[:0]
+	for _, b := range newl {
+		gl.line = append(gl.line, b)
+	}
 }
 
 func delete(line []byte, idx int) []byte {

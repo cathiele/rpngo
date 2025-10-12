@@ -6,36 +6,45 @@ import (
 	"strings"
 )
 
-func (gl *getLine) tabComplete(r *rpn.RPN, line []byte, idx int) ([]byte, int) {
-	if (idx <= 0) || (idx > len(line)) {
-		return line, idx
+func (gl *getLine) tabComplete(r *rpn.RPN, idx int) int {
+	if (idx <= 0) || (idx > len(gl.line)) {
+		return idx
 	}
-	if (idx < len(line)) && line[idx] != ' ' {
-		return line, idx
+	if (idx < len(gl.line)) && gl.line[idx] != ' ' {
+		return idx
 	}
 
-	startIdx := findStartOfWord(line, idx)
+	startIdx := gl.findStartOfWord(idx)
 	if startIdx == idx {
-		return line, idx
+		return idx
 	}
 
-	word := string(line[startIdx:idx])
+	word := string(gl.line[startIdx:idx])
 	//log.Printf("found word: %v", word)
 	newWord := gl.findNewWord(r, word)
 
 	if len(newWord) == 0 {
-		return line, idx
+		return idx
 	}
 
 	//log.Printf("newword: %v", newWord)
 
-	startLine := string(line[:startIdx])
-	endLine := string(line[idx:])
-	line = []byte(startLine + newWord + endLine)
+	startLine := string(gl.line[:startIdx])
+	endLine := string(gl.line[idx:])
+	gl.line = gl.line[:0]
+	for _, c := range startLine {
+		gl.line = append(gl.line, byte(c))
+	}
+	for _, c := range newWord {
+		gl.line = append(gl.line, byte(c))
+	}
+	for _, c := range endLine {
+		gl.line = append(gl.line, byte(c))
+	}
 
 	// update the line
 	gl.txtb.Shift(startIdx - idx)
-	gl.txtb.PrintBytes(line[startIdx:], true)
+	gl.txtb.PrintBytes(gl.line[startIdx:], true)
 	numSpaces := len(word) - len(newWord)
 	if numSpaces > 0 {
 		for i := 0; i < numSpaces; i++ {
@@ -46,17 +55,16 @@ func (gl *getLine) tabComplete(r *rpn.RPN, line []byte, idx int) ([]byte, int) {
 	gl.txtb.Shift(-len(endLine))
 
 	idx = idx + len(newWord) - len(word)
-	//log.Printf("idx=%v line=%v", idx, string(line))
-	return line, idx
+	return idx
 }
 
-func findStartOfWord(line []byte, idx int) int {
+func (gl *getLine) findStartOfWord(idx int) int {
 	startIdx := idx
 	for {
 		if startIdx == 0 {
 			break
 		}
-		lastChar := line[startIdx-1]
+		lastChar := gl.line[startIdx-1]
 		if (lastChar == ' ') || (lastChar == '\'') || (lastChar == '"') {
 			break
 		}
