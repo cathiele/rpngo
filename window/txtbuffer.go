@@ -101,6 +101,27 @@ func (tb *TextBuffer) Update() {
 	tb.Txtw.Refresh() // ncurses needs this, LCDs do not
 }
 
+// Refreshes an area of the screen, even if buffer matches screen
+// This is useful for recovering from otehr things drawing on the text window.
+func (tb *TextBuffer) RefreshArea(tx, ty, w, h int) {
+	tw, th := tb.Txtw.TextSize()
+	for y := ty; y < ty+h; y++ {
+		if (y < 0) || (y >= th) {
+			continue
+		}
+		for x := tx; x < tw+w; x++ {
+			if (x < 0) || (x >= tw) {
+				continue
+			}
+			si := y*tb.bw + x
+			bi := (tb.headidx + si) % len(tb.buffer)
+			tb.screen[si] = tb.buffer[bi]
+			tb.Txtw.DrawChar(x, y, tb.screen[si])
+		}
+	}
+	tb.Txtw.Refresh() // ncurses needs this, LCDs do not
+}
+
 // Checks if the underlying window has resized
 func (tb *TextBuffer) CheckSize() {
 	tw, th := tb.Txtw.TextSize()
@@ -158,7 +179,7 @@ func (tb *TextBuffer) Write(b byte, updatenow bool) error {
 	}
 	if int(tb.cy) >= th {
 		// erase rest of the line, which might contain old data
-		tb.scroll(1)
+		tb.Scroll(1)
 
 		tb.cy--
 		lineidx := (tb.headidx + int(tb.cy*tb.bw)) % len(tb.buffer)
@@ -226,7 +247,11 @@ func (tb *TextBuffer) TextColor(col ColorChar) {
 	tb.col = col
 }
 
-func (tb *TextBuffer) scroll(i int) {
+func (tb *TextBuffer) BufferLines() int {
+	return len(tb.buffer) / tb.bw
+}
+
+func (tb *TextBuffer) Scroll(i int) {
 	// scrolling is as easy as moving the headidx
 	tb.headidx += i * int(tb.bw)
 	for tb.headidx >= len(tb.buffer) {
@@ -266,7 +291,7 @@ func (tb *TextBuffer) Shift(n int) {
 	for x >= tb.Txtw.TextWidth() {
 		y += 1
 		if y >= tb.Txtw.TextHeight() {
-			tb.scroll(-1)
+			tb.Scroll(1)
 			y--
 		}
 		x -= tb.Txtw.TextWidth()
@@ -275,7 +300,7 @@ func (tb *TextBuffer) Shift(n int) {
 		x += tb.Txtw.TextWidth()
 		y -= 1
 		if y < 0 {
-			tb.scroll(1)
+			tb.Scroll(1)
 			y = 0
 		}
 	}

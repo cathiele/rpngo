@@ -112,6 +112,8 @@ var charMap = map[goncurses.Key]key.Key{
 	goncurses.KEY_END:       key.KEY_END,
 	goncurses.KEY_HOME:      key.KEY_HOME,
 	4:                       key.KEY_EOF,
+	goncurses.KEY_PAGEUP:    key.KEY_PAGEUP,
+	goncurses.KEY_PAGEDOWN:  key.KEY_PAGEDOWN,
 	goncurses.KEY_F1:        key.KEY_F1,
 	goncurses.KEY_F2:        key.KEY_F2,
 	goncurses.KEY_F3:        key.KEY_F3,

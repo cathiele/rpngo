@@ -170,6 +170,12 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 			idx = 0
 		case '\t':
 			idx = gl.tabComplete(r, idx)
+		case key.KEY_PAGEDOWN:
+			fallthrough
+		case 27: // ESCAPE key
+			gl.enterScrollingMode(0)
+		case key.KEY_PAGEUP:
+			gl.enterScrollingMode(-gl.pageDelta())
 		case key.KEY_EOF:
 			return "exit", nil
 		case key.KEY_F1:
@@ -271,6 +277,82 @@ func (gl *getLine) replaceLineWithHistory(historyIdx int, idx int) {
 	gl.line = gl.line[:0]
 	for _, b := range newl {
 		gl.line = append(gl.line, b)
+	}
+}
+
+func (gl *getLine) pageDelta() int {
+	return gl.txtb.Txtw.TextHeight() * 3 / 4
+}
+
+func (gl *getLine) enterScrollingMode(delta int) {
+	gl.txtb.Cursor(false)
+	scrollDelta := gl.maybeScroll(0, delta)
+	if scrollDelta == 0 {
+		gl.drawScrollingBanner(true)
+	}
+	for {
+		c, err := gl.input.GetChar()
+		if err != nil {
+			return
+		}
+		switch c {
+		case 'k':
+			fallthrough
+		case key.KEY_UP:
+			scrollDelta = gl.maybeScroll(scrollDelta, -1)
+		case 'j':
+			fallthrough
+		case key.KEY_DOWN:
+			scrollDelta = gl.maybeScroll(scrollDelta, 1)
+		case key.KEY_PAGEUP:
+			scrollDelta = gl.maybeScroll(scrollDelta, -gl.pageDelta())
+		case ' ':
+			fallthrough
+		case key.KEY_PAGEDOWN:
+			scrollDelta = gl.maybeScroll(scrollDelta, gl.pageDelta())
+		case 27:
+			fallthrough
+		case '\n':
+		case 'q':
+			gl.txtb.Scroll(-scrollDelta)
+			gl.txtb.Cursor(true)
+			gl.txtb.Update()
+			gl.drawScrollingBanner(false)
+			return
+		}
+	}
+}
+
+func (gl *getLine) maybeScroll(scrollDelta int, delta int) int {
+	newDelta := scrollDelta + delta
+	maxDelta := gl.txtb.BufferLines() - gl.txtb.Txtw.TextHeight()
+	if newDelta < -maxDelta {
+		newDelta = -maxDelta
+	}
+	if newDelta > 0 {
+		newDelta = 0
+	}
+	if newDelta != scrollDelta {
+		gl.txtb.Scroll(newDelta - scrollDelta)
+		gl.txtb.Update()
+		gl.drawScrollingBanner(true)
+	}
+	return newDelta
+}
+
+// Here we draw directly on the text window (white text, blue background)
+var scrollCol = window.White | (window.Blue >> 4)
+
+const scrollMsg = "Scrolling Mode"
+
+func (gl *getLine) drawScrollingBanner(enable bool) {
+	w, h := gl.txtb.Txtw.TextSize()
+	// Both DrawStr and RefreshArea can handle negative values
+	x := (w - len(scrollMsg)) / 2
+	if enable {
+		window.DrawStr(gl.txtb.Txtw, x, h-1, scrollMsg, scrollCol)
+	} else {
+		gl.txtb.RefreshArea(x, h-1, len(scrollMsg), 1)
 	}
 }
 
