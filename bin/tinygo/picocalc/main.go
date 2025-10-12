@@ -99,9 +99,6 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	var iw input.InputWindow
 	iw.Init(gi, txtw, r, 0)
 	gi.lcd = txtw.(*ili948x.Ili948xTxtW)
-	if err != nil {
-		return err
-	}
 	root.AddWindowChildToRoot(&iw, "i", 100)
 	return nil
 }
