@@ -84,6 +84,6 @@ func (pw *TxtPlotWindow) plotPoint(x, y float64, colidx uint8) error {
 	if !yok {
 		return nil
 	}
-	pw.txtw.DrawChar(tx, ty, window.ColorChar(colidx)|'*')
+	pw.txtw.DrawChar(tx, ty, colorWheelTxt[colidx]|'*')
 	return nil
 }

@@ -104,6 +104,12 @@ func (tb *TextBuffer) CheckSize() {
 		// already the right size
 		return
 	}
+	if tb.cx >= int16(tw) {
+		tb.cx = int16(tw - 1)
+	}
+	if tb.cy >= int16(th) {
+		tb.cy = int16(th - 1)
+	}
 	tb.bw = int16(tw)
 	tb.bh = int16(th + scrollh)
 	tb.buffer = make([]ColorChar, tb.bw*tb.bh) // object allocated on the heap (OK)
