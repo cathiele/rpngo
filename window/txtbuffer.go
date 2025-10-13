@@ -171,7 +171,7 @@ func (tb *TextBuffer) Write(b byte, updatenow bool) error {
 	tw, th := tb.Txtw.TextSize()
 	if (b == '\n') || (int(tb.cx) >= tw) {
 		// next line
-		if tb.showCursor {
+		if tb.showCursor && (int(tb.cx) < tw) {
 			tb.eraseCursor()
 		}
 		tb.cx = 0
