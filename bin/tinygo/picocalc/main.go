@@ -23,6 +23,8 @@ import (
 	"time"
 )
 
+const scrollbytes = 32 * 1024
+
 func main() {
 	var screen ili948x.Ili948xScreen // object allocated on the heap (OK)
 	screen.Init()
@@ -97,7 +99,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	gi := &getInput{} // object allocated on the heap (OK)
 	gi.Init()
 	var iw input.InputWindow
-	iw.Init(gi, txtw, r, 0)
+	iw.Init(gi, txtw, r, scrollbytes)
 	gi.lcd = txtw.(*ili948x.Ili948xTxtW)
 	root.AddWindowChildToRoot(&iw, "i", 100)
 	return nil

@@ -313,10 +313,11 @@ func (gl *getLine) enterScrollingMode(delta int) {
 		case 27:
 			fallthrough
 		case '\n':
+			fallthrough
 		case 'q':
 			gl.txtb.Scroll(-scrollDelta)
-			gl.txtb.Cursor(true)
 			gl.txtb.Update()
+			gl.txtb.Cursor(true)
 			gl.drawScrollingBanner(false)
 			return
 		}

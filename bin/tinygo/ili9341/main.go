@@ -22,6 +22,8 @@ import (
 	"time"
 )
 
+const scrollbytes = 32 * 1024
+
 func main() {
 	if err := run(); err != nil {
 		panic(err)
@@ -91,7 +93,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	}
 	gi := &getInput{}
 	var iw input.InputWindow
-	iw.Init(gi, txtw, r, 0)
+	iw.Init(gi, txtw, r, scrollbytes)
 	gi.lcd = txtw.(*ili9341.Ili9341TxtW)
 	root.AddWindowChildToRoot(&iw, "i", 100)
 	return nil

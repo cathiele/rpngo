@@ -6,7 +6,6 @@
 
 ## TODO Features
 
-- L: Implement large output viewer
 - L: Basic text editor
 - M: Add stack output formatting options
 - L: Rewrite readme doc

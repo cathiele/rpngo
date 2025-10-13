@@ -110,7 +110,7 @@ func TestWriteAndUpdateAndScroll(t *testing.T) {
 	}
 	var tb TextBuffer
 	tb.Init(&tw, 6)
-	tb.scroll(1)
+	tb.Scroll(1)
 	tb.TextColor(White)
 
 	// write x to the buffer, but not the screen
@@ -318,7 +318,7 @@ func TestWriteAndUpdateAndScroll(t *testing.T) {
 	// d.e     d.e
 	//
 	//
-	tb.scroll(-2)
+	tb.Scroll(-2)
 	tb.Update()
 	wantscreen = makeChars(White, "z ab    cd e")
 	wantscreen[1] = ' '
