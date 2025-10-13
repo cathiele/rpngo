@@ -26,7 +26,7 @@ const (
 	CTRL_KEY      byte = 0xA5
 	DEL_KEY       byte = 0xd4
 	END_KEY       byte = 0xd5
-	ESC_KEY       byte = 0xb1 // currently unused
+	ESC_KEY       byte = 0xb1
 	F1_KEY        byte = 0x81
 	F2_KEY        byte = 0x82
 	F3_KEY        byte = 0x83
@@ -127,9 +127,15 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 	case RIGHT_KEY:
 		return kbd.ifNoModifiers(key.KEY_RIGHT)
 	case UP_KEY:
-		return kbd.ifNoModifiers(key.KEY_UP)
+		if kbd.ctrlDown || kbd.altDown {
+			return key.KEY_PAGEUP, nil
+		}
+		return key.KEY_UP, nil
 	case DOWN_KEY:
-		return kbd.ifNoModifiers(key.KEY_DOWN)
+		if kbd.ctrlDown || kbd.altDown {
+			return key.KEY_PAGEDOWN, nil
+		}
+		return key.KEY_DOWN, nil
 	case BACKSPACE_KEY:
 		return kbd.ifNoModifiers(key.KEY_BACKSPACE)
 	case DEL_KEY:
@@ -140,6 +146,8 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 		return kbd.ifNoModifiers(key.KEY_END)
 	case HOME_KEY:
 		return kbd.ifNoModifiers(key.KEY_HOME)
+	case ESC_KEY:
+		return kbd.ifNoModifiers(27)
 	default:
 		if k < 0x80 {
 			return kbd.ifNoModifiers(key.Key(k))
