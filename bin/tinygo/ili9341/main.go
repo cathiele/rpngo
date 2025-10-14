@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-const scrollbytes = 32 * 1024
+const scrollbytes = 8 * 1024
 
 func main() {
 	if err := run(); err != nil {
