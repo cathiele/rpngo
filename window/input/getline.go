@@ -170,8 +170,6 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 			idx = 0
 		case '\t':
 			idx = gl.tabComplete(r, idx)
-		case key.KEY_PAGEDOWN:
-			fallthrough
 		case 27: // ESCAPE key
 			gl.enterScrollingMode(0)
 		case key.KEY_PAGEUP:
@@ -286,10 +284,11 @@ func (gl *getLine) pageDelta() int {
 
 func (gl *getLine) enterScrollingMode(delta int) {
 	gl.txtb.Cursor(false)
-	scrollDelta := gl.maybeScroll(0, delta)
+	scrollDelta, _ := gl.maybeScroll(0, delta)
 	if scrollDelta == 0 {
 		gl.drawScrollingBanner(true)
 	}
+	var exit bool
 	for {
 		c, err := gl.input.GetChar()
 		if err != nil {
@@ -299,22 +298,25 @@ func (gl *getLine) enterScrollingMode(delta int) {
 		case 'k':
 			fallthrough
 		case key.KEY_UP:
-			scrollDelta = gl.maybeScroll(scrollDelta, -1)
+			scrollDelta, exit = gl.maybeScroll(scrollDelta, -1)
 		case 'j':
 			fallthrough
 		case key.KEY_DOWN:
-			scrollDelta = gl.maybeScroll(scrollDelta, 1)
+			scrollDelta, exit = gl.maybeScroll(scrollDelta, 1)
 		case key.KEY_PAGEUP:
-			scrollDelta = gl.maybeScroll(scrollDelta, -gl.pageDelta())
+			scrollDelta, exit = gl.maybeScroll(scrollDelta, -gl.pageDelta())
 		case ' ':
 			fallthrough
 		case key.KEY_PAGEDOWN:
-			scrollDelta = gl.maybeScroll(scrollDelta, gl.pageDelta())
+			scrollDelta, exit = gl.maybeScroll(scrollDelta, gl.pageDelta())
 		case 27:
 			fallthrough
 		case '\n':
 			fallthrough
 		case 'q':
+			exit = true
+		}
+		if exit {
 			gl.txtb.Scroll(-scrollDelta)
 			gl.txtb.Update()
 			gl.txtb.Cursor(true)
@@ -324,21 +326,21 @@ func (gl *getLine) enterScrollingMode(delta int) {
 	}
 }
 
-func (gl *getLine) maybeScroll(scrollDelta int, delta int) int {
+func (gl *getLine) maybeScroll(scrollDelta int, delta int) (int, bool) {
 	newDelta := scrollDelta + delta
 	maxDelta := gl.txtb.BufferLines() - gl.txtb.Txtw.TextHeight()
 	if newDelta < -maxDelta {
 		newDelta = -maxDelta
 	}
 	if newDelta > 0 {
-		newDelta = 0
+		return 0, true
 	}
 	if newDelta != scrollDelta {
 		gl.txtb.Scroll(newDelta - scrollDelta)
 		gl.txtb.Update()
 		gl.drawScrollingBanner(true)
 	}
-	return newDelta
+	return newDelta, false
 }
 
 // Here we draw directly on the text window (white text, blue background)
