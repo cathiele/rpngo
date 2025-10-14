@@ -1,4 +1,4 @@
-//go:build pico
+//go:build pico || pico2
 
 package ili9341
 
@@ -11,10 +11,10 @@ import (
 
 // InitDisplay initializes the display of each board.
 func InitDisplay() *ili9341.Device {
-	machine.SPI0.Configure(machine.SPIConfig{
-		SCK:       machine.SPI0_SCK_PIN,
-		SDO:       machine.SPI0_SDO_PIN,
-		SDI:       machine.SPI0_SDI_PIN,
+	machine.SPI1.Configure(machine.SPIConfig{
+		SCK:       machine.GP10,
+		SDO:       machine.GP11,
+		SDI:       machine.GP12,
 		Frequency: 40000000,
 	})
 
@@ -23,10 +23,10 @@ func InitDisplay() *ili9341.Device {
 	backlight.Configure(machine.PinConfig{machine.PinOutput})
 
 	display := ili9341.NewSPI(
-		machine.SPI0,
-		machine.GP10, // LCD_DC,
-		machine.GP11, // LCD_SS_PIN,
-		machine.GP12, // LCD_RESET,
+		machine.SPI1,
+		machine.GP14, // LCD_DC,
+		machine.GP13, // LCD_SS_PIN,
+		machine.GP15, // LCD_RESET,
 	)
 
 	display.Configure(ili9341.Config{})
