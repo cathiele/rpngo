@@ -13,6 +13,8 @@ const (
 	NORMAL TermState = iota
 	ESC
 	ARROW
+	PAGEUP
+	PAGEDOWN
 )
 
 /* Make this optional later
@@ -66,6 +68,20 @@ func (sc *SerialConsole) GetChar() key.Key {
 			return key.KEY_RIGHT
 		case 'D':
 			return key.KEY_LEFT
+		case '5':
+			sc.state = PAGEUP
+		case '6':
+			sc.state = PAGEDOWN
+		}
+	case PAGEUP:
+		sc.state = NORMAL
+		if c == 126 {
+			return key.KEY_PAGEUP
+		}
+	case PAGEDOWN:
+		sc.state = NORMAL
+		if c == 126 {
+			return key.KEY_PAGEDOWN
 		}
 	}
 	return 0
