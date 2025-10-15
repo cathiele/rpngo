@@ -71,13 +71,18 @@ func (gl *getLine) loadHistory() {
 	}
 	for _, line := range strings.Split(string(data), "\n") {
 		line := strings.TrimSpace(line)
-		if len(line) > 0 {
-			hidx := gl.historyCount % MAX_HISTORY_LINES
-			for _, c := range line {
-				gl.history[hidx] = append(gl.history[hidx], byte(c))
-			}
-			gl.historyCount++
+		if len(line) == 0 {
+			continue
 		}
+		hidx := gl.historyCount % MAX_HISTORY_LINES
+		if len(gl.history[hidx]) > 0 {
+			// history has wrapped the internal buffer
+			gl.history[hidx] = gl.history[hidx][:0]
+		}
+		for _, c := range line {
+			gl.history[hidx] = append(gl.history[hidx], byte(c))
+		}
+		gl.historyCount++
 	}
 }
 
@@ -244,7 +249,14 @@ func (gl *getLine) addToHistory() {
 	if gl.historyCount > 0 && bytes.Equal(gl.history[(gl.historyCount-1)%MAX_HISTORY_LINES], gl.line) {
 		return
 	}
+	if len(gl.line) == 0 {
+		// line is empty
+		return
+	}
 	hidx := gl.historyCount % MAX_HISTORY_LINES
+	if len(gl.history[hidx]) > 0 {
+		gl.history[hidx] = gl.history[hidx][:0]
+	}
 	for _, b := range gl.line {
 		gl.history[hidx] = append(gl.history[hidx], b)
 	}
