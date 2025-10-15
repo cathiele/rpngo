@@ -120,7 +120,7 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 	gl.line = gl.line[:0]
 	idx := 0
 	// how many steps back into history, with 0 being not in history
-	historyIdx := 0
+	arrowKeyIdx := 0
 	for {
 		c, err := gl.input.GetChar()
 		if err != nil {
@@ -138,17 +138,9 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 				gl.txtb.Shift(1)
 			}
 		case key.KEY_UP:
-			if historyIdx < gl.historyCount && historyIdx <= MAX_HISTORY_LINES {
-				historyIdx++
-				gl.replaceLineWithHistory(historyIdx, idx)
-				idx = len(gl.line)
-			}
+			arrowKeyIdx, idx = gl.replaceLineWithHistory(arrowKeyIdx, 1, idx)
 		case key.KEY_DOWN:
-			if historyIdx > 0 {
-				historyIdx--
-				gl.replaceLineWithHistory(historyIdx, idx)
-				idx = len(gl.line)
-			}
+			arrowKeyIdx, idx = gl.replaceLineWithHistory(arrowKeyIdx, -1, idx)
 		case key.KEY_BACKSPACE:
 			if idx > 0 {
 				idx--
@@ -274,9 +266,22 @@ func (gl *getLine) addToHistory() {
 	}
 }
 
-func (gl *getLine) replaceLineWithHistory(historyIdx int, idx int) {
+func (gl *getLine) replaceLineWithHistory(arrowKeyIdx int, delta int, idx int) (int, int) {
+	// copy the current line to the current index so we can go back to it
+	oldidx := (gl.historyCount - arrowKeyIdx) % MAX_HISTORY_LINES
+	if len(gl.history[oldidx]) > 0 {
+		gl.history[oldidx] = gl.history[oldidx][:0]
+	}
+	for _, c := range gl.line {
+		gl.history[oldidx] = append(gl.history[oldidx], c)
+	}
+	arrowKeyIdx += delta
+	if (arrowKeyIdx >= gl.historyCount) || (arrowKeyIdx >= MAX_HISTORY_LINES) || (arrowKeyIdx < 0) {
+		arrowKeyIdx -= delta
+		return arrowKeyIdx, idx
+	}
 	oldlen := len(gl.line)
-	newl := gl.history[(gl.historyCount-historyIdx)%MAX_HISTORY_LINES]
+	newl := gl.history[(gl.historyCount-arrowKeyIdx)%MAX_HISTORY_LINES]
 	// remove the existing line
 	gl.txtb.Shift(-idx)
 	for i := 0; i < oldlen; i++ {
@@ -288,6 +293,7 @@ func (gl *getLine) replaceLineWithHistory(historyIdx int, idx int) {
 	for _, b := range newl {
 		gl.line = append(gl.line, b)
 	}
+	return arrowKeyIdx, len(gl.line)
 }
 
 func (gl *getLine) pageDelta() int {
