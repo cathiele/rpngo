@@ -39,6 +39,8 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 		}
 		switch c {
 		case 27: // ESC
+			tw, th := iw.txtb.Txtw.TextSize()
+			iw.txtb.RefreshArea(0, 0, tw, th)
 			return r.PushString(string(ed.buff))
 		}
 	}
