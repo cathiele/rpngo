@@ -1,20 +1,19 @@
-package shell
+package fileops
 
 import (
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
-	"os"
 )
 
 const SourceHelp = "Loads the given path and executes commands within it.\n" +
 	"Example: 'myfile.txt' source"
 
-func Source(r *rpn.RPN) error {
+func (fo *FileOps) Source(r *rpn.RPN) error {
 	path, err := r.PopString()
 	if err != nil {
 		return err
 	}
-	data, err := os.ReadFile(path)
+	data, err := fo.driver.ReadFile(path)
 	if err != nil {
 		return err
 	}

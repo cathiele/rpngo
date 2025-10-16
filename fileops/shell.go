@@ -1,4 +1,6 @@
-package shell
+//go:build !pico && !pico2
+
+package fileops
 
 import (
 	"io"
@@ -16,7 +18,7 @@ variables control the behavior:
 .stdin  - If set, the contents will be sent to stdin of the process
 .stdout - If empty or false, stdout/stderr is simply printed.  
           If set to true, stdout/stderr is pushed to the stack
-.env    - If set, environment variabls will be set using KEY=VALUE with
+.env    - If set, environment variables will be set using KEY=VALUE with
           one variable per line
 
 The exit code of the shell command is set to the variable $rc.

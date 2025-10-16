@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"log"
 	"mattwach/rpngo/drivers/curses"
+	"mattwach/rpngo/drivers/posix"
+	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/rpn"
-	"mattwach/rpngo/shell"
 	"mattwach/rpngo/startup"
 	"mattwach/rpngo/window"
 	"mattwach/rpngo/window/commands"
@@ -32,7 +33,8 @@ func run() error {
 	var r rpn.RPN
 	r.Init()
 	functions.RegisterAll(&r)
-	shell.Register(&r)
+	var fo fileops.FileOps
+	fo.InitAndRegister(&r, 65536, true, &posix.FileOpsDriver{})
 
 	if len(os.Args) > 1 {
 		return cli(&r)
