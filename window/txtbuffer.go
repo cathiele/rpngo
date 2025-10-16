@@ -154,6 +154,13 @@ func (tb *TextBuffer) Erase() {
 	tb.Update()
 }
 
+// stagees a character write to x, y with no speial handling
+// of characters or scrolling and no cursor position change.
+func (tb *TextBuffer) DrawChar(x, y int, c ColorChar) {
+	bidx := (tb.headidx + y*tb.bw + x) % len(tb.buffer)
+	tb.buffer[bidx] = c
+}
+
 func (tb *TextBuffer) Write(b byte, updatenow bool) error {
 	bidx := (tb.headidx + int(tb.cy)*tb.bw + int(tb.cx)) % len(tb.buffer)
 	if b != '\n' {

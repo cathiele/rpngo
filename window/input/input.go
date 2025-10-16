@@ -36,6 +36,7 @@ func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, scr
 	iw.showFrames = 1
 	r.Print = iw.Print
 	r.Input = iw.Input
+	r.Register("edit", iw.Edit, rpn.CatProg, EditHelp)
 }
 
 func (iw *InputWindow) Print(msg string) {
