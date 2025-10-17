@@ -12,6 +12,8 @@
 - M: Experiement with SD card or on-chip storage
 - S: Develop options for transferring data over serial 
 - M: Improve font
+- M: Create snapshot
+- M: Foreach, del
 
 ## Wishlist
 
