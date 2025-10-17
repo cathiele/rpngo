@@ -7,10 +7,12 @@ package main
 import (
 	"errors"
 	"log"
+	"mattwach/rpngo/bin/tinygo/tinyfs"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/picocalc/i2ckbd"
 	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
 	"mattwach/rpngo/drivers/tinygo/serialconsole"
+	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
@@ -48,6 +50,8 @@ func run(screen *ili948x.Ili948xScreen) error { // object allocated on the heap 
 	var r rpn.RPN          // object allocated on the heap: (OK)
 	r.Init()
 	functions.RegisterAll(&r)
+	var fo fileops.FileOps
+	fo.InitAndRegister(&r, 65536, &tinyfs.FileOpsDriver{})
 
 	var root window.WindowRoot
 	err := buildUI(&root, screen, &r)

@@ -46,7 +46,7 @@ func TestSource(t *testing.T) {
 			r.Init()
 			functions.RegisterAll(&r)
 			var fo FileOps
-			fo.InitAndRegister(&r, 65536, true, &posix.FileOpsDriver{})
+			fo.InitAndRegister(&r, 65536, &posix.FileOpsDriver{})
 			err := r.Exec([]string{"'" + filePath + "'", "source"})
 			if !errors.Is(err, d.wantErr) {
 				t.Errorf("err=%v, want: %v", err, d.wantErr)

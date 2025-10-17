@@ -34,7 +34,7 @@ func run() error {
 	r.Init()
 	functions.RegisterAll(&r)
 	var fo fileops.FileOps
-	fo.InitAndRegister(&r, 65536, true, &posix.FileOpsDriver{})
+	fo.InitAndRegister(&r, 65536, &posix.FileOpsDriver{})
 
 	if len(os.Args) > 1 {
 		return cli(&r)

@@ -7,9 +7,11 @@ package main
 import (
 	"errors"
 	"log"
+	"mattwach/rpngo/bin/tinygo/tinyfs"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/ili9341"
 	"mattwach/rpngo/drivers/tinygo/serialconsole"
+	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
@@ -38,6 +40,8 @@ func run() error {
 	var r rpn.RPN
 	r.Init()
 	functions.RegisterAll(&r)
+	var fo fileops.FileOps
+	fo.InitAndRegister(&r, 65536, &tinyfs.FileOpsDriver{})
 
 	var screen ili9341.Ili9341Screen
 	screen.Init()

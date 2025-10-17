@@ -3,12 +3,15 @@
 package tinyfs
 
 import (
+	"errors"
 	"machine"
-	"mattwach/rpngo/rpn"
+	"os"
 
 	"tinygo.org/x/drivers/sdcard"
 	"tinygo.org/x/tinyfs/fatfs"
 )
+
+var errNotADirectory = errors.New("not a directory")
 
 // Setp for a PicoCalc or hardware with the same SD Card Connection
 var spi = machine.SPI0
@@ -21,6 +24,9 @@ const csPin = machine.GP17
 type FileOpsDriver struct {
 	initErr error
 	fs      *fatfs.FATFS
+	// present working directory.  Must start wth
+	// '/' and not end with '/'
+	pwd string
 }
 
 func (fo *FileOpsDriver) Init() error {
@@ -33,6 +39,7 @@ func (fo *FileOpsDriver) Init() error {
 	fo.fs.Configure(&fatfs.Config{
 		SectorSize: 512,
 	})
+	fo.pwd = "/"
 	return nil
 }
 
@@ -40,7 +47,7 @@ func (fo *FileOpsDriver) FileSize(path string) (int, error) {
 	if fo.initErr != nil {
 		return 0, fo.initErr
 	}
-	s, err := fo.fs.Stat(path)
+	s, err := fo.fs.Stat(fo.absPath(path))
 	if err != nil {
 		return 0, err
 	}
@@ -51,7 +58,7 @@ func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
 	if fo.initErr != nil {
 		return nil, fo.initErr
 	}
-	f, err := fo.fs.Open(path)
+	f, err := fo.fs.Open(fo.absPath(path))
 	if err != nil {
 		return nil, err
 	}
@@ -74,16 +81,72 @@ func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
 }
 
 func (fo *FileOpsDriver) WriteFile(path string, data []byte) error {
-	// TODO: Implement
-	return rpn.ErrNotSupported
+	return fo.writeOrAppend(path, data, os.O_WRONLY)
 }
 
 func (fo *FileOpsDriver) AppendToFile(path string, data []byte) error {
-	// TODO: Implement
-	return rpn.ErrNotSupported
+	return fo.writeOrAppend(path, data, os.O_APPEND)
+}
+
+func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) error {
+	if fo.initErr != nil {
+		return fo.initErr
+	}
+	f, err := fo.fs.OpenFile(fo.absPath(path), flags)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	totalWritten := 0
+	for totalWritten < len(data) {
+		written, err := f.Write(data[totalWritten:])
+		if err != nil {
+			return err
+		}
+		totalWritten += written
+	}
+	return nil
 }
 
 func (fo *FileOpsDriver) Chdir(path string) error {
-	// TODO: Implement
-	return rpn.ErrNotSupported
+	newPath := fo.absPath(path)
+	if len(newPath) > 1 {
+		for path[len(newPath)-1] == '/' {
+			newPath = newPath[:len(newPath)-1]
+		}
+	}
+	s, err := fo.fs.Stat(newPath)
+	if err != nil {
+		return err
+	}
+	if !s.IsDir() {
+		return errNotADirectory
+	}
+	fo.pwd = "/" + newPath
+	return nil
+}
+
+// This doesn't handle more complex cases like /foo/bar/../baz
+// Maybe it can be reimplemented later.
+func (fo *FileOpsDriver) absPath(path string) string {
+	if (len(path) == 0) || (path == ".") {
+		return fo.pwd[1:]
+	}
+	if path == ".." {
+		return fo.parentOfPwd()[1:]
+	}
+	if path[0] == '/' {
+		return path[1:]
+	}
+	return fo.pwd + "/" + path
+}
+
+func (fo *FileOpsDriver) parentOfPwd() string {
+	lastSlashIdx := 0
+	for i, c := range fo.pwd {
+		if c == '/' {
+			lastSlashIdx = i
+		}
+	}
+	return fo.pwd[:lastSlashIdx]
 }

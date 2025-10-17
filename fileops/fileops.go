@@ -2,7 +2,11 @@ package fileops
 
 import (
 	"fmt"
+	"io"
+	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
+	"os/exec"
+	"strings"
 )
 
 type FileOpsDriver interface {
@@ -11,6 +15,7 @@ type FileOpsDriver interface {
 	WriteFile(path string, data []byte) error
 	AppendToFile(path string, data []byte) error
 	Chdir(path string) error
+	Shell(args []string, stdin io.Reader) (string, error)
 }
 
 type FileOps struct {
@@ -18,10 +23,10 @@ type FileOps struct {
 	driver      FileOpsDriver
 }
 
-func (fo *FileOps) InitAndRegister(r *rpn.RPN, maxFileSize int, shellAvailable bool, driver FileOpsDriver) {
+func (fo *FileOps) InitAndRegister(r *rpn.RPN, maxFileSize int, driver FileOpsDriver) {
 	fo.maxFileSize = maxFileSize
 	fo.driver = driver
-	fo.register(r, shellAvailable)
+	fo.register(r)
 }
 
 const LoadHelp = "Loads the given filename and places it on the stack as a string variable"
@@ -83,4 +88,82 @@ func (fo *FileOps) ChangeDir(r *rpn.RPN) error {
 		return err
 	}
 	return fo.driver.Chdir(path)
+}
+
+const ShellHelp = `Executes a string as a shell command.
+
+There are many ways to execute a shell command and the following special
+variables control the behavior:
+
+.stdin  - If set, the contents will be sent to stdin of the process
+.stdout - If empty or false, stdout/stderr is simply printed.  
+          If set to true, stdout/stderr is pushed to the stack
+.env    - If set, environment variables will be set using KEY=VALUE with
+          one variable per line
+
+The exit code of the shell command is set to the variable $rc.
+`
+
+func (f *FileOps) Shell(r *rpn.RPN) error {
+	s, err := r.PopString()
+	if err != nil {
+		return err
+	}
+	fields := make([]string, 16)
+	fields, err = parse.Fields(s, fields)
+	if err != nil {
+		return err
+	}
+	if len(fields) == 0 {
+		return rpn.ErrIllegalValue
+	}
+
+	stdin, err := checkStdinVar(r)
+	if err != nil {
+		return err
+	}
+
+	output, err := f.driver.Shell(fields, stdin)
+
+	rc := 0
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			rc = exitError.ExitCode()
+		} else {
+			rc = 1
+		}
+		r.Print("Error: " + err.Error() + " " + string(output) + "\n")
+	}
+	r.PushInt(int64(rc), rpn.INTEGER_FRAME)
+	r.SetVariable("rc")
+	if err == nil {
+		if err := setCmdOutput(r, string(output)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkStdinVar(r *rpn.RPN) (io.Reader, error) {
+	val, err := r.GetStringVariable(".stdin")
+	if err != nil {
+		return nil, nil
+	}
+	return strings.NewReader(val + "\n"), nil
+}
+
+func setCmdOutput(r *rpn.RPN, output string) error {
+	stack := false
+	stdout, err := r.GetVariable(".stdout")
+	if err == nil {
+		if stdout.Type != rpn.BOOL_FRAME {
+			return rpn.ErrExpectedABoolean
+		}
+		stack = stdout.Bool()
+	}
+	if stack {
+		return r.PushString(strings.TrimSpace(output))
+	}
+	r.Print(output)
+	return nil
 }
