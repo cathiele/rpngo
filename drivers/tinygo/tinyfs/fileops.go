@@ -4,6 +4,7 @@ package tinyfs
 
 import (
 	"errors"
+	"log"
 	"machine"
 	"os"
 
@@ -81,17 +82,21 @@ func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
 }
 
 func (fo *FileOpsDriver) WriteFile(path string, data []byte) error {
-	return fo.writeOrAppend(path, data, os.O_CREATE|os.O_WRONLY)
+	return fo.writeOrAppend(path, data, os.O_CREATE|os.O_WRONLY|os.O_TRUNC)
 }
 
 func (fo *FileOpsDriver) AppendToFile(path string, data []byte) error {
-	return fo.writeOrAppend(path, data, os.O_CREATE|os.O_APPEND)
+	return fo.writeOrAppend(path, data, os.O_APPEND)
 }
 
 func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) error {
 	if fo.initErr != nil {
 		return fo.initErr
 	}
+	for len(path) > 0 && path[0] == '/' {
+		path = path[1:]
+	}
+	log.Printf("Opening file %v", path)
 	f, err := fo.fs.OpenFile(fo.absPath(path), flags)
 	if err != nil {
 		return err
@@ -99,12 +104,14 @@ func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) erro
 	defer f.Close()
 	totalWritten := 0
 	for totalWritten < len(data) {
+		log.Printf("writing '%s'", data[totalWritten:])
 		written, err := f.Write(data[totalWritten:])
 		if err != nil {
 			return err
 		}
 		totalWritten += written
 	}
+	log.Printf("Wrote %v bytes", totalWritten)
 	return nil
 }
 

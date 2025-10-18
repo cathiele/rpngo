@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 )
 
@@ -23,6 +24,9 @@ var (
 // much mor robust with a real shell, of course).
 
 func (fo *FileOpsDriver) Shell(args []string, stdin io.Reader) (string, error) {
+	if fo.initErr != nil {
+		return "", fo.initErr
+	}
 	if len(args) == 0 {
 		return "", nil
 	}
@@ -58,23 +62,28 @@ func (fo *FileOpsDriver) ls(args []string) (string, error) {
 		}
 	}
 	path = fo.absPath(path)
+	log.Printf("open %v", path)
 	dir, err := fo.fs.Open(path)
 	if err != nil {
 		return "", err
 	}
 	defer dir.Close()
+	log.Println("read dir")
 	infos, err := dir.Readdir(0)
 	if err != nil {
 		return "", err
 	}
+	log.Println("for loop")
 	buff := make([]byte, 0, 128)
 	for _, info := range infos {
+		log.Printf("infp %+v", info)
 		if longMode {
 			buff = appendLongInfo(buff, info)
 		} else {
 			buff = appendShortInfo(buff, info)
 		}
 	}
+	log.Println("done")
 	return string(buff), nil
 }
 

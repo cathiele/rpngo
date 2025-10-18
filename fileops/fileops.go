@@ -62,7 +62,7 @@ func (fo *FileOps) Save(r *rpn.RPN) error {
 		r.PushString(path)
 		return err
 	}
-	return fo.driver.WriteFile(path, []byte(data.String(false)+"\n"))
+	return fo.driver.WriteFile(path, []byte(data.String(false)))
 }
 
 const AppendHelp = "Uses $0 as the filename to append the contents of $1  Both are popped from the stack.  No '\\n' character is added."
