@@ -61,7 +61,7 @@ func (fo *FileOpsDriver) ls(args []string) (string, error) {
 			return "", fmt.Errorf("unknown flag: %v", arg)
 		}
 	}
-	path = fo.absPath(path)
+	path = absPath(fo.pwd, path, true, false)
 	log.Printf("open %v", path)
 	dir, err := fo.fs.Open(path)
 	if err != nil {
@@ -108,5 +108,5 @@ func (fo *FileOpsDriver) getpwd(args []string) (string, error) {
 	if len(args) != 0 {
 		return "", errArgsNotSupported
 	}
-	return fo.pwd + "\n", nil
+	return "/" + fo.pwd + "\n", nil
 }
