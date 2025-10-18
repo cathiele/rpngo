@@ -276,7 +276,7 @@ func (gl *getLine) replaceLineWithHistory(arrowKeyIdx int, delta int, idx int) (
 		gl.history[oldidx] = append(gl.history[oldidx], c)
 	}
 	arrowKeyIdx += delta
-	if (arrowKeyIdx >= gl.historyCount) || (arrowKeyIdx >= MAX_HISTORY_LINES) || (arrowKeyIdx < 0) {
+	if (arrowKeyIdx > gl.historyCount) || (arrowKeyIdx >= MAX_HISTORY_LINES) || (arrowKeyIdx < 0) {
 		arrowKeyIdx -= delta
 		return arrowKeyIdx, idx
 	}
