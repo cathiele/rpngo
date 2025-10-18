@@ -7,10 +7,10 @@ package main
 import (
 	"errors"
 	"log"
-	"mattwach/rpngo/bin/tinygo/tinyfs"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/ili9341"
 	"mattwach/rpngo/drivers/tinygo/serialconsole"
+	"mattwach/rpngo/drivers/tinygo/tinyfs"
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
