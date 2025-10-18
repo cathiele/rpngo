@@ -82,11 +82,15 @@ func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
 }
 
 func (fo *FileOpsDriver) WriteFile(path string, data []byte) error {
+	// Note, the tiyfs fat driver is very picky that all three of these are
+	// set or it falls back to read mode.
 	return fo.writeOrAppend(path, data, os.O_CREATE|os.O_WRONLY|os.O_TRUNC)
 }
 
 func (fo *FileOpsDriver) AppendToFile(path string, data []byte) error {
-	return fo.writeOrAppend(path, data, os.O_APPEND)
+	// Note, the tiyfs fat driver is very picky that all three of these are
+	// set or it falls back to read mode.
+	return fo.writeOrAppend(path, data, os.O_WRONLY|os.O_CREATE|os.O_APPEND)
 }
 
 func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) error {
