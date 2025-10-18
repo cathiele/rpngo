@@ -11,6 +11,7 @@ import (
 
 var (
 	errArgsNotSupported       = errors.New("args not supported")
+	errEmptyArgument          = errors.New("empty argument")
 	errOnlyOnePathIsSupported = errors.New("only one path is supported")
 	errUnknownCommand         = errors.New("unknown command")
 )
@@ -22,6 +23,9 @@ var (
 // much mor robust with a real shell, of course).
 
 func (fo *FileOpsDriver) Shell(args []string, stdin io.Reader) (string, error) {
+	if len(args) == 0 {
+		return "", nil
+	}
 	var val string
 	var err error
 	switch args[0] {
@@ -40,7 +44,9 @@ func (fo *FileOpsDriver) ls(args []string) (string, error) {
 	path := ""
 	longMode := false
 	for _, arg := range args {
-		if arg[0] != '-' {
+		if arg == "" {
+			return "", errEmptyArgument
+		} else if arg[0] != '-' {
 			if len(path) > 0 {
 				return "", errOnlyOnePathIsSupported
 			}
@@ -93,5 +99,5 @@ func (fo *FileOpsDriver) getpwd(args []string) (string, error) {
 	if len(args) != 0 {
 		return "", errArgsNotSupported
 	}
-	return fo.pwd, nil
+	return fo.pwd + "\n", nil
 }

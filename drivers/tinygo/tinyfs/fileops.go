@@ -81,11 +81,11 @@ func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
 }
 
 func (fo *FileOpsDriver) WriteFile(path string, data []byte) error {
-	return fo.writeOrAppend(path, data, os.O_WRONLY)
+	return fo.writeOrAppend(path, data, os.O_CREATE|os.O_WRONLY)
 }
 
 func (fo *FileOpsDriver) AppendToFile(path string, data []byte) error {
-	return fo.writeOrAppend(path, data, os.O_APPEND)
+	return fo.writeOrAppend(path, data, os.O_CREATE|os.O_APPEND)
 }
 
 func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) error {
@@ -111,7 +111,7 @@ func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) erro
 func (fo *FileOpsDriver) Chdir(path string) error {
 	newPath := fo.absPath(path)
 	if len(newPath) > 1 {
-		for path[len(newPath)-1] == '/' {
+		for newPath[len(newPath)-1] == '/' {
 			newPath = newPath[:len(newPath)-1]
 		}
 	}
@@ -122,7 +122,7 @@ func (fo *FileOpsDriver) Chdir(path string) error {
 	if !s.IsDir() {
 		return errNotADirectory
 	}
-	fo.pwd = "/" + newPath
+	fo.pwd = newPath
 	return nil
 }
 
@@ -130,13 +130,16 @@ func (fo *FileOpsDriver) Chdir(path string) error {
 // Maybe it can be reimplemented later.
 func (fo *FileOpsDriver) absPath(path string) string {
 	if (len(path) == 0) || (path == ".") {
-		return fo.pwd[1:]
+		return fo.pwd
 	}
 	if path == ".." {
-		return fo.parentOfPwd()[1:]
+		return fo.parentOfPwd()
 	}
 	if path[0] == '/' {
-		return path[1:]
+		return path
+	}
+	if fo.pwd == "/" {
+		return fo.pwd + path
 	}
 	return fo.pwd + "/" + path
 }
@@ -147,6 +150,9 @@ func (fo *FileOpsDriver) parentOfPwd() string {
 		if c == '/' {
 			lastSlashIdx = i
 		}
+	}
+	if lastSlashIdx == 0 {
+		return "/"
 	}
 	return fo.pwd[:lastSlashIdx]
 }

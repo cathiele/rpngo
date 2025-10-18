@@ -41,7 +41,9 @@ func run() error {
 	r.Init()
 	functions.RegisterAll(&r)
 	var fo fileops.FileOps
-	fo.InitAndRegister(&r, 65536, &tinyfs.FileOpsDriver{})
+	var fod tinyfs.FileOpsDriver
+	_ = fod.Init()
+	fo.InitAndRegister(&r, 65536, &fod)
 
 	var screen ili9341.Ili9341Screen
 	screen.Init()

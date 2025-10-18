@@ -51,7 +51,9 @@ func run(screen *ili948x.Ili948xScreen) error { // object allocated on the heap 
 	r.Init()
 	functions.RegisterAll(&r)
 	var fo fileops.FileOps
-	fo.InitAndRegister(&r, 65536, &tinyfs.FileOpsDriver{})
+	var fod tinyfs.FileOpsDriver
+	_ = fod.Init()
+	fo.InitAndRegister(&r, 65536, &fod)
 
 	var root window.WindowRoot
 	err := buildUI(&root, screen, &r)
