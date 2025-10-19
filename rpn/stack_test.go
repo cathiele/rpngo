@@ -7,7 +7,7 @@ import (
 
 func TestLengthAndClear(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	r.Exec([]string{"1", "2", "3"})
 	if r.StackLen() != 3 {
 		t.Errorf("StackLen()=%v, want 3", r.StackLen())
@@ -20,7 +20,7 @@ func TestLengthAndClear(t *testing.T) {
 
 func TestPush(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	f := StringFrame("foo")
 	err := r.PushFrame(f)
 	if err != nil {
@@ -36,7 +36,7 @@ func TestPush(t *testing.T) {
 
 func TestPopFrame(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	_, err := r.PopFrame()
 	if err != ErrStackEmpty {
 		t.Errorf("err: %v, want: ErrStackEmpty", err)
@@ -57,7 +57,7 @@ func TestPopFrame(t *testing.T) {
 
 func TestPop2Frames(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	_, _, err := r.Pop2Frames()
 	if err != ErrStackEmpty {
 		t.Errorf("err: %v, want: ErrStackEmpty", err)
@@ -83,7 +83,7 @@ func TestPop2Frames(t *testing.T) {
 
 func TestPeekFrame(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	r.PushFrame(StringFrame("foo"))
 	r.PushFrame(StringFrame("bar"))
 	_, err := r.PeekFrame(-1)
@@ -116,7 +116,7 @@ func TestPeekFrame(t *testing.T) {
 
 func TestDeleteFrame(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	r.PushFrame(StringFrame("foo"))
 	r.PushFrame(StringFrame("bar"))
 	r.PushFrame(StringFrame("baz"))
@@ -165,7 +165,7 @@ func TestDeleteFrame(t *testing.T) {
 
 func TestInsertFrame(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	err := r.InsertFrame(Frame{}, -1)
 	wantErr := ErrIllegalValue
 	if err != wantErr {

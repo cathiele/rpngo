@@ -18,7 +18,7 @@ var fields []string = make([]string, 128)
 func main() {
 	time.Sleep(2 * time.Second)
 	var r rpn.RPN // object allocated on the heap (OK)
-	r.Init()
+	r.Init(256)
 	functions.RegisterAll(&r)
 
 	fmt.Println("Type ? for help or topic? for more detailed help")

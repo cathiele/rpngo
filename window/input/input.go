@@ -157,8 +157,10 @@ func (iw *InputWindow) GetProp(name string) (rpn.Frame, error) {
 	return rpn.Frame{}, rpn.ErrNotSupported
 }
 
+var inputProps = []string{"showframes"}
+
 func (iw *InputWindow) ListProps() []string {
-	return []string{"showframes"}
+	return inputProps
 }
 
 var fields = make([]string, 128)

@@ -18,7 +18,7 @@ func UnitTestExecAll(t *testing.T, data []UnitTestExecData, prepfn func(*RPN)) {
 	t.Helper()
 	for _, d := range data {
 		var r RPN
-		r.Init()
+		r.Init(256)
 		if prepfn != nil {
 			prepfn(&r)
 		}

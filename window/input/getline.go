@@ -43,7 +43,7 @@ func initGetLine(input Input, txtb *window.TextBuffer) *getLine {
 		input:          input,
 		txtb:           txtb,
 		historyCount:   0,
-		namesAndValues: make([]rpn.NameAndValues, 0, 16),
+		namesAndValues: make([]rpn.NameAndValues, 0, 16), // object allocated on the heap: object size 320 exceeds maximum stack allocation size 256
 	}
 	gl.loadHistory()
 	gl.prepareHistory()
@@ -105,11 +105,11 @@ func (gl *getLine) prepareHistory() {
 		line := gl.history[i%MAX_HISTORY_LINES]
 		_, err := gl.historyFile.Write(line)
 		if err != nil {
-			log.Printf("error writing exsiting history: %v", err)
+			log.Printf("error writing exsiting history: %v", err) // object allocated on the heap: escapes at line 108
 		}
 		_, err = gl.historyFile.Write([]byte{'\n'})
 		if err != nil {
-			log.Printf("error writing exsiting history cr: %v", err)
+			log.Printf("error writing exsiting history cr: %v", err) // object allocated on the heap: escapes at line 112
 		}
 	}
 }

@@ -5,8 +5,6 @@ import (
 	"sort"
 )
 
-const MaxStackDepth = 4096
-
 // RPN is the main structure
 type RPN struct {
 	Frames    []Frame
@@ -23,10 +21,11 @@ type RPN struct {
 }
 
 // Init initializes an RPNCalc object
-func (r *RPN) Init() {
+func (r *RPN) Init(maxStackDepth int) {
 	r.Clear()
+	r.Frames = make([]Frame, 0, maxStackDepth) // object allocated on the heap: (OK)
 	r.functions = make(map[string]func(*RPN) error)
-	r.variables = []map[string]Frame{make(map[string]Frame)} // object allocated on the heap: escapes at line 51 (OK)
+	r.variables = []map[string]Frame{make(map[string]Frame)} // object allocated on the heap (OK)
 	r.initHelp()
 	r.Register("ssize", stackSize, CatStack, stackSizeHelp)
 	r.Register("spush", pushStack, CatStack, pushStackHelp)

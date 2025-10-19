@@ -129,7 +129,7 @@ func (fo *FileOps) Shell(r *rpn.RPN) error {
 		return err
 	}
 	s := f.String(false)
-	fields := make([]string, 16)
+	fields := make([]string, 16)  // object allocated on the heap: escapes at line 133
 	fields, err = parse.Fields(s, fields)
 	if err != nil {
 		return err
