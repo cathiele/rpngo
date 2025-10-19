@@ -42,20 +42,20 @@ func (rpn *RPN) exec(arg string) error {
 		switch last {
 		case '"':
 			if arg[0] == '"' {
-				return rpn.PushString(arg[1 : len(arg)-1])
+				return rpn.PushFrame(StringFrame(arg[1 : len(arg)-1]))
 			}
 		case '\'':
 			if arg[0] == '\'' {
-				return rpn.PushString(arg[1 : len(arg)-1])
+				return rpn.PushFrame(StringFrame(arg[1 : len(arg)-1]))
 			}
 		case 'd':
-			return rpn.pushInt(arg[:len(arg)-1], 10, INTEGER_FRAME)
+			return rpn.parseAndPushInt(arg[:len(arg)-1], 10, INTEGER_FRAME)
 		case 'x':
-			return rpn.pushInt(arg[:len(arg)-1], 16, HEXIDECIMAL_FRAME)
+			return rpn.parseAndPushInt(arg[:len(arg)-1], 16, HEXIDECIMAL_FRAME)
 		case 'o':
-			return rpn.pushInt(arg[:len(arg)-1], 8, OCTAL_FRAME)
+			return rpn.parseAndPushInt(arg[:len(arg)-1], 8, OCTAL_FRAME)
 		case 'b':
-			return rpn.pushInt(arg[:len(arg)-1], 2, BINARY_FRAME)
+			return rpn.parseAndPushInt(arg[:len(arg)-1], 2, BINARY_FRAME)
 		}
 	}
 	if len(arg) > 0 && arg[len(arg)-1] == '?' {
@@ -64,7 +64,7 @@ func (rpn *RPN) exec(arg string) error {
 	if strings.Contains(arg, ">") {
 		return rpn.convert(arg)
 	}
-	return rpn.pushComplex(arg)
+	return rpn.parseAndPushComplex(arg)
 }
 
 func (rpn *RPN) Exec(args []string) error {
@@ -87,16 +87,16 @@ func highlightArg(args []string, idx int) string {
 	return strings.Join(parts, " ")
 }
 
-func (rpn *RPN) pushInt(arg string, base int, t FrameType) error {
+func (rpn *RPN) parseAndPushInt(arg string, base int, t FrameType) error {
 	v, err := strconv.ParseInt(arg, base, 64)
 	if err != nil {
 		return ErrSyntax
 	}
-	return rpn.PushInt(v, t)
+	return rpn.PushFrame(IntFrame(v, t))
 }
 
 // Pushes a float onto the stack
-func (rpn *RPN) pushComplex(arg string) error {
+func (rpn *RPN) parseAndPushComplex(arg string) error {
 	var v complex128
 	var err error
 
@@ -112,7 +112,7 @@ func (rpn *RPN) pushComplex(arg string) error {
 		}
 		v = complex(fv, 0)
 	}
-	return rpn.PushComplex(v)
+	return rpn.PushFrame(ComplexFrame(v))
 }
 
 // parses a complex string that contains an i
@@ -153,7 +153,11 @@ func parseComplexWithI(arg string) (complex128, error) {
 }
 
 func (r *RPN) convert(arg string) error {
-	v, err := r.PopReal()
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	v, err := f.Real()
 	if err != nil {
 		return err
 	}
@@ -162,5 +166,5 @@ func (r *RPN) convert(arg string) error {
 	if err != nil {
 		return err
 	}
-	return r.PushComplex(complex(newv, 0))
+	return r.PushFrame(RealFrame(newv))
 }

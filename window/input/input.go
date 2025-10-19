@@ -24,6 +24,7 @@ type InputWindow struct {
 	gl             *getLine
 	firstInput     bool
 	scrollbackMode bool
+	showFrames     int
 }
 
 func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, scrollbytes int) {
@@ -75,6 +76,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	if action {
 		frame, err := r.PeekFrame(0)
 		if err == nil {
+			iw.txtb.TextColor(window.Green)
 			iw.txtb.Print(frame.String(true), false)
 			iw.txtb.Write('\n', false)
 		} else if !errors.Is(err, rpn.ErrNotEnoughStackFrames) {
@@ -120,15 +122,27 @@ func (iw *InputWindow) Type() string {
 }
 
 func (iw *InputWindow) SetProp(name string, val rpn.Frame) error {
+	if name == "showframes" {
+		if val.Type == rpn.COMPLEX_FRAME {
+			val.Int = int64(real(val.Complex))
+		}
+		if (val.Int < 0) || (val.Int > MAX_SHOW_FRAMES) {
+			return rpn.ErrIllegalValue
+		}
+		iw.showFrames = int(val.Int)
+	}
 	return rpn.ErrNotSupported
 }
 
 func (iw *InputWindow) GetProp(name string) (rpn.Frame, error) {
+	if name == "showframes" {
+		return rpn.Frame{Type: rpn.INTEGER_FRAME, Int: int64(iw.showFrames)}, nil
+	}
 	return rpn.Frame{}, rpn.ErrNotSupported
 }
 
 func (iw *InputWindow) ListProps() []string {
-	return nil
+	return []string{"showframes"}
 }
 
 var fields = make([]string, 128)

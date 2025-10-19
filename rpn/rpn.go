@@ -7,27 +7,6 @@ import (
 
 const MaxStackDepth = 4096
 
-type FrameType uint8
-
-const (
-	EMPTY_FRAME FrameType = iota
-	STRING_FRAME
-	COMPLEX_FRAME
-	BOOL_FRAME
-	INTEGER_FRAME
-	HEXIDECIMAL_FRAME
-	OCTAL_FRAME
-	BINARY_FRAME
-)
-
-// Frame Defines a single stack frame
-type Frame struct {
-	Type    FrameType
-	Str     string
-	Complex complex128
-	Int     int64
-}
-
 // RPN is the main structure
 type RPN struct {
 	Frames    []Frame

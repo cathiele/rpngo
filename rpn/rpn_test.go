@@ -13,11 +13,11 @@ func TestInit(t *testing.T) {
 		t.Fatalf("want len(r.frames) = 4, got %v", len(r.Frames))
 	}
 	f := r.Frames[3]
-	if f.Type != INTEGER_FRAME {
-		t.Errorf("want frame.Type = INTEGER_FRAME, got %v", f.Type)
+	if f.ftype != INTEGER_FRAME {
+		t.Errorf("want frame.Type = INTEGER_FRAME, got %v", f.ftype)
 	}
-	if f.Int != 3 {
-		t.Errorf("want frame.Int = 3, got %v", f.Int)
+	if f.intv != 3 {
+		t.Errorf("want frame.Int = 3, got %v", f.intv)
 	}
 }
 
@@ -25,7 +25,7 @@ func TestRegister(t *testing.T) {
 	var r RPN
 	r.Init()
 	fn := func(r *RPN) error {
-		return r.PushInt(55, INTEGER_FRAME)
+		return r.PushFrame(IntFrame(55, INTEGER_FRAME))
 	}
 	r.Register("fiftyfive", fn, "helpcat", "helptxt")
 	err := r.Exec([]string{"fiftyfive"})
@@ -36,11 +36,11 @@ func TestRegister(t *testing.T) {
 		t.Fatalf("want len(r.frames) = 1, got %v", len(r.Frames))
 	}
 	f := r.Frames[0]
-	if f.Type != INTEGER_FRAME {
-		t.Errorf("want frame.Type = INTEGER_FRAME, got %v", f.Type)
+	if f.ftype != INTEGER_FRAME {
+		t.Errorf("want frame.Type = INTEGER_FRAME, got %v", f.ftype)
 	}
-	if f.Int != 55 {
-		t.Errorf("want frame.Int = 55, got %v", f.Int)
+	if f.intv != 55 {
+		t.Errorf("want frame.Int = 55, got %v", f.intv)
 	}
 	if r.help["helpcat"]["fiftyfive"] != "helptxt" {
 		t.Errorf("want 'helptxt', got %v", r.help["helpcat"]["fiftyfive"])

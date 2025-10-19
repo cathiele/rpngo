@@ -162,25 +162,20 @@ func (r *RPN) GetStringVariable(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if v.Type != STRING_FRAME {
-		return "", ErrExpectedAString
-	}
-	return v.Str, nil
+	return v.String(false), nil
 }
 
 // gets a variable as a complex
 func (r *RPN) GetComplexVariable(name string) (complex128, error) {
-	v, err := r.GetVariable(name)
+	f, err := r.GetVariable(name)
 	if err != nil {
 		return 0, err
 	}
-	if v.Type == COMPLEX_FRAME {
-		return v.Complex, nil
+	v, err := f.Complex()
+	if err != nil {
+		return 0, err
 	}
-	if v.IsInt() {
-		return complex(float64(v.Int), 0), nil
-	}
-	return 0, ErrExpectedANumber
+	return v, nil
 }
 
 func (r *RPN) appendAllValuesForVariable(name string, values []Frame) []Frame {
@@ -191,11 +186,11 @@ func (r *RPN) appendAllValuesForVariable(name string, values []Frame) []Frame {
 			values = append(values, f)
 			lastVal = i
 		} else {
-			values = append(values, Frame{Type: EMPTY_FRAME})
+			values = append(values, EmptyFrame())
 		}
 	}
 	if len(values) == 0 {
-		values = append(values, Frame{Type: EMPTY_FRAME})
+		values = append(values, EmptyFrame())
 	}
 	return values[:lastVal+1]
 }
@@ -241,13 +236,9 @@ func (r *RPN) execVariableAsMacro(name string) error {
 	if err != nil {
 		return err
 	}
-	if f.Type == COMPLEX_FRAME {
-		// Just push the frame
-		return r.PushFrame(f)
-	}
 	// this call can be recursive so we need to allocate here
 	fields := make([]string, 16) // object allocated on the heap (OK)
-	fields, err = parse.Fields(f.Str, fields)
+	fields, err = parse.Fields(f.String(false), fields)
 	if err != nil {
 		return err
 	}

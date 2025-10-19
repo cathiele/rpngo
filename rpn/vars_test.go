@@ -168,10 +168,10 @@ func TestGetStringVariable(t *testing.T) {
 			wantErr: ErrNotFound,
 		},
 		{
-			name:    "not a string",
-			args:    []string{"5", "x="},
-			vname:   "x",
-			wantErr: ErrExpectedAString,
+			name:  "not a string",
+			args:  []string{"5", "x="},
+			vname: "x",
+			want:  "5",
 		},
 	}
 	for _, d := range data {
@@ -251,15 +251,15 @@ func TestAllVariableNamesAndValues(t *testing.T) {
 	want := []NameAndValues{
 		{
 			Name:   "a",
-			Values: []Frame{{Type: INTEGER_FRAME, Int: 1}, {Type: STRING_FRAME, Str: "foo"}},
+			Values: []Frame{IntFrame(1, INTEGER_FRAME), StringFrame("foo")},
 		},
 		{
 			Name:   "b",
-			Values: []Frame{{Type: INTEGER_FRAME, Int: 2}},
+			Values: []Frame{IntFrame(2, INTEGER_FRAME)},
 		},
 		{
 			Name:   "c",
-			Values: []Frame{{}, {Type: INTEGER_FRAME, Int: 3}},
+			Values: []Frame{{}, IntFrame(3, INTEGER_FRAME)},
 		},
 	}
 	var got []NameAndValues = make([]NameAndValues, 0, 16)
