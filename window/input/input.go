@@ -33,6 +33,7 @@ func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, scr
 	iw.txtb.Init(txtw, scrollbytes)
 	iw.gl = initGetLine(input, &iw.txtb)
 	iw.firstInput = true
+	iw.showFrames = 1
 	r.Print = iw.Print
 	r.Input = iw.Input
 }
@@ -56,7 +57,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 	r.TextWidth = iw.txtb.Txtw.TextWidth()
 	iw.txtb.Print("> ", true)
 	line, err := iw.gl.get(r)
-	iw.txtb.TextColor(window.Cyan)
+	iw.txtb.TextColor(window.Yellow)
 	if err != nil {
 		iw.txtb.PrintErr(err, true)
 		return nil
@@ -92,7 +93,7 @@ func (iw *InputWindow) printFrames(r *rpn.RPN) {
 	if count == 0 {
 		return
 	}
-	iw.txtb.TextColor(window.Green)
+	iw.txtb.TextColor(window.Cyan)
 	for i := 0; i < count; i++ {
 		f := r.Frames[len(r.Frames)-count+i]
 		iw.txtb.Print(f.String(true), false)
@@ -143,6 +144,7 @@ func (iw *InputWindow) SetProp(name string, val rpn.Frame) error {
 			return err
 		}
 		iw.showFrames = int(v)
+		return nil
 	}
 	return rpn.ErrNotSupported
 }
