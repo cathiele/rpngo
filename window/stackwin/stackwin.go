@@ -60,14 +60,11 @@ func (sw *StackWindow) Type() string {
 func (sw *StackWindow) SetProp(name string, val rpn.Frame) error {
 	switch name {
 	case "round":
-		if val.Type == rpn.COMPLEX_FRAME {
-			val.Type = rpn.INTEGER_FRAME
-			val.Int = int64(real(val.Complex))
+		v, err := val.BoundedInt(-1, 10)
+		if err != nil {
+			return err
 		}
-		if !val.IsInt() || (val.Int < -1) || (val.Int > 10) {
-			return rpn.ErrIllegalValue
-		}
-		sw.round = int8(val.Int)
+		sw.round = int8(v)
 		return nil
 	default:
 		return rpn.ErrUnknownProperty
@@ -77,7 +74,7 @@ func (sw *StackWindow) SetProp(name string, val rpn.Frame) error {
 func (sw *StackWindow) GetProp(name string) (rpn.Frame, error) {
 	switch name {
 	case "round":
-		return rpn.Frame{Type: rpn.INTEGER_FRAME, Int: int64(sw.round)}, nil
+		return rpn.IntFrame(int64(sw.round), rpn.INTEGER_FRAME), nil
 	default:
 		return rpn.Frame{}, rpn.ErrUnknownProperty
 	}
@@ -135,7 +132,7 @@ func (sw *StackWindow) Update(rpn *rpn.RPN) error {
 
 func (sw *StackWindow) roundedString(f rpn.Frame) string {
 	s := f.String(true)
-	if (f.Type != rpn.COMPLEX_FRAME) || (sw.round < 0) {
+	if !f.IsComplex() || (sw.round < 0) {
 		return s
 	}
 	sw.rsd.reset() // This is done to avoid heap allocations in tinygo

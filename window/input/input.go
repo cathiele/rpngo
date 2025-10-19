@@ -74,17 +74,30 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		return nil
 	}
 	if action {
-		frame, err := r.PeekFrame(0)
 		if err == nil {
-			iw.txtb.TextColor(window.Green)
-			iw.txtb.Print(frame.String(true), false)
-			iw.txtb.Write('\n', false)
+			iw.printFrames(r)
 		} else if !errors.Is(err, rpn.ErrNotEnoughStackFrames) {
 			iw.txtb.PrintErr(err, true)
 		}
 	}
 	iw.txtb.Update()
 	return nil
+}
+
+func (iw *InputWindow) printFrames(r *rpn.RPN) {
+	count := len(r.Frames)
+	if iw.showFrames < count {
+		count = iw.showFrames
+	}
+	if count == 0 {
+		return
+	}
+	iw.txtb.TextColor(window.Green)
+	for i := 0; i < count; i++ {
+		f := r.Frames[len(r.Frames)-count+i]
+		iw.txtb.Print(f.String(true), false)
+		iw.txtb.Write('\n', false)
+	}
 }
 
 func (iw *InputWindow) firstRun(r *rpn.RPN) error {
@@ -121,22 +134,22 @@ func (iw *InputWindow) Type() string {
 	return "input"
 }
 
+const MAX_SHOW_FRAMES = 1000
+
 func (iw *InputWindow) SetProp(name string, val rpn.Frame) error {
 	if name == "showframes" {
-		if val.Type == rpn.COMPLEX_FRAME {
-			val.Int = int64(real(val.Complex))
+		v, err := val.BoundedInt(0, MAX_SHOW_FRAMES)
+		if err != nil {
+			return err
 		}
-		if (val.Int < 0) || (val.Int > MAX_SHOW_FRAMES) {
-			return rpn.ErrIllegalValue
-		}
-		iw.showFrames = int(val.Int)
+		iw.showFrames = int(v)
 	}
 	return rpn.ErrNotSupported
 }
 
 func (iw *InputWindow) GetProp(name string) (rpn.Frame, error) {
 	if name == "showframes" {
-		return rpn.Frame{Type: rpn.INTEGER_FRAME, Int: int64(iw.showFrames)}, nil
+		return rpn.IntFrame(int64(iw.showFrames), rpn.INTEGER_FRAME), nil
 	}
 	return rpn.Frame{}, rpn.ErrNotSupported
 }

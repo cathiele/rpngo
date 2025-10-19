@@ -150,25 +150,33 @@ func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, color
 func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, steps uint32, fn func(x, y float64, coloridx uint8) error) error {
 	startlen := r.StackLen()
 	step := (pw.maxv - pw.minv) / float64(steps)
-	var x complex128
+	var x float64
 	for v := pw.minv; v <= pw.maxv; v += step {
-		if err := r.PushComplex(complex(v, 0)); err != nil {
+		if err := r.PushFrame(rpn.RealFrame(v)); err != nil {
 			return err
 		}
 		if err := r.Exec(plot.fn); err != nil {
 			return err
 		}
-		y, err := r.PopComplex()
+		yf, err := r.PopFrame()
+		if err != nil {
+			return err
+		}
+		y, err := yf.Real()
 		if err != nil {
 			return err
 		}
 		if plot.isParametric {
-			x, err = r.PopComplex()
+			xf, err := r.PopFrame()
+			if err != nil {
+				return err
+			}
+			x, err = xf.Real()
 			if err != nil {
 				return err
 			}
 		} else {
-			x = complex(v, 0)
+			x = v
 		}
 		nowlen := r.StackLen()
 		if nowlen != startlen {
@@ -177,9 +185,7 @@ func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, steps uint32, fn fu
 				startlen,
 				nowlen)
 		}
-		rx := real(x)
-		ry := real(y)
-		if err := fn(rx, ry, plot.coloridx); err != nil {
+		if err := fn(x, y, plot.coloridx); err != nil {
 			return err
 		}
 	}

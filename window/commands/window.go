@@ -69,11 +69,14 @@ func InitWindowCommands(
 const WUpdateHelp = "Updates the given window or window group"
 
 func (wc *WindowCommands) WUpdate(r *rpn.RPN) error {
-	name, err := r.PopString()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	return wc.root.UpdateByName(r, name)
+	if !f.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	return wc.root.UpdateByName(r, f.UnsafeString())
 }
 
 const WDumpHelp = "Dump the state of all created windows and groups"
@@ -86,11 +89,11 @@ func (wc *WindowCommands) WDump(r *rpn.RPN) error {
 const WResetHelp = "Resets window configuration to just a single input window"
 
 func (wc *WindowCommands) WReset(r *rpn.RPN) error {
-	r.PushString("root")
+	r.PushFrame(rpn.StringFrame("root"))
 	r.SetVariable(".wtarget")
-	r.PushBool(true)
+	r.PushFrame(rpn.BoolFrame(true))
 	r.SetVariable(".wend")
-	r.PushInt(100, rpn.INTEGER_FRAME)
+	r.PushFrame(rpn.IntFrame(100, rpn.INTEGER_FRAME))
 	r.SetVariable(".wweight")
 	iw := wc.root.FindWindow("i")
 	if iw == nil {
@@ -106,11 +109,14 @@ const WColumnsHelp = "Sets a window group layout to column mode\n" +
 	"Example: 'g1' w.columns"
 
 func (wc *WindowCommands) WColumns(r *rpn.RPN) error {
-	name, err := r.PopString()
+	name, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	if err := wc.root.UseColumnLayout(name, true); err != nil {
+	if !name.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	if err := wc.root.UseColumnLayout(name.UnsafeString(), true); err != nil {
 		return err
 	}
 	return nil
@@ -120,33 +126,42 @@ const WDeleteHelp = "Deletes a window or window group\n" +
 	"Example: 'p1' w.del"
 
 func (wc *WindowCommands) WDelete(r *rpn.RPN) error {
-	name, err := r.PopString()
+	name, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	return wc.root.DeleteWindowOrGroup(name)
+	if !name.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	return wc.root.DeleteWindowOrGroup(name.UnsafeString())
 }
 
 const WMoveBegHelp = "Moves a window or group to the beginning of a window group\n" +
 	"Example: 's1' 'root' w.move.beg"
 
 func (wc *WindowCommands) WMoveBeg(r *rpn.RPN) error {
-	src, dst, err := r.Pop2Strings()
+	src, dst, err := r.Pop2Frames()
 	if err != nil {
 		return err
 	}
-	return wc.root.MoveWindowOrGroup(src, dst, true)
+	if !src.IsString() || !dst.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	return wc.root.MoveWindowOrGroup(src.UnsafeString(), dst.UnsafeString(), true)
 }
 
 const WMoveEndHelp = "Moves a window or group to the end of a window group\n" +
 	"Example: 's1' 'root' w.move.end"
 
 func (wc *WindowCommands) WMoveEnd(r *rpn.RPN) error {
-	src, dst, err := r.Pop2Strings()
+	src, dst, err := r.Pop2Frames()
 	if err != nil {
 		return err
 	}
-	return wc.root.MoveWindowOrGroup(src, dst, false)
+	if !src.IsString() || !dst.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	return wc.root.MoveWindowOrGroup(src.UnsafeString(), dst.UnsafeString(), false)
 }
 
 const WNewGroupHelp = "Creates a new window group with the given name and\n" +
@@ -215,15 +230,18 @@ func (wc *WindowCommands) newTextWindow(r *rpn.RPN) (window.TextWindow, string, 
 }
 
 func (wc *WindowCommands) newWindowNameFromStack(r *rpn.RPN) (string, error) {
-	name, err := r.PopString()
+	name, err := r.PopFrame()
 	if err != nil {
 		return "", err
 	}
-	existing := wc.root.FindWindow(name)
+	if !name.IsString() {
+		return "", rpn.ErrExpectedAString
+	}
+	existing := wc.root.FindWindow(name.UnsafeString())
 	if existing != nil {
 		return "", rpn.ErrWindowAlreadyExists
 	}
-	return name, nil
+	return name.UnsafeString(), nil
 }
 
 const WWeightHelp = "Changes the weight of a window or window group causing it\n" +
@@ -231,19 +249,22 @@ const WWeightHelp = "Changes the weight of a window or window group causing it\n
 	"Example: 's1' 20 w.weight"
 
 func (wc *WindowCommands) WWeight(r *rpn.RPN) error {
-	cw, err := r.PopComplex()
+	cw, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	w := int(real(cw))
-	name, err := r.PopString()
+	w, err := cw.Int()
 	if err != nil {
-		r.PushComplex(cw)
 		return err
 	}
-	if err := wc.root.SetWindowWeight(name, w); err != nil {
-		r.PushString(name)
-		r.PushComplex(cw)
+	name, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	if !name.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	if err := wc.root.SetWindowWeight(name.UnsafeString(), int(w)); err != nil {
 		return err
 	}
 	return nil

@@ -67,12 +67,15 @@ func (wc *PlotCommands) PPlot(r *rpn.RPN) error {
 }
 
 func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
-	macro, err := r.PopString()
+	macro, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
+	if !macro.IsString() {
+		return rpn.ErrExpectedAString
+	}
 	fields := make([]string, 32) // object allocated on the heap (OK)
-	fields, err = parse.Fields(macro, fields)
+	fields, err = parse.Fields(macro.UnsafeString(), fields)
 	if err != nil {
 		return err
 	}

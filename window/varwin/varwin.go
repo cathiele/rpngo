@@ -49,16 +49,18 @@ func (vw *VariableWindow) Type() string {
 func (vw *VariableWindow) SetProp(name string, val rpn.Frame) error {
 	switch name {
 	case "showdot":
-		if val.Type != rpn.BOOL_FRAME {
-			return rpn.ErrExpectedABoolean
+		v, err := val.Bool()
+		if err != nil {
+			return err
 		}
-		vw.showdot = val.Bool()
+		vw.showdot = v
 		return nil
 	case "multiline":
-		if val.Type != rpn.BOOL_FRAME {
-			return rpn.ErrExpectedABoolean
+		v, err := val.Bool()
+		if err != nil {
+			return err
 		}
-		vw.multiline = val.Bool()
+		vw.multiline = v
 		return nil
 	default:
 		return rpn.ErrUnknownProperty

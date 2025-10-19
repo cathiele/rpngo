@@ -37,7 +37,7 @@ func (fo *FileOps) Load(r *rpn.RPN) error {
 		return err
 	}
 	if !f.IsString() {
-		return ErrExpectedAString
+		return rpn.ErrExpectedAString
 	}
 	path := f.UnsafeString()
 	sz, err := fo.driver.FileSize(path)
@@ -62,7 +62,7 @@ func (fo *FileOps) Save(r *rpn.RPN) error {
 		return err
 	}
 	if !f.IsString() {
-		return ErrExpectedAString
+		return rpn.ErrExpectedAString
 	}
 	path := f.UnsafeString()
 	data, err := r.PopFrame()
@@ -81,7 +81,7 @@ func (fo *FileOps) Append(r *rpn.RPN) error {
 		return err
 	}
 	if !f.IsString() {
-		return ErrExpectedAString
+		return rpn.ErrExpectedAString
 	}
 	path := f.UnsafeString()
 	data, err := r.PopFrame()
@@ -100,7 +100,7 @@ func (fo *FileOps) ChangeDir(r *rpn.RPN) error {
 		return err
 	}
 	if !f.IsString() {
-		return ErrExpectedAString
+		return rpn.ErrExpectedAString
 	}
 	path := f.UnsafeString()
 	if err != nil {

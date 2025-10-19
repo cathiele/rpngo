@@ -113,7 +113,7 @@ func (wr *WindowRoot) addWindowGroupEntry(r *rpn.RPN, wge *windowGroupEntry) {
 	parent, err := wr.FindwindowGroup(parentname)
 	if err != nil {
 		// window not found, use the root group
-		fr := rpn.Frame{Type: rpn.STRING_FRAME, Str: "root"}
+		fr := rpn.StringFrame("root")
 		r.PushFrame(fr)
 		r.SetVariable(".wtarget")
 		parent = &wr.group
@@ -133,22 +133,23 @@ func determineWindowParms(r *rpn.RPN) (parentname string, addend bool, weight in
 
 	fr, err := r.GetVariable(".wend")
 	if err != nil {
-		fr = rpn.Frame{Type: rpn.BOOL_FRAME, Int: 1}
+		fr = rpn.BoolFrame(true)
 		r.PushFrame(fr)
 		r.SetVariable(".wend")
 	}
-	addend = fr.Bool()
+	addend, err = fr.Bool()
+	if err != nil {
+		addend = true
+	}
 
 	fr, err = r.GetVariable(".wweight")
 	if err != nil {
-		fr = rpn.Frame{Type: rpn.INTEGER_FRAME, Int: 100}
+		fr = rpn.IntFrame(100, rpn.INTEGER_FRAME)
 		r.PushFrame(fr)
 		r.SetVariable(".wweight")
 	}
-	if fr.Type == rpn.COMPLEX_FRAME {
-		fr.Int = int64(real(fr.Complex))
-	}
-	weight = int(fr.Int)
+	weight64, _ := fr.Int()
+	weight = int(weight64)
 	if weight < 10 {
 		weight = 10
 	} else if weight > 10000 {
@@ -227,7 +228,7 @@ func (wr *WindowRoot) Dump(r *rpn.RPN) {
 	fr, err := r.GetVariable(".wend")
 	if err != nil {
 		r.Print("true (unset)")
-	} else if fr.Type != rpn.BOOL_FRAME {
+	} else if !fr.IsBool() {
 		r.Print("true (not a bool)")
 	} else {
 		r.Print(fr.String(false))
@@ -237,7 +238,7 @@ func (wr *WindowRoot) Dump(r *rpn.RPN) {
 	fr, err = r.GetVariable(".wweight")
 	if err != nil {
 		r.Println("100 (unset)")
-	} else if (fr.Type == rpn.COMPLEX_FRAME) || (fr.IsInt()) {
+	} else if fr.IsNumber() {
 		r.Println(fr.String(false))
 	} else {
 		r.Println("100 (bad type)")

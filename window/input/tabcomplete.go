@@ -124,7 +124,7 @@ func (gl *getLine) allStringVariables(r *rpn.RPN) []string {
 	var wordList []string
 	gl.namesAndValues = r.AppendAllVariableNamesAndValues(gl.namesAndValues[:0])
 	for _, nv := range gl.namesAndValues {
-		if nv.Values[len(nv.Values)-1].Type == rpn.STRING_FRAME {
+		if nv.Values[len(nv.Values)-1].IsString() {
 			wordList = append(wordList, nv.Name)
 		}
 	}

@@ -8,11 +8,14 @@ const WListPHelp = "Prints all properties / values for a window\n" +
 	"Example 'p1' w.listp"
 
 func (wc *WindowCommands) WListP(r *rpn.RPN) error {
-	wname, err := r.PopString()
+	wname, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	w := wc.root.FindWindow(wname)
+	if !wname.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	w := wc.root.FindWindow(wname.UnsafeString())
 	if w == nil {
 		return rpn.ErrNotFound
 	}
@@ -33,15 +36,18 @@ const WGetPHelp = "Pushes the value of the given property to the stack.\n" +
 	"Example: 'p1' 'minx' w.getp"
 
 func (wc *WindowCommands) WGetP(r *rpn.RPN) error {
-	wname, pname, err := r.Pop2Strings()
+	wname, pname, err := r.Pop2Frames()
 	if err != nil {
 		return err
 	}
-	w := wc.root.FindWindow(wname)
+	if !wname.IsString() || !pname.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	w := wc.root.FindWindow(wname.UnsafeString())
 	if w == nil {
 		return rpn.ErrNotFound
 	}
-	f, err := w.GetProp(pname)
+	f, err := w.GetProp(pname.UnsafeString())
 	if err != nil {
 		return err
 	}
@@ -56,13 +62,16 @@ func (wc *WindowCommands) WSetP(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	wname, pname, err := r.Pop2Strings()
+	wname, pname, err := r.Pop2Frames()
 	if err != nil {
 		return err
 	}
-	w := wc.root.FindWindow(wname)
+	if !wname.IsString() || !pname.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	w := wc.root.FindWindow(wname.UnsafeString())
 	if w == nil {
 		return rpn.ErrNotFound
 	}
-	return w.SetProp(pname, f)
+	return w.SetProp(pname.UnsafeString(), f)
 }
