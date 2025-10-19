@@ -8,7 +8,7 @@ import (
 
 func TestExecInterrupted(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	r.Interrupt = func() bool { return true }
 	err := r.exec("5")
 	if !errors.Is(err, ErrInterrupted) {
@@ -251,7 +251,7 @@ func TestExec(t *testing.T) {
 	for _, d := range data {
 		t.Run(d.name, func(t *testing.T) {
 			var r RPN
-			r.Init()
+			r.Init(256)
 			r.Print = func(string) {}
 			err := r.Exec(d.args)
 			if !errors.Is(err, d.wantErr) {

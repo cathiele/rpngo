@@ -21,10 +21,13 @@ import (
 	"mattwach/rpngo/window/input"
 	"mattwach/rpngo/window/plotwin"
 	"os"
+	"runtime"
+	"strconv"
 	"time"
 )
 
 const scrollbytes = 8 * 1024
+const maxStackDepth = 256
 
 func main() {
 	if err := run(); err != nil {
@@ -36,29 +39,29 @@ func run() error {
 	time.Sleep(2 * time.Second)
 
 	log.SetOutput(os.Stdout)
-	log.Println("Started")
-	var r rpn.RPN
-	r.Init()
+	println("Started")
+	var r rpn.RPN // object allocated on the heap (OK)
+	r.Init(maxStackDepth)
 	functions.RegisterAll(&r)
-	var fo fileops.FileOps
-	var fod tinyfs.FileOpsDriver
+	var fo fileops.FileOps       // object allocated on the heap (OK)
+	var fod tinyfs.FileOpsDriver // object allocated on the heap (OK)
 	_ = fod.Init()
 	fo.InitAndRegister(&r, 65536, &fod)
 
-	var screen ili9341.Ili9341Screen
+	var screen ili9341.Ili9341Screen // object allocated on the heap (OK)
 	screen.Init()
-	var root window.WindowRoot
+	var root window.WindowRoot // object allocated on the heap (OK)
 	err := buildUI(&root, &screen, &r)
 	if err != nil {
 		return err
 	}
 	newPixelPlotWindow := func() (window.WindowWithProps, error) {
-		var ppw plotwin.PixelPlotWindow
+		var ppw plotwin.PixelPlotWindow // object allocated on the heap (OK)
 		pw, err := screen.NewPixelWindow()
 		if err != nil {
 			return nil, err
 		}
-		var pb pixelwinbuffer.PixelBuffer
+		var pb pixelwinbuffer.PixelBuffer // object allocated on the heap (OK)
 		pb.Init(pw)
 		ppw.Init(&pb)
 		return &ppw, nil
@@ -73,6 +76,7 @@ func run() error {
 		return err
 	}
 	for {
+		dumpMemStats()
 		w, h = screen.ScreenSize()
 		if err := root.Update(&r, w, h, true); err != nil {
 			if errors.Is(err, input.ErrExit) {
@@ -81,6 +85,17 @@ func run() error {
 			return err
 		}
 	}
+}
+
+func dumpMemStats() {
+	var ms runtime.MemStats
+	runtime.ReadMemStats(&ms)
+	print("alloc: ")
+	print(strconv.Itoa(int(ms.Alloc)))
+	print(" sys: ")
+	print(strconv.Itoa(int(ms.Sys)))
+	print(" free: ")
+	println(strconv.Itoa(int(ms.HeapIdle)))
 }
 
 func buildUI(root *window.WindowRoot, screen window.Screen, r *rpn.RPN) error {
@@ -97,8 +112,8 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	if err != nil {
 		return err
 	}
-	gi := &getInput{}
-	var iw input.InputWindow
+	gi := &getInput{}        // object allocated on the heap (OK)
+	var iw input.InputWindow // object allocated on the heap (OK)
 	iw.Init(gi, txtw, r, scrollbytes)
 	gi.lcd = txtw.(*ili9341.Ili9341TxtW)
 	root.AddWindowChildToRoot(&iw, "i", 100)

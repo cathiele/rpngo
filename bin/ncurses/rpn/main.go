@@ -20,6 +20,7 @@ import (
 )
 
 const scrollbytes = 256 * 1024
+const maxStackDepth = 1024
 
 func run() error {
 	os.RemoveAll("/tmp/rpngo.log")
@@ -31,7 +32,7 @@ func run() error {
 	log.SetOutput(logFile)
 	log.Println("Application started")
 	var r rpn.RPN
-	r.Init()
+	r.Init(maxStackDepth)
 	functions.RegisterAll(&r)
 	var fo fileops.FileOps
 	fo.InitAndRegister(&r, 65536, &posix.FileOpsDriver{})

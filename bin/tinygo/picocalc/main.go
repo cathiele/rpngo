@@ -25,7 +25,8 @@ import (
 	"time"
 )
 
-const scrollbytes = 32 * 1024
+const scrollbytes = 8 * 1024
+const maxStackDepth = 256
 
 func main() {
 	var screen ili948x.Ili948xScreen // object allocated on the heap (OK)
@@ -48,7 +49,7 @@ func run(screen *ili948x.Ili948xScreen) error { // object allocated on the heap 
 	log.SetOutput(os.Stdout)
 	log.Println("Started") // object allocated on the heap (OK)
 	var r rpn.RPN          // object allocated on the heap: (OK)
-	r.Init()
+	r.Init(maxStackDepth)
 	functions.RegisterAll(&r)
 	var fo fileops.FileOps
 	var fod tinyfs.FileOpsDriver

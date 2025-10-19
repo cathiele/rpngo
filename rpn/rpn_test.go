@@ -4,7 +4,7 @@ import "testing"
 
 func TestInit(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	err := r.Exec([]string{"11", "22", "33", "ssize"})
 	if err != nil {
 		t.Fatalf("r.Exec() err=%v", err)
@@ -23,7 +23,7 @@ func TestInit(t *testing.T) {
 
 func TestRegister(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	fn := func(r *RPN) error {
 		return r.PushFrame(IntFrame(55, INTEGER_FRAME))
 	}
@@ -49,7 +49,7 @@ func TestRegister(t *testing.T) {
 
 func TestAllFunctionNames(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	names := r.AllFunctionNames()
 	var found bool
 	for _, n := range names {
@@ -65,7 +65,7 @@ func TestAllFunctionNames(t *testing.T) {
 
 func TestPrintln(t *testing.T) {
 	var r RPN
-	r.Init()
+	r.Init(256)
 	var got string
 	r.Print = func(msg string) {
 		got = got + msg

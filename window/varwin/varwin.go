@@ -18,7 +18,7 @@ type VariableWindow struct {
 func (w *VariableWindow) Init(txtw window.TextWindow) {
 	w.txtb.Init(txtw, 0)
 	w.txtb.TextColor(window.White)
-	w.namesAndValues = make([]rpn.NameAndValues, 0, 16)
+	w.namesAndValues = make([]rpn.NameAndValues, 0, 16) // object allocated on the heap: (OK)
 }
 
 func (vw *VariableWindow) ResizeWindow(x, y, w, h int) error {

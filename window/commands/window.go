@@ -214,7 +214,7 @@ func (wc *WindowCommands) WNewVar(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	var vw varwin.VariableWindow
+	var vw varwin.VariableWindow // object allocated on the heap: (OK)
 	vw.Init(txtw)
 	wc.root.AddWindowChild(r, &vw, name)
 	return nil

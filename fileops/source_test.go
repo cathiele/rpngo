@@ -43,7 +43,7 @@ func TestSource(t *testing.T) {
 				}
 			}
 			var r rpn.RPN
-			r.Init()
+			r.Init(256)
 			functions.RegisterAll(&r)
 			var fo FileOps
 			fo.InitAndRegister(&r, 65536, &posix.FileOpsDriver{})
