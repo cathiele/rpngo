@@ -22,7 +22,6 @@ func TestDelay(t *testing.T) {
 		},
 		{
 			Args:    []string{"true", "delay"},
-			Want:    []string{"true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}

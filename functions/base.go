@@ -9,6 +9,23 @@ func convert(r *rpn.RPN, t rpn.FrameType) error {
 	if err != nil {
 		return err
 	}
+	if f.IsBool() {
+		if f.UnsafeBool() {
+			return r.PushFrame(rpn.IntFrame(1, t))
+		} else {
+			return r.PushFrame(rpn.IntFrame(0, t))
+		}
+	}
+	if f.IsString() {
+		err := r.Exec([]string{f.UnsafeString()})
+		if err != nil {
+			return err
+		}
+		f, err = r.PopFrame()
+		if err != nil {
+			return err
+		}
+	}
 	v, err := f.Int()
 	if err != nil {
 		return err
@@ -56,6 +73,23 @@ func Float(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
+	}
+	if f.IsBool() {
+		if f.UnsafeBool() {
+			return r.PushFrame(rpn.RealFrame(1))
+		} else {
+			return r.PushFrame(rpn.RealFrame(0))
+		}
+	}
+	if f.IsString() {
+		err := r.Exec([]string{f.UnsafeString()})
+		if err != nil {
+			return err
+		}
+		f, err = r.PopFrame()
+		if err != nil {
+			return err
+		}
 	}
 	v, err := f.Complex()
 	if err != nil {

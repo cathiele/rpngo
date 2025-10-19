@@ -9,12 +9,11 @@ func TestPower(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
 			Args:    []string{"**"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"2", "**"},
-			Want:    []string{"2"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args: []string{"2", "3", "**"},
@@ -34,12 +33,10 @@ func TestPower(t *testing.T) {
 		},
 		{
 			Args:    []string{"2", "true", "**"},
-			Want:    []string{"2", "true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"true", "2", "**"},
-			Want:    []string{"true", "2"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}
@@ -58,11 +55,10 @@ func TestSquareRoot(t *testing.T) {
 		},
 		{
 			Args: []string{"4d", "sqrt"},
-			Want: []string{"2"},
+			Want: []string{"2d"},
 		},
 		{
 			Args:    []string{"true", "sqrt"},
-			Want:    []string{"true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}
@@ -93,7 +89,6 @@ func TestAbs(t *testing.T) {
 		},
 		{
 			Args:    []string{"true", "abs"},
-			Want:    []string{"true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}
@@ -116,7 +111,6 @@ func TestSquare(t *testing.T) {
 		},
 		{
 			Args:    []string{"true", "sq"},
-			Want:    []string{"true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}
@@ -139,7 +133,6 @@ func TestLog(t *testing.T) {
 		},
 		{
 			Args:    []string{"true", "log"},
-			Want:    []string{"true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}
@@ -162,7 +155,6 @@ func TestLog10(t *testing.T) {
 		},
 		{
 			Args:    []string{"true", "log"},
-			Want:    []string{"true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}

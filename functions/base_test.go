@@ -20,8 +20,8 @@ func TestInt(t *testing.T) {
 			Want: []string{"1d"},
 		},
 		{
-			Args: []string{"3+4i", "int"},
-			Want: []string{"3d"},
+			Args:    []string{"3+4i", "int"},
+			WantErr: rpn.ErrComplexNumberNotSupported,
 		},
 		{
 			Args: []string{"3.14", "int"},
@@ -97,7 +97,6 @@ func TestInt(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "int"},
-			Want:    []string{"\"foo\""},
 			WantErr: rpn.ErrSyntax,
 		},
 	}
@@ -119,8 +118,8 @@ func TestBin(t *testing.T) {
 			Want: []string{"1b"},
 		},
 		{
-			Args: []string{"3+4i", "bin"},
-			Want: []string{"11b"},
+			Args:    []string{"3+4i", "bin"},
+			WantErr: rpn.ErrComplexNumberNotSupported,
 		},
 		{
 			Args: []string{"3.14", "bin"},
@@ -196,7 +195,6 @@ func TestBin(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "bin"},
-			Want:    []string{"\"foo\""},
 			WantErr: rpn.ErrSyntax,
 		},
 	}
@@ -218,8 +216,8 @@ func TestOctal(t *testing.T) {
 			Want: []string{"1o"},
 		},
 		{
-			Args: []string{"3+4i", "oct"},
-			Want: []string{"3o"},
+			Args:    []string{"3+4i", "oct"},
+			WantErr: rpn.ErrComplexNumberNotSupported,
 		},
 		{
 			Args: []string{"3.14", "oct"},
@@ -295,7 +293,6 @@ func TestOctal(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "oct"},
-			Want:    []string{"\"foo\""},
 			WantErr: rpn.ErrSyntax,
 		},
 	}
@@ -317,8 +314,8 @@ func TestHex(t *testing.T) {
 			Want: []string{"1x"},
 		},
 		{
-			Args: []string{"3+4i", "hex"},
-			Want: []string{"3x"},
+			Args:    []string{"3+4i", "hex"},
+			WantErr: rpn.ErrComplexNumberNotSupported,
 		},
 		{
 			Args: []string{"3.14", "hex"},
@@ -394,7 +391,6 @@ func TestHex(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "hex"},
-			Want:    []string{"\"foo\""},
 			WantErr: rpn.ErrSyntax,
 		},
 	}
@@ -591,7 +587,6 @@ func TestFloat(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "float"},
-			Want:    []string{"\"foo\""},
 			WantErr: rpn.ErrSyntax,
 		},
 	}

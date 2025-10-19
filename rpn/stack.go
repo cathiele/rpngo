@@ -27,62 +27,12 @@ func (r *RPN) PopFrame() (sf Frame, err error) {
 	return
 }
 
-func (r *RPN) PopStackIndex() (i int, err error) {
-	var f Frame
-	f, err = r.PopFrame()
-	if err != nil {
-		return
-	}
-	i64, err := f.Int()
-	if err != nil {
-		return 0, err
-	}
-	i = int(i64)
-	if (i < 0) || (i >= len(r.Frames)) {
-		err = ErrIllegalValue
-		return
-	}
-	return
-}
-
 func (r *RPN) Pop2Frames() (a Frame, b Frame, err error) {
 	b, err = r.PopFrame()
 	if err != nil {
 		return
 	}
 	a, err = r.PopFrame()
-	return
-}
-
-// Pops 2 numbers.
-//
-// If either is a non-number, an error is returned
-// If either number is a complex, both are converted to complex
-// Ohterwise both number are integers and they are returned.
-func (r *RPN) Pop2Numbers() (a Frame, b Frame, err error) {
-	a, b, err = r.Pop2Frames()
-	if err != nil {
-		return
-	}
-	acmplx := a.IsComplex()
-	bcmplx := b.IsComplex()
-	if acmplx && bcmplx {
-		return
-	}
-	aint := a.IsInt()
-	bint := b.IsInt()
-	if aint && bint {
-		return
-	}
-	if acmplx && bint {
-		b = Frame{ftype: COMPLEX_FRAME, cmplx: complex(float64(b.intv), 0)}
-		return
-	}
-	if bcmplx && aint {
-		a = Frame{ftype: COMPLEX_FRAME, cmplx: complex(float64(a.intv), 0)}
-		return
-	}
-	err = ErrExpectedANumber
 	return
 }
 

@@ -61,7 +61,10 @@ func For(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	macro := mf.String(false)
+	if !mf.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	macro := mf.UnsafeString()
 	fields := make([]string, 32) // object allocated on the heap: escapes at line 61 (OK)
 	fields, err = parse.Fields(macro, fields)
 	if err != nil {
@@ -73,6 +76,10 @@ func For(r *rpn.RPN) error {
 			return err
 		}
 		cf, err := r.PopFrame()
+		if err != nil {
+			return err
+		}
+		cond, err := cf.Bool()
 		if err != nil {
 			return err
 		}

@@ -34,13 +34,13 @@ func UnitTestExec(t *testing.T, r *RPN, args, want []string, wantErr error) {
 	t.Helper()
 	err := r.Exec(args)
 	if !errors.Is(err, wantErr) {
-		t.Fatalf("err=%v, want=%v", err, wantErr)
+		t.Fatalf("args=%v err=%v, want=%v", args, err, wantErr)
 	}
 	var got []string
 	for _, f := range r.Frames {
 		got = append(got, f.String(true))
 	}
 	if !reflect.DeepEqual(want, got) {
-		t.Errorf("stack mismatch.  got=%+v, want=%+v", got, want)
+		t.Errorf("stack mismatch.  args=%v got=%+v, want=%+v", args, got, want)
 	}
 }

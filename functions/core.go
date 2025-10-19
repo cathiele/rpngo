@@ -43,58 +43,60 @@ func Add(r *rpn.RPN) error {
 const SubtractHelp = "Subtracts two numbers"
 
 func Subtract(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	a, b, err := r.Pop2Frames()
 	if err != nil {
 		return err
 	}
-	if a.IsComplex() {
-		ac, _ := a.Complex()
-		bc, _ := a.Complex()
-		return r.PushFrame(rpn.ComplexFrame(ac - bc))
+	bothints, err := rpn.CheckIfNumbers(a, b)
+	if err != nil {
+		return err
 	}
-	ai, _ := a.Int()
-	bi, _ := b.Int()
-	return r.PushFrame(rpn.IntFrameCloneType(ai-bi, a))
+	if bothints {
+		return r.PushFrame(rpn.IntFrameCloneType(a.UnsafeInt()-b.UnsafeInt(), a))
+	}
+	return r.PushFrame(rpn.ComplexFrame(a.UnsafeComplex() - b.UnsafeComplex()))
 }
 
 const MultiplyHelp = "Multiplies two numbers"
 
 func Multiply(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	a, b, err := r.Pop2Frames()
 	if err != nil {
 		return err
 	}
-	if a.IsComplex() {
-		ac, _ := a.Complex()
-		bc, _ := a.Complex()
-		return r.PushFrame(rpn.ComplexFrame(ac * bc))
+	bothints, err := rpn.CheckIfNumbers(a, b)
+	if err != nil {
+		return err
 	}
-	ai, _ := a.Int()
-	bi, _ := b.Int()
-	return r.PushFrame(rpn.IntFrameCloneType(ai*bi, a))
+	if bothints {
+		return r.PushFrame(rpn.IntFrameCloneType(a.UnsafeInt()*b.UnsafeInt(), a))
+	}
+	return r.PushFrame(rpn.ComplexFrame(a.UnsafeComplex() * b.UnsafeComplex()))
 }
 
 const DivideHelp = "Divides two numbers"
 
 func Divide(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	a, b, err := r.Pop2Frames()
 	if err != nil {
 		return err
 	}
-	if a.IsComplex() {
-		ac, _ := a.Complex()
-		bc, _ := a.Complex()
-		if bc == 0 {
+	bothints, err := rpn.CheckIfNumbers(a, b)
+	if err != nil {
+		return err
+	}
+	if bothints {
+		bi := b.UnsafeInt()
+		if bi == 0 {
 			return rpn.ErrDivideByZero
 		}
-		return r.PushFrame(rpn.ComplexFrame(ac / bc))
+		return r.PushFrame(rpn.IntFrameCloneType(a.UnsafeInt()/bi, a))
 	}
-	ai, _ := a.Int()
-	bi, _ := b.Int()
-	if bi == 0 {
+	bc := b.UnsafeComplex()
+	if bc == 0 {
 		return rpn.ErrDivideByZero
 	}
-	return r.PushFrame(rpn.IntFrameCloneType(ai/bi, a))
+	return r.PushFrame(rpn.ComplexFrame(a.UnsafeComplex() / bc))
 }
 
 const NegateHelp = "Negates the top number"
@@ -127,8 +129,11 @@ func Exec(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
+	if !f.IsString() {
+		return rpn.ErrExpectedAString
+	}
 	fields := make([]string, 32) // object allocated on the heap: escapes at line 124 (OK)
-	fields, err = parse.Fields(f.String(false), fields)
+	fields, err = parse.Fields(f.UnsafeString(), fields)
 	if err != nil {
 		return err
 	}
@@ -166,7 +171,7 @@ func Imag(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.RealFrame(imag(c)))
+	return r.PushFrame(rpn.ComplexFrame(complex(0, imag(c))))
 }
 
 const TrueHelp = "Pushes a boolean true"
@@ -184,44 +189,32 @@ func False(r *rpn.RPN) error {
 const RoundHelp = "Rounds a number to the given number of places"
 
 func Round(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
-	origb := b
+	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err
 	}
-	if a.Type != rpn.COMPLEX_FRAME {
-		a.Type = rpn.COMPLEX_FRAME
-		a.Complex = complex(float64(a.Int), 0)
+	a, err := af.Complex()
+	if err != nil {
+		return err
 	}
-	if b.Type == rpn.COMPLEX_FRAME {
-		if imag(b.Complex) != 0 {
-			r.PushFrame(a)
-			r.PushFrame(origb)
-			return rpn.ErrComplexNumberNotSupported
-		}
-		if real(b.Complex) != math.Round(real(b.Complex)) {
-			r.PushFrame(a)
-			r.PushFrame(origb)
-			return rpn.ErrIllegalValue
-		}
-		b.Int = int64(real(b.Complex))
+	b, err := bf.Int()
+	if err != nil {
+		return err
 	}
-	if (b.Int < 0) || (b.Int > 16) {
-		r.PushFrame(a)
-		r.PushFrame(origb)
+	if (b < 0) || (b > 16) {
 		return rpn.ErrIllegalValue
 	}
-	rl := real(a.Complex)
-	im := imag(a.Complex)
-	for i := 0; i < int(b.Int); i++ {
+	rl := real(a)
+	im := imag(a)
+	for i := 0; i < int(b); i++ {
 		rl *= 10
 		im *= 10
 	}
 	rl = math.Round(rl)
 	im = math.Round(im)
-	for i := 0; i < int(b.Int); i++ {
+	for i := 0; i < int(b); i++ {
 		rl /= 10
 		im /= 10
 	}
-	return r.PushComplex(complex(rl, im))
+	return r.PushFrame(rpn.ComplexFrame(complex(rl, im)))
 }

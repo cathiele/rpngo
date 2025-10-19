@@ -13,7 +13,10 @@ func (fo *FileOps) Source(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	path := f.String(false)
+	if !f.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	path := f.UnsafeString()
 	data, err := fo.driver.ReadFile(path)
 	if err != nil {
 		return err

@@ -55,45 +55,6 @@ func TestPopFrame(t *testing.T) {
 	}
 }
 
-func TestPopStackIndex(t *testing.T) {
-	var r RPN
-	r.Init()
-	_, err := r.PopStackIndex()
-	if err != ErrStackEmpty {
-		t.Errorf("err: %v, want: ErrStackEmpty", err)
-	}
-	r.PushFrame(StringFrame("foo"))
-	_, err = r.PopStackIndex()
-	if err != ErrExpectedANumber {
-		t.Errorf("err: %v, want: ErrExpectedANumber", err)
-	}
-	r.PushFrame(IntFrame(-1, INTEGER_FRAME))
-	_, err = r.PopStackIndex()
-	if err != ErrIllegalValue {
-		t.Errorf("err: %v, want: ErrIllegalValue", err)
-	}
-	r.PushFrame(IntFrame(4, INTEGER_FRAME))
-	_, err = r.PopStackIndex()
-	if err != ErrIllegalValue {
-		t.Errorf("err: %v, want: ErrIllegalValue", err)
-	}
-	r.PushFrame(StringFrame("foo")) // 2
-	r.PushFrame(StringFrame("bar")) // 1
-	r.PushFrame(StringFrame("baz")) // 0
-	r.PushFrame(ComplexFrame(complex(2, 0)))
-	got, err := r.PopStackIndex()
-	if err != nil {
-		t.Errorf("err: %v, want: nil", err)
-	}
-	want := 2
-	if want != got {
-		t.Errorf("frame mismatch. got=%+v, want=%+v", got, want)
-	}
-	if len(r.Frames) != 3 {
-		t.Errorf("stack size is %v, want 3", len(r.Frames))
-	}
-}
-
 func TestPop2Frames(t *testing.T) {
 	var r RPN
 	r.Init()
@@ -117,91 +78,6 @@ func TestPop2Frames(t *testing.T) {
 	}
 	if len(r.Frames) != 0 {
 		t.Errorf("stack size is %v, want 0", len(r.Frames))
-	}
-}
-
-func TestPop2Numbers(t *testing.T) {
-	var r RPN
-	r.Init()
-	_, _, err := r.Pop2Numbers()
-	if err != ErrStackEmpty {
-		t.Errorf("err: %v, want: ErrStackEmpty", err)
-	}
-
-	r.PushFrame(StringFrame("foo"))
-	r.PushFrame(StringFrame("bar"))
-	_, _, err = r.Pop2Numbers()
-	if err != ErrExpectedANumber {
-		t.Errorf("err: %v, want: ErrExpectedANumber", err)
-	}
-	if len(r.Frames) != 0 {
-		t.Errorf("stack size is %v, want 0", len(r.Frames))
-	}
-
-	wanta := IntFrame(123, INTEGER_FRAME)
-	r.PushFrame(wanta)
-	wantb := IntFrame(456, INTEGER_FRAME)
-	r.PushFrame(wantb)
-	gota, gotb, err := r.Pop2Numbers()
-	if err != nil {
-		t.Errorf("err: %v, want: nil", err)
-	}
-	if len(r.Frames) != 0 {
-		t.Errorf("stack size is %v, want 0", len(r.Frames))
-	}
-	if !reflect.DeepEqual(wanta, gota) {
-		t.Errorf("want: %v, go %v", wanta, gota)
-	}
-	if !reflect.DeepEqual(wantb, gotb) {
-		t.Errorf("want: %v, go %v", wantb, gotb)
-	}
-
-	wanta = ComplexFrame(123)
-	wantb = ComplexFrame(complex(1, 2))
-	r.PushFrame(IntFrame(123, INTEGER_FRAME))
-	r.PushFrame(wantb)
-	gota, gotb, err = r.Pop2Numbers()
-	if err != nil {
-		t.Errorf("err: %v, want: nil", err)
-	}
-	if len(r.Frames) != 0 {
-		t.Errorf("stack size is %v, want 0", len(r.Frames))
-	}
-	if !reflect.DeepEqual(wanta, gota) {
-		t.Errorf("want: %v, go %v", wanta, gota)
-	}
-	if !reflect.DeepEqual(wantb, gotb) {
-		t.Errorf("want: %v, go %v", wantb, gotb)
-	}
-
-	wantb = ComplexFrame(123)
-	wanta = ComplexFrame(complex(1, 2))
-	r.PushFrame(wanta)
-	r.PushFrame(IntFrame(123, INTEGER_FRAME))
-	gota, gotb, err = r.Pop2Numbers()
-	if err != nil {
-		t.Errorf("err: %v, want: nil", err)
-	}
-	if len(r.Frames) != 0 {
-		t.Errorf("stack size is %v, want 0", len(r.Frames))
-	}
-	if !reflect.DeepEqual(wanta, gota) {
-		t.Errorf("want: %v, go %v", wanta, gota)
-	}
-	if !reflect.DeepEqual(wantb, gotb) {
-		t.Errorf("want: %v, go %v", wantb, gotb)
-	}
-
-	wantb = ComplexFrame(123)
-	wanta = ComplexFrame(complex(1, 2))
-	r.PushFrame(wanta)
-	r.PushFrame(wantb)
-	_, _, err = r.Pop2Numbers()
-	if !reflect.DeepEqual(wanta, gota) {
-		t.Errorf("want: %v, go %v", wanta, gota)
-	}
-	if !reflect.DeepEqual(wantb, gotb) {
-		t.Errorf("want: %v, go %v", wantb, gotb)
 	}
 }
 

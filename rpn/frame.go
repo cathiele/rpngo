@@ -64,6 +64,13 @@ func (f *Frame) Complex() (complex128, error) {
 	return 0, ErrExpectedANumber
 }
 
+func (f *Frame) UnsafeComplex() complex128 {
+	if f.ftype == COMPLEX_FRAME {
+		return f.cmplx
+	}
+	return complex(float64(f.intv), 0)
+}
+
 func (f *Frame) Real() (float64, error) {
 	if f.ftype == COMPLEX_FRAME {
 		if imag(f.cmplx) != 0 {
@@ -82,9 +89,27 @@ func (f *Frame) Int() (int64, error) {
 		return f.intv, nil
 	}
 	if f.ftype == COMPLEX_FRAME {
+		if imag(f.cmplx) != 0 {
+			return 0, ErrComplexNumberNotSupported
+		}
 		return int64(real(f.cmplx)), nil
 	}
 	return 0, ErrExpectedANumber
+}
+
+func (f *Frame) UnsafeInt() int64 {
+	return f.intv
+}
+
+func (f *Frame) BoundedInt(min, max int64) (int64, error) {
+	v, err := f.Int()
+	if err != nil {
+		return 0, err
+	}
+	if (v < min) || (v > max) {
+		return 0, ErrIllegalValue
+	}
+	return v, nil
 }
 
 func (f *Frame) Bool() (bool, error) {
@@ -92,6 +117,10 @@ func (f *Frame) Bool() (bool, error) {
 		return f.intv != 0, nil
 	}
 	return false, ErrExpectedABoolean
+}
+
+func (f *Frame) UnsafeBool() bool {
+	return f.intv != 0
 }
 
 func (f *Frame) String(quote bool) string {
@@ -121,6 +150,31 @@ func (f *Frame) String(quote bool) string {
 	default:
 		return "BAD_TYPE"
 	}
+}
+
+func (f *Frame) UnsafeString() string {
+	return f.str
+}
+
+// The case comes up where we have two numbers and
+// 1) If they are both ints, treat them as ints
+// 2) If one is a complex, treat both as complex
+// 3) Throw an error in other cases
+func CheckIfNumbers(a, b Frame) (bothints bool, err error) {
+	aisc := a.IsComplex()
+	bisc := b.IsComplex()
+	if aisc && bisc {
+		return false, nil
+	}
+	aisi := a.IsInt()
+	bisi := b.IsInt()
+	if aisi && bisi {
+		return true, nil
+	}
+	if (aisc || aisi) && (bisc || bisi) {
+		return false, nil
+	}
+	return false, ErrExpectedANumber
 }
 
 func BoolFrame(v bool) Frame {

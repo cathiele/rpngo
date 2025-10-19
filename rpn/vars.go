@@ -236,9 +236,12 @@ func (r *RPN) execVariableAsMacro(name string) error {
 	if err != nil {
 		return err
 	}
+	if !f.IsString() {
+		return ErrExpectedAString
+	}
 	// this call can be recursive so we need to allocate here
 	fields := make([]string, 16) // object allocated on the heap (OK)
-	fields, err = parse.Fields(f.String(false), fields)
+	fields, err = parse.Fields(f.UnsafeString(), fields)
 	if err != nil {
 		return err
 	}

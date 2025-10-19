@@ -9,22 +9,19 @@ func TestAdd(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
 			Args:    []string{"+"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"1", "+"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
-			Want:    []string{"1"},
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"1", "true", "+"},
-			WantErr: rpn.ErrIllegalValue,
-			Want:    []string{"1", "true"},
+			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"true", "1", "+"},
-			WantErr: rpn.ErrIllegalValue,
-			Want:    []string{"true", "1"},
+			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args: []string{"1", "2", "+"},
@@ -78,22 +75,19 @@ func TestSubtract(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
 			Args:    []string{"-"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"1", "-"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
-			Want:    []string{"1"},
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"1", "true", "-"},
 			WantErr: rpn.ErrExpectedANumber,
-			Want:    []string{"1", "true"},
 		},
 		{
 			Args:    []string{"true", "1", "-"},
 			WantErr: rpn.ErrExpectedANumber,
-			Want:    []string{"true", "1"},
 		},
 		{
 			Args: []string{"1", "2", "-"},
@@ -113,17 +107,14 @@ func TestSubtract(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "7", "-"},
-			Want:    []string{"\"foo\"", "7"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"7", "'foo'", "-"},
-			Want:    []string{"7", "\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"\"foo\"", "'bar'", "-"},
-			Want:    []string{"\"foo\"", "\"bar\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}
@@ -134,22 +125,19 @@ func TestMultiply(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
 			Args:    []string{"*"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"1", "*"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
-			Want:    []string{"1"},
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"1", "true", "*"},
 			WantErr: rpn.ErrExpectedANumber,
-			Want:    []string{"1", "true"},
 		},
 		{
 			Args:    []string{"true", "1", "*"},
 			WantErr: rpn.ErrExpectedANumber,
-			Want:    []string{"true", "1"},
 		},
 		{
 			Args: []string{"2", "3", "*"},
@@ -169,17 +157,14 @@ func TestMultiply(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "7", "*"},
-			Want:    []string{"\"foo\"", "7"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"7", "'foo'", "*"},
-			Want:    []string{"7", "\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"\"foo\"", "'bar'", "*"},
-			Want:    []string{"\"foo\"", "\"bar\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}
@@ -190,22 +175,19 @@ func TestDivide(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
 			Args:    []string{"/"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"1", "/"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
-			Want:    []string{"1"},
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"1", "true", "/"},
 			WantErr: rpn.ErrExpectedANumber,
-			Want:    []string{"1", "true"},
 		},
 		{
 			Args:    []string{"true", "1", "/"},
 			WantErr: rpn.ErrExpectedANumber,
-			Want:    []string{"true", "1"},
 		},
 		{
 			Args: []string{"5", "2", "/"},
@@ -224,18 +206,31 @@ func TestDivide(t *testing.T) {
 			Want: []string{"2d"},
 		},
 		{
+			Args:    []string{"5", "0", "/"},
+			WantErr: rpn.ErrDivideByZero,
+		},
+		{
+			Args:    []string{"5d", "0d", "/"},
+			WantErr: rpn.ErrDivideByZero,
+		},
+		{
+			Args:    []string{"5", "0d", "/"},
+			WantErr: rpn.ErrDivideByZero,
+		},
+		{
+			Args:    []string{"5d", "0", "/"},
+			WantErr: rpn.ErrDivideByZero,
+		},
+		{
 			Args:    []string{"'foo'", "7", "/"},
-			Want:    []string{"\"foo\"", "7"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"7", "'foo'", "/"},
-			Want:    []string{"7", "\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"\"foo\"", "'bar'", "/"},
-			Want:    []string{"\"foo\"", "\"bar\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}
@@ -250,7 +245,6 @@ func TestNegate(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "neg"},
-			Want:    []string{"\"foo\""},
 			WantErr: rpn.ErrIllegalValue,
 		},
 		{
@@ -327,13 +321,11 @@ func TestReal(t *testing.T) {
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
-			Args:    []string{"1d", "real"},
-			Want:    []string{"1d"},
-			WantErr: rpn.ErrExpectedAComplexNumber,
+			Args: []string{"1d", "real"},
+			Want: []string{"1"},
 		},
 		{
 			Args:    []string{"'foo'", "real"},
-			Want:    []string{"\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -359,13 +351,11 @@ func TestImag(t *testing.T) {
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
-			Args:    []string{"1d", "imag"},
-			Want:    []string{"1d"},
-			WantErr: rpn.ErrExpectedAComplexNumber,
+			Args: []string{"1d", "imag"},
+			Want: []string{"0"},
 		},
 		{
 			Args:    []string{"'foo'", "imag"},
-			Want:    []string{"\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -402,12 +392,11 @@ func TestRound(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
 			Args:    []string{"round"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"1", "round"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
-			Want:    []string{"1"},
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args: []string{"1.2345", "2", "round"},
@@ -428,22 +417,18 @@ func TestRound(t *testing.T) {
 		{
 			Args:    []string{"-1.235", "i", "round"},
 			WantErr: rpn.ErrComplexNumberNotSupported,
-			Want:    []string{"-1.235", "i"},
 		},
 		{
-			Args:    []string{"1.235", "2.1", "round"},
-			WantErr: rpn.ErrIllegalValue,
-			Want:    []string{"1.235", "2.1"},
+			Args: []string{"1.235", "2.1", "round"},
+			Want: []string{"1.24"},
 		},
 		{
 			Args:    []string{"1.235", "-1", "round"},
 			WantErr: rpn.ErrIllegalValue,
-			Want:    []string{"1.235", "-1"},
 		},
 		{
 			Args:    []string{"1.235", "17", "round"},
 			WantErr: rpn.ErrIllegalValue,
-			Want:    []string{"1.235", "17"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })

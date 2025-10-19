@@ -14,12 +14,10 @@ func TestIf(t *testing.T) {
 		{
 			Args:    []string{"1", "if"},
 			WantErr: rpn.ErrStackEmpty,
-			Want:    []string{"1"},
 		},
 		{
 			Args:    []string{"1", "2", "if"},
 			WantErr: rpn.ErrExpectedABoolean,
-			Want:    []string{"1", "2"},
 		},
 		{
 			Args: []string{"false", "1", "if"},
@@ -41,17 +39,14 @@ func TestIfElse(t *testing.T) {
 		{
 			Args:    []string{"1", "ifelse"},
 			WantErr: rpn.ErrStackEmpty,
-			Want:    []string{"1"},
 		},
 		{
 			Args:    []string{"1", "2", "ifelse"},
 			WantErr: rpn.ErrStackEmpty,
-			Want:    []string{"1", "2"},
 		},
 		{
 			Args:    []string{"1", "2", "3", "ifelse"},
 			WantErr: rpn.ErrExpectedABoolean,
-			Want:    []string{"1", "2", "3"},
 		},
 		{
 			Args: []string{"false", "1", "2", "ifelse"},
@@ -77,7 +72,6 @@ func TestFor(t *testing.T) {
 		},
 		{
 			Args:    []string{"1", "for"},
-			Want:    []string{"1"},
 			WantErr: rpn.ErrExpectedAString,
 		},
 		{

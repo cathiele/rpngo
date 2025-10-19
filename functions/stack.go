@@ -106,5 +106,5 @@ func Input(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushString(str)
+	return r.PushFrame(rpn.StringFrame(str))
 }

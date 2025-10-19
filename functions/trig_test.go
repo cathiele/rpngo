@@ -13,7 +13,6 @@ func TestSin(t *testing.T) {
 		},
 		{
 			Args:    []string{"true", "sin"},
-			Want:    []string{"true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -36,7 +35,6 @@ func TestCos(t *testing.T) {
 		},
 		{
 			Args:    []string{"true", "cos"},
-			Want:    []string{"true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -59,7 +57,6 @@ func TestTan(t *testing.T) {
 		},
 		{
 			Args:    []string{"true", "tan"},
-			Want:    []string{"true"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{

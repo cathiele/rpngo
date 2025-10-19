@@ -8,11 +8,14 @@ import (
 const DelayHelp = "Pauses for the given number of seconds"
 
 func Delay(r *rpn.RPN) error {
-	cv, err := r.PopComplex()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	v := real(cv)
+	v, err := f.Real()
+	if err != nil {
+		return err
+	}
 	if v <= 0 {
 		return nil
 	}
@@ -24,5 +27,5 @@ const TimeHelp = "Returns unix epoch time, assuming the clock on the hardware is
 
 func Time(r *rpn.RPN) error {
 	t := time.Now()
-	return r.PushComplex(complex(float64(t.UnixMicro())/1000000, 0))
+	return r.PushFrame(rpn.RealFrame(float64(t.UnixMicro()) / 1000000))
 }

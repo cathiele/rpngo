@@ -13,12 +13,10 @@ func TestBitwiseOps(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "1b", "&"},
-			Want:    []string{"\"foo\"", "1b"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"1b", "'foo'", "&"},
-			Want:    []string{"1b", "\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -27,12 +25,10 @@ func TestBitwiseOps(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "1b", "|"},
-			Want:    []string{"\"foo\"", "1b"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"1b", "'foo'", "|"},
-			Want:    []string{"1b", "\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -41,12 +37,10 @@ func TestBitwiseOps(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "1b", "^"},
-			Want:    []string{"\"foo\"", "1b"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"1b", "'foo'", "^"},
-			Want:    []string{"1b", "\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -55,12 +49,10 @@ func TestBitwiseOps(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "1", ">>"},
-			Want:    []string{"\"foo\"", "1"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"1b", "'foo'", ">>"},
-			Want:    []string{"1b", "\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -69,12 +61,10 @@ func TestBitwiseOps(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "1", "<<"},
-			Want:    []string{"\"foo\"", "1"},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 		{
 			Args:    []string{"1b", "'foo'", "<<"},
-			Want:    []string{"1b", "\"foo\""},
 			WantErr: rpn.ErrExpectedANumber,
 		},
 	}

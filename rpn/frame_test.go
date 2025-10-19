@@ -2,13 +2,204 @@ package rpn
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
-func TestIsIntDefault(t *testing.T) {
-	var f Frame
-	if f.IsInt() {
-		t.Error("IsInt() = true, want false")
+func TestIs(t *testing.T) {
+	data := []struct {
+		frame Frame
+		fn    func(Frame) bool
+		want  bool
+	}{
+		{
+			frame: IntFrame(1, INTEGER_FRAME),
+			fn:    func(f Frame) bool { return f.IsInt() },
+			want:  true,
+		},
+		{
+			frame: ComplexFrame(1),
+			fn:    func(f Frame) bool { return f.IsInt() },
+			want:  false,
+		},
+		{
+			frame: ComplexFrame(1),
+			fn:    func(f Frame) bool { return f.IsComplex() },
+			want:  true,
+		},
+		{
+			frame: IntFrame(1, INTEGER_FRAME),
+			fn:    func(f Frame) bool { return f.IsComplex() },
+			want:  false,
+		},
+		{
+			frame: ComplexFrame(1),
+			fn:    func(f Frame) bool { return f.IsNumber() },
+			want:  true,
+		},
+		{
+			frame: IntFrame(1, INTEGER_FRAME),
+			fn:    func(f Frame) bool { return f.IsNumber() },
+			want:  true,
+		},
+		{
+			frame: BoolFrame(true),
+			fn:    func(f Frame) bool { return f.IsNumber() },
+			want:  false,
+		},
+		{
+			frame: BoolFrame(true),
+			fn:    func(f Frame) bool { return f.IsBool() },
+			want:  true,
+		},
+		{
+			frame: BoolFrame(false),
+			fn:    func(f Frame) bool { return f.IsBool() },
+			want:  true,
+		},
+		{
+			frame: IntFrame(1, INTEGER_FRAME),
+			fn:    func(f Frame) bool { return f.IsBool() },
+			want:  false,
+		},
+		{
+			frame: StringFrame("foo"),
+			fn:    func(f Frame) bool { return f.IsString() },
+			want:  true,
+		},
+		{
+			frame: IntFrame(1, INTEGER_FRAME),
+			fn:    func(f Frame) bool { return f.IsString() },
+			want:  false,
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.frame.String(false), func(t *testing.T) {
+			got := d.fn(d.frame)
+			if got != d.want {
+				t.Errorf("got=%v, want=%v", got, d.want)
+			}
+		})
+	}
+}
+
+func TestComplex(t *testing.T) {
+	data := []struct {
+		frame   Frame
+		wantErr error
+		want    complex128
+	}{
+		{
+			frame: ComplexFrame(complex(1, 1)),
+			want:  complex(1, 1),
+		},
+		{
+			frame: IntFrame(1, INTEGER_FRAME),
+			want:  complex(1, 0),
+		},
+		{
+			frame:   BoolFrame(true),
+			wantErr: ErrExpectedANumber,
+		},
+		{
+			frame:   StringFrame("foo"),
+			wantErr: ErrExpectedANumber,
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.frame.String(false), func(t *testing.T) {
+			got, err := d.frame.Complex()
+			if got != d.want {
+				t.Errorf("got=%v, want=%v", got, d.want)
+			}
+			if !errors.Is(err, d.wantErr) {
+				t.Errorf("err=%v, want=%v", err, d.wantErr)
+			}
+		})
+	}
+}
+
+func TestReal(t *testing.T) {
+	data := []struct {
+		frame   Frame
+		wantErr error
+		want    float64
+	}{
+		{
+			frame: RealFrame(1),
+			want:  1,
+		},
+		{
+			frame: IntFrame(1, INTEGER_FRAME),
+			want:  1,
+		},
+		{
+			frame:   ComplexFrame(complex(1, 1)),
+			wantErr: ErrComplexNumberNotSupported,
+		},
+		{
+			frame:   BoolFrame(true),
+			wantErr: ErrExpectedANumber,
+		},
+		{
+			frame:   StringFrame("foo"),
+			wantErr: ErrExpectedANumber,
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.frame.String(false), func(t *testing.T) {
+			got, err := d.frame.Real()
+			if got != d.want {
+				t.Errorf("got=%v, want=%v", got, d.want)
+			}
+			if !errors.Is(err, d.wantErr) {
+				t.Errorf("err=%v, want=%v", err, d.wantErr)
+			}
+		})
+	}
+}
+
+func TestInt(t *testing.T) {
+	data := []struct {
+		frame   Frame
+		wantErr error
+		want    int64
+	}{
+		{
+			frame: IntFrame(1, INTEGER_FRAME),
+			want:  1,
+		},
+		{
+			frame: RealFrame(1),
+			want:  1,
+		},
+		{
+			frame:   ComplexFrame(complex(1, 1)),
+			wantErr: ErrComplexNumberNotSupported,
+		},
+		{
+			frame:   BoolFrame(true),
+			wantErr: ErrExpectedANumber,
+		},
+		{
+			frame:   StringFrame("foo"),
+			wantErr: ErrExpectedANumber,
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.frame.String(false), func(t *testing.T) {
+			got, err := d.frame.Int()
+			if got != d.want {
+				t.Errorf("got=%v, want=%v", got, d.want)
+			}
+			if !errors.Is(err, d.wantErr) {
+				t.Errorf("err=%v, want=%v", err, d.wantErr)
+			}
+		})
 	}
 }
 
@@ -153,6 +344,69 @@ func TestString(t *testing.T) {
 			got := d.frame.String(d.quote)
 			if got != d.want {
 				t.Errorf("want: %v, got: %v", d.want, got)
+			}
+		})
+	}
+}
+
+func TestCheckIfNumbers(t *testing.T) {
+	data := []struct {
+		a            Frame
+		b            Frame
+		wantBothInts bool
+		wantErr      error
+	}{
+		{
+			a:            IntFrame(1, INTEGER_FRAME),
+			b:            IntFrame(2, HEXIDECIMAL_FRAME),
+			wantBothInts: true,
+		},
+		{
+			a:            RealFrame(1),
+			b:            IntFrame(2, HEXIDECIMAL_FRAME),
+			wantBothInts: false,
+		},
+		{
+			a:            IntFrame(2, HEXIDECIMAL_FRAME),
+			b:            RealFrame(1),
+			wantBothInts: false,
+		},
+		{
+			a:            ComplexFrame(complex(1, 1)),
+			b:            RealFrame(1),
+			wantBothInts: false,
+		},
+		{
+			a:       BoolFrame(true),
+			b:       RealFrame(1),
+			wantErr: ErrExpectedANumber,
+		},
+		{
+			a:       StringFrame("foo"),
+			b:       IntFrame(1, OCTAL_FRAME),
+			wantErr: ErrExpectedANumber,
+		},
+		{
+			a:       RealFrame(1),
+			b:       BoolFrame(true),
+			wantErr: ErrExpectedANumber,
+		},
+		{
+			a:       IntFrame(1, OCTAL_FRAME),
+			b:       StringFrame("foo"),
+			wantErr: ErrExpectedANumber,
+		},
+	}
+
+	for _, d := range data {
+		name := fmt.Sprintf("%v-%v-%v-%v", d.a.String(false), d.b.String(false), d.wantBothInts, d.wantErr)
+		t.Run(name, func(t *testing.T) {
+			got, err := CheckIfNumbers(d.a, d.b)
+			if got != d.wantBothInts {
+				t.Errorf("bothints=%v want=%v", got, d.wantBothInts)
+			}
+			if !errors.Is(err, d.wantErr) {
+				t.Errorf("err=%v want=%v", err, d.wantErr)
 			}
 		})
 	}
