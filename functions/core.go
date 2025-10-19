@@ -172,13 +172,13 @@ func Imag(r *rpn.RPN) error {
 const TrueHelp = "Pushes a boolean true"
 
 func True(r *rpn.RPN) error {
-	return r.PushBool(true)
+	return r.PushFrame(rpn.BoolFrame(true))
 }
 
 const FalseHelp = "Pushes a boolean false"
 
 func False(r *rpn.RPN) error {
-	return r.PushBool(false)
+	return r.PushFrame(rpn.BoolFrame(false))
 }
 
 const RoundHelp = "Rounds a number to the given number of places"
