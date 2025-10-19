@@ -15,32 +15,29 @@ func Add(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.STRING_FRAME || b.Type == rpn.STRING_FRAME {
-		return r.PushString(a.String(false) + b.String(false))
+	if a.IsString() || b.IsString() {
+		return r.PushFrame(rpn.StringFrame(a.String(false) + b.String(false)))
 	}
-	if a.Type == rpn.BOOL_FRAME || b.Type == rpn.BOOL_FRAME {
-		r.PushFrame(a)
-		r.PushFrame(b)
-		return rpn.ErrIllegalValue
+	if a.IsComplex() || b.IsComplex() {
+		ac, err := a.Complex()
+		if err != nil {
+			return err
+		}
+		bc, err := b.Complex()
+		if err != nil {
+			return err
+		}
+		return r.PushFrame(rpn.ComplexFrame(ac + bc))
 	}
-	intMask := 0
-	if a.IsInt() {
-		intMask |= 1
+	ab, err := a.Int()
+	if err != nil {
+		return err
 	}
-	if b.IsInt() {
-		intMask |= 2
+	bb, err := b.Int()
+	if err != nil {
+		return err
 	}
-	switch intMask {
-	case 0:
-		return r.PushComplex(a.Complex + b.Complex)
-	case 1:
-		return r.PushComplex(complex(float64(a.Int), 0) + b.Complex)
-	case 2:
-		return r.PushComplex(a.Complex + complex(float64(b.Int), 0))
-	case 3:
-		return r.PushInt(a.Int+b.Int, a.Type)
-	}
-	return nil
+	return r.PushFrame(rpn.IntFrameCloneType(ab+bb, a))
 }
 
 const SubtractHelp = "Subtracts two numbers"
@@ -50,10 +47,14 @@ func Subtract(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushComplex(a.Complex - b.Complex)
+	if a.IsComplex() {
+		ac, _ := a.Complex()
+		bc, _ := a.Complex()
+		return r.PushFrame(rpn.ComplexFrame(ac - bc))
 	}
-	return r.PushInt(a.Int-b.Int, a.Type)
+	ai, _ := a.Int()
+	bi, _ := b.Int()
+	return r.PushFrame(rpn.IntFrameCloneType(ai-bi, a))
 }
 
 const MultiplyHelp = "Multiplies two numbers"
@@ -63,10 +64,14 @@ func Multiply(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushComplex(a.Complex * b.Complex)
+	if a.IsComplex() {
+		ac, _ := a.Complex()
+		bc, _ := a.Complex()
+		return r.PushFrame(rpn.ComplexFrame(ac * bc))
 	}
-	return r.PushInt(a.Int*b.Int, a.Type)
+	ai, _ := a.Int()
+	bi, _ := b.Int()
+	return r.PushFrame(rpn.IntFrameCloneType(ai*bi, a))
 }
 
 const DivideHelp = "Divides two numbers"
@@ -76,16 +81,20 @@ func Divide(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		if b.Complex == 0 {
+	if a.IsComplex() {
+		ac, _ := a.Complex()
+		bc, _ := a.Complex()
+		if bc == 0 {
 			return rpn.ErrDivideByZero
 		}
-		return r.PushComplex(a.Complex / b.Complex)
+		return r.PushFrame(rpn.ComplexFrame(ac / bc))
 	}
-	if b.Int == 0 {
+	ai, _ := a.Int()
+	bi, _ := b.Int()
+	if bi == 0 {
 		return rpn.ErrDivideByZero
 	}
-	return r.PushInt(a.Int/b.Int, a.Type)
+	return r.PushFrame(rpn.IntFrameCloneType(ai/bi, a))
 }
 
 const NegateHelp = "Negates the top number"
@@ -95,20 +104,18 @@ func Negate(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	if f.Type == rpn.COMPLEX_FRAME {
-		return r.PushComplex(-f.Complex)
+	if f.IsComplex() {
+		c, _ := f.Complex()
+		return r.PushFrame(rpn.ComplexFrame(-c))
 	}
-	if f.Type == rpn.BOOL_FRAME {
-		if f.Int == 0 {
-			return r.PushBool(true)
-		}
-		return r.PushBool(false)
+	if f.IsBool() {
+		b, _ := f.Bool()
+		return r.PushFrame(rpn.BoolFrame(!b))
 	}
 	if f.IsInt() {
-		f.Int = -f.Int
-		return r.PushFrame(f)
+		i, _ := f.Int()
+		return r.PushFrame(rpn.IntFrameCloneType(-i, f))
 	}
-	r.PushFrame(f)
 	return rpn.ErrIllegalValue
 }
 
@@ -116,12 +123,12 @@ const ExecHelp = "Executes a string\n" +
 	"Example: '4 5 +' @"
 
 func Exec(r *rpn.RPN) error {
-	s, err := r.PopString()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
 	fields := make([]string, 32) // object allocated on the heap: escapes at line 124 (OK)
-	fields, err = parse.Fields(s, fields)
+	fields, err = parse.Fields(f.String(false), fields)
 	if err != nil {
 		return err
 	}
@@ -131,37 +138,35 @@ func Exec(r *rpn.RPN) error {
 const RandHelp = "Pushes a random number between 0 and 1"
 
 func Rand(r *rpn.RPN) error {
-	return r.PushComplex(complex(rand.Float64(), 0))
+	return r.PushFrame(rpn.RealFrame(rand.Float64()))
 }
 
 const RealHelp = "Takes the real portion of a complex number"
 
 func Real(r *rpn.RPN) error {
-	a, err := r.PopNumber()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	if a.Type != rpn.COMPLEX_FRAME {
-		r.PushFrame(a)
-		return rpn.ErrExpectedAComplexNumber
+	c, err := f.Complex()
+	if err != nil {
+		return err
 	}
-	a.Complex = complex(real(a.Complex), 0)
-	return r.PushFrame(a)
+	return r.PushFrame(rpn.RealFrame(real(c)))
 }
 
 const ImagHelp = "Takes the imaginary portion of a complex number"
 
 func Imag(r *rpn.RPN) error {
-	a, err := r.PopNumber()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	if a.Type != rpn.COMPLEX_FRAME {
-		r.PushFrame(a)
-		return rpn.ErrExpectedAComplexNumber
+	c, err := f.Complex()
+	if err != nil {
+		return err
 	}
-	a.Complex = complex(0, imag(a.Complex))
-	return r.PushFrame(a)
+	return r.PushFrame(rpn.RealFrame(imag(c)))
 }
 
 const TrueHelp = "Pushes a boolean true"

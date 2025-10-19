@@ -13,9 +13,12 @@ func If(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	cond, err := r.PopBool()
+	cf, err := r.PopFrame()
 	if err != nil {
-		r.PushFrame(f)
+		return err
+	}
+	cond, err := cf.Bool()
+	if err != nil {
 		return err
 	}
 	if cond {
@@ -34,13 +37,14 @@ func IfElse(r *rpn.RPN) error {
 	}
 	ifv, err := r.PopFrame()
 	if err != nil {
-		r.PushFrame(elsev)
 		return err
 	}
-	cond, err := r.PopBool()
+	cf, err := r.PopFrame()
 	if err != nil {
-		r.PushFrame(ifv)
-		r.PushFrame(elsev)
+		return err
+	}
+	cond, err := cf.Bool()
+	if err != nil {
 		return err
 	}
 	if cond {
@@ -53,21 +57,22 @@ const ForHelp = "Executes the head of the stack in a loop until a value < is fou
 	"Example: 1 'c 1 + c 50 <' for # put 1 to 50 on the stack"
 
 func For(r *rpn.RPN) error {
-	macro, err := r.PopString()
+	mf, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
+	macro := mf.String(false)
 	fields := make([]string, 32) // object allocated on the heap: escapes at line 61 (OK)
 	fields, err = parse.Fields(macro, fields)
 	if err != nil {
-		r.PushString(macro)
+		r.PushFrame(rpn.StringFrame(macro))
 		return err
 	}
 	for {
 		if err := r.Exec(fields); err != nil {
 			return err
 		}
-		cond, err := r.PopBool()
+		cf, err := r.PopFrame()
 		if err != nil {
 			return err
 		}
