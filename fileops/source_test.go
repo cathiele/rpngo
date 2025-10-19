@@ -52,10 +52,11 @@ func TestSource(t *testing.T) {
 				t.Errorf("err=%v, want: %v", err, d.wantErr)
 			}
 			if len(d.filedata) > 0 {
-				got, err := r.PopString()
+				f, err := r.PopFrame()
 				if err != nil {
 					t.Errorf("err=%v, want nil", err)
 				}
+				got := f.String(false)
 				if got != d.want {
 					t.Errorf("got: %v, want %v", got, d.want)
 				}

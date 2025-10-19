@@ -32,10 +32,11 @@ func (fo *FileOps) InitAndRegister(r *rpn.RPN, maxFileSize int, driver FileOpsDr
 const LoadHelp = "Loads the given filename and places it on the stack as a string variable"
 
 func (fo *FileOps) Load(r *rpn.RPN) error {
-	path, err := r.PopString()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
+	path := f.String(false)
 	sz, err := fo.driver.FileSize(path)
 	if err != nil {
 		return err
@@ -47,19 +48,20 @@ func (fo *FileOps) Load(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushString(string(data))
+	return r.PushFrame(rpn.StringFrame(string(data)))
 }
 
 const SaveHelp = "Uses $0 as the filename to save the contents of $1  Both are popped from the stack.  A '\\n' character is added.  Use append if this is not wanted."
 
 func (fo *FileOps) Save(r *rpn.RPN) error {
-	path, err := r.PopString()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
+	path := f.String(false)
 	data, err := r.PopFrame()
 	if err != nil {
-		r.PushString(path)
+		r.PushFrame(rpn.StringFrame(path))
 		return err
 	}
 	return fo.driver.WriteFile(path, []byte(data.String(false)))
@@ -68,13 +70,14 @@ func (fo *FileOps) Save(r *rpn.RPN) error {
 const AppendHelp = "Uses $0 as the filename to append the contents of $1  Both are popped from the stack.  No '\\n' character is added."
 
 func (fo *FileOps) Append(r *rpn.RPN) error {
-	path, err := r.PopString()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
+	path := f.String(false)
 	data, err := r.PopFrame()
 	if err != nil {
-		r.PushString(path)
+		r.PushFrame(rpn.StringFrame(path))
 		return err
 	}
 	return fo.driver.AppendToFile(path, []byte(data.String(false)))
@@ -83,7 +86,11 @@ func (fo *FileOps) Append(r *rpn.RPN) error {
 const ChangeDirHelp = "Change the working directory"
 
 func (fo *FileOps) ChangeDir(r *rpn.RPN) error {
-	path, err := r.PopString()
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	path := f.String(false)
 	if err != nil {
 		return err
 	}
@@ -104,11 +111,12 @@ variables control the behavior:
 The exit code of the shell command is set to the variable $rc.
 `
 
-func (f *FileOps) Shell(r *rpn.RPN) error {
-	s, err := r.PopString()
+func (fo *FileOps) Shell(r *rpn.RPN) error {
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
+	s := f.String(false)
 	fields := make([]string, 16)
 	fields, err = parse.Fields(s, fields)
 	if err != nil {
@@ -123,7 +131,7 @@ func (f *FileOps) Shell(r *rpn.RPN) error {
 		return err
 	}
 
-	output, err := f.driver.Shell(fields, stdin)
+	output, err := fo.driver.Shell(fields, stdin)
 
 	rc := 0
 	if err != nil {
@@ -134,7 +142,7 @@ func (f *FileOps) Shell(r *rpn.RPN) error {
 		}
 		r.Print("Error: " + err.Error() + " " + string(output) + "\n")
 	}
-	r.PushInt(int64(rc), rpn.INTEGER_FRAME)
+	r.PushFrame(rpn.IntFrame(int64(rc), rpn.INTEGER_FRAME))
 	r.SetVariable("rc")
 	if err == nil {
 		if err := setCmdOutput(r, string(output)); err != nil {
@@ -156,13 +164,13 @@ func setCmdOutput(r *rpn.RPN, output string) error {
 	stack := false
 	stdout, err := r.GetVariable(".stdout")
 	if err == nil {
-		if stdout.Type != rpn.BOOL_FRAME {
-			return rpn.ErrExpectedABoolean
+		stack, err = stdout.Bool()
+		if err != nil {
+			return err
 		}
-		stack = stdout.Bool()
 	}
 	if stack {
-		return r.PushString(strings.TrimSpace(output))
+		return r.PushFrame(rpn.StringFrame(strings.TrimSpace(output)))
 	}
 	r.Print(output)
 	return nil

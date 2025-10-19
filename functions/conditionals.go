@@ -9,53 +9,69 @@ const tolerance = 1e-9
 const GreaterThanHelp = "Returns true if a > b, false otherwise"
 
 func GreaterThan(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	af, bf, err := r.Pop2Numbers()
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushBool(real(a.Complex) > real(b.Complex))
+	if af.IsComplex() {
+		a, _ := af.Complex()
+		b, _ := af.Complex()
+		return r.PushFrame(rpn.BoolFrame(real(a) > real(b)))
 	}
-	return r.PushBool(a.Int > b.Int)
+	a, _ := af.Int()
+	b, _ := bf.Int()
+	return r.PushFrame(rpn.BoolFrame(a > b))
 }
 
 const GreaterThanEqualHelp = "Returns true if a >= b, false otherwise"
 
 func GreaterThanEqual(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	af, bf, err := r.Pop2Numbers()
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushBool(real(a.Complex) >= real(b.Complex))
+	if af.IsComplex() {
+		a, _ := af.Complex()
+		b, _ := af.Complex()
+		return r.PushFrame(rpn.BoolFrame(real(a) >= real(b)))
 	}
-	return r.PushBool(a.Int >= b.Int)
+	a, _ := af.Int()
+	b, _ := bf.Int()
+	return r.PushFrame(rpn.BoolFrame(a >= b))
 }
 
 const LessThanHelp = "Returns true if a < b, false otherwise"
 
 func LessThan(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	af, bf, err := r.Pop2Numbers()
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushBool(real(a.Complex) < real(b.Complex))
+	if af.IsComplex() {
+		a, _ := af.Complex()
+		b, _ := af.Complex()
+		return r.PushFrame(rpn.BoolFrame(real(a) < real(b)))
 	}
-	return r.PushBool(a.Int < b.Int)
+	a, _ := af.Int()
+	b, _ := bf.Int()
+	return r.PushFrame(rpn.BoolFrame(a < b))
 }
 
 const LessThanEqualHelp = "Returns true if a <= b, false otherwise"
 
 func LessThanEqual(r *rpn.RPN) error {
-	a, b, err := r.Pop2Numbers()
+	af, bf, err := r.Pop2Numbers()
 	if err != nil {
 		return err
 	}
-	if a.Type == rpn.COMPLEX_FRAME {
-		return r.PushBool(real(a.Complex) <= real(b.Complex))
+	if af.IsComplex() {
+		a, _ := af.Complex()
+		b, _ := af.Complex()
+		return r.PushFrame(rpn.BoolFrame(real(a) <= real(b)))
 	}
-	return r.PushBool(a.Int <= b.Int)
+	a, _ := af.Int()
+	b, _ := bf.Int()
+	return r.PushFrame(rpn.BoolFrame(a <= b))
 }
 
 func checkFloatEqual(a, b complex128) bool {
@@ -80,7 +96,7 @@ func Equal(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushBool(eq)
+	return r.PushFrame(rpn.BoolFrame(eq))
 }
 
 const NotEqualHelp = "Returns true if a != b, false otherwise (approximate)"
@@ -90,34 +106,34 @@ func NotEqual(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushBool(!eq)
+	return r.PushFrame(rpn.BoolFrame(!eq))
 }
 
 func commonEqual(r *rpn.RPN) (bool, error) {
-	a, b, err := r.Pop2Frames()
+	af, bf, err := r.Pop2Frames()
 	if err != nil {
-		r.PushFrame(a)
-		r.PushFrame(b)
 		return false, err
 	}
-	if a.Type == rpn.COMPLEX_FRAME && b.IsInt() {
-		b.Type = rpn.COMPLEX_FRAME
-		b.Complex = complex(float64(b.Int), 0)
-	} else if b.Type == rpn.COMPLEX_FRAME && a.IsInt() {
-		a.Type = rpn.COMPLEX_FRAME
-		a.Complex = complex(float64(a.Int), 0)
-	}
-	if a.Type != b.Type {
-		return false, nil
-	}
-	if a.IsInt() || a.Type == rpn.BOOL_FRAME {
-		return a.Int == b.Int, nil
-	}
-	switch a.Type {
-	case rpn.COMPLEX_FRAME:
-		return checkFloatEqual(a.Complex, b.Complex), nil
-	case rpn.STRING_FRAME:
-		return a.Str == b.Str, nil
+	if af.IsComplex() || bf.IsComplex() {
+		a, err := af.Complex()
+		if err != nil {
+			return false, nil
+		}
+		b, err := af.Complex()
+		if err != nil {
+			return false, nil
+		}
+		return checkFloatEqual(a, b), nil
+	} else if af.IsInt() && bf.IsInt() {
+		a, _ := af.Int()
+		b, _ := bf.Int()
+		return a == b, nil
+	} else if af.IsBool() && bf.IsBool() {
+		a, _ := af.Bool()
+		b, _ := bf.Bool()
+		return a == b, nil
+	} else if af.IsString() && bf.IsString() {
+		return af.String(false) == bf.String(false), nil
 	}
 	return false, nil
 }

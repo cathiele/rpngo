@@ -5,35 +5,15 @@ import (
 )
 
 func convert(r *rpn.RPN, t rpn.FrameType) error {
-	v, err := r.PopFrame()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	switch v.Type {
-	case rpn.STRING_FRAME:
-		err := r.Exec([]string{v.Str})
-		if err != nil {
-			r.PushFrame(v)
-			return err
-		}
-		return convert(r, t)
-	case rpn.COMPLEX_FRAME:
-		v.Int = int64(real(v.Complex))
-		v.Type = t
-	case rpn.BINARY_FRAME:
-		fallthrough
-	case rpn.HEXIDECIMAL_FRAME:
-		fallthrough
-	case rpn.INTEGER_FRAME:
-		fallthrough
-	case rpn.BOOL_FRAME:
-		fallthrough
-	case rpn.OCTAL_FRAME:
-		v.Type = t
-	default:
-		return rpn.ErrIllegalValue
+	v, err := f.Int()
+	if err != nil {
+		return err
 	}
-	return r.PushFrame(v)
+	return r.PushFrame(rpn.IntFrame(v, t))
 }
 
 const IntHelp = "Converts head element to an integer number"
@@ -67,40 +47,19 @@ func Str(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushString(f.String(false))
+	return r.PushFrame(rpn.StringFrame(f.String(false)))
 }
 
 const FloatHelp = "Converts head element to a complex float"
 
 func Float(r *rpn.RPN) error {
-	v, err := r.PopFrame()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	switch v.Type {
-	case rpn.STRING_FRAME:
-		err := r.Exec([]string{v.Str})
-		if err != nil {
-			r.PushFrame(v)
-			return err
-		}
-		return Float(r)
-	case rpn.COMPLEX_FRAME:
-		break
-	case rpn.BINARY_FRAME:
-		fallthrough
-	case rpn.HEXIDECIMAL_FRAME:
-		fallthrough
-	case rpn.INTEGER_FRAME:
-		fallthrough
-	case rpn.BOOL_FRAME:
-		fallthrough
-	case rpn.OCTAL_FRAME:
-		v.Type = rpn.COMPLEX_FRAME
-		v.Complex = complex(float64(v.Int), 0)
-	default:
-		r.PushFrame(v)
-		return rpn.ErrIllegalValue
+	v, err := f.Complex()
+	if err != nil {
+		return err
 	}
-	return r.PushFrame(v)
+	return r.PushFrame(rpn.ComplexFrame(v))
 }

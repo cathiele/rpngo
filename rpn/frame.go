@@ -46,6 +46,14 @@ func (f *Frame) IsNumber() bool {
 	return f.IsComplex() || f.IsInt()
 }
 
+func (f *Frame) IsBool() bool {
+	return f.ftype == BOOL_FRAME
+}
+
+func (f *Frame) IsString() bool {
+	return f.ftype == STRING_FRAME
+}
+
 func (f *Frame) Complex() (complex128, error) {
 	if f.ftype == COMPLEX_FRAME {
 		return f.cmplx, nil
@@ -124,6 +132,10 @@ func BoolFrame(v bool) Frame {
 
 func IntFrame(v int64, t FrameType) Frame {
 	return Frame{intv: v, ftype: t}
+}
+
+func IntFrameCloneType(v int64, f Frame) Frame {
+	return Frame{intv: v, ftype: f.ftype}
 }
 
 func ComplexFrame(v complex128) Frame {

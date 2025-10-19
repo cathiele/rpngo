@@ -9,10 +9,11 @@ const SourceHelp = "Loads the given path and executes commands within it.\n" +
 	"Example: 'myfile.txt' source"
 
 func (fo *FileOps) Source(r *rpn.RPN) error {
-	path, err := r.PopString()
+	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
+	path := f.String(false)
 	data, err := fo.driver.ReadFile(path)
 	if err != nil {
 		return err
