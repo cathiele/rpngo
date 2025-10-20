@@ -91,9 +91,7 @@ func (pw *plotWindowCommon) addPlot(r *rpn.RPN, fn []string, isParametric bool, 
 			return nil
 		}
 	}
-	fncopy := make([]string, len(fn)) // object allocated on the heap (OK)
-	copy(fncopy, fn)
-	plot := Plot{fn: fncopy, coloridx: pw.coloridx, isParametric: isParametric}
+	plot := Plot{fn: fn, coloridx: pw.coloridx, isParametric: isParametric}
 
 	// do a dry run of creating the points
 	err := pw.addPoints(r, plot, pw.steps, func(x, y float64, c uint8) error { return nil })
@@ -155,7 +153,7 @@ func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, steps uint32, fn fu
 		if err := r.PushFrame(rpn.RealFrame(v)); err != nil {
 			return err
 		}
-		if err := r.Exec(plot.fn); err != nil {
+		if err := r.ExecSlice(plot.fn); err != nil {
 			return err
 		}
 		yf, err := r.PopFrame()

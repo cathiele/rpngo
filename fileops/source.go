@@ -21,12 +21,7 @@ func (fo *FileOps) Source(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	fields := make([]string, 256)  // object allocated on the heap: object size 2048 exceeds maximum stack allocation size 256
-	fields, err = parse.Fields(string(data), fields)
-	if err != nil {
-		return err
-	}
-	if err := r.Exec(fields); err != nil {
+	if err := parse.Fields(string(data), r.Exec); err != nil {
 		return err
 	}
 	return nil
