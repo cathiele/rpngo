@@ -105,11 +105,11 @@ func (gl *getLine) prepareHistory() {
 		line := gl.history[i%MAX_HISTORY_LINES]
 		_, err := gl.historyFile.Write(line)
 		if err != nil {
-			log.Printf("error writing exsiting history: %v", err) // object allocated on the heap: escapes at line 108
+			log.Printf("error writing exsiting history: %v", err) // object allocated on the heap: (OK)
 		}
 		_, err = gl.historyFile.Write([]byte{'\n'})
 		if err != nil {
-			log.Printf("error writing exsiting history cr: %v", err) // object allocated on the heap: escapes at line 112
+			log.Printf("error writing exsiting history cr: %v", err) // object allocated on the heap: (OK)
 		}
 	}
 }

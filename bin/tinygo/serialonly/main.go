@@ -7,6 +7,7 @@ package main
 import (
 	"fmt"
 	"machine"
+	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
@@ -21,9 +22,10 @@ func main() {
 	r.Init(256)
 	functions.RegisterAll(&r)
 
-	fmt.Println("Type ? for help or topic? for more detailed help")
+	print("Type ? for help or topic? for more detailed help")
 
 	for {
+		tinygo.DumpMemStats()
 		line := readLine()
 		fields = fields[:0]
 		var err error
@@ -48,7 +50,7 @@ func main() {
 
 func readLine() string {
 	var msg []byte
-	fmt.Print("> ")
+	print("> ")
 	for {
 		c, err := machine.Serial.ReadByte()
 		machine.Serial.WriteByte(c)

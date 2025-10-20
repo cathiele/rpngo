@@ -7,6 +7,7 @@ package main
 import (
 	"errors"
 	"log"
+	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/ili9341"
 	"mattwach/rpngo/drivers/tinygo/serialconsole"
@@ -21,8 +22,6 @@ import (
 	"mattwach/rpngo/window/input"
 	"mattwach/rpngo/window/plotwin"
 	"os"
-	"runtime"
-	"strconv"
 	"time"
 )
 
@@ -76,7 +75,7 @@ func run() error {
 		return err
 	}
 	for {
-		dumpMemStats()
+		tinygo.DumpMemStats()
 		w, h = screen.ScreenSize()
 		if err := root.Update(&r, w, h, true); err != nil {
 			if errors.Is(err, input.ErrExit) {
@@ -85,17 +84,6 @@ func run() error {
 			return err
 		}
 	}
-}
-
-func dumpMemStats() {
-	var ms runtime.MemStats
-	runtime.ReadMemStats(&ms)
-	print("alloc: ")
-	print(strconv.Itoa(int(ms.Alloc)))
-	print(" sys: ")
-	print(strconv.Itoa(int(ms.Sys)))
-	print(" free: ")
-	println(strconv.Itoa(int(ms.HeapIdle)))
 }
 
 func buildUI(root *window.WindowRoot, screen window.Screen, r *rpn.RPN) error {
