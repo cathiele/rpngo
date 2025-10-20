@@ -45,7 +45,7 @@ func run() error {
 }
 
 func cli(r *rpn.RPN) error {
-	if err := r.Exec(os.Args[1:]); err != nil {
+	if err := r.ExecSlice(os.Args[1:]); err != nil {
 		return err
 	}
 
