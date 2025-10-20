@@ -132,12 +132,7 @@ func Exec(r *rpn.RPN) error {
 	if !f.IsString() {
 		return rpn.ErrExpectedAString
 	}
-	fields := make([]string, 32) // object allocated on the heap: escapes at line 124 (OK)
-	fields, err = parse.Fields(f.UnsafeString(), fields)
-	if err != nil {
-		return err
-	}
-	return r.Exec(fields)
+	return parse.Fields(f.UnsafeString(), r.Exec)
 }
 
 const RandHelp = "Pushes a random number between 0 and 1"

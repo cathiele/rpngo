@@ -1,13 +1,13 @@
 package rpn
 
 import (
-	"fmt"
+	"errors"
 	"strconv"
 	"strings"
 )
 
 // Exec executes a single instruction
-func (rpn *RPN) exec(arg string) error {
+func (rpn *RPN) Exec(arg string) error {
 	if rpn.Interrupt() {
 		return ErrInterrupted
 	}
@@ -67,10 +67,10 @@ func (rpn *RPN) exec(arg string) error {
 	return rpn.parseAndPushComplex(arg)
 }
 
-func (rpn *RPN) Exec(args []string) error {
+func (rpn *RPN) ExecSlice(args []string) error {
 	for i, arg := range args {
-		if err := rpn.exec(arg); err != nil {
-			return fmt.Errorf("exec %s: %w", highlightArg(args, i), err) // object allocated on the heap (OK)
+		if err := rpn.Exec(arg); err != nil {
+			return errors.New("exec " + highlightArg(args, i) + ": " + err.Error())
 		}
 	}
 	return nil

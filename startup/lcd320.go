@@ -26,13 +26,9 @@ const lcd320ConfigFile = `
 // LCD320Startup is startup logic when using a 320x240 display
 // filesystem available)
 func LCD320Startup(r *rpn.RPN) error {
-	fields := make([]string, 64)  // object allocated on the heap: object size 512 exceeds maximum stack allocation size 256
-	fields, err := parse.Fields(lcd320ConfigFile, fields)
+	err := parse.Fields(lcd320ConfigFile, r.Exec)
 	if err != nil {
 		return fmt.Errorf("while parsing lcd320ConfigFile var: %w", err)
-	}
-	if err := r.Exec(fields); err != nil {
-		return fmt.Errorf("while executing commands in lcd320ConfigFile: %w", err)
 	}
 	return nil
 }

@@ -17,7 +17,7 @@ func convert(r *rpn.RPN, t rpn.FrameType) error {
 		}
 	}
 	if f.IsString() {
-		err := r.Exec([]string{f.UnsafeString()})
+		err := r.Exec(f.UnsafeString())
 		if err != nil {
 			return err
 		}
@@ -82,7 +82,7 @@ func Float(r *rpn.RPN) error {
 		}
 	}
 	if f.IsString() {
-		err := r.Exec([]string{f.UnsafeString()})
+		err := r.Exec(f.UnsafeString())
 		if err != nil {
 			return err
 		}

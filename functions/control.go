@@ -56,7 +56,13 @@ func IfElse(r *rpn.RPN) error {
 const ForHelp = "Executes the head of the stack in a loop until a value < is found\n" +
 	"Example: 1 'c 1 + c 50 <' for # put 1 to 50 on the stack"
 
+// avoid allocating fields on the stack (for can be nested though)
+var forFields []string
+var forFieldsStart []int
+
 func For(r *rpn.RPN) error {
+	forFieldsStart = append(forFieldsStart, len(forFields))
+	defer func() { forFieldsStart = forFieldsStart[:len(forFieldsStart)-1] }()
 	mf, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -65,14 +71,15 @@ func For(r *rpn.RPN) error {
 		return rpn.ErrExpectedAString
 	}
 	macro := mf.UnsafeString()
-	fields := make([]string, 32) // object allocated on the heap: escapes at line 61 (OK)
-	fields, err = parse.Fields(macro, fields)
-	if err != nil {
-		r.PushFrame(rpn.StringFrame(macro))
+	addField := func(t string) error {
+		forFields = append(forFields, t)
+		return nil
+	}
+	if err := parse.Fields(macro, addField); err != nil {
 		return err
 	}
 	for {
-		if err := r.Exec(fields); err != nil {
+		if err := r.ExecSlice(forFields[forFieldsStart[len(forFieldsStart)-1]:]); err != nil {
 			return err
 		}
 		cf, err := r.PopFrame()

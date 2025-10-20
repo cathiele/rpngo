@@ -163,16 +163,8 @@ func (iw *InputWindow) ListProps() []string {
 	return inputProps
 }
 
-var fields = make([]string, 128)
-
 func parseLine(r *rpn.RPN, line string) (bool, error) {
-	fields = fields[:0]
-	var err error
-	fields, err = parse.Fields(line, fields)
-	if err != nil {
-		return false, err
-	}
-	if err := r.Exec(fields); err != nil {
+	if err := parse.Fields(line, r.Exec); err != nil {
 		return false, err
 	}
 	return true, nil

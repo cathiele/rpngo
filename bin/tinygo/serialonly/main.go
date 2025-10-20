@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-var fields []string = make([]string, 128)
-
 func main() {
 	time.Sleep(2 * time.Second)
 	var r rpn.RPN // object allocated on the heap (OK)
@@ -27,14 +25,8 @@ func main() {
 	for {
 		tinygo.DumpMemStats()
 		line := readLine()
-		fields = fields[:0]
 		var err error
-		fields, err = parse.Fields(line, fields)
-
-		if err == nil {
-			err = r.Exec(fields)
-		}
-
+		err = parse.Fields(line, r.Exec)
 		if err == nil {
 			for _, f := range r.Frames {
 				for _, r := range f.String(true) {
