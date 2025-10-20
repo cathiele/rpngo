@@ -225,7 +225,7 @@ func (r *RPN) AppendAllVariableNamesAndValues(results []NameAndValues) []NameAnd
 			continue
 		}
 		lastName = name
-		results = append(results, NameAndValues{Name: name, Values: r.appendAllValuesForVariable(name, make([]Frame, 0, 1))})  // object allocated on the heap: escapes at line 228
+		results = append(results, NameAndValues{Name: name, Values: r.appendAllValuesForVariable(name, make([]Frame, 0, 1))}) // object allocated on the heap: escapes at line 228
 	}
 	return results
 }
@@ -240,12 +240,7 @@ func (r *RPN) execVariableAsMacro(name string) error {
 		return ErrExpectedAString
 	}
 	// this call can be recursive so we need to allocate here
-	fields := make([]string, 16) // object allocated on the heap (OK)
-	fields, err = parse.Fields(f.UnsafeString(), fields)
-	if err != nil {
-		return err
-	}
-	if err := r.Exec(fields); err != nil {
+	if err := parse.Fields(f.UnsafeString(), r.Exec); err != nil {
 		return err
 	}
 	return nil

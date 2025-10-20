@@ -74,9 +74,12 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	if !macro.IsString() {
 		return rpn.ErrExpectedAString
 	}
-	fields := make([]string, 32) // object allocated on the heap (OK)
-	fields, err = parse.Fields(macro.UnsafeString(), fields)
-	if err != nil {
+	fields := make([]string, 0, 2) // object allocated on the heap (OK)
+	addField := func(t string) error {
+		fields = append(fields, t)
+		return nil
+	}
+	if err := parse.Fields(macro.UnsafeString(), addField); err != nil {
 		return err
 	}
 	wname, err := r.GetStringVariable(".plotwin") // object allocated on the heap (OK)

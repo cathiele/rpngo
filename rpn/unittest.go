@@ -32,7 +32,7 @@ func UnitTestExecAll(t *testing.T, data []UnitTestExecData, prepfn func(*RPN)) {
 // them to want.
 func UnitTestExec(t *testing.T, r *RPN, args, want []string, wantErr error) {
 	t.Helper()
-	err := r.Exec(args)
+	err := r.ExecSlice(args)
 	if !errors.Is(err, wantErr) {
 		t.Fatalf("args=%v err=%v, want=%v", args, err, wantErr)
 	}

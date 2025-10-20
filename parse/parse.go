@@ -34,7 +34,6 @@ const (
 type parseData struct {
 	s             State
 	t             []rune
-	ret           []string
 	nextIsLiteral bool
 }
 
@@ -45,13 +44,12 @@ var parse parseData = parseData{
 	t: make([]rune, defaultStaticRunes),
 }
 
-func (p *parseData) init(ret []string) {
+func (p *parseData) init() {
 	p.s = WHITESPACE
 	if cap(p.t) > defaultStaticRunes {
 		p.t = make([]rune, defaultStaticRunes) // object allocated on the heap: (OK)
 	}
 	p.t = p.t[:0]
-	p.ret = ret[:0]
 }
 
 func (p *parseData) whitespace(c rune) {
@@ -83,26 +81,28 @@ func (p *parseData) whitespace(c rune) {
 	}
 }
 
-func (p *parseData) token(c rune) {
+func (p *parseData) token(c rune, fn func(string) error) error {
 	if p.nextIsLiteral {
 		p.t = append(p.t, c)
 		p.nextIsLiteral = false
-		return
+		return nil
 	}
 	if c == '\\' {
 		p.nextIsLiteral = true
-		return
+		return nil
 	}
 	if isWhitespace(c) {
-		p.ret = append(p.ret, string(p.t))
+		token := string(p.t)
 		p.t = p.t[:0]
 		p.s = WHITESPACE
-		return
+
+		return fn(token)
 	}
 	p.t = append(p.t, c)
+	return nil
 }
 
-func (p *parseData) str(c rune, quoteChar rune) {
+func (p *parseData) str(c rune, quoteChar rune, fn func(string) error) error {
 	if p.nextIsLiteral {
 		switch c {
 		case 'n':
@@ -112,18 +112,20 @@ func (p *parseData) str(c rune, quoteChar rune) {
 		}
 		p.t = append(p.t, c)
 		p.nextIsLiteral = false
-		return
+		return nil
 	}
 	if c == '\\' {
 		p.nextIsLiteral = true
-		return
+		return nil
 	}
 	p.t = append(p.t, c)
 	if c == quoteChar {
-		p.ret = append(p.ret, string(p.t))
+		token := string(p.t)
 		p.t = p.t[:0]
 		p.s = WHITESPACE
+		return fn(token)
 	}
+	return nil
 }
 
 func (p *parseData) comment(c rune) {
@@ -132,33 +134,41 @@ func (p *parseData) comment(c rune) {
 	}
 }
 
-// Fields breaks a string into fields, the allocation for fields is provided
-// by the caller to avoid stack allocations in some cases (but recursive cases can not do it)
-func Fields(m string, ret []string) ([]string, error) {
-	parse.init(ret)
+// Fields breaks a string into fields, calling fn for each parsed field
+// (to avoid memory allocation)
+func Fields(m string, fn func(string) error) error {
+	parse.init()
 	for _, c := range m {
 		switch parse.s {
 		case WHITESPACE:
 			parse.whitespace(c)
 		case TOKEN:
-			parse.token(c)
+			if err := parse.token(c, fn); err != nil {
+				return err
+			}
 		case STRING_SINGLE:
-			parse.str(c, '\'')
+			if err := parse.str(c, '\'', fn); err != nil {
+				return err
+			}
 		case STRING_DOUBLE:
-			parse.str(c, '"')
+			if err := parse.str(c, '"', fn); err != nil {
+				return err
+			}
 		case COMMENT:
 			parse.comment(c)
 		}
 	}
 	switch parse.s {
 	case TOKEN:
-		parse.token('\n')
+		if err := parse.token('\n', fn); err != nil {
+			return err
+		}
 	case STRING_SINGLE:
-		return nil, ErrUnterminatedSingleQuote
+		return ErrUnterminatedSingleQuote
 	case STRING_DOUBLE:
-		return nil, ErrUnterminatedDouble
+		return ErrUnterminatedDouble
 	}
-	return parse.ret, nil
+	return nil
 }
 
 func isWhitespace(c rune) bool {

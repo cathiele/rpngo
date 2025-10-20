@@ -41,6 +41,7 @@ func TestFields(t *testing.T) {
 		{
 			val:     "a '",
 			wantErr: ErrUnterminatedSingleQuote,
+			want:    []string{"a"},
 		},
 		{
 			val:     "'",
@@ -57,6 +58,7 @@ func TestFields(t *testing.T) {
 		{
 			val:     "a \"",
 			wantErr: ErrUnterminatedDouble,
+			want:    []string{"a"},
 		},
 		{
 			val:     "\"",
@@ -101,16 +103,20 @@ func TestFields(t *testing.T) {
 
 	for _, d := range data {
 		t.Run(d.val, func(t *testing.T) {
-			got, err := Fields(d.val, fields)
+			fields = fields[:0]
+			err := Fields(d.val, func(t string) error {
+				fields = append(fields, t)
+				return nil
+			})
 			if !errors.Is(err, d.wantErr) {
 				t.Errorf("err = %v, want %v", err, d.wantErr)
 			}
-			if len(got) != len(d.want) {
-				t.Fatalf("\n got: %+v\nwant: %+v", got, d.want)
+			if len(fields) != len(d.want) {
+				t.Fatalf("\n got: %+v\nwant: %+v", fields, d.want)
 			}
-			for i := range got {
-				if got[i] != d.want[i] {
-					t.Fatalf("\n got: %+v\nwant: %+v", got, d.want)
+			for i := range fields {
+				if fields[i] != d.want[i] {
+					t.Fatalf("\n got: %+v\nwant: %+v", fields, d.want)
 				}
 			}
 		})
