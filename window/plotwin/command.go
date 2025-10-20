@@ -109,12 +109,9 @@ func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	fields := make([]string, 32) // object allocated on the heap (OK)
-	fields, err = parse.Fields(macro, fields)
-	if err != nil {
+	if err := parse.Fields(macro, r.Exec); err != nil {
 		return err
 	}
-	err = r.Exec(fields)
 	w, h := wc.screen.ScreenSize()
 	if uerr := wc.root.Update(r, w, h, false); uerr != nil {
 		log.Printf("initPlot.Update error: %v", uerr) // object allocated on the heap (OK)
