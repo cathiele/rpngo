@@ -20,14 +20,12 @@ func (gl *getLine) tabComplete(r *rpn.RPN, idx int) int {
 	}
 
 	word := string(gl.line[startIdx:idx])
-	//log.Printf("found word: %v", word)
 	newWord := gl.findNewWord(r, word)
 
 	if len(newWord) == 0 {
 		return idx
 	}
 
-	//log.Printf("newword: %v", newWord)
 
 	startLine := string(gl.line[:startIdx])
 	endLine := string(gl.line[idx:])

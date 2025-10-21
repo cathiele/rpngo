@@ -11,7 +11,7 @@ package input
 
 import (
 	"bytes"
-	"log"
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
@@ -43,7 +43,7 @@ func initGetLine(input Input, txtb *window.TextBuffer) *getLine {
 		input:          input,
 		txtb:           txtb,
 		historyCount:   0,
-		namesAndValues: make([]rpn.NameAndValues, 0, 16), // object allocated on the heap: object size 320 exceeds maximum stack allocation size 256
+		namesAndValues: make([]rpn.NameAndValues, 0, 8),
 	}
 	gl.loadHistory()
 	gl.prepareHistory()
@@ -61,12 +61,12 @@ func historyPath() (string, error) {
 func (gl *getLine) loadHistory() {
 	path, err := historyPath()
 	if err != nil {
-		log.Printf("Could not generate history path for load: %v", err) // object allocated on the heap (OK)
+		elog.Print("Could not generate history path for load: ", err.Error())
 		return
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		log.Printf("Could not read hitory file: %v", err) // object allocated on the heap (OK)
+		elog.Print("Could not read hitory file: ", err.Error())
 		return
 	}
 	for _, line := range strings.Split(string(data), "\n") {
@@ -89,12 +89,12 @@ func (gl *getLine) loadHistory() {
 func (gl *getLine) prepareHistory() {
 	path, err := historyPath()
 	if err != nil {
-		log.Printf("Could not generate history path for prepare: %v", err) // object allocated on the heap (OK)
+		elog.Print("Could not generate history path for prepare: ", err.Error())
 		return
 	}
 	gl.historyFile, err = os.Create(path)
 	if err != nil {
-		log.Printf("Could not create history path: %v", err) // object allocated on the heap (OK)
+		elog.Print("Could not create history path: ", err.Error())
 		return
 	}
 	mini := gl.historyCount - MAX_HISTORY_LINES
@@ -105,11 +105,11 @@ func (gl *getLine) prepareHistory() {
 		line := gl.history[i%MAX_HISTORY_LINES]
 		_, err := gl.historyFile.Write(line)
 		if err != nil {
-			log.Printf("error writing exsiting history: %v", err) // object allocated on the heap: (OK)
+			elog.Print("error writing exsiting history: ", err.Error())
 		}
 		_, err = gl.historyFile.Write([]byte{'\n'})
 		if err != nil {
-			log.Printf("error writing exsiting history cr: %v", err) // object allocated on the heap: (OK)
+			elog.Print("error writing exsiting history cr: ", err.Error())
 		}
 	}
 }
@@ -256,11 +256,11 @@ func (gl *getLine) addToHistory() {
 	if gl.historyFile != nil {
 		_, err := gl.historyFile.Write(gl.line)
 		if err != nil {
-			log.Printf("could not write history line: %v", err) // object allocated on the heap (OK)
+			elog.Print("could not write history line: ", err.Error())
 		}
 		_, err = gl.historyFile.Write([]byte{'\n'})
 		if err != nil {
-			log.Printf("could not write history cr: %v", err) // object allocated on the heap (OK)
+			elog.Print("could not write history cr: ", err.Error())
 		}
 		gl.historyFile.Sync()
 	}

@@ -1,8 +1,9 @@
 package plotwin
 
 import (
+	"errors"
 	"fmt"
-	"log"
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
@@ -94,11 +95,11 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 		pw = pc.root.FindWindow(wname)
 	}
 	if pw == nil {
-		return fmt.Errorf("executing $.plotinit did not result in a window: %s", wname)
+		return errors.New("executing $.plotinit did not result in a window: " + wname)
 	}
 
 	if pw.Type() != "plot" {
-		return fmt.Errorf("%s has the wrong window type: %s", wname, pw.Type()) // object allocated on the heap (OK)
+		return errors.New(wname + " has the wrong window type: " + pw.Type())
 	}
 
 	return pc.addPlotFn(pw, r, fields, isParametric)
@@ -114,7 +115,7 @@ func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
 	}
 	w, h := wc.screen.ScreenSize()
 	if uerr := wc.root.Update(r, w, h, false); uerr != nil {
-		log.Printf("initPlot.Update error: %v", uerr) // object allocated on the heap (OK)
+		elog.Print("initPlot.Update error: ", uerr.Error())
 	}
 	if err != nil {
 		return fmt.Errorf("while executing $.plotinit: %v", err)
