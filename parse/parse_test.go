@@ -122,3 +122,40 @@ func TestFields(t *testing.T) {
 		})
 	}
 }
+
+func TestTruncateString(t *testing.T) {
+	data := []struct {
+		name       string
+		str        string
+		startIdx   int
+		endIdx     int
+		wantStarti int
+		wantEndi   int
+		wantStr    string
+	}{
+		{
+			name:       "start",
+			str:        "0123456789",
+			startIdx:   0,
+			endIdx:     4,
+			wantStarti: 0,
+			wantEndi:   4,
+			wantStr:    "0123",
+		},
+	}
+
+	for _, d := range data {
+		t.Run(d.name, func(t *testing.T) {
+			gots, gotsi, gotei := truncateString(d.str, d.startIdx, d.endIdx, 7)
+			if gots != d.wantStr {
+				t.Errorf("gots=%v, want=%v", gots, d.wantStr)
+			}
+			if gotsi != d.wantStarti {
+				t.Errorf("got sidx=%v, want=%v", gotsi, d.wantStarti)
+			}
+			if gotei != d.wantEndi {
+				t.Errorf("got eidx=%v, want=%v", gotei, d.wantEndi)
+			}
+		})
+	}
+}
