@@ -197,13 +197,14 @@ func buildContextString(m string, starti, endi int) string {
 }
 
 // If the error message is too long, this function tries to intelligently,
-// reduce it's size so that the pooblem argument is still present. examples:
+// reduce it's size so that the problem argument is still present. examples:
 //
-// Try to ->center<- the error
-// But sometimes it's close to ->the<- the
-// Or ->the<- beginning of the shortened string
+// Try to center ->the<- span (m[starti:endi])
+// But sometimes  it's  close  to  ->the<- end
+// Or ->the<- start of  the  truncated  string
 //
-// Use up maxlen characters for all cases
+// Use maxlen characters for all cases.  The function assumes
+// that the caller checked for len(m) > maxlen.
 func truncateString(m string, starti, endi, maxlen int) (string, int, int) {
 	if endi-starti >= maxlen {
 		// The span exceeds maxlen, just show part of it.
