@@ -91,10 +91,10 @@ func (pb *PixelBuffer) ResizeWindow(x, y, w, h int) error {
 		return errors.New("pixelbufffer, size <= 0")
 	}
 	if len(pb.previous) < size {
-		pb.previous = make([]uint8, size) // object allocated on the heap (OK)
+		pb.previous = make([]uint8, size)
 	}
 	if len(pb.current) < size {
-		pb.current = make([]uint8, size) // object allocated on the heap (OK)
+		pb.current = make([]uint8, size)
 	}
 	pb.pw, pb.ph = pb.target.PixelSize() // for less overhead
 	return nil

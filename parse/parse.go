@@ -48,7 +48,7 @@ var parse parseData = parseData{
 func (p *parseData) init() {
 	p.s = WHITESPACE
 	if cap(p.t) > defaultStaticRunes {
-		p.t = make([]rune, defaultStaticRunes) // object allocated on the heap: (OK)
+		p.t = make([]rune, defaultStaticRunes)
 	}
 	p.t = p.t[:0]
 }

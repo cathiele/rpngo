@@ -211,7 +211,7 @@ type conversionData struct {
 }
 
 func Init() *Conversion {
-	c := &Conversion{convertDict: make(map[string]conversionType)} // object allocated on the heap (OK)
+	c := &Conversion{convertDict: make(map[string]conversionType)}
 	c.insertKeys("Distance", distantConvert)
 	c.insertKeys("Time", timeConvert)
 	c.insertKeys("Force/Weight/Mass (Planet Earth)", massConvert)
@@ -266,8 +266,8 @@ func (c *Conversion) Convert(value float64, valueType string, targetType string)
 	if source.numeratorName != target.numeratorName {
 		return 0, fmt.Errorf(
 			"incompatible numerator types: %s, %s",
-			source.numeratorName, // object allocated on the heap (OK)
-			target.numeratorName) // object allocated on the heap (OK)
+			source.numeratorName,
+			target.numeratorName)
 	}
 
 	// check for denominator compatibility, if needed
@@ -275,8 +275,8 @@ func (c *Conversion) Convert(value float64, valueType string, targetType string)
 	if source.isRatio() && source.denominatorName != target.denominatorName {
 		return 0, fmt.Errorf(
 			"incompatible denominator types: %s, %s",
-			source.denominatorName, // object allocated on the heap (OK)
-			target.denominatorName) // object allocated on the heap (OK)
+			source.denominatorName,
+			target.denominatorName)
 	}
 
 	// scale the value by each numerator

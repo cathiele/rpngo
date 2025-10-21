@@ -138,8 +138,8 @@ func (tb *TextBuffer) CheckSize() {
 	}
 	tb.bw = tw
 	tb.bh = th + scrollh
-	tb.buffer = make([]ColorChar, tb.bw*tb.bh) // object allocated on the heap (OK)
-	tb.screen = make([]ColorChar, tw*th)       // object allocated on the heap (OK)
+	tb.buffer = make([]ColorChar, tb.bw*tb.bh)
+	tb.screen = make([]ColorChar, tw*th)
 	// maybe we can reflow the text instead of erasing it after the changes
 	// are proven as stable.
 	tb.Erase()

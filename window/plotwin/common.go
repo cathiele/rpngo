@@ -122,7 +122,7 @@ func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) error {
 		for _, plot := range pw.plots {
 			if err := pw.addPoints(r, plot, pw.autosteps, pw.stats.update); err != nil {
 				pw.plots = nil
-				return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err) // object allocated on the heap (OK)
+				return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)
 			}
 		}
 		if pw.autox {
@@ -139,7 +139,7 @@ func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, color
 	for _, plot := range pw.plots {
 		if err := pw.addPoints(r, plot, pw.steps, fn); err != nil {
 			pw.plots = nil
-			return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err) // object allocated on the heap (OK)
+			return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err)
 		}
 	}
 	return nil

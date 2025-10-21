@@ -23,9 +23,9 @@ type RPN struct {
 // Init initializes an RPNCalc object
 func (r *RPN) Init(maxStackDepth int) {
 	r.Clear()
-	r.Frames = make([]Frame, 0, maxStackDepth) // object allocated on the heap: (OK)
+	r.Frames = make([]Frame, 0, maxStackDepth)
 	r.functions = make(map[string]func(*RPN) error)
-	r.variables = []map[string]Frame{make(map[string]Frame)} // object allocated on the heap (OK)
+	r.variables = []map[string]Frame{make(map[string]Frame)}
 	r.initHelp()
 	r.Register("ssize", stackSize, CatStack, stackSizeHelp)
 	r.Register("spush", pushStack, CatStack, pushStackHelp)

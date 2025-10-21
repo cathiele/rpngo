@@ -71,7 +71,7 @@ func (wr *WindowRoot) MoveWindowOrGroup(src string, dst string, beginning bool) 
 	}
 	srcpg.removeChild(srcwge)
 	if beginning {
-		dstpg.children = append([]*windowGroupEntry{srcwge}, dstpg.children...) // object allocated on the heap (OK)
+		dstpg.children = append([]*windowGroupEntry{srcwge}, dstpg.children...)
 	} else {
 		dstpg.children = append(dstpg.children, srcwge)
 	}
@@ -96,16 +96,16 @@ func (wr *WindowRoot) SetWindowWeight(name string, w int) error {
 }
 
 func (wr *WindowRoot) AddNewWindowGroupChild(r *rpn.RPN, name string) {
-	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, group: &windowGroup{}}) // object allocated on the heap (OK)
+	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, group: &windowGroup{}})
 }
 
 func (wr *WindowRoot) AddWindowChildToRoot(window WindowWithProps, name string, weight int) {
-	wr.group.children = append(wr.group.children, &windowGroupEntry{name: name, weight: weight, window: window}) // object allocated on the heap (OK)
+	wr.group.children = append(wr.group.children, &windowGroupEntry{name: name, weight: weight, window: window})
 	wr.adjustNeeded = true
 }
 
 func (wr *WindowRoot) AddWindowChild(r *rpn.RPN, window WindowWithProps, name string) {
-	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, window: window}) // object allocated on the heap (OK)
+	wr.addWindowGroupEntry(r, &windowGroupEntry{name: name, window: window})
 }
 
 func (wr *WindowRoot) addWindowGroupEntry(r *rpn.RPN, wge *windowGroupEntry) {
@@ -122,7 +122,7 @@ func (wr *WindowRoot) addWindowGroupEntry(r *rpn.RPN, wge *windowGroupEntry) {
 	if addend {
 		parent.children = append(parent.children, wge)
 	} else {
-		parent.children = append([]*windowGroupEntry{wge}, parent.children...) // object allocated on the heap (OK)
+		parent.children = append([]*windowGroupEntry{wge}, parent.children...)
 	}
 	wr.adjustNeeded = true
 }

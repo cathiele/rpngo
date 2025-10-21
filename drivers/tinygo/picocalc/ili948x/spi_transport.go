@@ -10,9 +10,9 @@ type spiTransport struct {
 }
 
 func NewSPITransport(spi machine.SPI) *spiTransport {
-	return &spiTransport{ // object allocated on the heap (OK)
+	return &spiTransport{
 		spi: spi,
-		buf: make([]uint8, 1024), // object allocated on the heap (OK)
+		buf: make([]uint8, 1024),
 	}
 }
 

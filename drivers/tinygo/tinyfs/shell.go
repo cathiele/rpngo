@@ -60,7 +60,7 @@ func (fo *FileOpsDriver) ls(args []string) (string, error) {
 			return "", fmt.Errorf("unknown flag: %v", arg)
 		}
 	}
-	path = absPath(fo.pwd, path, true, false) // object allocated on the heap: escapes at line 65
+	path = absPath(fo.pwd, path, true, false)
 	print("open ")
 	println(path)
 	dir, err := fo.fs.Open(path)
@@ -74,7 +74,7 @@ func (fo *FileOpsDriver) ls(args []string) (string, error) {
 		return "", err
 	}
 	println("for loop")
-	buff := make([]byte, 0, 128) // object allocated on the heap: escapes at line 77
+	buff := make([]byte, 0, 128)
 	for _, info := range infos {
 		if longMode {
 			buff = appendLongInfo(buff, info)
@@ -92,7 +92,7 @@ func appendLongInfo(buff []byte, info os.FileInfo) []byte {
 	} else {
 		buff = append(buff, byte('-'))
 	}
-	return append(buff, []byte(fmt.Sprintf("rwxrwxrwx %5d %s\n", info.Size(), info.Name()))...) // object allocated on the heap: escapes at line 96
+	return append(buff, []byte(fmt.Sprintf("rwxrwxrwx %5d %s\n", info.Size(), info.Name()))...)
 }
 
 func appendShortInfo(buff []byte, info os.FileInfo) []byte {
