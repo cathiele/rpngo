@@ -140,13 +140,77 @@ func TestTruncateString(t *testing.T) {
 			endIdx:     4,
 			wantStarti: 0,
 			wantEndi:   4,
-			wantStr:    "0123",
+			wantStr:    "0123456",
+		},
+		{
+			name:       "one",
+			str:        "0123456789",
+			startIdx:   1,
+			endIdx:     5,
+			wantStarti: 1,
+			wantEndi:   5,
+			wantStr:    "0123456",
+		},
+		{
+			name:       "two",
+			str:        "0123456789",
+			startIdx:   2,
+			endIdx:     6,
+			wantStarti: 1,
+			wantEndi:   5,
+			wantStr:    "1234567",
+		},
+		{
+			name:       "three",
+			str:        "0123456789",
+			startIdx:   3,
+			endIdx:     7,
+			wantStarti: 1,
+			wantEndi:   5,
+			wantStr:    "2345678",
+		},
+		{
+			name:       "four",
+			str:        "0123456789",
+			startIdx:   4,
+			endIdx:     8,
+			wantStarti: 1,
+			wantEndi:   5,
+			wantStr:    "3456789",
+		},
+		{
+			name:       "five",
+			str:        "0123456789",
+			startIdx:   5,
+			endIdx:     9,
+			wantStarti: 2,
+			wantEndi:   6,
+			wantStr:    "3456789",
+		},
+		{
+			name:       "too big 1",
+			str:        "0123456789",
+			startIdx:   0,
+			endIdx:     8,
+			wantStarti: 0,
+			wantEndi:   7,
+			wantStr:    "0123456",
+		},
+		{
+			name:       "too big 2",
+			str:        "0123456789",
+			startIdx:   1,
+			endIdx:     9,
+			wantStarti: 0,
+			wantEndi:   7,
+			wantStr:    "1234567",
 		},
 	}
 
 	for _, d := range data {
 		t.Run(d.name, func(t *testing.T) {
-			gots, gotsi, gotei := truncateString(d.str, d.startIdx, d.endIdx, 7)
+			gots, gotsi, gotei := truncateString(
+				d.str, d.startIdx, d.endIdx, 7)
 			if gots != d.wantStr {
 				t.Errorf("gots=%v, want=%v", gots, d.wantStr)
 			}

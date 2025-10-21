@@ -201,25 +201,24 @@ func truncateString(m string, starti, endi, maxlen int) (string, int, int) {
 		return m[starti : starti+maxlen], 0, maxlen
 	}
 
-	span := endi - starti
 	center := (starti + endi) / 2
 
-	starts := center - span/2
-	ends := starts + span
+	starts := center - maxlen/2
+	ends := starts + maxlen
 
 	if starts < 0 {
-		// shift window right
+		starts = 0
+		ends = starts + maxlen
+	} else if starts > 0 {
 		starti -= starts
 		endi -= starts
-		ends -= starts
-		starts = 0
 	}
 
-	if ends >= len(m) {
+	if ends > len(m) {
 		// shift window left
 		delta := ends - len(m)
-		starti -= delta
-		endi -= delta
+		starti += delta
+		endi += delta
 		starts -= delta
 		ends -= delta
 	}
