@@ -2,6 +2,7 @@ package rpn
 
 import (
 	"mattwach/rpngo/convert"
+	"mattwach/rpngo/elog"
 	"sort"
 )
 
@@ -23,9 +24,11 @@ type RPN struct {
 // Init initializes an RPNCalc object
 func (r *RPN) Init(maxStackDepth int) {
 	r.Clear()
-	r.Frames = make([]Frame, 0, maxStackDepth)
+	elog.Heap("alloc: /rpn/rpn.go:26: r.Frames = make([]Frame, 0, maxStackDepth)")
+	r.Frames = make([]Frame, 0, maxStackDepth) // object allocated on the heap: object size 10240 exceeds maximum stack allocation size 256
 	r.functions = make(map[string]func(*RPN) error)
-	r.variables = []map[string]Frame{make(map[string]Frame)}
+	elog.Heap("alloc: /rpn/rpn.go:28: r.variables = []map[string]Frame{make(map[string]Frame)}")
+	r.variables = []map[string]Frame{make(map[string]Frame)} // object allocated on the heap: escapes at line 28
 	r.initHelp()
 	r.Register("ssize", stackSize, CatStack, stackSizeHelp)
 	r.Register("spush", pushStack, CatStack, pushStackHelp)

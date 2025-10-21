@@ -15,6 +15,7 @@ package parse
 import (
 	"errors"
 	"fmt"
+	"mattwach/rpngo/elog"
 )
 
 var (
@@ -48,7 +49,8 @@ var parse parseData = parseData{
 func (p *parseData) init() {
 	p.s = WHITESPACE
 	if cap(p.t) > defaultStaticRunes {
-		p.t = make([]rune, defaultStaticRunes)
+		elog.Heap("alloc: /parse/parse.go:51: p.t = make([]rune, defaultStaticRunes)")
+		p.t = make([]rune, defaultStaticRunes) // object allocated on the heap: escapes at line 51
 	}
 	p.t = p.t[:0]
 }
@@ -158,9 +160,10 @@ func Fields(m string, fn func(string) error) error {
 			parse.comment(c)
 		}
 		if err != nil {
+			elog.Heap("alloc: /parse/parse.go:163: buildContextString(m, starti, i),")
 			return fmt.Errorf(
 				"%s: %w",
-				buildContextString(m, starti, i),
+				buildContextString(m, starti, i), // object allocated on the heap: escapes at line 163
 				err)
 		}
 	}
@@ -175,9 +178,10 @@ func Fields(m string, fn func(string) error) error {
 	}
 
 	if err != nil {
+		elog.Heap("alloc: /parse/parse.go:180: buildContextString(m, starti, len(m)),")
 		return fmt.Errorf(
 			"%s: %w",
-			buildContextString(m, starti, len(m)),
+			buildContextString(m, starti, len(m)), // object allocated on the heap: escapes at line 180
 			err)
 	}
 	return nil

@@ -1,6 +1,8 @@
 // RPNStack holds stack information for an RPNCalc
 package rpn
 
+import "mattwach/rpngo/elog"
+
 func (r *RPN) Clear() {
 	r.Frames = r.Frames[:0]
 }
@@ -79,7 +81,8 @@ func (r *RPN) InsertFrame(f Frame, framesBack int) error {
 const pushStackHelp = "Pushes a copy of the entire stack. spop can be use to recover it."
 
 func pushStack(r *RPN) error {
-	r.pushed = append(r.pushed, make([]Frame, len(r.Frames)))
+	elog.Heap("alloc: /rpn/stack.go:82: r.pushed = append(r.pushed, make([]Frame, len(r.Frames)))")
+	r.pushed = append(r.pushed, make([]Frame, len(r.Frames))) // object allocated on the heap: size is not constant
 	copy(r.pushed[len(r.pushed)-1], r.Frames)
 	return nil
 }

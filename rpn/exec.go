@@ -2,6 +2,7 @@ package rpn
 
 import (
 	"fmt"
+	"mattwach/rpngo/elog"
 	"strconv"
 	"strings"
 )
@@ -70,7 +71,8 @@ func (rpn *RPN) Exec(arg string) error {
 func (rpn *RPN) ExecSlice(args []string) error {
 	for i, arg := range args {
 		if err := rpn.Exec(arg); err != nil {
-			return fmt.Errorf("exec %s: %w", highlightArg(args, i), err)
+			elog.Heap("alloc: /rpn/exec.go:73: return fmt.Errorf('exec %s: %w', highlightArg(args, i), err)")
+			return fmt.Errorf("exec %s: %w", highlightArg(args, i), err) // object allocated on the heap: escapes at line 73
 		}
 	}
 	return nil
