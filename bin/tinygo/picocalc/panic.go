@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"log"
 	"machine"
 	"mattwach/rpngo/drivers/tinygo/fonts"
 	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
+	"mattwach/rpngo/elog"
 	"time"
 )
 
@@ -18,7 +18,7 @@ func handlePanic(lcd *ili948x.Ili948x, r any) {
 	led.High()
 
 	msg := fmt.Sprintf("Panic: %+v", r) // object allocated on the heap (OK)
-	log.Println(msg)                    // object allocated on the heap (OK)
+	elog.Print(msg)
 	lcd.FillRectangle(0, 0, 320, 100, ili948x.RED)
 	var x int16 = 16
 	var y int16 = 20

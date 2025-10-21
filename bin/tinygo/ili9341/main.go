@@ -6,12 +6,12 @@ package main
 
 import (
 	"errors"
-	"log"
 	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/ili9341"
 	"mattwach/rpngo/drivers/tinygo/serialconsole"
 	"mattwach/rpngo/drivers/tinygo/tinyfs"
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
@@ -21,12 +21,27 @@ import (
 	"mattwach/rpngo/window/commands"
 	"mattwach/rpngo/window/input"
 	"mattwach/rpngo/window/plotwin"
-	"os"
 	"time"
 )
 
 const scrollbytes = 8 * 1024
 const maxStackDepth = 256
+
+// Persistant globals.  Tinygo curently can't move heap pointers,
+// which leads to heap fragmentation and thus the heap should
+// be used sparingly
+var rpnInst rpn.RPN
+var getInputInst getInput
+var inputWin input.InputWindow
+var screen ili9341.Ili9341Screen
+var root window.WindowRoot
+var fileOps fileops.FileOps
+var fileOpsDriver tinyfs.FileOpsDriver
+
+type getInput struct {
+	lcd     *ili9341.Ili9341TxtW
+	serialc serialconsole.SerialConsole
+}
 
 func main() {
 	if err := run(); err != nil {
@@ -37,20 +52,14 @@ func main() {
 func run() error {
 	time.Sleep(2 * time.Second)
 
-	log.SetOutput(os.Stdout)
-	println("Started")
-	var r rpn.RPN // object allocated on the heap (OK)
-	r.Init(maxStackDepth)
-	functions.RegisterAll(&r)
-	var fo fileops.FileOps       // object allocated on the heap (OK)
-	var fod tinyfs.FileOpsDriver // object allocated on the heap (OK)
-	_ = fod.Init()
-	fo.InitAndRegister(&r, 65536, &fod)
+	elog.Print("Started")
+	rpnInst.Init(maxStackDepth)
+	functions.RegisterAll(&rpnInst)
+	_ = fileOpsDriver.Init()
+	fileOps.InitAndRegister(&rpnInst, 65536, &fileOpsDriver)
 
-	var screen ili9341.Ili9341Screen // object allocated on the heap (OK)
 	screen.Init()
-	var root window.WindowRoot // object allocated on the heap (OK)
-	err := buildUI(&root, &screen, &r)
+	err := buildUI(&root, &screen, &rpnInst)
 	if err != nil {
 		return err
 	}
@@ -65,19 +74,19 @@ func run() error {
 		ppw.Init(&pb)
 		return &ppw, nil
 	}
-	_ = commands.InitWindowCommands(&r, &root, &screen, newPixelPlotWindow)
-	_ = plotwin.InitPlotCommands(&r, &root, &screen, plotwin.AddPixelPlotFn)
-	if err := startup.LCD320Startup(&r); err != nil {
+	_ = commands.InitWindowCommands(&rpnInst, &root, &screen, newPixelPlotWindow)
+	_ = plotwin.InitPlotCommands(&rpnInst, &root, &screen, plotwin.AddPixelPlotFn)
+	if err := startup.LCD320Startup(&rpnInst); err != nil {
 		return err
 	}
 	w, h := screen.ScreenSize()
-	if err := root.Update(&r, w, h, true); err != nil {
+	if err := root.Update(&rpnInst, w, h, true); err != nil {
 		return err
 	}
 	for {
 		tinygo.DumpMemStats()
 		w, h = screen.ScreenSize()
-		if err := root.Update(&r, w, h, true); err != nil {
+		if err := root.Update(&rpnInst, w, h, true); err != nil {
 			if errors.Is(err, input.ErrExit) {
 				return nil
 			}
@@ -100,17 +109,10 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	if err != nil {
 		return err
 	}
-	gi := &getInput{}        // object allocated on the heap (OK)
-	var iw input.InputWindow // object allocated on the heap (OK)
-	iw.Init(gi, txtw, r, scrollbytes)
-	gi.lcd = txtw.(*ili9341.Ili9341TxtW)
-	root.AddWindowChildToRoot(&iw, "i", 100)
+	inputWin.Init(&getInputInst, txtw, r, scrollbytes)
+	getInputInst.lcd = txtw.(*ili9341.Ili9341TxtW)
+	root.AddWindowChildToRoot(&inputWin, "i", 100)
 	return nil
-}
-
-type getInput struct {
-	lcd     *ili9341.Ili9341TxtW
-	serialc serialconsole.SerialConsole
 }
 
 func (gi *getInput) GetChar() (key.Key, error) {

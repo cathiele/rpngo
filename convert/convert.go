@@ -3,8 +3,8 @@ package convert
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math"
+	"mattwach/rpngo/elog"
 	"sort"
 	"strings"
 )
@@ -227,7 +227,7 @@ func (c *Conversion) insertKeys(className string, data []unit) {
 	for _, d := range data {
 		for _, k := range d.names {
 			if _, ok := c.convertDict[k]; ok {
-				log.Printf("Error: duplicate conversion key: %s", k) // object allocated on the heap (OK)
+				elog.Print("Error: duplicate conversion key: ", k)
 			}
 			c.convertDict[k] = conversionType{className, d.scale, d.offset}
 		}

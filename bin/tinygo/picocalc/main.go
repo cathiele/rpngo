@@ -6,12 +6,12 @@ package main
 
 import (
 	"errors"
-	"log"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/picocalc/i2ckbd"
 	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
 	"mattwach/rpngo/drivers/tinygo/serialconsole"
 	"mattwach/rpngo/drivers/tinygo/tinyfs"
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
@@ -21,15 +21,30 @@ import (
 	"mattwach/rpngo/window/commands"
 	"mattwach/rpngo/window/input"
 	"mattwach/rpngo/window/plotwin"
-	"os"
 	"time"
 )
 
 const scrollbytes = 8 * 1024
 const maxStackDepth = 256
 
+// Persistant globals.  Tinygo curently can't move heap pointers,
+// which leads to heap fragmentation and thus the heap should
+// be used sparingly
+var rpnInst rpn.RPN
+var getInputInst getInput
+var inputWin input.InputWindow
+var screen ili948x.Ili948xScreen
+var root window.WindowRoot
+var fileOps fileops.FileOps
+var fileOpsDriver tinyfs.FileOpsDriver
+
+type getInput struct {
+	lcd      *ili948x.Ili948xTxtW
+	serialc  serialconsole.SerialConsole
+	keyboard i2ckbd.I2CKbd
+}
+
 func main() {
-	var screen ili948x.Ili948xScreen // object allocated on the heap (OK)
 	screen.Init()
 	// This only seeems to work for panics I throw and not errors
 	// like array out of bounds.
@@ -38,26 +53,20 @@ func main() {
 			handlePanic(screen.Device, r)
 		}
 	}()
-	if err := run(&screen); err != nil {
+	if err := run(); err != nil {
 		panic(err)
 	}
 }
 
-func run(screen *ili948x.Ili948xScreen) error { // object allocated on the heap (OK)
+func run() error {
 	time.Sleep(200 * time.Millisecond)
 
-	log.SetOutput(os.Stdout)
-	log.Println("Started") // object allocated on the heap (OK)
-	var r rpn.RPN          // object allocated on the heap: (OK)
-	r.Init(maxStackDepth)
-	functions.RegisterAll(&r)
-	var fo fileops.FileOps
-	var fod tinyfs.FileOpsDriver
-	_ = fod.Init()
-	fo.InitAndRegister(&r, 65536, &fod)
-
-	var root window.WindowRoot
-	err := buildUI(&root, screen, &r)
+	elog.Print("Started")
+	rpnInst.Init(maxStackDepth)
+	functions.RegisterAll(&rpnInst)
+	_ = fileOpsDriver.Init()
+	fileOps.InitAndRegister(&rpnInst, 65536, &fileOpsDriver)
+	err := buildUI()
 	if err != nil {
 		return err
 	}
@@ -72,18 +81,18 @@ func run(screen *ili948x.Ili948xScreen) error { // object allocated on the heap 
 		ppw.Init(&pb)
 		return &ppw, nil
 	}
-	_ = commands.InitWindowCommands(&r, &root, screen, newPixelPlotWindow)
-	_ = plotwin.InitPlotCommands(&r, &root, screen, plotwin.AddPixelPlotFn)
-	if err := startup.LCD320Startup(&r); err != nil {
+	_ = commands.InitWindowCommands(&rpnInst, &root, &screen, newPixelPlotWindow)
+	_ = plotwin.InitPlotCommands(&rpnInst, &root, &screen, plotwin.AddPixelPlotFn)
+	if err := startup.LCD320Startup(&rpnInst); err != nil {
 		return err
 	}
 	w, h := screen.ScreenSize()
-	if err := root.Update(&r, w, h, true); err != nil {
+	if err := root.Update(&rpnInst, w, h, true); err != nil {
 		return err
 	}
 	for {
 		w, h = screen.ScreenSize()
-		if err := root.Update(&r, w, h, true); err != nil {
+		if err := root.Update(&rpnInst, w, h, true); err != nil {
 			if errors.Is(err, input.ErrExit) {
 				return nil
 			}
@@ -92,35 +101,23 @@ func run(screen *ili948x.Ili948xScreen) error { // object allocated on the heap 
 	}
 }
 
-func buildUI(root *window.WindowRoot, screen window.Screen, r *rpn.RPN) error {
+func buildUI() error {
 	w, h := screen.ScreenSize()
 	root.Init(w, h)
-	return addInputWindow(screen, root, r)
-}
-
-func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) error {
 	txtw, err := screen.NewTextWindow()
 	if err != nil {
 		return err
 	}
-	gi := &getInput{} // object allocated on the heap (OK)
-	gi.Init()
-	var iw input.InputWindow
-	iw.Init(gi, txtw, r, scrollbytes)
-	gi.lcd = txtw.(*ili948x.Ili948xTxtW)
-	root.AddWindowChildToRoot(&iw, "i", 100)
+	getInputInst.Init()
+	inputWin.Init(&getInputInst, txtw, &rpnInst, scrollbytes)
+	getInputInst.lcd = txtw.(*ili948x.Ili948xTxtW)
+	root.AddWindowChildToRoot(&inputWin, "i", 100)
 	return nil
-}
-
-type getInput struct {
-	lcd      *ili948x.Ili948xTxtW
-	serialc  serialconsole.SerialConsole
-	keyboard i2ckbd.I2CKbd
 }
 
 func (gi *getInput) Init() {
 	if err := gi.keyboard.Init(); err != nil {
-		log.Printf("failed to init keyboard: %v", err) // object allocated on the heap (OK)
+		elog.Print("failed to init keyboard: ", err.Error())
 	}
 }
 
@@ -134,7 +131,7 @@ func (gi *getInput) GetChar() (key.Key, error) {
 		var err error
 		k, err = gi.keyboard.GetChar()
 		if err != nil {
-			log.Printf("keyboard error: %v", err) // object allocated on the heap (OK)
+			elog.Print("keyboard error: ", err.Error())
 			time.Sleep(1 * time.Second)
 		} else if k != 0 {
 			return k, nil
