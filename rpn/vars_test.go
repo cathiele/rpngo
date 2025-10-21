@@ -178,7 +178,7 @@ func TestGetStringVariable(t *testing.T) {
 		t.Run(d.name, func(t *testing.T) {
 			var r RPN
 			r.Init(256)
-			err := r.Exec(d.args)
+			err := r.ExecSlice(d.args)
 			if err != nil {
 				t.Fatalf("err=%v, want nil", err)
 			}
@@ -229,7 +229,7 @@ func TestGetComplexVariable(t *testing.T) {
 		t.Run(d.name, func(t *testing.T) {
 			var r RPN
 			r.Init(256)
-			err := r.Exec(d.args)
+			err := r.ExecSlice(d.args)
 			if err != nil {
 				t.Fatalf("err=%v, want nil", err)
 			}
@@ -247,7 +247,7 @@ func TestGetComplexVariable(t *testing.T) {
 func TestAllVariableNamesAndValues(t *testing.T) {
 	var r RPN
 	r.Init(256)
-	r.Exec([]string{"1d", "a=", "2d", "b=", "vpush", "'foo'", "a=", "3d", "c="})
+	r.ExecSlice([]string{"1d", "a=", "2d", "b=", "vpush", "'foo'", "a=", "3d", "c="})
 	want := []NameAndValues{
 		{
 			Name:   "a",
