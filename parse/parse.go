@@ -14,6 +14,7 @@ package parse
 
 import (
 	"errors"
+	"fmt"
 )
 
 var (
@@ -138,37 +139,92 @@ func (p *parseData) comment(c rune) {
 // (to avoid memory allocation)
 func Fields(m string, fn func(string) error) error {
 	parse.init()
-	for _, c := range m {
+	var err error
+	starti := 0
+	for i, c := range m {
 		switch parse.s {
 		case WHITESPACE:
 			parse.whitespace(c)
+			if parse.s != WHITESPACE {
+				starti = i
+			}
 		case TOKEN:
-			if err := parse.token(c, fn); err != nil {
-				return err
-			}
+			err = parse.token(c, fn)
 		case STRING_SINGLE:
-			if err := parse.str(c, '\'', fn); err != nil {
-				return err
-			}
+			err = parse.str(c, '\'', fn)
 		case STRING_DOUBLE:
-			if err := parse.str(c, '"', fn); err != nil {
-				return err
-			}
+			err = parse.str(c, '"', fn)
 		case COMMENT:
 			parse.comment(c)
 		}
+		if err != nil {
+			return fmt.Errorf(
+				"%s: %w",
+				buildContextString(m, starti, i),
+				err)
+		}
 	}
+
 	switch parse.s {
 	case TOKEN:
-		if err := parse.token('\n', fn); err != nil {
-			return err
-		}
+		err = parse.token('\n', fn)
 	case STRING_SINGLE:
-		return ErrUnterminatedSingleQuote
+		err = ErrUnterminatedSingleQuote
 	case STRING_DOUBLE:
-		return ErrUnterminatedDouble
+		err = ErrUnterminatedDouble
+	}
+
+	if err != nil {
+		return fmt.Errorf(
+			"%s: %w",
+			buildContextString(m, starti, len(m)),
+			err)
 	}
 	return nil
+}
+
+// set a max context length so that the error location is not buried
+const maxContextLength = 80
+
+func buildContextString(m string, starti, endi int) string {
+	if len(m) > maxContextLength {
+		m, starti, endi = truncateString(m, starti, endi, maxContextLength)
+	}
+	if starti >= len(m) {
+		return m + "<-"
+	}
+	return m[:starti] + "->" + m[starti:endi] + "<-" + m[endi:]
+}
+
+func truncateString(m string, starti, endi, maxlen int) (string, int, int) {
+	if endi - starti >= maxlen {
+		return m[starti:starti+maxlen], 0, maxlen
+	}
+
+	span := endi - starti
+	center := (starti + endi) / 2
+
+	starts := center - span
+	ends := starts + span
+
+	if starts < 0 {
+		// shift window right
+		starti -= starts
+		endi -= starts
+		ends -= starts
+		starts = 0
+	}
+
+	if ends >= len(m) {
+		// shift window left
+		delta := ends - len(m)
+		starti -= delta
+		endi -= delta
+		starts -= delta
+		ends -= delta
+	}
+
+	return m[starts:ends], starti, endi
 }
 
 func isWhitespace(c rune) bool {
