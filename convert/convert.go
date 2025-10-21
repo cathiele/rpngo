@@ -211,7 +211,8 @@ type conversionData struct {
 }
 
 func Init() *Conversion {
-	c := &Conversion{convertDict: make(map[string]conversionType)}
+	elog.Heap("alloc: /convert/convert.go:214: c := &Conversion{convertDict: make(map[string]conversionType)}")
+	c := &Conversion{convertDict: make(map[string]conversionType)} // object allocated on the heap: escapes at line 223
 	c.insertKeys("Distance", distantConvert)
 	c.insertKeys("Time", timeConvert)
 	c.insertKeys("Force/Weight/Mass (Planet Earth)", massConvert)
@@ -264,19 +265,21 @@ func (c *Conversion) Convert(value float64, valueType string, targetType string)
 	// check for numerator compatibility
 
 	if source.numeratorName != target.numeratorName {
+		elog.Heap("alloc: /convert/convert.go:269: source.numeratorName,")
 		return 0, fmt.Errorf(
 			"incompatible numerator types: %s, %s",
-			source.numeratorName,
-			target.numeratorName)
+			source.numeratorName, // object allocated on the heap: escapes at line 269
+			target.numeratorName) // object allocated on the heap: escapes at line 270
 	}
 
 	// check for denominator compatibility, if needed
 
 	if source.isRatio() && source.denominatorName != target.denominatorName {
+		elog.Heap("alloc: /convert/convert.go:278: source.denominatorName,")
 		return 0, fmt.Errorf(
 			"incompatible denominator types: %s, %s",
-			source.denominatorName,
-			target.denominatorName)
+			source.denominatorName, // object allocated on the heap: escapes at line 278
+			target.denominatorName) // object allocated on the heap: escapes at line 279
 	}
 
 	// scale the value by each numerator

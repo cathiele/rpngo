@@ -14,9 +14,11 @@ import (
 	"time"
 )
 
+// Globally allocate RPN to avoid Tijnygo heap usage
+var r rpn.RPN
+
 func main() {
 	time.Sleep(2 * time.Second)
-	var r rpn.RPN
 	r.Init(256)
 	functions.RegisterAll(&r)
 
