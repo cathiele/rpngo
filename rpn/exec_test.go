@@ -10,7 +10,7 @@ func TestExecInterrupted(t *testing.T) {
 	var r RPN
 	r.Init(256)
 	r.Interrupt = func() bool { return true }
-	err := r.exec("5")
+	err := r.Exec("5")
 	if !errors.Is(err, ErrInterrupted) {
 		t.Errorf("err got %v, want %v", err, ErrInterrupted)
 	}
@@ -253,7 +253,7 @@ func TestExec(t *testing.T) {
 			var r RPN
 			r.Init(256)
 			r.Print = func(string) {}
-			err := r.Exec(d.args)
+			err := r.ExecSlice(d.args)
 			if !errors.Is(err, d.wantErr) {
 				t.Errorf("err got %v, want %v", err, d.wantErr)
 			}

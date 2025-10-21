@@ -1,7 +1,7 @@
 package rpn
 
 import (
-	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -70,7 +70,7 @@ func (rpn *RPN) Exec(arg string) error {
 func (rpn *RPN) ExecSlice(args []string) error {
 	for i, arg := range args {
 		if err := rpn.Exec(arg); err != nil {
-			return errors.New("exec " + highlightArg(args, i) + ": " + err.Error())
+			return fmt.Errorf("exec %s: %w", highlightArg(args, i), err)
 		}
 	}
 	return nil

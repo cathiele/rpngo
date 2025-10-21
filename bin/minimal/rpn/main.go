@@ -10,10 +10,10 @@ import (
 
 func run() error {
 	var r rpn.RPN
-	r.Init()
+	r.Init(256)
 	functions.RegisterAll(&r)
 
-	if err := r.Exec(os.Args[1:]); err != nil {
+	if err := r.ExecSlice(os.Args[1:]); err != nil {
 		return err
 	}
 

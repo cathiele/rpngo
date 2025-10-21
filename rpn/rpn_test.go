@@ -5,7 +5,7 @@ import "testing"
 func TestInit(t *testing.T) {
 	var r RPN
 	r.Init(256)
-	err := r.Exec([]string{"11", "22", "33", "ssize"})
+	err := r.ExecSlice([]string{"11", "22", "33", "ssize"})
 	if err != nil {
 		t.Fatalf("r.Exec() err=%v", err)
 	}
@@ -28,7 +28,7 @@ func TestRegister(t *testing.T) {
 		return r.PushFrame(IntFrame(55, INTEGER_FRAME))
 	}
 	r.Register("fiftyfive", fn, "helpcat", "helptxt")
-	err := r.Exec([]string{"fiftyfive"})
+	err := r.ExecSlice([]string{"fiftyfive"})
 	if err != nil {
 		t.Fatalf("r.Exec() err=%v", err)
 	}

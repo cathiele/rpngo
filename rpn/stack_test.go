@@ -8,7 +8,7 @@ import (
 func TestLengthAndClear(t *testing.T) {
 	var r RPN
 	r.Init(256)
-	r.Exec([]string{"1", "2", "3"})
+	r.ExecSlice([]string{"1", "2", "3"})
 	if r.StackLen() != 3 {
 		t.Errorf("StackLen()=%v, want 3", r.StackLen())
 	}
