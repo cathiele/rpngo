@@ -47,7 +47,7 @@ func InitWindowCommands(
 			"See Also: window.layout, window.props",
 	}
 	r.RegisterConceptHelp(conceptHelp)
-	wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn} // object allocated on the heap (OK)
+	wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn}
 	r.Register("w.columns", wc.WColumns, rpn.CatWindow, WColumnsHelp)
 	r.Register("w.del", wc.WDelete, rpn.CatWindow, WDeleteHelp)
 	r.Register("w.dump", wc.WDump, rpn.CatWindow, WDumpHelp)
@@ -184,7 +184,7 @@ func (wc *WindowCommands) WNewStack(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	var sw stackwin.StackWindow // object allocated on the heap (OK)
+	var sw stackwin.StackWindow
 	sw.Init(txtw)
 	wc.root.AddWindowChild(r, &sw, name)
 	return nil
@@ -214,7 +214,7 @@ func (wc *WindowCommands) WNewVar(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	var vw varwin.VariableWindow // object allocated on the heap: (OK)
+	var vw varwin.VariableWindow
 	vw.Init(txtw)
 	wc.root.AddWindowChild(r, &vw, name)
 	return nil

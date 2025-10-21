@@ -16,7 +16,7 @@ import (
 
 func main() {
 	time.Sleep(2 * time.Second)
-	var r rpn.RPN // object allocated on the heap (OK)
+	var r rpn.RPN
 	r.Init(256)
 	functions.RegisterAll(&r)
 

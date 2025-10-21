@@ -45,7 +45,7 @@ func InitPlotCommands(
 	}
 	r.RegisterConceptHelp(conceptHelp)
 
-	pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn} // object allocated on the heap (OK)
+	pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}
 	r.Register("plot", pc.Plot, rpn.CatPlot, PlotHelp)
 	r.Register("pplot", pc.PPlot, rpn.CatPlot, PPlotHelp)
 	return &pc
@@ -75,7 +75,7 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	if !macro.IsString() {
 		return rpn.ErrExpectedAString
 	}
-	fields := make([]string, 0, 2) // object allocated on the heap (OK)
+	fields := make([]string, 0, 2)
 	addField := func(t string) error {
 		fields = append(fields, t)
 		return nil
@@ -83,7 +83,7 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	if err := parse.Fields(macro.UnsafeString(), addField); err != nil {
 		return err
 	}
-	wname, err := r.GetStringVariable(".plotwin") // object allocated on the heap (OK)
+	wname, err := r.GetStringVariable(".plotwin")
 	if err != nil {
 		return err
 	}

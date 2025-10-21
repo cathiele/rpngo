@@ -38,7 +38,7 @@ type getLine struct {
 const histFile = ".rpngo_history"
 
 func initGetLine(input Input, txtb *window.TextBuffer) *getLine {
-	gl := &getLine{ // object allocated on the heap: (OK)
+	gl := &getLine{
 		insertMode:     true,
 		input:          input,
 		txtb:           txtb,

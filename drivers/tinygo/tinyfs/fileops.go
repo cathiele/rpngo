@@ -31,7 +31,7 @@ type FileOpsDriver struct {
 }
 
 func (fo *FileOpsDriver) Init() error {
-	sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin) // object allocated on the heap: escapes at line 39
+	sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin)
 	fo.initErr = sd.Configure()
 	if fo.initErr != nil {
 		return fo.initErr
@@ -68,7 +68,7 @@ func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := make([]byte, sz) // object allocated on the heap: size is not constant
+	data := make([]byte, sz)
 	totalRead := 0
 	for totalRead < int(sz) {
 		read, err := f.Read(data[totalRead:])
@@ -92,7 +92,7 @@ func (fo *FileOpsDriver) AppendToFile(path string, data []byte) error {
 	return fo.writeOrAppend(path, data, os.O_WRONLY|os.O_CREATE|os.O_APPEND)
 }
 
-func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) error { // object allocated on the heap: escapes at line 102
+func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) error {
 	if fo.initErr != nil {
 		return fo.initErr
 	}

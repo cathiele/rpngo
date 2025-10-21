@@ -79,7 +79,7 @@ func (r *RPN) InsertFrame(f Frame, framesBack int) error {
 const pushStackHelp = "Pushes a copy of the entire stack. spop can be use to recover it."
 
 func pushStack(r *RPN) error {
-	r.pushed = append(r.pushed, make([]Frame, len(r.Frames))) // object allocated on the heap (OK)
+	r.pushed = append(r.pushed, make([]Frame, len(r.Frames)))
 	copy(r.pushed[len(r.pushed)-1], r.Frames)
 	return nil
 }

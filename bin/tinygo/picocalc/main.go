@@ -71,12 +71,12 @@ func run() error {
 		return err
 	}
 	newPixelPlotWindow := func() (window.WindowWithProps, error) {
-		var ppw plotwin.PixelPlotWindow // object allocated on the heap (OK)
+		var ppw plotwin.PixelPlotWindow
 		pw, err := screen.NewPixelWindow()
 		if err != nil {
 			return nil, err
 		}
-		var pb pixelwinbuffer.PixelBuffer // object allocated on the heap (OK)
+		var pb pixelwinbuffer.PixelBuffer
 		pb.Init(pw)
 		ppw.Init(&pb)
 		return &ppw, nil

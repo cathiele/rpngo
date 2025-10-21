@@ -16,13 +16,13 @@ func (s *Ili948xScreen) Init() {
 }
 
 func (s *Ili948xScreen) NewTextWindow() (window.TextWindow, error) {
-	tw := &Ili948xTxtW{} // object allocated on the heap (OK)
+	tw := &Ili948xTxtW{}
 	tw.Init(s.Device)
 	return tw, nil
 }
 
 func (s *Ili948xScreen) NewPixelWindow() (window.PixelWindow, error) {
-	pw := &Ili948xPixW{} // object allocated on the heap (OK)
+	pw := &Ili948xPixW{}
 	pw.Init(s.Device)
 	return pw, nil
 }

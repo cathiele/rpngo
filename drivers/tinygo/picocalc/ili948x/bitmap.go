@@ -13,7 +13,7 @@ type Bitmap struct {
 func (bm *Bitmap) Init(w, h int16) {
 	bm.Width = w
 	bm.Height = h
-	bm.Data = make([]RGB565, w*h) // object allocated on the heap (OK)
+	bm.Data = make([]RGB565, w*h)
 }
 
 // For compatibility with https://github.com/tinygo-org/drivers/blob/release/displayer.go
