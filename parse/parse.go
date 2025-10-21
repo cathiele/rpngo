@@ -197,14 +197,14 @@ func buildContextString(m string, starti, endi int) string {
 }
 
 func truncateString(m string, starti, endi, maxlen int) (string, int, int) {
-	if endi - starti >= maxlen {
-		return m[starti:starti+maxlen], 0, maxlen
+	if endi-starti >= maxlen {
+		return m[starti : starti+maxlen], 0, maxlen
 	}
 
 	span := endi - starti
 	center := (starti + endi) / 2
 
-	starts := center - span
+	starts := center - span/2
 	ends := starts + span
 
 	if starts < 0 {
