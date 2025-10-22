@@ -13,6 +13,6 @@ func Print(v ...any) {
 
 // These are primarily for embedded logging.  We don't care on PC hardware.
 func Heap(msg string) {
-	// comment this out if not needed
-	print("Heap: ", msg, "\n")
+	// comment this out if not actively debugging something
+	// print("Heap: ", msg, "\n")
 }
