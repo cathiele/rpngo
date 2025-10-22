@@ -2,6 +2,7 @@
 package commands
 
 import (
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
 	"mattwach/rpngo/window/stackwin"
@@ -47,7 +48,8 @@ func InitWindowCommands(
 			"See Also: window.layout, window.props",
 	}
 	r.RegisterConceptHelp(conceptHelp)
-	wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn}
+	elog.Heap("alloc: /window/commands/window.go:50: wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn}")
+	wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn} // object allocated on the heap: escapes at line 65
 	r.Register("w.columns", wc.WColumns, rpn.CatWindow, WColumnsHelp)
 	r.Register("w.del", wc.WDelete, rpn.CatWindow, WDeleteHelp)
 	r.Register("w.dump", wc.WDump, rpn.CatWindow, WDumpHelp)
@@ -184,7 +186,8 @@ func (wc *WindowCommands) WNewStack(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	var sw stackwin.StackWindow
+	elog.Heap("alloc: /window/commands/window.go:187: var sw stackwin.StackWindow")
+	var sw stackwin.StackWindow // object allocated on the heap: escapes at line 189
 	sw.Init(txtw)
 	wc.root.AddWindowChild(r, &sw, name)
 	return nil
@@ -214,7 +217,8 @@ func (wc *WindowCommands) WNewVar(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	var vw varwin.VariableWindow
+	elog.Heap("alloc: /window/commands/window.go:217: var vw varwin.VariableWindow")
+	var vw varwin.VariableWindow // object allocated on the heap: escapes at line 219
 	vw.Init(txtw)
 	wc.root.AddWindowChild(r, &vw, name)
 	return nil

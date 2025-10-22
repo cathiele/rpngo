@@ -45,7 +45,8 @@ func InitPlotCommands(
 	}
 	r.RegisterConceptHelp(conceptHelp)
 
-	pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}
+	elog.Heap("alloc: /window/plotwin/command.go:48: pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}")
+	pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}  // object allocated on the heap: escapes at line 50
 	r.Register("plot", pc.Plot, rpn.CatPlot, PlotHelp)
 	r.Register("pplot", pc.PPlot, rpn.CatPlot, PPlotHelp)
 	return &pc
@@ -75,7 +76,8 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	if !macro.IsString() {
 		return rpn.ErrExpectedAString
 	}
-	fields := make([]string, 0, 2)
+	elog.Heap("alloc: /window/plotwin/command.go:78: fields := make([]string, 0, 2)")
+	fields := make([]string, 0, 2)  // object allocated on the heap: escapes at line 78
 	addField := func(t string) error {
 		fields = append(fields, t)
 		return nil
@@ -115,7 +117,8 @@ func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
 	}
 	w, h := wc.screen.ScreenSize()
 	if uerr := wc.root.Update(r, w, h, false); uerr != nil {
-		elog.Print("initPlot.Update error: ", uerr.Error())
+		elog.Heap("alloc: /window/plotwin/command.go:118: elog.Print('initPlot.Update error: ', uerr.Error())")
+		elog.Print("initPlot.Update error: ", uerr.Error())  // object allocated on the heap: escapes at line 118
 	}
 	if err != nil {
 		return fmt.Errorf("while executing $.plotinit: %v", err)

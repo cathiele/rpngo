@@ -18,6 +18,7 @@ import (
 	"errors"
 	"image/color"
 	"mattwach/rpngo/drivers/tinygo/fonts"
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/window"
 )
 
@@ -91,10 +92,12 @@ func (pb *PixelBuffer) ResizeWindow(x, y, w, h int) error {
 		return errors.New("pixelbufffer, size <= 0")
 	}
 	if len(pb.previous) < size {
-		pb.previous = make([]uint8, size)
+		elog.Heap("alloc: /drivers/pixelwinbuffer/pixelwinbuffer.go:94: pb.previous = make([]uint8, size)")
+		pb.previous = make([]uint8, size) // object allocated on the heap: size is not constant
 	}
 	if len(pb.current) < size {
-		pb.current = make([]uint8, size)
+		elog.Heap("alloc: /drivers/pixelwinbuffer/pixelwinbuffer.go:97: pb.current = make([]uint8, size)")
+		pb.current = make([]uint8, size) // object allocated on the heap: size is not constant
 	}
 	pb.pw, pb.ph = pb.target.PixelSize() // for less overhead
 	return nil

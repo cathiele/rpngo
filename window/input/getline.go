@@ -38,12 +38,14 @@ type getLine struct {
 const histFile = ".rpngo_history"
 
 func initGetLine(input Input, txtb *window.TextBuffer) *getLine {
-	gl := &getLine{
+	elog.Heap("alloc: /window/input/getline.go:41: gl := &getLine{")
+	elog.Heap("alloc: /window/input/getline.go:46: namesAndValues: make([]rpn.NameAndValues, 0, 8),")
+	gl := &getLine{ // object allocated on the heap: object size 6048 exceeds maximum stack allocation size 256
 		insertMode:     true,
 		input:          input,
 		txtb:           txtb,
 		historyCount:   0,
-		namesAndValues: make([]rpn.NameAndValues, 0, 8),
+		namesAndValues: make([]rpn.NameAndValues, 0, 8), // object allocated on the heap: escapes at line 46
 	}
 	gl.loadHistory()
 	gl.prepareHistory()
@@ -61,12 +63,14 @@ func historyPath() (string, error) {
 func (gl *getLine) loadHistory() {
 	path, err := historyPath()
 	if err != nil {
-		elog.Print("Could not generate history path for load: ", err.Error())
+		elog.Heap("alloc: /window/input/getline.go:64: elog.Print('Could not generate history path for load: ', err.Error())")
+		elog.Print("Could not generate history path for load: ", err.Error()) // object allocated on the heap: escapes at line 64
 		return
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		elog.Print("Could not read hitory file: ", err.Error())
+		elog.Heap("alloc: /window/input/getline.go:69: elog.Print('Could not read hitory file: ', err.Error())")
+		elog.Print("Could not read hitory file: ", err.Error()) // object allocated on the heap: escapes at line 69
 		return
 	}
 	for _, line := range strings.Split(string(data), "\n") {
@@ -89,12 +93,14 @@ func (gl *getLine) loadHistory() {
 func (gl *getLine) prepareHistory() {
 	path, err := historyPath()
 	if err != nil {
-		elog.Print("Could not generate history path for prepare: ", err.Error())
+		elog.Heap("alloc: /window/input/getline.go:92: elog.Print('Could not generate history path for prepare: ', err.Error())")
+		elog.Print("Could not generate history path for prepare: ", err.Error()) // object allocated on the heap: escapes at line 92
 		return
 	}
 	gl.historyFile, err = os.Create(path)
 	if err != nil {
-		elog.Print("Could not create history path: ", err.Error())
+		elog.Heap("alloc: /window/input/getline.go:97: elog.Print('Could not create history path: ', err.Error())")
+		elog.Print("Could not create history path: ", err.Error()) // object allocated on the heap: escapes at line 97
 		return
 	}
 	mini := gl.historyCount - MAX_HISTORY_LINES
@@ -105,11 +111,13 @@ func (gl *getLine) prepareHistory() {
 		line := gl.history[i%MAX_HISTORY_LINES]
 		_, err := gl.historyFile.Write(line)
 		if err != nil {
-			elog.Print("error writing exsiting history: ", err.Error())
+			elog.Heap("alloc: /window/input/getline.go:108: elog.Print('error writing exsiting history: ', err.Error())")
+			elog.Print("error writing exsiting history: ", err.Error()) // object allocated on the heap: escapes at line 108
 		}
 		_, err = gl.historyFile.Write([]byte{'\n'})
 		if err != nil {
-			elog.Print("error writing exsiting history cr: ", err.Error())
+			elog.Heap("alloc: /window/input/getline.go:112: elog.Print('error writing exsiting history cr: ', err.Error())")
+			elog.Print("error writing exsiting history cr: ", err.Error()) // object allocated on the heap: escapes at line 112
 		}
 	}
 }
@@ -256,11 +264,13 @@ func (gl *getLine) addToHistory() {
 	if gl.historyFile != nil {
 		_, err := gl.historyFile.Write(gl.line)
 		if err != nil {
-			elog.Print("could not write history line: ", err.Error())
+			elog.Heap("alloc: /window/input/getline.go:259: elog.Print('could not write history line: ', err.Error())")
+			elog.Print("could not write history line: ", err.Error()) // object allocated on the heap: escapes at line 259
 		}
 		_, err = gl.historyFile.Write([]byte{'\n'})
 		if err != nil {
-			elog.Print("could not write history cr: ", err.Error())
+			elog.Heap("alloc: /window/input/getline.go:263: elog.Print('could not write history cr: ', err.Error())")
+			elog.Print("could not write history cr: ", err.Error()) // object allocated on the heap: escapes at line 263
 		}
 		gl.historyFile.Sync()
 	}

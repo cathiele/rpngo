@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mattwach/rpngo/elog"
 	"os"
 )
 
@@ -74,7 +75,8 @@ func (fo *FileOpsDriver) ls(args []string) (string, error) {
 		return "", err
 	}
 	println("for loop")
-	buff := make([]byte, 0, 128)
+	elog.Heap("alloc: /drivers/tinygo/tinyfs/shell.go:77: buff := make([]byte, 0, 128)")
+	buff := make([]byte, 0, 128) // object allocated on the heap: escapes at line 77
 	for _, info := range infos {
 		if longMode {
 			buff = appendLongInfo(buff, info)
@@ -92,7 +94,8 @@ func appendLongInfo(buff []byte, info os.FileInfo) []byte {
 	} else {
 		buff = append(buff, byte('-'))
 	}
-	return append(buff, []byte(fmt.Sprintf("rwxrwxrwx %5d %s\n", info.Size(), info.Name()))...)
+	elog.Heap("alloc: /drivers/tinygo/tinyfs/shell.go:95: return append(buff, []byte(fmt.Sprintf('rwxrwxrwx %5d %s\n', info.Size(), info.Name()))...)")
+	return append(buff, []byte(fmt.Sprintf("rwxrwxrwx %5d %s\n", info.Size(), info.Name()))...) // object allocated on the heap: escapes at line 95
 }
 
 func appendShortInfo(buff []byte, info os.FileInfo) []byte {

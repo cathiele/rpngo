@@ -1,6 +1,7 @@
 package rpn
 
 import (
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/parse"
 	"sort"
 	"strconv"
@@ -225,7 +226,8 @@ func (r *RPN) AppendAllVariableNamesAndValues(results []NameAndValues) []NameAnd
 			continue
 		}
 		lastName = name
-		results = append(results, NameAndValues{Name: name, Values: r.appendAllValuesForVariable(name, make([]Frame, 0, 1))})
+		elog.Heap("alloc: /rpn/vars.go:228: results = append(results, NameAndValues{Name: name, Values: r.appendAllValuesForVariable(name, make([]Frame, 0, 1))})")
+		results = append(results, NameAndValues{Name: name, Values: r.appendAllValuesForVariable(name, make([]Frame, 0, 1))}) // object allocated on the heap: escapes at line 228
 	}
 	return results
 }
