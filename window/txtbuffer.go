@@ -1,6 +1,8 @@
 package window
 
-import "mattwach/rpngo/elog"
+import (
+	"mattwach/rpngo/elog"
+)
 
 // TextBuffer serves multiple purposes and allows character drivers (of which
 // we have several LCD and curses variants) have a reduced interface and

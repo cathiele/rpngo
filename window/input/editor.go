@@ -1,6 +1,7 @@
 package input
 
 import (
+	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
 )
@@ -17,7 +18,10 @@ type editor struct {
 	//   to some cx, cy in the text buffer
 
 	// buffer index of the upper left character
-	ulIdx int16
+	ulIdx int
+
+	// current character index
+	cIdx int
 }
 
 const EditHelp = "Invokes an editor on the head value of the stack. " +
@@ -42,11 +46,20 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 			tw, th := iw.txtb.Txtw.TextSize()
 			iw.txtb.RefreshArea(0, 0, tw, th)
 			return r.PushFrame(rpn.StringFrame(string(ed.buff)))
+		case key.KEY_UP:
+			ed.keyUpPressed()
+		case key.KEY_DOWN:
+			ed.keyDownPressed()
+		case key.KEY_LEFT:
+			ed.keyLeftPressed()
+		case key.KEY_RIGHT:
+			ed.keyRightPressed()
 		}
 	}
 }
 
 func (ed *editor) renderDisplay() {
+	ed.txtb.Cursor(false)
 	x := 0
 	y := 0
 	tw, th := ed.txtb.Txtw.TextSize()
@@ -71,4 +84,58 @@ func (ed *editor) renderDisplay() {
 	}
 	// update changed characters
 	ed.txtb.Update()
+	ed.txtb.Cursor(true)
+}
+
+func (ed *editor) keyUpPressed() {
+	x, y := ed.txtb.CursorXY()
+	y--
+	ed.txtb.SetCursorXY(x, y)
+}
+
+func (ed *editor) keyDownPressed() {
+	x, y := ed.txtb.CursorXY()
+	y++
+	ed.txtb.SetCursorXY(x, y)
+}
+
+func (ed *editor) keyLeftPressed() {
+	if ed.cIdx <= 0 {
+		return
+	}
+	ed.cIdx--
+	x, y := ed.txtb.CursorXY()
+	if ed.buff[ed.cIdx] == '\n' {
+		x = ed.findX()
+		y--
+	} else {
+		x--
+	}
+	ed.txtb.SetCursorXY(x, y)
+}
+
+func (ed *editor) findX() int {
+	x := 0
+	for i := ed.cIdx - 1; i >= 0; i-- {
+		if ed.buff[i] == '\n' {
+			break
+		}
+		x++
+	}
+	return x
+}
+
+func (ed *editor) keyRightPressed() {
+	if ed.cIdx >= len(ed.buff) {
+		return
+	}
+	x, y := ed.txtb.CursorXY()
+	if ed.buff[ed.cIdx] == '\n' {
+		x = 0
+		y++
+	} else {
+		x++
+	}
+	ed.cIdx++
+	ed.txtb.SetCursorXY(x, y)
 }
