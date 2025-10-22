@@ -5,7 +5,6 @@
 package main
 
 import (
-	"fmt"
 	"machine"
 	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/functions"
@@ -37,7 +36,7 @@ func main() {
 				machine.Serial.WriteByte('\n')
 			}
 		} else {
-			fmt.Printf("Error: %v\n", err)
+			print("Error: ", err.Error(), "\n")
 		}
 	}
 }

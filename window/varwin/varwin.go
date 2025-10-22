@@ -2,10 +2,10 @@
 package varwin
 
 import (
-	"fmt"
 	"mattwach/rpngo/elog"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
+	"strconv"
 	"strings"
 )
 
@@ -117,7 +117,7 @@ func (vw *VariableWindow) Update(r *rpn.RPN) error {
 	}
 	vw.txtb.TextColor(window.Blue)
 	vw.txtb.SetCursorXY(0, h-1)
-	vw.txtb.Print(fmt.Sprintf("num: %v hidden:%v", len(vw.namesAndValues), hidden), false)
+	vw.txtb.Print("num: "+strconv.Itoa(len(vw.namesAndValues))+" hidden: "+strconv.Itoa(hidden), false)
 	vw.txtb.Update()
 	return nil
 }

@@ -420,7 +420,7 @@ func (c *Conversion) Help() string {
 
 	var lines []string
 	for _, className := range classNames {
-		lines = append(lines, fmt.Sprintf("\n%s:", className))
+		lines = append(lines, "\n"+className+":")
 		sort.Strings(classes[className])
 		var subNames []string
 		for _, name := range classes[className] {
