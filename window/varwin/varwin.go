@@ -3,6 +3,7 @@ package varwin
 
 import (
 	"fmt"
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
 	"strings"
@@ -18,7 +19,8 @@ type VariableWindow struct {
 func (w *VariableWindow) Init(txtw window.TextWindow) {
 	w.txtb.Init(txtw, 0)
 	w.txtb.TextColor(window.White)
-	w.namesAndValues = make([]rpn.NameAndValues, 0, 16)
+	elog.Heap("alloc: /window/varwin/varwin.go:21: w.namesAndValues = make([]rpn.NameAndValues, 0, 16)")
+	w.namesAndValues = make([]rpn.NameAndValues, 0, 16) // object allocated on the heap: object size 320 exceeds maximum stack allocation size 256
 }
 
 func (vw *VariableWindow) ResizeWindow(x, y, w, h int) error {

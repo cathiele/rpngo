@@ -3,6 +3,7 @@ package fileops
 import (
 	"fmt"
 	"io"
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 	"os/exec"
@@ -129,7 +130,8 @@ func (fo *FileOps) Shell(r *rpn.RPN) error {
 		return err
 	}
 	s := f.String(false)
-	fields := make([]string, 0, 4)
+	elog.Heap("alloc: /fileops/fileops.go:132: fields := make([]string, 0, 4)")
+	fields := make([]string, 0, 4) // object allocated on the heap: escapes at line 132
 	addField := func(t string) error {
 		fields = append(fields, t)
 		return nil

@@ -64,12 +64,14 @@ func run() error {
 		return err
 	}
 	newPixelPlotWindow := func() (window.WindowWithProps, error) {
-		var ppw plotwin.PixelPlotWindow
+		elog.Heap("alloc: /bin/tinygo/ili9341/main.go:67: var ppw plotwin.PixelPlotWindow")
+		var ppw plotwin.PixelPlotWindow  // object allocated on the heap: escapes at line 67
 		pw, err := screen.NewPixelWindow()
 		if err != nil {
 			return nil, err
 		}
-		var pb pixelwinbuffer.PixelBuffer
+		elog.Heap("alloc: /bin/tinygo/ili9341/main.go:72: var pb pixelwinbuffer.PixelBuffer")
+		var pb pixelwinbuffer.PixelBuffer  // object allocated on the heap: escapes at line 74
 		pb.Init(pw)
 		ppw.Init(&pb)
 		return &ppw, nil

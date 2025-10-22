@@ -5,6 +5,7 @@ package tinyfs
 import (
 	"errors"
 	"machine"
+	"mattwach/rpngo/elog"
 	"os"
 	"strconv"
 
@@ -31,7 +32,8 @@ type FileOpsDriver struct {
 }
 
 func (fo *FileOpsDriver) Init() error {
-	sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin)
+	elog.Heap("alloc: /drivers/tinygo/tinyfs/fileops.go:34: sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin)")
+	sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin) // object allocated on the heap: escapes at line 39
 	fo.initErr = sd.Configure()
 	if fo.initErr != nil {
 		return fo.initErr
@@ -68,7 +70,8 @@ func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := make([]byte, sz)
+	elog.Heap("alloc: /drivers/tinygo/tinyfs/fileops.go:71: data := make([]byte, sz)")
+	data := make([]byte, sz) // object allocated on the heap: size is not constant
 	totalRead := 0
 	for totalRead < int(sz) {
 		read, err := f.Read(data[totalRead:])
