@@ -155,19 +155,19 @@ func (ed *editor) keyUpPressed() {
 
 func (ed *editor) keyDownPressed() {
 	x, y := ed.txtb.CursorXY()
+	w := ed.txtb.Txtw.TextWidth()
 	// we want to try and end up at the same x on the next
 	// line but this may not be possible if the line is short or
 	// we hit the end of the buffer
 	wantx := x
 	for ed.cIdx < len(ed.buff) {
-		if ed.buff[ed.cIdx] == '\n' {
-			ed.cIdx++
+		x++
+		ed.cIdx++
+		if (x >= w) || (ed.buff[ed.cIdx-1] == '\n') {
 			x = 0
 			y++
 			break
 		}
-		x++
-		ed.cIdx++
 	}
 	for ed.cIdx < len(ed.buff) {
 		if x == wantx {
