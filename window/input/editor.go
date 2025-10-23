@@ -56,6 +56,12 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 			ed.keyLeftPressed()
 		case key.KEY_RIGHT:
 			ed.keyRightPressed()
+		case '\n':
+			ed.insertChar(byte(c))
+		default:
+			if (c >= ' ') && (c <= 127) {
+				ed.insertChar(byte(c))
+			}
 		}
 	}
 }
@@ -82,6 +88,7 @@ func (ed *editor) renderDisplay() {
 		if y < th {
 			if c == '\n' {
 				ed.txtb.DrawChar(x, y, window.Cyan|window.ColorChar('.'))
+				ed.clearScreenToEndOfLine(x+1, y)
 				x = 0
 				y++
 			} else {
@@ -189,4 +196,19 @@ func (ed *editor) keyRightPressed() {
 	}
 	ed.cIdx++
 	ed.txtb.SetCursorXY(x, y)
+}
+
+func (ed *editor) insertChar(c byte) {
+	ed.buff = append(ed.buff, 0)
+	copy(ed.buff[ed.cIdx+1:], ed.buff[ed.cIdx:])
+	ed.buff[ed.cIdx] = c
+	ed.keyRightPressed()
+}
+
+func (ed *editor) clearScreenToEndOfLine(x, y int) {
+	w := ed.txtb.Txtw.TextWidth()
+	for x < w {
+		ed.txtb.DrawChar(x, y, ' ')
+		x++
+	}
 }
