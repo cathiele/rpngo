@@ -56,6 +56,8 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 			ed.keyLeftPressed()
 		case key.KEY_RIGHT:
 			ed.keyRightPressed()
+		case key.KEY_BACKSPACE:
+			ed.backspacePressed()
 		case '\n':
 			ed.insertChar(byte(c))
 		default:
@@ -103,6 +105,14 @@ func (ed *editor) renderDisplay() {
 	// update changed characters
 	ed.txtb.Update()
 	ed.txtb.Cursor(true)
+}
+
+func (ed *editor) clearScreenToEndOfLine(x, y int) {
+	w := ed.txtb.Txtw.TextWidth()
+	for x < w {
+		ed.txtb.DrawChar(x, y, ' ')
+		x++
+	}
 }
 
 func (ed *editor) keyUpPressed() {
@@ -203,12 +213,4 @@ func (ed *editor) insertChar(c byte) {
 	copy(ed.buff[ed.cIdx+1:], ed.buff[ed.cIdx:])
 	ed.buff[ed.cIdx] = c
 	ed.keyRightPressed()
-}
-
-func (ed *editor) clearScreenToEndOfLine(x, y int) {
-	w := ed.txtb.Txtw.TextWidth()
-	for x < w {
-		ed.txtb.DrawChar(x, y, ' ')
-		x++
-	}
 }
