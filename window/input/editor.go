@@ -186,24 +186,30 @@ func (ed *editor) keyLeftPressed() {
 	if ed.cIdx <= 0 {
 		return
 	}
-	ed.cIdx--
 	x, y := ed.txtb.CursorXY()
+	ed.cIdx--
+	x--
 	if ed.buff[ed.cIdx] == '\n' {
 		x = ed.findX()
 		y--
-	} else {
-		x--
+	} else if x < 0 {
+		x = ed.txtb.Txtw.TextWidth() - 1
+		y--
 	}
 	ed.txtb.SetCursorXY(x, y)
 }
 
 func (ed *editor) findX() int {
 	x := 0
+	w := ed.txtb.Txtw.TextWidth()
 	for i := ed.cIdx - 1; i >= 0; i-- {
 		if ed.buff[i] == '\n' {
 			break
 		}
 		x++
+		if x >= w {
+			x = 0
+		}
 	}
 	return x
 }
@@ -213,7 +219,7 @@ func (ed *editor) keyRightPressed() {
 		return
 	}
 	x, y := ed.txtb.CursorXY()
-	if ed.buff[ed.cIdx] == '\n' {
+	if (ed.buff[ed.cIdx] == '\n') || (x >= (ed.txtb.Txtw.TextWidth() - 1)) {
 		x = 0
 		y++
 	} else {
