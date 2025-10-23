@@ -104,6 +104,7 @@ func (ed *editor) renderDisplay() {
 			break
 		}
 	}
+	ed.clearScreenToBottomRightCorner(x, y)
 	// update changed characters
 	ed.txtb.Update()
 	ed.txtb.Cursor(true)
@@ -114,6 +115,18 @@ func (ed *editor) clearScreenToEndOfLine(x, y int) {
 	for x < w {
 		ed.txtb.DrawChar(x, y, ' ')
 		x++
+	}
+}
+
+func (ed *editor) clearScreenToBottomRightCorner(x, y int) {
+	w, h := ed.txtb.Txtw.TextSize()
+	for y < h {
+		for x < w {
+			ed.txtb.DrawChar(x, y, ' ')
+			x++
+		}
+		x = 0
+		y++
 	}
 }
 
