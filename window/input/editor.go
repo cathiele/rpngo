@@ -56,6 +56,8 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 			ed.keyLeftPressed()
 		case key.KEY_RIGHT:
 			ed.keyRightPressed()
+		case key.KEY_DEL:
+			ed.delPressed()
 		case key.KEY_BACKSPACE:
 			ed.backspacePressed()
 		case '\n':
@@ -213,4 +215,17 @@ func (ed *editor) insertChar(c byte) {
 	copy(ed.buff[ed.cIdx+1:], ed.buff[ed.cIdx:])
 	ed.buff[ed.cIdx] = c
 	ed.keyRightPressed()
+}
+
+func (ed *editor) backspacePressed() {
+	ed.keyLeftPressed()
+	ed.delPressed()
+}
+
+func (ed *editor) delPressed() {
+	if ed.cIdx <= 0 {
+		return
+	}
+	copy(ed.buff[ed.cIdx:], ed.buff[ed.cIdx+1:])
+	ed.buff = ed.buff[:len(ed.buff)-1]
 }
