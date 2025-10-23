@@ -1,6 +1,7 @@
 package input
 
 import (
+	"log"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
@@ -36,6 +37,7 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 	ed := editor{buff: []byte(f.String(false)), ulIdx: 0}
 	ed.txtb.Init(iw.txtb.Txtw, 0)
 	for {
+		ed.debugDump()
 		ed.renderDisplay()
 		c, err := iw.input.GetChar()
 		if err != nil {
@@ -55,6 +57,15 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 		case key.KEY_RIGHT:
 			ed.keyRightPressed()
 		}
+	}
+}
+
+func (ed *editor) debugDump() {
+	x, y := ed.txtb.CursorXY()
+	if ed.cIdx == len(ed.buff) {
+		log.Printf("x=%v y=%v cidx=%v <end>", x, y, ed.cIdx)
+	} else {
+		log.Printf("x=%v y=%v cidx=%v c=%c", x, y, ed.cIdx, rune(ed.buff[ed.cIdx]))
 	}
 }
 
@@ -89,13 +100,53 @@ func (ed *editor) renderDisplay() {
 
 func (ed *editor) keyUpPressed() {
 	x, y := ed.txtb.CursorXY()
-	y--
+	// we want to try and end up at the same x on the previous
+	// line but this may not be possible if the line is short or
+	// we hit the start of the buffer
+	wantx := x
+	for ed.cIdx > 0 {
+		ed.cIdx--
+		if ed.buff[ed.cIdx] == '\n' {
+			x = ed.findX()
+			y--
+			break
+		} else {
+			x--
+		}
+	}
+	if x > wantx {
+		ed.cIdx -= (x - wantx)
+		x = wantx
+	}
 	ed.txtb.SetCursorXY(x, y)
 }
 
 func (ed *editor) keyDownPressed() {
 	x, y := ed.txtb.CursorXY()
-	y++
+	// we want to try and end up at the same x on the next
+	// line but this may not be possible if the line is short or
+	// we hit the end of the buffer
+	wantx := x
+	for ed.cIdx < len(ed.buff) {
+		if ed.buff[ed.cIdx] == '\n' {
+			ed.cIdx++
+			x = 0
+			y++
+			break
+		}
+		x++
+		ed.cIdx++
+	}
+	for ed.cIdx < len(ed.buff) {
+		if x == wantx {
+			break
+		}
+		if ed.buff[ed.cIdx] == '\n' {
+			break
+		}
+		x++
+		ed.cIdx++
+	}
 	ed.txtb.SetCursorXY(x, y)
 }
 
