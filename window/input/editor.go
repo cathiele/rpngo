@@ -23,6 +23,8 @@ type editor struct {
 
 	// current character index
 	cIdx int
+
+	replaceMode bool
 }
 
 const EditHelp = "Invokes an editor on the head value of the stack. " +
@@ -68,11 +70,13 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 			ed.homePressed()
 		case key.KEY_END:
 			ed.endPressed()
+		case key.KEY_INS:
+			ed.replaceMode = !ed.replaceMode
 		case '\n':
-			ed.insertChar(byte(c))
+			ed.insertOrReplaceChar(byte(c))
 		default:
 			if (c >= ' ') && (c <= 127) {
-				ed.insertChar(byte(c))
+				ed.insertOrReplaceChar(byte(c))
 			}
 		}
 	}
@@ -277,10 +281,18 @@ func (ed *editor) keyRightPressed() {
 	ed.txtb.SetCursorXY(x, y)
 }
 
-func (ed *editor) insertChar(c byte) {
-	ed.buff = append(ed.buff, 0)
-	copy(ed.buff[ed.cIdx+1:], ed.buff[ed.cIdx:])
-	ed.buff[ed.cIdx] = c
+func (ed *editor) insertOrReplaceChar(c byte) {
+	if ed.replaceMode && (ed.cIdx < len(ed.buff)) && (c == '\n') {
+		ed.keyDownPressed()
+		ed.homePressed()
+		return
+	} else if !ed.replaceMode || (ed.cIdx >= len(ed.buff)) || (ed.buff[ed.cIdx] == '\n') {
+		ed.buff = append(ed.buff, 0)
+		copy(ed.buff[ed.cIdx+1:], ed.buff[ed.cIdx:])
+		ed.buff[ed.cIdx] = c
+	} else {
+		ed.buff[ed.cIdx] = c
+	}
 	ed.keyRightPressed()
 }
 
