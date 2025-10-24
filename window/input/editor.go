@@ -132,18 +132,22 @@ func (ed *editor) clearScreenToBottomRightCorner(x, y int) {
 
 func (ed *editor) keyUpPressed() {
 	x, y := ed.txtb.CursorXY()
+	w := ed.txtb.Txtw.TextWidth()
 	// we want to try and end up at the same x on the previous
 	// line but this may not be possible if the line is short or
 	// we hit the start of the buffer
 	wantx := x
 	for ed.cIdx > 0 {
+		x--
 		ed.cIdx--
 		if ed.buff[ed.cIdx] == '\n' {
 			x = ed.findX()
 			y--
 			break
-		} else {
-			x--
+		} else if x < 0 {
+			x = w - 1
+			y--
+			break
 		}
 	}
 	if x > wantx {
