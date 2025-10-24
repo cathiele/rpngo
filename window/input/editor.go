@@ -237,12 +237,15 @@ func (ed *editor) insertChar(c byte) {
 }
 
 func (ed *editor) backspacePressed() {
+	if ed.cIdx <= 0 {
+		return
+	}
 	ed.keyLeftPressed()
 	ed.delPressed()
 }
 
 func (ed *editor) delPressed() {
-	if ed.cIdx <= 0 {
+	if ed.cIdx < 0 {
 		return
 	}
 	copy(ed.buff[ed.cIdx:], ed.buff[ed.cIdx+1:])
