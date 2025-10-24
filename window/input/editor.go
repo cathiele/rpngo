@@ -154,6 +154,7 @@ func (ed *editor) keyUpPressed() {
 		ed.cIdx -= (x - wantx)
 		x = wantx
 	}
+	y = ed.checkScroll(y)
 	ed.txtb.SetCursorXY(x, y)
 }
 
@@ -183,6 +184,7 @@ func (ed *editor) keyDownPressed() {
 		x++
 		ed.cIdx++
 	}
+	y = ed.checkScroll(y)
 	ed.txtb.SetCursorXY(x, y)
 }
 
@@ -200,6 +202,7 @@ func (ed *editor) keyLeftPressed() {
 		x = ed.txtb.Txtw.TextWidth() - 1
 		y--
 	}
+	y = ed.checkScroll(y)
 	ed.txtb.SetCursorXY(x, y)
 }
 
@@ -230,6 +233,7 @@ func (ed *editor) keyRightPressed() {
 		x++
 	}
 	ed.cIdx++
+	y = ed.checkScroll(y)
 	ed.txtb.SetCursorXY(x, y)
 }
 
@@ -254,4 +258,52 @@ func (ed *editor) delPressed() {
 	}
 	copy(ed.buff[ed.cIdx:], ed.buff[ed.cIdx+1:])
 	ed.buff = ed.buff[:len(ed.buff)-1]
+}
+
+// Checks if y is off the screen and adjusts ed.ulIdx and y to correct
+// as-needed
+func (ed *editor) checkScroll(y int) int {
+	x := 0
+	w, h := ed.txtb.Txtw.TextSize()
+	for y < 0 {
+		// go back one position
+		ed.ulIdx--
+		// at this point we are either on a '\n' for the end-of-line
+		// case or not (for the wrapping case)
+		if ed.buff[ed.ulIdx] == '\n' {
+			// we need to count the number of characters to the end of
+			// the previous line so we can figure out the overhand of this one
+			linelen := 0
+			for {
+				idx := ed.ulIdx - linelen - 1
+				if idx < 0 || ed.buff[idx] == '\n' {
+					break
+				}
+				linelen++
+			}
+			ed.ulIdx -= linelen % w
+			y++
+		} else {
+			// jump to the start of the line
+			ed.ulIdx -= w - 1
+			y++
+		}
+	}
+	for y >= h {
+		// need to scroll down
+		for {
+			if x >= w {
+				y--
+				break
+			}
+			if ed.buff[ed.ulIdx] == '\n' {
+				ed.ulIdx++
+				y--
+				break
+			}
+			x++
+			ed.ulIdx++
+		}
+	}
+	return y
 }
