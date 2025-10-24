@@ -60,6 +60,10 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 			ed.delPressed()
 		case key.KEY_BACKSPACE:
 			ed.backspacePressed()
+		case key.KEY_PAGEDOWN:
+			ed.pageDownPressed()
+		case key.KEY_PAGEUP:
+			ed.pageUpPressed()
 		case '\n':
 			ed.insertChar(byte(c))
 		default:
@@ -186,6 +190,20 @@ func (ed *editor) keyDownPressed() {
 	}
 	y = ed.checkScroll(y)
 	ed.txtb.SetCursorXY(x, y)
+}
+
+func (ed *editor) pageDownPressed() {
+	lines := ed.txtb.Txtw.TextHeight() / 2
+	for i := 0; (ed.cIdx < len(ed.buff)) && i < lines; i++ {
+		ed.keyDownPressed()
+	}
+}
+
+func (ed *editor) pageUpPressed() {
+	lines := ed.txtb.Txtw.TextHeight() / 2
+	for i := 0; (ed.cIdx > 0) && i < lines; i++ {
+		ed.keyUpPressed()
+	}
 }
 
 func (ed *editor) keyLeftPressed() {
