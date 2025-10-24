@@ -64,6 +64,10 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 			ed.pageDownPressed()
 		case key.KEY_PAGEUP:
 			ed.pageUpPressed()
+		case key.KEY_HOME:
+			ed.homePressed()
+		case key.KEY_END:
+			ed.endPressed()
 		case '\n':
 			ed.insertChar(byte(c))
 		default:
@@ -203,6 +207,24 @@ func (ed *editor) pageUpPressed() {
 	lines := ed.txtb.Txtw.TextHeight() / 2
 	for i := 0; (ed.cIdx > 0) && i < lines; i++ {
 		ed.keyUpPressed()
+	}
+}
+
+func (ed *editor) homePressed() {
+	for ed.cIdx > 0 {
+		if ed.buff[ed.cIdx-1] == '\n' {
+			break
+		}
+		ed.keyLeftPressed()
+	}
+}
+
+func (ed *editor) endPressed() {
+	for ed.cIdx < len(ed.buff) {
+		if ed.buff[ed.cIdx] == '\n' {
+			break
+		}
+		ed.keyRightPressed()
 	}
 }
 
