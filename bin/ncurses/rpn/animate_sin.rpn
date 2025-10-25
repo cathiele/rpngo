@@ -1,0 +1,16 @@
+{
+  0 t=
+  0 x=
+  {$t + sin} plot
+  'p' 'minv' -3.14 w.setp
+  'p' 'maxv' 3.14 w.setp
+  'p' 'miny' -1.1 w.setp
+  'p' 'maxy' 1.1 w.setp
+  {
+    'p' w.update
+    $t 0.1 + t=
+    0.015 delay
+    $t 30 <
+  } for
+} animate_sin=
+
