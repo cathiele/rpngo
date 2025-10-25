@@ -82,7 +82,7 @@ func run() error {
 		return &ppw, nil
 	}
 	_ = commands.InitWindowCommands(&rpnInst, &root, &screen, newPixelPlotWindow)
-	_ = plotwin.InitPlotCommands(&rpnInst, &root, &screen, plotwin.AddPixelPlotFn)
+	_ = plotwin.InitPlotCommands(&rpnInst, &root, &screen)
 	if err := startup.LCD320Startup(&rpnInst); err != nil {
 		return err
 	}

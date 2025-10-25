@@ -2,9 +2,13 @@ package plotwin
 
 import (
 	"fmt"
-	"mattwach/rpngo/elog"
+	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
+	"strings"
 )
+
+const maxSteps = 50000
+const maxPlotCount = 32
 
 type PointStats struct {
 	minx        float64
@@ -54,6 +58,7 @@ type plotWindowCommon struct {
 	miny      float64
 	maxy      float64
 	coloridx  uint8
+	numColors uint8
 	autox     bool
 	autoy     bool
 	minv      float64
@@ -64,13 +69,14 @@ type plotWindowCommon struct {
 	stats     PointStats
 }
 
-func (pw *plotWindowCommon) init() {
+func (pw *plotWindowCommon) init(numColors uint8) {
 	pw.autox = true
 	pw.autoy = true
 	pw.minv = -1
 	pw.maxv = 1
 	pw.autosteps = 50
 	pw.steps = 250
+	pw.numColors = numColors
 }
 
 func (pw *plotWindowCommon) nextColor(numColors uint8) {
@@ -80,51 +86,48 @@ func (pw *plotWindowCommon) nextColor(numColors uint8) {
 	}
 }
 
-func (pw *plotWindowCommon) addPlot(r *rpn.RPN, fn []string, isParametric bool, numColors uint8) error {
-	pw.nextColor(numColors)
-	if len(fn) == 0 {
-		return nil
+func (pw *plotWindowCommon) changePlotCount(n int) error {
+	if (n < 0) || (n >= maxPlotCount) {
+		return rpn.ErrIllegalValue
 	}
-	for i := range pw.plots {
-		if slicesAreEqual(fn, pw.plots[i].fn) {
-			// plot already exists.  Just update the color
-			pw.plots[i].coloridx = pw.coloridx
-			return nil
-		}
+	var col uint8 = uint8(len(pw.plots))
+	for n > len(pw.plots) {
+		pw.plots = append(pw.plots, Plot{coloridx: col % pw.numColors})
+		col++
 	}
-	plot := Plot{fn: fn, coloridx: pw.coloridx, isParametric: isParametric}
-
-	// do a dry run of creating the points
-	err := pw.addPoints(r, plot, pw.steps, func(x, y float64, c uint8) error { return nil })
-	if err != nil {
-		return err
+	if n < len(pw.plots) {
+		pw.plots = pw.plots[:n]
 	}
-
-	pw.plots = append(pw.plots, plot)
 	return nil
 }
 
-func slicesAreEqual(a []string, b []string) bool {
-	if len(a) != len(b) {
-		return false
+func (pw *plotWindowCommon) setPlotFn(fnstr string, idx int) error {
+	if (idx < 0) || (idx >= len(pw.plots)) {
+		return rpn.ErrIllegalValue
 	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
+	p := &pw.plots[idx]
+	p.fn = p.fn[:0]
+	addField := func(t string) error {
+		p.fn = append(p.fn, t)
+		return nil
 	}
-	return true
+	if err := parse.Fields(fnstr, addField); err != nil {
+		p.fn = p.fn[:0]
+		return err
+	}
+
+	return nil
 }
 
-func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) error {
+func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) {
 	// first determine the ranges
 	if pw.autox || pw.autoy {
 		pw.stats.reset()
 		for _, plot := range pw.plots {
 			if err := pw.addPoints(r, plot, pw.autosteps, pw.stats.update); err != nil {
-				pw.plots = nil
-				elog.Heap("alloc: /window/plotwin/common.go:125: return fmt.Errorf('plot error for %v, removed all plots: %v', plot.fn, err)")
-				return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err) // object allocated on the heap: escapes at line 125
+				// this plot has some type of error, but there is nothing to be done
+				// here outside of not contributing any more points from this point
+				// to the stats
 			}
 		}
 		if pw.autox {
@@ -134,21 +137,25 @@ func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) error {
 			pw.adjustAutoY()
 		}
 	}
-	return nil
 }
 
-func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, coloridx uint8) error) error {
-	for _, plot := range pw.plots {
+func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, coloridx uint8) error) {
+	for i, plot := range pw.plots {
 		if err := pw.addPoints(r, plot, pw.steps, fn); err != nil {
-			pw.plots = nil
-			elog.Heap("alloc: /window/plotwin/common.go:142: return fmt.Errorf('plot error for %v, removed all plots: %v', plot.fn, err)")
-			return fmt.Errorf("plot error for %v, removed all plots: %v", plot.fn, err) // object allocated on the heap: escapes at line 142
+			r.Print("error plotting {")
+			r.Print(strings.Join(plot.fn, " "))
+			r.Print("}: ")
+			r.Print(err.Error())
+			r.Println(" (removing plot)")
+			pw.plots[i].fn = pw.plots[i].fn[:0]
 		}
 	}
-	return nil
 }
 
 func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, steps uint32, fn func(x, y float64, coloridx uint8) error) error {
+	if len(plot.fn) == 0 {
+		return nil
+	}
 	startlen := r.StackLen()
 	step := (pw.maxv - pw.minv) / float64(steps)
 	var x float64

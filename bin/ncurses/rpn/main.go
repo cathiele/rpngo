@@ -80,7 +80,7 @@ func interactive(r *rpn.RPN) error {
 		return &tpw, nil
 	}
 	_ = commands.InitWindowCommands(r, &root, screen, newTextPlotWindow)
-	_ = plotwin.InitPlotCommands(r, &root, screen, plotwin.AddTxtPlotFn)
+	_ = plotwin.InitPlotCommands(r, &root, screen)
 	if err := startup.OSStartup(r); err != nil {
 		return err
 	}

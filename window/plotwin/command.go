@@ -7,19 +7,19 @@ import (
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
+	"strconv"
+	"strings"
 )
 
 type PlotCommands struct {
-	root      *window.WindowRoot
-	screen    window.Screen
-	addPlotFn func(w window.WindowWithProps, r *rpn.RPN, fn []string, isParametric bool) error
+	root   *window.WindowRoot
+	screen window.Screen
 }
 
 func InitPlotCommands(
 	r *rpn.RPN,
 	root *window.WindowRoot,
-	screen window.Screen,
-	addPlotFn func(window.WindowWithProps, *rpn.RPN, []string, bool) error) *PlotCommands {
+	screen window.Screen) *PlotCommands {
 	conceptHelp := map[string]string{
 		"plot": "Plot functions using plot. Plot will push an 'x' value to the stack,\n" +
 			"run the provided string, and pop the value as y value.\n" +
@@ -46,7 +46,7 @@ func InitPlotCommands(
 	r.RegisterConceptHelp(conceptHelp)
 
 	elog.Heap("alloc: /window/plotwin/command.go:48: pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}")
-	pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}  // object allocated on the heap: escapes at line 50
+	pc := PlotCommands{root: root, screen: screen} // object allocated on the heap: escapes at line 50
 	r.Register("plot", pc.Plot, rpn.CatPlot, PlotHelp)
 	r.Register("pplot", pc.PPlot, rpn.CatPlot, PPlotHelp)
 	return &pc
@@ -76,13 +76,14 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	if !macro.IsString() {
 		return rpn.ErrExpectedAString
 	}
-	elog.Heap("alloc: /window/plotwin/command.go:78: fields := make([]string, 0, 2)")
-	fields := make([]string, 0, 2)  // object allocated on the heap: escapes at line 78
+	// a quick check to make sure there will not be a parsing error after
+	// adding the new plot.  Also checks for plto that already exist.
+	var fields []string
 	addField := func(t string) error {
 		fields = append(fields, t)
 		return nil
 	}
-	if err := parse.Fields(macro.UnsafeString(), addField); err != nil {
+	if err := parse.Fields(macro.String(false), addField); err != nil {
 		return err
 	}
 	wname, err := r.GetStringVariable(".plotwin")
@@ -104,7 +105,97 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 		return errors.New(wname + " has the wrong window type: " + pw.Type())
 	}
 
-	return pc.addPlotFn(pw, r, fields, isParametric)
+	// From this point forward, we interface with the rpn in the same
+	// low level manner avaialble to the user (e.g. using props). This
+	// is done so there is only one "actual way" to crerate plots, which
+	// means less code paths (less rarely-executed code, bugs)
+	wwin := "'" + wname + "'"
+
+	numplots, err := getNumPlots(r, wwin)
+	if err != nil {
+		return err
+	}
+	idx, err := findOpenPlotIndex(r, wwin, numplots, strings.Join(fields, "\n"))
+	if err != nil {
+		return err
+	}
+
+	if idx < 0 {
+		// create a new one
+		idx = numplots
+		if err := r.ExecSlice([]string{wwin, "'numplots'"}); err != nil {
+			return err
+		}
+		r.PushFrame(rpn.IntFrame(int64(numplots+1), rpn.INTEGER_FRAME))
+		if err := r.Exec("w.setp"); err != nil {
+			return err
+		}
+	}
+
+	pidx := strconv.Itoa(int(idx))
+	if err := setParametric(r, wwin, pidx, isParametric); err != nil {
+		return err
+	}
+
+	if err := r.ExecSlice([]string{wwin, "'fn" + pidx + "'"}); err != nil {
+		return err
+	}
+	if err := r.PushFrame(macro); err != nil {
+		return err
+	}
+	if err := r.Exec("w.setp"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func getNumPlots(r *rpn.RPN, wwin string) (int, error) {
+	if err := r.ExecSlice([]string{wwin, "'numplots'", "w.getp"}); err != nil {
+		return 0, err
+	}
+	f, err := r.PopFrame()
+	if err != nil {
+		return 0, err
+	}
+	n, err := f.Int()
+	return int(n), err
+}
+
+func setParametric(r *rpn.RPN, wwin, pidx string, isParametric bool) error {
+	if err := r.ExecSlice([]string{wwin, "'parametric" + pidx + "'"}); err != nil {
+		return err
+	}
+	if err := r.PushFrame(rpn.BoolFrame(isParametric)); err != nil {
+		return err
+	}
+	if err := r.Exec("w.setp"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func findOpenPlotIndex(r *rpn.RPN, wwin string, numplots int, fn string) (int, error) {
+	openIndex := -1
+	for i := range numplots {
+		if err := r.ExecSlice([]string{
+			wwin,
+			"'fn" + strconv.Itoa(i) + "'",
+			"w.getp",
+		}); err != nil {
+			return 0, err
+		}
+		f, err := r.PopFrame()
+		if err != nil {
+			return 0, err
+		}
+		if fn == f.String(false) {
+			return i, nil
+		}
+		if (openIndex < 0) && (f.String(false) == "") {
+			openIndex = i
+		}
+	}
+	return openIndex, nil
 }
 
 func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
@@ -118,7 +209,7 @@ func (wc *PlotCommands) initPlot(r *rpn.RPN) error {
 	w, h := wc.screen.ScreenSize()
 	if uerr := wc.root.Update(r, w, h, false); uerr != nil {
 		elog.Heap("alloc: /window/plotwin/command.go:118: elog.Print('initPlot.Update error: ', uerr.Error())")
-		elog.Print("initPlot.Update error: ", uerr.Error())  // object allocated on the heap: escapes at line 118
+		elog.Print("initPlot.Update error: ", uerr.Error()) // object allocated on the heap: escapes at line 118
 	}
 	if err != nil {
 		return fmt.Errorf("while executing $.plotinit: %v", err)

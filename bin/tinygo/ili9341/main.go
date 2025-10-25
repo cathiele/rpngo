@@ -65,19 +65,19 @@ func run() error {
 	}
 	newPixelPlotWindow := func() (window.WindowWithProps, error) {
 		elog.Heap("alloc: /bin/tinygo/ili9341/main.go:67: var ppw plotwin.PixelPlotWindow")
-		var ppw plotwin.PixelPlotWindow  // object allocated on the heap: escapes at line 67
+		var ppw plotwin.PixelPlotWindow // object allocated on the heap: escapes at line 67
 		pw, err := screen.NewPixelWindow()
 		if err != nil {
 			return nil, err
 		}
 		elog.Heap("alloc: /bin/tinygo/ili9341/main.go:72: var pb pixelwinbuffer.PixelBuffer")
-		var pb pixelwinbuffer.PixelBuffer  // object allocated on the heap: escapes at line 74
+		var pb pixelwinbuffer.PixelBuffer // object allocated on the heap: escapes at line 74
 		pb.Init(pw)
 		ppw.Init(&pb)
 		return &ppw, nil
 	}
 	_ = commands.InitWindowCommands(&rpnInst, &root, &screen, newPixelPlotWindow)
-	_ = plotwin.InitPlotCommands(&rpnInst, &root, &screen, plotwin.AddPixelPlotFn)
+	_ = plotwin.InitPlotCommands(&rpnInst, &root, &screen)
 	if err := startup.LCD320Startup(&rpnInst); err != nil {
 		return err
 	}

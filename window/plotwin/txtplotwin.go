@@ -21,13 +21,9 @@ type TxtPlotWindow struct {
 	common plotWindowCommon
 }
 
-func AddTxtPlotFn(w window.WindowWithProps, r *rpn.RPN, fn []string, isParametric bool) error {
-	return w.(*TxtPlotWindow).common.addPlot(r, fn, isParametric, uint8(len(colorWheelTxt)))
-}
-
 func (pw *TxtPlotWindow) Init(txtw window.TextWindow) {
 	pw.txtw = txtw
-	pw.common.init()
+	pw.common.init(uint8(len(colorWheelTxt)))
 }
 
 func (pw *TxtPlotWindow) ResizeWindow(x, y, w, h int) error {
@@ -53,13 +49,12 @@ func (pw *TxtPlotWindow) Type() string {
 func (pw *TxtPlotWindow) Update(r *rpn.RPN) error {
 	pw.txtw.Erase()
 	defer pw.txtw.Refresh()
-	if err := pw.common.setAxisMinMax(r); err != nil {
-		return err
-	}
+	pw.common.setAxisMinMax(r)
 	if err := pw.drawAxis(); err != nil {
 		return err
 	}
-	return pw.common.createPoints(r, pw.plotPoint)
+	pw.common.createPoints(r, pw.plotPoint)
+	return nil
 }
 
 func (pw *TxtPlotWindow) SetProp(name string, val rpn.Frame) error {

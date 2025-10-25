@@ -22,13 +22,9 @@ type PixelPlotWindow struct {
 	lastcolidx uint8
 }
 
-func AddPixelPlotFn(w window.WindowWithProps, r *rpn.RPN, fn []string, isParametric bool) error {
-	return w.(*PixelPlotWindow).common.addPlot(r, fn, isParametric, uint8(len(colorWheelPixel)))
-}
-
 func (pw *PixelPlotWindow) Init(pixw window.PixelWindow) {
 	pw.pixw = pixw
-	pw.common.init()
+	pw.common.init(uint8(len(colorWheelPixel)))
 }
 
 func (pw *PixelPlotWindow) ResizeWindow(x, y, w, h int) error {
@@ -58,14 +54,10 @@ func (pw *PixelPlotWindow) Type() string {
 }
 
 func (pw *PixelPlotWindow) Update(r *rpn.RPN) error {
-	if err := pw.common.setAxisMinMax(r); err != nil {
-		return err
-	}
+	pw.common.setAxisMinMax(r)
 	pw.drawAxis()
 	pw.lastcolidx = 255
-	if err := pw.common.createPoints(r, pw.plotPoint); err != nil {
-		return err
-	}
+	pw.common.createPoints(r, pw.plotPoint)
 	pw.pixw.Refresh()
 	return nil
 }
