@@ -34,6 +34,7 @@ const (
 	HGHLIGHT_SINGLE_QUOTE
 	HGHLIGHT_DOUBLE_QUOTE
 	HIGHLIGHT_MACRO
+	HIGHLIGHT_COMMENT
 )
 
 const EditHelp = "Invokes an editor on the head value of the stack. " +
@@ -157,6 +158,9 @@ func checkHighlightState(hs HighlightState, c byte) (HighlightState, window.Colo
 		case '@':
 			hs = HIGHLIGHT_MACRO
 			col = window.Yellow
+		case '#':
+			hs = HIGHLIGHT_COMMENT
+			col = window.Blue
 		default:
 			col = window.White
 		}
@@ -180,6 +184,11 @@ func checkHighlightState(hs HighlightState, c byte) (HighlightState, window.Colo
 			hs = HIGHLIGHT_NORMAL
 		}
 		col = window.Yellow
+	case HIGHLIGHT_COMMENT:
+		if c == '\n' {
+			hs = HIGHLIGHT_NORMAL
+		}
+		col = window.Blue
 	}
 	return hs, col
 }
