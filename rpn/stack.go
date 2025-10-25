@@ -57,7 +57,8 @@ func (r *RPN) DeleteFrame(framesBack int) (sf Frame, err error) {
 		return
 	}
 	idx := len(r.Frames) - 1 - framesBack
-	r.Frames = append(r.Frames[:idx], r.Frames[idx+1:]...)
+	copy(r.Frames[idx:], r.Frames[idx+1:])
+	r.Frames = r.Frames[:len(r.Frames)-1]
 	return
 }
 
