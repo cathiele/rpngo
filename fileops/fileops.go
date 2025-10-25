@@ -52,7 +52,7 @@ func (fo *FileOps) Load(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.StringFrame(string(data)))
+	return r.PushFrame(rpn.StringFrame(string(data), rpn.STRING_DOUBLE_QUOTE))
 }
 
 const SaveHelp = "Uses $0 as the filename to save the contents of $1  Both are popped from the stack.  A '\\n' character is added.  Use append if this is not wanted."
@@ -68,7 +68,6 @@ func (fo *FileOps) Save(r *rpn.RPN) error {
 	path := f.UnsafeString()
 	data, err := r.PopFrame()
 	if err != nil {
-		r.PushFrame(rpn.StringFrame(path))
 		return err
 	}
 	return fo.driver.WriteFile(path, []byte(data.String(false)))
@@ -87,7 +86,6 @@ func (fo *FileOps) Append(r *rpn.RPN) error {
 	path := f.UnsafeString()
 	data, err := r.PopFrame()
 	if err != nil {
-		r.PushFrame(rpn.StringFrame(path))
 		return err
 	}
 	return fo.driver.AppendToFile(path, []byte(data.String(false)))
@@ -187,7 +185,7 @@ func setCmdOutput(r *rpn.RPN, output string) error {
 		}
 	}
 	if stack {
-		return r.PushFrame(rpn.StringFrame(strings.TrimSpace(output)))
+		return r.PushFrame(rpn.StringFrame(strings.TrimSpace(output), rpn.STRING_DOUBLE_QUOTE))
 	}
 	r.Print(output)
 	return nil

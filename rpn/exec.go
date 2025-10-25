@@ -43,11 +43,15 @@ func (rpn *RPN) Exec(arg string) error {
 		switch last {
 		case '"':
 			if arg[0] == '"' {
-				return rpn.PushFrame(StringFrame(arg[1 : len(arg)-1]))
+				return rpn.PushFrame(StringFrame(arg[1:len(arg)-1], STRING_DOUBLE_QUOTE))
 			}
 		case '\'':
 			if arg[0] == '\'' {
-				return rpn.PushFrame(StringFrame(arg[1 : len(arg)-1]))
+				return rpn.PushFrame(StringFrame(arg[1:len(arg)-1], STRING_SINGLE_QUOTE))
+			}
+		case '}':
+			if arg[0] == '{' {
+				return rpn.PushFrame(StringFrame(arg[1:len(arg)-1], STRING_BRACES))
 			}
 		case 'd':
 			return rpn.parseAndPushInt(arg[:len(arg)-1], 10, INTEGER_FRAME)

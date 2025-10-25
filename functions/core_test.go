@@ -41,27 +41,27 @@ func TestAdd(t *testing.T) {
 		},
 		{
 			Args: []string{"'foo'", "7", "+"},
-			Want: []string{"\"foo7\""},
+			Want: []string{"'foo7'"},
 		},
 		{
 			Args: []string{"7", "'foo'", "+"},
-			Want: []string{"\"7foo\""},
+			Want: []string{"'7foo'"},
 		},
 		{
 			Args: []string{"'foo'", "7d", "+"},
-			Want: []string{"\"foo7d\""},
+			Want: []string{"'foo7d'"},
 		},
 		{
 			Args: []string{"7d", "'foo'", "+"},
-			Want: []string{"\"7dfoo\""},
+			Want: []string{"'7dfoo'"},
 		},
 		{
 			Args: []string{"'foo'", "true", "+"},
-			Want: []string{"\"footrue\""},
+			Want: []string{"'footrue'"},
 		},
 		{
 			Args: []string{"true", "'foo'", "+"},
-			Want: []string{"\"truefoo\""},
+			Want: []string{"'truefoo'"},
 		},
 		{
 			Args: []string{"\"foo\"", "'bar'", "+"},

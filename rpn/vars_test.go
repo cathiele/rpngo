@@ -251,7 +251,7 @@ func TestAllVariableNamesAndValues(t *testing.T) {
 	want := []NameAndValues{
 		{
 			Name:   "a",
-			Values: []Frame{IntFrame(1, INTEGER_FRAME), StringFrame("foo")},
+			Values: []Frame{IntFrame(1, INTEGER_FRAME), StringFrame("foo", STRING_SINGLE_QUOTE)},
 		},
 		{
 			Name:   "b",
@@ -281,7 +281,7 @@ func TestExecVariableAsMacro(t *testing.T) {
 		},
 		{
 			Args: []string{"'1 2'", "@0"},
-			Want: []string{"\"1 2\"", "1", "2"},
+			Want: []string{"'1 2'", "1", "2"},
 		},
 		{
 			Args: []string{"'1 2'", "x=", "'@x @x'", "y=", "@y"},

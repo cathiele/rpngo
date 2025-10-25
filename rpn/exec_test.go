@@ -144,25 +144,37 @@ func TestExec(t *testing.T) {
 			name:       "empty string double quote",
 			args:       []string{"\"\""},
 			frameCount: 1,
-			wantFrame:  StringFrame(""),
+			wantFrame:  StringFrame("", STRING_DOUBLE_QUOTE),
+		},
+		{
+			name:       "empty string braces",
+			args:       []string{"{}"},
+			frameCount: 1,
+			wantFrame:  StringFrame("", STRING_BRACES),
 		},
 		{
 			name:       "empty string single quote",
 			args:       []string{"''"},
 			frameCount: 1,
-			wantFrame:  StringFrame(""),
+			wantFrame:  StringFrame("", STRING_SINGLE_QUOTE),
 		},
 		{
 			name:       "string double quote",
 			args:       []string{"\"foo\""},
 			frameCount: 1,
-			wantFrame:  StringFrame("foo"),
+			wantFrame:  StringFrame("foo", STRING_DOUBLE_QUOTE),
+		},
+		{
+			name:       "string braces",
+			args:       []string{"{foo}"},
+			frameCount: 1,
+			wantFrame:  StringFrame("foo", STRING_BRACES),
 		},
 		{
 			name:       "string single quote",
 			args:       []string{"'foo'"},
 			frameCount: 1,
-			wantFrame:  StringFrame("foo"),
+			wantFrame:  StringFrame("foo", STRING_SINGLE_QUOTE),
 		},
 		{
 			name:    "string mismatched quotes 1",
@@ -182,6 +194,16 @@ func TestExec(t *testing.T) {
 		{
 			name:    "string mismatched quotes 4",
 			args:    []string{"'"},
+			wantErr: ErrSyntax,
+		},
+		{
+			name:    "string mismatched quotes 5",
+			args:    []string{"{"},
+			wantErr: ErrSyntax,
+		},
+		{
+			name:    "string mismatched quotes 6",
+			args:    []string{"}"},
 			wantErr: ErrSyntax,
 		},
 		{

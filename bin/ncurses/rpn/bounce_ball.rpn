@@ -1,5 +1,5 @@
-'rand -0.5 - 0.02 *' randvel=
-"
+{rand -0.5 - 0.02 *} randvel=
+{
   vpush
   @randvel xv=
   @randvel yv=
@@ -7,7 +7,7 @@
   0 x=
   0 y=
   0.05 diameter=
-  '$0 cos $diameter * $x + 1> sin $diameter * $y +' pplot
+  {$0 cos $diameter * $x + 1> sin $diameter * $y +} pplot
   'p' 'minv' 0 w.setp
   'p' 'maxv' $pi 2 * w.setp
   'p' 'minx' -1 w.setp
@@ -15,19 +15,19 @@
   'p' 'miny' -1 w.setp
   'p' 'maxy' 1 w.setp
   'p' 'steps' 30 w.setp
-  '@next_frame $i 1 + i= $i 1000 <' for
+  {@next_frame $i 1 + i= $i 1000 <} for
   'p' w.del
   vpop
-" bounce_ball=
+} bounce_ball=
 
-"
+{
   $x $xv +
-  $0 abs 1 > '$xv neg xv= $xv + x=' 'x=' ifelse @
+  $0 abs 1 > {$xv neg xv= $xv + x=} {x=} ifelse @
 
   $y $yv +
-  $0 abs 1 > '$yv neg yv= $yv + y=' 'y=' ifelse @
+  $0 abs 1 > {$yv neg yv= $yv + y=} {y=} ifelse @
 
   'p' w.update
   1 60 / delay
-" next_frame=
+} next_frame=
 

@@ -106,5 +106,5 @@ func Input(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.StringFrame(str))
+	return r.PushFrame(rpn.StringFrame(str, rpn.STRING_DOUBLE_QUOTE))
 }

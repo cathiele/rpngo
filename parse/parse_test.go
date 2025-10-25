@@ -35,6 +35,14 @@ func TestFields(t *testing.T) {
 			want: []string{"'a\nb'"},
 		},
 		{
+			val:  "{hello there}",
+			want: []string{"{hello there}"},
+		},
+		{
+			val:  "{hello {there}}",
+			want: []string{"{hello {there}}"},
+		},
+		{
 			val:     "'a",
 			wantErr: ErrUnterminatedSingleQuote,
 		},
@@ -67,6 +75,14 @@ func TestFields(t *testing.T) {
 		{
 			val:     "\" # comment",
 			wantErr: ErrUnterminatedDouble,
+		},
+		{
+			val:     "{a",
+			wantErr: ErrUnterminatedBrace,
+		},
+		{
+			val:     "{{a}",
+			wantErr: ErrUnterminatedBrace,
 		},
 		{
 			val: "# comment",

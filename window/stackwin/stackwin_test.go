@@ -22,7 +22,7 @@ func TestSetGetProp(t *testing.T) {
 		},
 		{
 			name:       "round",
-			set:        rpn.StringFrame("hello"),
+			set:        rpn.StringFrame("hello", rpn.STRING_DOUBLE_QUOTE),
 			wantSetErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -102,7 +102,7 @@ func TestRoundedString(t *testing.T) {
 	}{
 		{
 			round: 2,
-			val:   rpn.StringFrame("hello"),
+			val:   rpn.StringFrame("hello", rpn.STRING_DOUBLE_QUOTE),
 			want:  "\"hello\"",
 		},
 		{

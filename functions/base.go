@@ -64,7 +64,7 @@ func Str(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.StringFrame(f.String(false)))
+	return r.PushFrame(rpn.StringFrame(f.String(false), rpn.STRING_DOUBLE_QUOTE))
 }
 
 const FloatHelp = "Converts head element to a complex float"

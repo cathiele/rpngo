@@ -118,7 +118,7 @@ func (wr *WindowRoot) addWindowGroupEntry(r *rpn.RPN, wge *windowGroupEntry) {
 	parent, err := wr.FindwindowGroup(parentname)
 	if err != nil {
 		// window not found, use the root group
-		fr := rpn.StringFrame("root")
+		fr := rpn.StringFrame("root", rpn.STRING_DOUBLE_QUOTE)
 		r.PushFrame(fr)
 		r.SetVariable(".wtarget")
 		parent = &wr.group

@@ -15,8 +15,11 @@ func Add(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	if a.IsString() || b.IsString() {
-		return r.PushFrame(rpn.StringFrame(a.String(false) + b.String(false)))
+	if a.IsString() {
+		return r.PushFrame(rpn.StringFrame(a.String(false)+b.String(false), a.QuoteType()))
+	}
+	if b.IsString() {
+		return r.PushFrame(rpn.StringFrame(a.String(false)+b.String(false), b.QuoteType()))
 	}
 	if a.IsComplex() || b.IsComplex() {
 		ac, err := a.Complex()

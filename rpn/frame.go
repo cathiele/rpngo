@@ -15,12 +15,20 @@ const (
 	BINARY_FRAME
 )
 
+const (
+	STRING_SINGLE_QUOTE = iota
+	STRING_DOUBLE_QUOTE
+	STRING_BRACES
+)
+
 // Frame Defines a single stack frame
 type Frame struct {
 	ftype FrameType
 	str   string
 	cmplx complex128
-	intv  int64
+	// If ftype == BOOL_FRAME, intv holds 1 or 0
+	// if ftype == STRING_FRAME, intv holds the quote type
+	intv int64
 }
 
 func (f *Frame) IsInt() bool {
@@ -52,6 +60,10 @@ func (f *Frame) IsBool() bool {
 
 func (f *Frame) IsString() bool {
 	return f.ftype == STRING_FRAME
+}
+
+func (f *Frame) QuoteType() int {
+	return int(f.intv)
 }
 
 func (f *Frame) Complex() (complex128, error) {
@@ -129,7 +141,14 @@ func (f *Frame) String(quote bool) string {
 		return "nil"
 	case STRING_FRAME:
 		if quote {
-			return "\"" + f.str + "\""
+			switch f.intv {
+			case STRING_SINGLE_QUOTE:
+				return "'" + f.str + "'"
+			case STRING_DOUBLE_QUOTE:
+				return "\"" + f.str + "\""
+			case STRING_BRACES:
+				return "{" + f.str + "}"
+			}
 		}
 		return f.str
 	case COMPLEX_FRAME:
@@ -200,8 +219,8 @@ func RealFrame(v float64) Frame {
 	return Frame{cmplx: complex(v, 0), ftype: COMPLEX_FRAME}
 }
 
-func StringFrame(v string) Frame {
-	return Frame{str: v, ftype: STRING_FRAME}
+func StringFrame(v string, quoteType int) Frame {
+	return Frame{str: v, ftype: STRING_FRAME, intv: int64(quoteType)}
 }
 
 func EmptyFrame() Frame {

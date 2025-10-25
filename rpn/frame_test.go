@@ -63,7 +63,7 @@ func TestIs(t *testing.T) {
 			want:  false,
 		},
 		{
-			frame: StringFrame("foo"),
+			frame: StringFrame("foo", STRING_DOUBLE_QUOTE),
 			fn:    func(f Frame) bool { return f.IsString() },
 			want:  true,
 		},
@@ -103,7 +103,7 @@ func TestComplex(t *testing.T) {
 			wantErr: ErrExpectedANumber,
 		},
 		{
-			frame:   StringFrame("foo"),
+			frame:   StringFrame("foo", STRING_DOUBLE_QUOTE),
 			wantErr: ErrExpectedANumber,
 		},
 	}
@@ -144,7 +144,7 @@ func TestReal(t *testing.T) {
 			wantErr: ErrExpectedANumber,
 		},
 		{
-			frame:   StringFrame("foo"),
+			frame:   StringFrame("foo", STRING_DOUBLE_QUOTE),
 			wantErr: ErrExpectedANumber,
 		},
 	}
@@ -185,7 +185,7 @@ func TestInt(t *testing.T) {
 			wantErr: ErrExpectedANumber,
 		},
 		{
-			frame:   StringFrame("foo"),
+			frame:   StringFrame("foo", STRING_DOUBLE_QUOTE),
 			wantErr: ErrExpectedANumber,
 		},
 	}
@@ -218,7 +218,7 @@ func TestBool(t *testing.T) {
 			want:  false,
 		},
 		{
-			frame:   StringFrame("true"),
+			frame:   StringFrame("true", STRING_DOUBLE_QUOTE),
 			wantErr: ErrExpectedABoolean,
 		},
 		{
@@ -258,12 +258,12 @@ func TestString(t *testing.T) {
 		},
 		{
 			name:  "string",
-			frame: StringFrame("foo"),
+			frame: StringFrame("foo", STRING_DOUBLE_QUOTE),
 			want:  "foo",
 		},
 		{
 			name:  "quoted string",
-			frame: StringFrame("foo"),
+			frame: StringFrame("foo", STRING_DOUBLE_QUOTE),
 			quote: true,
 			want:  "\"foo\"",
 		},
@@ -382,7 +382,7 @@ func TestCheckIfNumbers(t *testing.T) {
 			wantErr: ErrExpectedANumber,
 		},
 		{
-			a:       StringFrame("foo"),
+			a:       StringFrame("foo", STRING_DOUBLE_QUOTE),
 			b:       IntFrame(1, OCTAL_FRAME),
 			wantErr: ErrExpectedANumber,
 		},
@@ -393,7 +393,7 @@ func TestCheckIfNumbers(t *testing.T) {
 		},
 		{
 			a:       IntFrame(1, OCTAL_FRAME),
-			b:       StringFrame("foo"),
+			b:       StringFrame("foo", STRING_DOUBLE_QUOTE),
 			wantErr: ErrExpectedANumber,
 		},
 	}

@@ -21,7 +21,7 @@ func TestLengthAndClear(t *testing.T) {
 func TestPush(t *testing.T) {
 	var r RPN
 	r.Init(256)
-	f := StringFrame("foo")
+	f := StringFrame("foo", STRING_DOUBLE_QUOTE)
 	err := r.PushFrame(f)
 	if err != nil {
 		t.Fatalf("err=%v, want nil", err)
@@ -41,7 +41,7 @@ func TestPopFrame(t *testing.T) {
 	if err != ErrStackEmpty {
 		t.Errorf("err: %v, want: ErrStackEmpty", err)
 	}
-	f := StringFrame("foo")
+	f := StringFrame("foo", STRING_DOUBLE_QUOTE)
 	r.PushFrame(f)
 	got, err := r.PopFrame()
 	if err != nil {
@@ -62,9 +62,9 @@ func TestPop2Frames(t *testing.T) {
 	if err != ErrStackEmpty {
 		t.Errorf("err: %v, want: ErrStackEmpty", err)
 	}
-	wanta := StringFrame("foo")
+	wanta := StringFrame("foo", STRING_DOUBLE_QUOTE)
 	r.PushFrame(wanta)
-	wantb := StringFrame("bar")
+	wantb := StringFrame("bar", STRING_DOUBLE_QUOTE)
 	r.PushFrame(wantb)
 	gota, gotb, err := r.Pop2Frames()
 	if err != nil {
@@ -84,8 +84,8 @@ func TestPop2Frames(t *testing.T) {
 func TestPeekFrame(t *testing.T) {
 	var r RPN
 	r.Init(256)
-	r.PushFrame(StringFrame("foo"))
-	r.PushFrame(StringFrame("bar"))
+	r.PushFrame(StringFrame("foo", STRING_DOUBLE_QUOTE))
+	r.PushFrame(StringFrame("bar", STRING_DOUBLE_QUOTE))
 	_, err := r.PeekFrame(-1)
 	if err != ErrIllegalValue {
 		t.Errorf("want ErrIllegalValue, got %v", err)
@@ -95,7 +95,7 @@ func TestPeekFrame(t *testing.T) {
 		t.Errorf("want ErrNotEnoughStackFrames, got %v", err)
 	}
 
-	want := StringFrame("bar")
+	want := StringFrame("bar", STRING_DOUBLE_QUOTE)
 	got, err := r.PeekFrame(0)
 	if err != nil {
 		t.Errorf("want err=nil, got %v", err)
@@ -104,7 +104,7 @@ func TestPeekFrame(t *testing.T) {
 		t.Errorf("want %v, for %v", want, got)
 	}
 
-	want = StringFrame("foo")
+	want = StringFrame("foo", STRING_DOUBLE_QUOTE)
 	got, err = r.PeekFrame(1)
 	if err != nil {
 		t.Errorf("want err=nil, got %v", err)
@@ -117,9 +117,9 @@ func TestPeekFrame(t *testing.T) {
 func TestDeleteFrame(t *testing.T) {
 	var r RPN
 	r.Init(256)
-	r.PushFrame(StringFrame("foo"))
-	r.PushFrame(StringFrame("bar"))
-	r.PushFrame(StringFrame("baz"))
+	r.PushFrame(StringFrame("foo", STRING_DOUBLE_QUOTE))
+	r.PushFrame(StringFrame("bar", STRING_DOUBLE_QUOTE))
+	r.PushFrame(StringFrame("baz", STRING_DOUBLE_QUOTE))
 	_, err := r.DeleteFrame(-1)
 	if err != ErrIllegalValue {
 		t.Errorf("want ErrIllegalValue, got %v", err)
@@ -133,14 +133,14 @@ func TestDeleteFrame(t *testing.T) {
 	if err != nil {
 		t.Errorf("want err=nil, got %v", err)
 	}
-	want := StringFrame("baz")
+	want := StringFrame("baz", STRING_DOUBLE_QUOTE)
 	if !reflect.DeepEqual(want, got) {
 		t.Errorf("want %v, got %v", want, got)
 	}
 
 	wants := []Frame{
-		StringFrame("foo"),
-		StringFrame("bar"),
+		StringFrame("foo", STRING_DOUBLE_QUOTE),
+		StringFrame("bar", STRING_DOUBLE_QUOTE),
 	}
 	if !reflect.DeepEqual(wants, r.Frames) {
 		t.Errorf("want %v, get %v", wants, r.Frames)
@@ -150,13 +150,13 @@ func TestDeleteFrame(t *testing.T) {
 	if err != nil {
 		t.Errorf("want err=nil, got %v", err)
 	}
-	want = StringFrame("foo")
+	want = StringFrame("foo", STRING_DOUBLE_QUOTE)
 	if !reflect.DeepEqual(want, got) {
 		t.Errorf("want %v, got %v", want, got)
 	}
 
 	wants = []Frame{
-		StringFrame("bar"),
+		StringFrame("bar", STRING_DOUBLE_QUOTE),
 	}
 	if !reflect.DeepEqual(wants, r.Frames) {
 		t.Errorf("want %v, get %v", wants, r.Frames)
@@ -176,14 +176,14 @@ func TestInsertFrame(t *testing.T) {
 	if err != wantErr {
 		t.Errorf("err=%v, want %v", err, wantErr)
 	}
-	r.PushFrame(StringFrame("1"))
-	err = r.InsertFrame(StringFrame("foo"), 1)
+	r.PushFrame(StringFrame("1", STRING_DOUBLE_QUOTE))
+	err = r.InsertFrame(StringFrame("foo", STRING_DOUBLE_QUOTE), 1)
 	wantErr = nil
 	if err != wantErr {
 		t.Errorf("err=%v, want %v", err, wantErr)
 	}
 
-	wants := []Frame{StringFrame("foo"), StringFrame("1")}
+	wants := []Frame{StringFrame("foo", STRING_DOUBLE_QUOTE), StringFrame("1", STRING_DOUBLE_QUOTE)}
 	if !reflect.DeepEqual(wants, r.Frames) {
 		t.Errorf("want %v, get %v", wants, r.Frames)
 	}

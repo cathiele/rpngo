@@ -21,6 +21,7 @@ import (
 var (
 	ErrUnterminatedDouble      = errors.New("unterminated double quote")
 	ErrUnterminatedSingleQuote = errors.New("unterminated single quote")
+	ErrUnterminatedBrace       = errors.New("unterminatd brace")
 )
 
 type State uint8
@@ -30,6 +31,7 @@ const (
 	TOKEN
 	STRING_DOUBLE
 	STRING_SINGLE
+	STRING_BRACES
 	COMMENT
 )
 
@@ -37,6 +39,7 @@ type parseData struct {
 	s             State
 	t             []rune
 	nextIsLiteral bool
+	braceDepth    int
 }
 
 const defaultStaticRunes = 64
@@ -79,6 +82,8 @@ func (p *parseData) whitespace(c rune) {
 		p.s = STRING_SINGLE
 	case '"':
 		p.s = STRING_DOUBLE
+	case '{':
+		p.s = STRING_BRACES
 	default:
 		p.s = TOKEN
 	}
@@ -105,7 +110,7 @@ func (p *parseData) token(c rune, fn func(string) error) error {
 	return nil
 }
 
-func (p *parseData) str(c rune, quoteChar rune, fn func(string) error) error {
+func (p *parseData) str(c rune, fn func(string) error) error {
 	if p.nextIsLiteral {
 		switch c {
 		case 'n':
@@ -122,7 +127,24 @@ func (p *parseData) str(c rune, quoteChar rune, fn func(string) error) error {
 		return nil
 	}
 	p.t = append(p.t, c)
-	if c == quoteChar {
+	var callFn bool
+	switch p.s {
+	case STRING_DOUBLE:
+		callFn = c == '"'
+	case STRING_SINGLE:
+		callFn = c == '\''
+	case STRING_BRACES:
+		if c == '{' {
+			p.braceDepth++
+		} else if c == '}' {
+			if p.braceDepth == 0 {
+				callFn = true
+			} else {
+				p.braceDepth--
+			}
+		}
+	}
+	if callFn {
 		token := string(p.t)
 		p.t = p.t[:0]
 		p.s = WHITESPACE
@@ -152,10 +174,8 @@ func Fields(m string, fn func(string) error) error {
 			}
 		case TOKEN:
 			err = parse.token(c, fn)
-		case STRING_SINGLE:
-			err = parse.str(c, '\'', fn)
-		case STRING_DOUBLE:
-			err = parse.str(c, '"', fn)
+		case STRING_SINGLE, STRING_DOUBLE, STRING_BRACES:
+			err = parse.str(c, fn)
 		case COMMENT:
 			parse.comment(c)
 		}
@@ -175,6 +195,8 @@ func Fields(m string, fn func(string) error) error {
 		err = ErrUnterminatedSingleQuote
 	case STRING_DOUBLE:
 		err = ErrUnterminatedDouble
+	case STRING_BRACES:
+		err = ErrUnterminatedBrace
 	}
 
 	if err != nil {

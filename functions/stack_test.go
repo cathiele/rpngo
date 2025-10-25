@@ -38,7 +38,7 @@ func TestPrint(t *testing.T) {
 		},
 		{
 			Args: []string{"'foo'", "print"},
-			Want: []string{"\"foo\""},
+			Want: []string{"'foo'"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
@@ -87,7 +87,7 @@ func TestPrintS(t *testing.T) {
 		},
 		{
 			Args: []string{"'foo'", "prints"},
-			Want: []string{"\"foo\""},
+			Want: []string{"'foo'"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
@@ -136,7 +136,7 @@ func TestPrintLn(t *testing.T) {
 		},
 		{
 			Args: []string{"'foo'", "println"},
-			Want: []string{"\"foo\""},
+			Want: []string{"'foo'"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
@@ -181,14 +181,14 @@ func TestPrintAll(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
 			Args: []string{"'foo'", "'bar'", "printall"},
-			Want: []string{"\"foo\"", "\"bar\""},
+			Want: []string{"'foo'", "'bar'"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
 		r.Print = prfn
 		RegisterAll(r)
 	})
-	want := "1: \"foo\"\n0: \"bar\"\n"
+	want := "1: 'foo'\n0: 'bar'\n"
 	if got != want {
 		t.Errorf("got: %v, want %v", got, want)
 	}
