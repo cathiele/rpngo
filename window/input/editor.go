@@ -42,14 +42,25 @@ const EditHelp = "Invokes an editor on the head value of the stack. " +
 	"will always be a string (but can be evaluated with @ if needed)."
 
 func (iw *InputWindow) Edit(r *rpn.RPN) error {
-	f, err := r.PopFrame()
-	if err != nil {
-		return err
+	var f rpn.Frame
+	var err error
+	var ed editor
+	if len(r.Frames) != 0 {
+		f, err = r.PopFrame()
+		if err != nil {
+			return err
+		}
+		ed = editor{buff: []byte(f.String(false)), ulIdx: 0}
 	}
-	ed := editor{buff: []byte(f.String(false)), ulIdx: 0}
 	ed.txtb.Init(iw.txtb.Txtw, 0)
 	for {
 		//ed.debugDump()
+		if r.Interrupt() {
+			tw, th := iw.txtb.Txtw.TextSize()
+			iw.txtb.RefreshArea(0, 0, tw, th)
+			r.PushFrame(f)
+			return nil
+		}
 		ed.renderDisplay()
 		c, err := iw.input.GetChar()
 		if err != nil {
