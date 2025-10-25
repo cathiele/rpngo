@@ -14,6 +14,7 @@ var (
 	errArgsNotSupported       = errors.New("args not supported")
 	errEmptyArgument          = errors.New("empty argument")
 	errOnlyOnePathIsSupported = errors.New("only one path is supported")
+	errPathIsRequired         = errors.New("path is required")
 	errUnknownCommand         = errors.New("unknown command")
 )
 
@@ -37,6 +38,8 @@ func (fo *FileOpsDriver) Shell(args []string, stdin io.Reader) (string, error) {
 		val, err = fo.ls(args[1:])
 	case "pwd":
 		val, err = fo.getpwd(args[1:])
+	case "rm":
+		err = fo.rm(args[1:])
 	default:
 		return "", errUnknownCommand
 	}
@@ -86,6 +89,29 @@ func (fo *FileOpsDriver) ls(args []string) (string, error) {
 	}
 	println("done")
 	return string(buff), nil
+}
+
+func (fo *FileOpsDriver) rm(args []string) error {
+	if len(args) == 0 {
+		return errPathIsRequired
+	}
+	for _, path := range args {
+		if err := fo.rmPath(path); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (fo *FileOpsDriver) rmPath(path string) error {
+	if len(path) == 0 {
+		return errEmptyArgument
+	}
+	if path[0] == '-' {
+		return fmt.Errorf("unknown flag: %v", path)
+	}
+	path = absPath(fo.pwd, path, true, false)
+	return fo.fs.Remove(path)
 }
 
 func appendLongInfo(buff []byte, info os.FileInfo) []byte {

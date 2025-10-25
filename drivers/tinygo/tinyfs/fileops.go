@@ -42,14 +42,15 @@ func (fo *FileOpsDriver) Init() error {
 	fo.fs.Configure(&fatfs.Config{
 		SectorSize: 512,
 	})
-	return nil
+	fo.initErr = fo.fs.Mount()
+	return fo.initErr
 }
 
 func (fo *FileOpsDriver) FileSize(path string) (int, error) {
 	if fo.initErr != nil {
 		return 0, fo.initErr
 	}
-	s, err := fo.fs.Stat(absPath(fo.pwd, path, false, false))
+	s, err := fo.fs.Stat(absPath(fo.pwd, path, true, false))
 	if err != nil {
 		return 0, err
 	}
@@ -60,7 +61,7 @@ func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
 	if fo.initErr != nil {
 		return nil, fo.initErr
 	}
-	f, err := fo.fs.Open(absPath(fo.pwd, path, false, false))
+	f, err := fo.fs.Open(absPath(fo.pwd, path, true, false))
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +105,7 @@ func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) erro
 	}
 	print("Opening file ")
 	println(path)
-	f, err := fo.fs.OpenFile(absPath(fo.pwd, path, false, false), flags)
+	f, err := fo.fs.OpenFile(absPath(fo.pwd, path, true, false), flags)
 	if err != nil {
 		return err
 	}
