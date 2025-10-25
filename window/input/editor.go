@@ -1,7 +1,6 @@
 package input
 
 import (
-	"log"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
@@ -27,6 +26,16 @@ type editor struct {
 	replaceMode bool
 }
 
+type HighlightState uint8
+
+const (
+	HIGHLIGHT_NORMAL HighlightState = iota
+	HIGHLIGHT_VARIABLE
+	HGHLIGHT_SINGLE_QUOTE
+	HGHLIGHT_DOUBLE_QUOTE
+	HIGHLIGHT_MACRO
+)
+
 const EditHelp = "Invokes an editor on the head value of the stack. " +
 	"Press ESC to push edits back to the stack.  The pushed value " +
 	"will always be a string (but can be evaluated with @ if needed)."
@@ -39,7 +48,7 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 	ed := editor{buff: []byte(f.String(false)), ulIdx: 0}
 	ed.txtb.Init(iw.txtb.Txtw, 0)
 	for {
-		ed.debugDump()
+		//ed.debugDump()
 		ed.renderDisplay()
 		c, err := iw.input.GetChar()
 		if err != nil {
@@ -82,6 +91,7 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 	}
 }
 
+/*
 func (ed *editor) debugDump() {
 	x, y := ed.txtb.CursorXY()
 	if ed.cIdx == len(ed.buff) {
@@ -90,13 +100,21 @@ func (ed *editor) debugDump() {
 		log.Printf("x=%v y=%v cidx=%v c=%c", x, y, ed.cIdx, rune(ed.buff[ed.cIdx]))
 	}
 }
+*/
 
 func (ed *editor) renderDisplay() {
+	var hs HighlightState = HIGHLIGHT_NORMAL
 	ed.txtb.Cursor(false)
 	x := 0
 	y := 0
 	tw, th := ed.txtb.Txtw.TextSize()
+	var col window.ColorChar
+	var skip bool
 	for _, c := range ed.buff[ed.ulIdx:] {
+		if !skip {
+			hs, col = checkHighlightState(hs, c)
+		}
+		skip = !skip && (c == '\\')
 		if x >= tw {
 			x = 0
 			y++
@@ -108,7 +126,7 @@ func (ed *editor) renderDisplay() {
 				x = 0
 				y++
 			} else {
-				ed.txtb.DrawChar(x, y, window.White|window.ColorChar(c))
+				ed.txtb.DrawChar(x, y, col|window.ColorChar(c))
 				x++
 			}
 		}
@@ -120,6 +138,54 @@ func (ed *editor) renderDisplay() {
 	// update changed characters
 	ed.txtb.Update()
 	ed.txtb.Cursor(true)
+}
+
+func checkHighlightState(hs HighlightState, c byte) (HighlightState, window.ColorChar) {
+	var col window.ColorChar
+	switch hs {
+	case HIGHLIGHT_NORMAL:
+		switch c {
+		case '\'':
+			hs = HGHLIGHT_SINGLE_QUOTE
+			col = window.Red
+		case '"':
+			hs = HGHLIGHT_DOUBLE_QUOTE
+			col = window.Red
+		case '$':
+			hs = HIGHLIGHT_VARIABLE
+			col = window.Green
+		case '@':
+			hs = HIGHLIGHT_MACRO
+			col = window.Yellow
+		default:
+			col = window.White
+		}
+	case HGHLIGHT_SINGLE_QUOTE:
+		if c == '\'' {
+			hs = HIGHLIGHT_NORMAL
+		}
+		col = window.Red
+	case HGHLIGHT_DOUBLE_QUOTE:
+		if c == '"' {
+			hs = HIGHLIGHT_NORMAL
+		}
+		col = window.Red
+	case HIGHLIGHT_VARIABLE:
+		if isWhiteSpace(c) {
+			hs = HIGHLIGHT_NORMAL
+		}
+		col = window.Green
+	case HIGHLIGHT_MACRO:
+		if isWhiteSpace(c) {
+			hs = HIGHLIGHT_NORMAL
+		}
+		col = window.Yellow
+	}
+	return hs, col
+}
+
+func isWhiteSpace(c byte) bool {
+	return (c == ' ') || (c == '\t') || (c == '\n')
 }
 
 func (ed *editor) clearScreenToEndOfLine(x, y int) {
