@@ -17,17 +17,6 @@ const (
 	PAGEDOWN
 )
 
-/* Make this optional later
-type echo struct {
-	inputPrint func(string)
-}
-
-func (e *echo) print(s string) {
-	e.inputPrint(s)
-	fmt.Print(s)
-}
-*/
-
 type SerialConsole struct {
 	state TermState
 }
@@ -84,5 +73,5 @@ func (sc *SerialConsole) GetChar() key.Key {
 			return key.KEY_PAGEDOWN
 		}
 	}
-	return 0
+	return key.Key(c)
 }
