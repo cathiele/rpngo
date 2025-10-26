@@ -2,7 +2,7 @@ package fileops
 
 import (
 	"errors"
-	"mattwach/rpngo/drivers/posix"
+	"mattwach/rpngo/drivers/posix/fs"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/rpn"
 	"os"
@@ -46,7 +46,7 @@ func TestSource(t *testing.T) {
 			r.Init(256)
 			functions.RegisterAll(&r)
 			var fo FileOps
-			fo.InitAndRegister(&r, 65536, &posix.FileOpsDriver{})
+			fo.InitAndRegister(&r, 65536, &fs.FileOpsDriver{})
 			err := r.ExecSlice([]string{"'" + filePath + "'", "source"})
 			if !errors.Is(err, d.wantErr) {
 				t.Errorf("err=%v, want: %v", err, d.wantErr)
