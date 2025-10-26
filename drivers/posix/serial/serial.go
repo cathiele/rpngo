@@ -8,7 +8,10 @@ import (
 	"os"
 )
 
-var errSerialPortNotOpen = errors.New("serial port not open")
+var (
+	errSerialPortNotOpen      = errors.New("serial port not open")
+	errSerialPortNeedsToBeSet = errors.New("$.serial needs to be set (e.g. /dev/ttyAMC0)")
+)
 
 type readData struct {
 	read chan byte
@@ -22,6 +25,9 @@ type Serial struct {
 }
 
 func (sc *Serial) Open(path string) error {
+	if path == "" {
+		return errSerialPortNeedsToBeSet
+	}
 	if sc.f != nil {
 		return fmt.Errorf("serial file is already open: v", sc.f.Name())
 	}

@@ -36,6 +36,8 @@ const defaultConfigFile = `
 # Plot defaults
 'p' .plotwin=
 '$.plotwin w.new.plot' .plotinit=
+
+'/dev/ttyACM0' .serial=
 ` + commonStartup
 
 const configName = ".rpngo"

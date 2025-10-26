@@ -7,9 +7,11 @@ import (
 	"log"
 	"mattwach/rpngo/drivers/curses"
 	"mattwach/rpngo/drivers/posix/fs"
+	posixserial "mattwach/rpngo/drivers/posix/serial"
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/serial"
 	"mattwach/rpngo/startup"
 	"mattwach/rpngo/window"
 	"mattwach/rpngo/window/commands"
@@ -36,6 +38,8 @@ func run() error {
 	functions.RegisterAll(&r)
 	var fo fileops.FileOps
 	fo.InitAndRegister(&r, 65536, &fs.FileOpsDriver{})
+	var sc serial.SerialCommands
+	sc.InitAndRegister(&r, &posixserial.Serial{})
 
 	if len(os.Args) > 1 {
 		return cli(&r)
