@@ -10,8 +10,15 @@ import (
 
 var errSerialPortNotOpen = errors.New("serial port not open")
 
+type readData struct {
+	read chan byte
+	err  chan error
+	done chan bool
+}
+
 type Serial struct {
-	f *os.File
+	f     *os.File
+	rdata *readData
 }
 
 func (sc *Serial) Open(path string) error {
@@ -31,19 +38,48 @@ func (sc *Serial) Close() error {
 		return errSerialPortNotOpen
 	}
 	err := sc.f.Close()
+	if sc.rdata != nil {
+		<-sc.rdata.done
+		sc.rdata = nil
+	}
 	sc.f = nil
 	return err
 }
 
-var readbuff = make([]byte 1)
+var readbuff = make([]byte, 1)
+
 func (sc *Serial) ReadByte() (byte, error) {
 	if sc.f == nil {
 		return 0, errSerialPortNotOpen
 	}
-	// TODO: This probably needs to be non-blocking so that
-	// a timeout can be implemented.
-	n, err := sc.f.Read(readbuff)
-	return readbuff[0], err
+
+	if sc.rdata == nil {
+		sc.rdata = &readData{
+			read: make(chan byte, 16),
+			err:  make(chan error, 1),
+			done: make(chan bool),
+		}
+		go func() {
+			for {
+				_, err := sc.f.Read(readbuff)
+				if err != nil {
+					sc.rdata.err <- err
+					break
+				}
+				sc.rdata.read <- readbuff[0]
+			}
+			sc.rdata.done <- true
+		}()
+	}
+
+	select {
+	case rd := <-sc.rdata.read:
+		return rd, nil
+	case err := <-sc.rdata.err:
+		return 0, err
+	default:
+		return 0, nil
+	}
 }
 
 func (sc *Serial) WriteByte(c byte) error {
