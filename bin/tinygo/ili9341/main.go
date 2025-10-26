@@ -9,7 +9,7 @@ import (
 	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/ili9341"
-	"mattwach/rpngo/drivers/tinygo/serialconsole"
+	"mattwach/rpngo/drivers/tinygo/serial"
 	"mattwach/rpngo/drivers/tinygo/tinyfs"
 	"mattwach/rpngo/elog"
 	"mattwach/rpngo/fileops"
@@ -39,8 +39,8 @@ var fileOps fileops.FileOps
 var fileOpsDriver tinyfs.FileOpsDriver
 
 type getInput struct {
-	lcd     *ili9341.Ili9341TxtW
-	serialc serialconsole.SerialConsole
+	lcd    *ili9341.Ili9341TxtW
+	serial serial.Serial
 }
 
 func main() {
@@ -120,7 +120,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 func (gi *getInput) GetChar() (key.Key, error) {
 	for {
 		time.Sleep(20 * time.Millisecond)
-		k := gi.serialc.GetChar()
+		k := gi.serial.GetChar()
 		if k != 0 {
 			return k, nil
 		}

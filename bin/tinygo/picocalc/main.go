@@ -9,7 +9,7 @@ import (
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/picocalc/i2ckbd"
 	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
-	"mattwach/rpngo/drivers/tinygo/serialconsole"
+	"mattwach/rpngo/drivers/tinygo/serial"
 	"mattwach/rpngo/drivers/tinygo/tinyfs"
 	"mattwach/rpngo/elog"
 	"mattwach/rpngo/fileops"
@@ -40,7 +40,7 @@ var fileOpsDriver tinyfs.FileOpsDriver
 
 type getInput struct {
 	lcd      *ili948x.Ili948xTxtW
-	serialc  serialconsole.SerialConsole
+	serial   serial.Serial
 	keyboard i2ckbd.I2CKbd
 }
 
@@ -124,7 +124,7 @@ func (gi *getInput) Init() {
 func (gi *getInput) GetChar() (key.Key, error) {
 	for {
 		time.Sleep(20 * time.Millisecond)
-		k := gi.serialc.GetChar()
+		k := gi.serial.GetChar()
 		if k != 0 {
 			return k, nil
 		}

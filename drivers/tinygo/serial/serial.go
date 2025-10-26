@@ -1,8 +1,9 @@
 // Package serialconsile provides a common mechanism for processsing
 // characters from the UART
-package serialconsole
+package serial
 
 import (
+	"errors"
 	"machine"
 	"mattwach/rpngo/key"
 )
@@ -17,11 +18,25 @@ const (
 	PAGEDOWN
 )
 
-type SerialConsole struct {
+var errNotSupported = errors.New("not supported")
+
+type Serial struct {
 	state TermState
 }
 
-func (sc *SerialConsole) GetChar() key.Key {
+func (sc *Serial) SetPort(port string) error {
+	return errNotSupported
+}
+
+func (sc *Serial) ReadByte() (byte, error) {
+	return machine.Serial.ReadByte()
+}
+
+func (sc *Serial) WriteByte(c byte) error {
+	return machine.Serial.WriteByte(c)
+}
+
+func (sc *Serial) GetChar() key.Key {
 	c, err := machine.Serial.ReadByte()
 	if err != nil {
 		// nothing available
