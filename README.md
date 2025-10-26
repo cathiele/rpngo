@@ -77,33 +77,113 @@ make
 
 To run all unit tests and build all targets/  This will only work if you have tinygo installed.
 
+## Features
+
+A quick list of things the calculator can do:
+
+- All regular and scientific calculator operations (e.g. `+`, `-`, `sqrt`, 'sin`, ...)
+- Working with the following number formats: complex, integer, binary, octal, hexidecimal
+- Bitwise and logical operations
+- Working with string data
+- Unit conversion (e.g. miles/hour -> meters/sec)
+- 2D plotting (regular and parametric)
+- Simple programming
+- Variables
+- Customisable window layouts
+- Custmizable keyboard shortcuts
+- Disk and serial IO
+- Build in editor
+
 ## RPN Introduction
+
+This "users guide" will take the format of being mostly working examples.
+Let's start with the basics.
 
 RPN is an old and proven way to do calculations that is popular in engineering fields.
 Much has been written on the subject. You can start here: https://en.wikipedia.org/wiki/Reverse_Polish_notation
 
-As a quick example, here is one way to calculate `(1 + 5) / (4 - 2)`:
+Let's start with '2 + 3'
 
-    1 5 + 4 2 - /
+
+    2
+    3
+    +
+
+or
+
+    2 3 +
+
+Both formns (spaces and new lines) do the following:
+
+1. Push a `2` to the stack
+2. Push a `3` to the stack
+3. Call the `+` operator which pulls 2 stack values (`2`, `3`) and pushes the result `5`
+
+The nice thing about RPN is that you don't have to enter paranthesis, which
+many people find faster and less error prone.  For example, do calculate `sqrt((10 - 2)/(5 - 3))`,
+you could say:
+
+    10 2 - 5 3 - / sqrt
 
 ## Variables
 
 You can define and use variables.  This can make it easier to work through
-calculations. Most implementation will define some varialbes, such as `.pi`,
+calculations. Most implementation will define some varialbes, such as `$pi`,
 on startup.
 
     5 a=
-    2 .a +  -> 7
+    2 $a +  -> 7
+
+Variables that start with a `.` are hidden by default in the variable window
+(which we'll get to later).
+
+There are also special variables, `$0`, `$1`, etc, which represent values on
+stack. `$0` represents the value at the top of the stack. If the stack
+is empty, then using `$0` results in an error.  e.g.
+
+    5 sq    # square the number
+    5 $0 *  # same result
+
+## Stack Shifts
+
+You can move values around the stack.
+
+    10 20 30   # put 10 20 30 on th stack
+    1>         # now the stack is 10 30 20
+    1<         # back to 10 20 30
+    2>         # now the stack is 20 30 10
+    2<         # back to 10 20 30
+    $2 2<      # now it's 10 10 20 30
+
+## Strings
+
+There are three ways to specify a string
+
+    "hello world"
+    'hello world'
+    {hello world}
+
+All three are just strings.  The third form can be useful when you want to nest
+terms in a program.
+
+    {0 x= {$x 1 + x= $x println 1000 <} for} count=
+
+It could also be done with other string types:
+
+    '0 x= "$x 1 + x= $x println 1000 <" for' count=
+
+but this is arguably not as easy to read and further nesting would
+make it even less readable than using `{}`.
 
 ## Macros
 
-You can define a string as a macro, here is one for the area of a circle (`pi * r * r / 2`),
-given the radius (the `d` command means "duplicate"):
+You can define a string as a macro, here is one for the area of a circle (`$pi * r * r / 2`),
+given the radius:
 
-    "d * .pi * 2 /" carea=
-    5 `carea -> 39.269908169872416
+    {$0 * $pi * 2 /} carea=
+    5 @carea -> 39.269908169872416
 
-## Conditionals and simnple programs
+## Conditionals and simple programs
 
 These can be combined with macros and varialbes for simple programming.  Here
 is a program that counts to 100.
