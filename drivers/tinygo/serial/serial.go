@@ -1,9 +1,10 @@
+//go:build pico || pico2
+
 // Package serialconsile provides a common mechanism for processsing
 // characters from the UART
 package serial
 
 import (
-	"errors"
 	"machine"
 	"mattwach/rpngo/key"
 )
@@ -18,14 +19,16 @@ const (
 	PAGEDOWN
 )
 
-var errNotSupported = errors.New("not supported")
-
 type Serial struct {
 	state TermState
 }
 
-func (sc *Serial) SetPort(port string) error {
-	return errNotSupported
+func (sc *Serial) Open(path string) error {
+	return nil
+}
+
+func (sc *Serial) Close() error {
+	return nil
 }
 
 func (sc *Serial) ReadByte() (byte, error) {
