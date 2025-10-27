@@ -19,12 +19,11 @@ type Input interface {
 }
 
 type InputWindow struct {
-	input          Input
-	txtb           window.TextBuffer
-	gl             *getLine
-	firstInput     bool
-	scrollbackMode bool
-	showFrames     int
+	input      Input
+	txtb       window.TextBuffer
+	gl         *getLine
+	firstInput bool
+	showFrames int
 }
 
 func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, scrollbytes int) {

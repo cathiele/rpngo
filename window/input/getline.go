@@ -257,9 +257,7 @@ func (gl *getLine) addToHistory() {
 	if len(gl.history[hidx]) > 0 {
 		gl.history[hidx] = gl.history[hidx][:0]
 	}
-	for _, b := range gl.line {
-		gl.history[hidx] = append(gl.history[hidx], b)
-	}
+	gl.history[hidx] = append(gl.history[hidx], gl.line...)
 	gl.historyCount++
 	if gl.historyFile != nil {
 		_, err := gl.historyFile.Write(gl.line)
@@ -282,9 +280,7 @@ func (gl *getLine) replaceLineWithHistory(arrowKeyIdx int, delta int, idx int) (
 	if len(gl.history[oldidx]) > 0 {
 		gl.history[oldidx] = gl.history[oldidx][:0]
 	}
-	for _, c := range gl.line {
-		gl.history[oldidx] = append(gl.history[oldidx], c)
-	}
+	gl.history[oldidx] = append(gl.history[oldidx], gl.line...)
 	arrowKeyIdx += delta
 	if (arrowKeyIdx > gl.historyCount) || (arrowKeyIdx >= MAX_HISTORY_LINES) || (arrowKeyIdx < 0) {
 		arrowKeyIdx -= delta
@@ -300,9 +296,7 @@ func (gl *getLine) replaceLineWithHistory(arrowKeyIdx int, delta int, idx int) (
 	gl.txtb.Shift(-oldlen)
 	gl.txtb.PrintBytes(newl, true)
 	gl.line = gl.line[:0]
-	for _, b := range newl {
-		gl.line = append(gl.line, b)
-	}
+	gl.line = append(gl.line, newl...)
 	return arrowKeyIdx, len(gl.line)
 }
 
