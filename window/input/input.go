@@ -76,11 +76,7 @@ func (iw *InputWindow) Update(r *rpn.RPN) error {
 		return nil
 	}
 	if action {
-		if err == nil {
-			iw.printFrames(r)
-		} else if !errors.Is(err, rpn.ErrNotEnoughStackFrames) {
-			iw.txtb.PrintErr(err, true)
-		}
+		iw.printFrames(r)
 	}
 	iw.txtb.Update()
 	return nil
