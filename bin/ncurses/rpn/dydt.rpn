@@ -1,0 +1,23 @@
+# Generates a derivitave plot in plot window 'p'
+# usage 'sq' @dydt
+{
+  'p' 'maxv' w.getp 'p' 'minv' w.getp - 'p' 'steps' w.getp / dydt.dt=
+  'p' 'minv' w.getp $dydt.dt - @dydt.fn dydt.yprev=
+} dydt.init=
+
+# How this works:
+# 1. initialize dt and yprev if needed
+# 2. Calculate dy
+# 3. Store yprev for next call
+# 4. Calculate dy/dt
+{
+  dydt.fn=
+  {
+    $.t0 $dydt.init {noop} ifelse @
+    @dydt.fn
+    $0 $dydt.yprev -
+    1> dydt.yprev=
+    $dydt.dt /
+  } plot
+} dydt=
+

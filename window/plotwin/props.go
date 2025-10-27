@@ -9,13 +9,6 @@ import (
 
 func (pw *plotWindowCommon) setProp(name string, val rpn.Frame) error {
 	switch name {
-	case "autosteps":
-		v, err := val.BoundedInt(1, maxSteps)
-		if err != nil {
-			return err
-		}
-		pw.autosteps = uint32(v)
-		return nil
 	case "minx":
 		v, err := val.Real()
 		if err != nil {
@@ -146,8 +139,6 @@ func (pw *plotWindowCommon) setProp(name string, val rpn.Frame) error {
 
 func (pw *plotWindowCommon) getProp(name string) (rpn.Frame, error) {
 	switch name {
-	case "autosteps":
-		return rpn.IntFrame(int64(pw.autosteps), rpn.INTEGER_FRAME), nil
 	case "minx":
 		return rpn.RealFrame(pw.minx), nil
 	case "maxx":
@@ -198,9 +189,7 @@ var props = []string{"autox", "autoy", "minv", "maxv", "minx", "maxx", "miny", "
 
 func (pw *plotWindowCommon) ListProps() []string {
 	wprops := make([]string, len(props)+len(pw.plots)*3)
-	for i := range props {
-		wprops[i] = props[i]
-	}
+	copy(wprops, props)
 	j := len(props)
 	for i := range pw.plots {
 		plotid := strconv.Itoa(i)

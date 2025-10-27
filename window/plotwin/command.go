@@ -34,6 +34,9 @@ func InitPlotCommands(
 			"                at a time.\n" +
 			"    .plotinit : If no .plotwindow exists, this string is executed and is expected\n" +
 			"                create one. Making this a variable allows for user customization.\n" +
+			"    .t0       : Set to true if this is the first point of a given plot, false otherwise\n" +
+			"                The intent to to allow plot functions that use tracking variables to\n" +
+			"                known when it's time to intialize them.\n" +
 			"See Also: window.props, plot.parametric",
 
 		"plot.parametric": "Plot parametric functions using pplot. pplot will push a 't' value to\n" +

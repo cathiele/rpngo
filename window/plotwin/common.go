@@ -64,7 +64,6 @@ type plotWindowCommon struct {
 	minv      float64
 	maxv      float64
 	steps     uint32
-	autosteps uint32
 	plots     []Plot
 	stats     PointStats
 }
@@ -74,7 +73,6 @@ func (pw *plotWindowCommon) init(numColors uint8) {
 	pw.autoy = true
 	pw.minv = -1
 	pw.maxv = 1
-	pw.autosteps = 50
 	pw.steps = 250
 	pw.numColors = numColors
 }
@@ -124,7 +122,7 @@ func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) {
 	if pw.autox || pw.autoy {
 		pw.stats.reset()
 		for _, plot := range pw.plots {
-			if err := pw.addPoints(r, plot, pw.autosteps, pw.stats.update); err != nil {
+			if err := pw.addPoints(r, plot, pw.steps, pw.stats.update); err != nil {
 				// this plot has some type of error, but there is nothing to be done
 				// here outside of not contributing any more points from this point
 				// to the stats
@@ -159,12 +157,24 @@ func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, steps uint32, fn fu
 	startlen := r.StackLen()
 	step := (pw.maxv - pw.minv) / float64(steps)
 	var x float64
+	t0 := true
 	for v := pw.minv; v <= pw.maxv; v += step {
+		if t0 {
+			if err := setT0(r, true); err != nil {
+				return err
+			}
+		}
 		if err := r.PushFrame(rpn.RealFrame(v)); err != nil {
 			return err
 		}
 		if err := r.ExecSlice(plot.fn); err != nil {
 			return err
+		}
+		if t0 {
+			if err := setT0(r, false); err != nil {
+				return err
+			}
+			t0 = false
 		}
 		yf, err := r.PopFrame()
 		if err != nil {
@@ -198,6 +208,13 @@ func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, steps uint32, fn fu
 		}
 	}
 	return nil
+}
+
+func setT0(r *rpn.RPN, t0 bool) error {
+	if err := r.PushFrame(rpn.BoolFrame(t0)); err != nil {
+		return err
+	}
+	return r.SetVariable(".t0")
 }
 
 func (pw *plotWindowCommon) adjustAutoX() {
