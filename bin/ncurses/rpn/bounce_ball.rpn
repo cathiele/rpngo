@@ -22,10 +22,10 @@
 
 {
   $x $xv +
-  $0 abs 1 > {$xv neg xv= $xv + x=} {x=} ifelse @
+  $0 abs 1 > {$xv neg xv= $xv + x=} {x=} ifelse
 
   $y $yv +
-  $0 abs 1 > {$yv neg yv= $yv + y=} {y=} ifelse @
+  $0 abs 1 > {$yv neg yv= $yv + y=} {y=} ifelse
 
   'p' w.update
   1 60 / delay

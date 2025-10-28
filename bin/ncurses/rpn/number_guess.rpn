@@ -8,9 +8,9 @@ vpop
 {
   "enter a number from 0-100: " printx input int g=  # put the users guess into $g
   # The next 3 lines put one message on the stack
-  $g $a < "too low" if
-  $g $a > "too high" if
-  $g $a = "correct!" if
+  $g $a < {"too low"} if
+  $g $a > {"too high"} if
+  $g $a = {"correct!"} if
   printlnx # print the message
   $g $a != # loop conditional
 } guess_fn=

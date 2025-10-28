@@ -13,7 +13,7 @@
 {
   dydt.fn=
   {
-    $.t0 $dydt.init {noop} ifelse @
+    $.t0 $dydt.init if
     @dydt.fn
     $0 $dydt.yprev -
     1> dydt.yprev=

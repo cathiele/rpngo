@@ -5,8 +5,8 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const IfHelp = "Pops action, then val. Keeps val if cond is true.\n" +
-	"Example: 4 3 > '\"a is greater than b\" printlnx' if @"
+const IfHelp = "Pops action, then val. Executes val if cond is true.\n" +
+	"Example: 4 3 > {\"a is greater than b\" printlnx} if"
 
 func If(r *rpn.RPN) error {
 	f, err := r.PopFrame()
@@ -22,13 +22,15 @@ func If(r *rpn.RPN) error {
 		return err
 	}
 	if cond {
-		return r.PushFrame(f)
+		if err := parse.Fields(f.String(false), r.Exec); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-const IfElseHelp = "Pops elsev, ifv, cond. Pushes ifv if cond=true, else pushes elsev.\n" +
-	"Example: 4 3 > 'a is greater than b' 'a is less than b' ifelse printlnx"
+const IfElseHelp = "Pops elsev, ifv, cond. Executes ifv if cond=true, else executes elsev.\n" +
+	"Example: 4 3 > {'a is greater than b'} {'a is less than b'} ifelse printlnx"
 
 func IfElse(r *rpn.RPN) error {
 	elsev, err := r.PopFrame()
@@ -48,9 +50,15 @@ func IfElse(r *rpn.RPN) error {
 		return err
 	}
 	if cond {
-		return r.PushFrame(ifv)
+		if err := parse.Fields(ifv.String(false), r.Exec); err != nil {
+			return err
+		}
+	} else {
+		if err := parse.Fields(elsev.String(false), r.Exec); err != nil {
+			return err
+		}
 	}
-	return r.PushFrame(elsev)
+	return nil
 }
 
 const ForHelp = "Executes the head of the stack in a loop until a value < is found\n" +
