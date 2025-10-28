@@ -70,19 +70,26 @@ func (sc *SerialCommands) readInitialByte(r *rpn.RPN) (byte, error) {
 }
 
 func (sc *SerialCommands) readRemainingBytes(r *rpn.RPN, firstChar byte) (string, error) {
-	data := make([]byte, 0, 16)
+	data := make([]byte, 1, 16)
 	data[0] = firstChar
 	deadline := time.Now().Add(time.Millisecond * 250)
 	for time.Now().Before(deadline) {
-		if r.Interrupt() {
-			return "", rpn.ErrInterrupted
+		// make sure we are reading the port fast enough to not drop characters
+		readSometing := false
+		for i := 0; i < 512; i++ {
+			if r.Interrupt() {
+				return "", rpn.ErrInterrupted
+			}
+			c, err := sc.serial.ReadByte()
+			if err != nil {
+				return "", err
+			}
+			if c != 0 {
+				data = append(data, c)
+				readSometing = true
+			}
 		}
-		c, err := sc.serial.ReadByte()
-		if err != nil {
-			return "", err
-		}
-		if c != 0 {
-			data = append(data, c)
+		if readSometing {
 			deadline = time.Now().Add(time.Millisecond * 250)
 		}
 	}

@@ -32,7 +32,11 @@ func (sc *Serial) Close() error {
 }
 
 func (sc *Serial) ReadByte() (byte, error) {
-	return machine.Serial.ReadByte()
+	c, err := machine.Serial.ReadByte()
+	if err != nil {
+		return 0, nil
+	}
+	return c, nil
 }
 
 func (sc *Serial) WriteByte(c byte) error {
