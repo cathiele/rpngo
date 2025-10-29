@@ -9,14 +9,13 @@ import (
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/picocalc/i2ckbd"
 	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
-	tinygoserial "mattwach/rpngo/drivers/tinygo/serial"
+	"mattwach/rpngo/drivers/tinygo/serial"
 	"mattwach/rpngo/drivers/tinygo/tinyfs"
 	"mattwach/rpngo/elog"
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
-	"mattwach/rpngo/serial"
 	"mattwach/rpngo/startup"
 	"mattwach/rpngo/window"
 	"mattwach/rpngo/window/commands"
@@ -38,11 +37,10 @@ var screen ili948x.Ili948xScreen
 var root window.WindowRoot
 var fileOps fileops.FileOps
 var fileOpsDriver tinyfs.FileOpsDriver
-var serialCommands serial.SerialCommands
 
 type getInput struct {
 	lcd      *ili948x.Ili948xTxtW
-	serial   tinygoserial.Serial
+	serial   serial.Serial
 	keyboard i2ckbd.I2CKbd
 }
 
@@ -68,7 +66,6 @@ func run() error {
 	functions.RegisterAll(&rpnInst)
 	_ = fileOpsDriver.Init()
 	fileOps.InitAndRegister(&rpnInst, 65536, &fileOpsDriver)
-	serialCommands.InitAndRegister(&rpnInst, &tinygoserial.Serial{})
 	err := buildUI()
 	if err != nil {
 		return err
