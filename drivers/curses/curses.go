@@ -47,7 +47,7 @@ func (c *Curses) NewPixelWindow() (window.PixelWindow, error) {
 }
 
 func (c *Curses) ShowBorder(screenw, screenh int) error {
-	ch, err := c.colorPairFor(window.Magenta)
+	ch, err := c.colorPairFor(window.Blue)
 	if err != nil {
 		return err
 	}

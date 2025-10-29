@@ -100,10 +100,10 @@ func (tw *Ili948xTxtW) Erase() {
 }
 
 func (tw *Ili948xTxtW) ShowBorder(screenw, screenh int) error {
-	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy, MAGENTA)
-	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, MAGENTA)
-	tw.device.DrawVLine(tw.wx, tw.wy, tw.wy+tw.wh-1, MAGENTA)
-	tw.device.DrawVLine(tw.wx+tw.ww-1, tw.wy, tw.wy+tw.wh-1, MAGENTA)
+	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy, BLUE)
+	tw.device.DrawHLine(tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, BLUE)
+	tw.device.DrawVLine(tw.wx, tw.wy, tw.wy+tw.wh-1, BLUE)
+	tw.device.DrawVLine(tw.wx+tw.ww-1, tw.wy, tw.wy+tw.wh-1, BLUE)
 	return nil
 }
 

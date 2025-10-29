@@ -104,7 +104,7 @@ func (tw *Ili9341TxtW) Erase() {
 }
 
 func (tw *Ili9341TxtW) ShowBorder(screenw, screenh int) error {
-	c := color.RGBA{R: 100, G: 0, B: 100}
+	c := color.RGBA{R: 0, G: 0, B: 100}
 	slowHline(tw.device, tw.wx, tw.wx+tw.ww-1, tw.wy, c)
 	slowHline(tw.device, tw.wx, tw.wx+tw.ww-1, tw.wy+tw.wh-1, c)
 	slowVline(tw.device, tw.wx, tw.wy, tw.wy+tw.wh-1, c)

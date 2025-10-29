@@ -73,10 +73,10 @@ func (tw *Ili948xPixW) ShowBorder(screenw, screenh int) error {
 	x1 := tw.wx + tw.ww - 1
 	y0 := tw.wy
 	y1 := tw.wy + tw.wh - 1
-	tw.device.DrawHLine(x0, x1, y0, MAGENTA)
-	tw.device.DrawHLine(x0, x1, y1, MAGENTA)
-	tw.device.DrawVLine(x0, y0+1, y1-1, MAGENTA)
-	tw.device.DrawVLine(x1, y0+1, y1-1, MAGENTA)
+	tw.device.DrawHLine(x0, x1, y0, BLUE)
+	tw.device.DrawHLine(x0, x1, y1, BLUE)
+	tw.device.DrawVLine(x0, y0+1, y1-1, BLUE)
+	tw.device.DrawVLine(x1, y0+1, y1-1, BLUE)
 	return nil
 }
 
