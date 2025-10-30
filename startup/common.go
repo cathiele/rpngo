@@ -6,9 +6,13 @@ const commonStartup = `
 2.718281828459045 e=
 
 # some useful equations
-'vpush
+{vpush
  c= $0 neg bn= b= $0 2 * a2= a= $b sq 4 $a $c * * - sqrt root=
  $bn $root + $a2 /
  $bn $root - $a2 /
- vpop' quad=
+ vpop} quad=
+
+{0 s= {$s + s=} filter $s s/} sum=
+{$0 v= {$0 $v < {v=} {0/} ifelse} filter $v v/} min=
+{$0 v= {$0 $v > {v=} {0/} ifelse} filter $v v/} max=
 `

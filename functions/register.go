@@ -50,6 +50,7 @@ func RegisterAll(r *rpn.RPN) {
 
 	r.Register("@", Exec, rpn.CatProg, ExecHelp)
 	r.Register("delay", Delay, rpn.CatProg, DelayHelp)
+	r.Register("filter", Filter, rpn.CatProg, FilterHelp)
 	r.Register("for", For, rpn.CatProg, ForHelp)
 	r.Register("if", If, rpn.CatProg, IfHelp)
 	r.Register("ifelse", IfElse, rpn.CatProg, IfElseHelp)

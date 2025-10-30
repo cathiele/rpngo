@@ -12,7 +12,7 @@ func (r *RPN) StackLen() int {
 }
 
 func (r *RPN) PushFrame(f Frame) error {
-	if len(r.Frames) >= cap(r.Frames) {
+	if len(r.Frames) >= r.maxStackDepth {
 		return ErrStackFull
 	}
 	r.Frames = append(r.Frames, f)

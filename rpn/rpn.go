@@ -13,19 +13,21 @@ type RPN struct {
 	variables []map[string]Frame
 	functions map[string]func(*RPN) error
 	// maps are category -> command -> help
-	help      map[string]map[string]string
-	Interrupt func() bool
-	Print     func(string)
-	Input     func(*RPN) (string, error)
-	TextWidth int
-	conv      *convert.Conversion
+	help          map[string]map[string]string
+	Interrupt     func() bool
+	Print         func(string)
+	Input         func(*RPN) (string, error)
+	TextWidth     int
+	maxStackDepth int
+	conv          *convert.Conversion
 }
 
 // Init initializes an RPNCalc object
 func (r *RPN) Init(maxStackDepth int) {
 	r.Clear()
 	elog.Heap("alloc: /rpn/rpn.go:26: r.Frames = make([]Frame, 0, maxStackDepth)")
-	r.Frames = make([]Frame, 0, maxStackDepth) // object allocated on the heap: object size 10240 exceeds maximum stack allocation size 256
+	r.Frames = make([]Frame, 0, 16) // object allocated on the heap: object size 10240 exceeds maximum stack allocation size 256
+	r.maxStackDepth = maxStackDepth
 	r.functions = make(map[string]func(*RPN) error)
 	elog.Heap("alloc: /rpn/rpn.go:28: r.variables = []map[string]Frame{make(map[string]Frame)}")
 	r.variables = []map[string]Frame{make(map[string]Frame)} // object allocated on the heap: escapes at line 28
