@@ -12,17 +12,11 @@ for the computer and for microtrollers.  Try the ones you like and ignore the re
 
 To build the normal build versions, you cd into the directory you want and type
 
+### Desktop / Raspberry Pi
+
 ```
 go build
 ```
-
-For tinygo builds, you'll need to install tinygo. After that, the command is along the lines of.
-
-```
-tinygo build -target=pico
-```
-
-Adjusting to the miccrocontroller you are using and perhaps using `flash` instead of `build`.
 
 Note that th ncurses build will likely give you an error unless you have `libncurses-dev` already installed.  In Ubntu/Debian, the fix is:
 
@@ -30,13 +24,47 @@ Note that th ncurses build will likely give you an error unless you have `libncu
 sudo apt install libncurses-dev
 ```
 
+## Microcontrollers using TinyGo (Raspberry Pi PICO and PICO2 tested as working)
+
+You'll need to install tinygo. After that, check the `Makefile` for the correct command
+
+e.g. to look
+
+```
+$ cd bin/tinygo/picocalc
+$ make -n flash
+tinygo flash -target=pico2 -scheduler=tasks -serial=uart
+```
+
+to actually flash the chip
+
+```
+$ cd bin/tinygo/picocalc
+$ make flash
+```
+
+or
+
+```
+$ cd bin/tinygo/picocalc
+$ tinygo flash -target=pico2 -scheduler=tasks -serial=uart
+```
+
+### Build Everything and Run Unit Tests
+
 In the top-level directory, you can type
 
 ```
 make
 ```
 
-To run all unit tests and build all targets/  This will only work if you have tinygo installed.
+or 
+
+```
+make all
+```
+
+to build the more obsure targets too.  Tinygo is needed to build everything
 
 
 ## RPN Introduction
@@ -64,11 +92,47 @@ Both formns (spaces and new lines) do the following:
 2. Push a `3` to the stack
 3. Call the `+` operator which pulls 2 stack values (`2`, `3`) and pushes the result `5`
 
+One difference, however, is the "up arrow" for command history.  Sometimes it's nice to batch
+a set of commands in a line with spaces to make the command history more useful.
+
 The nice thing about RPN is that you don't have to enter paranthesis, which
 many people find faster and less error prone.  For example, do calculate `sqrt((10 - 2)/(5 - 3))`,
 you could say:
 
     10 2 - 5 3 - / sqrt
+
+## Editing features
+
+- Left, right, insert, backspace, home, and end all work like you would expect
+- Press up and down arrows to scroll through command history
+- Ctrl-C to cancel a running program
+- Ctrl-D to exit the program
+- Press "esc" or "page up" to enter scrolling mode where you can
+  use page Up, page Down, up arrow and down arrow to view text
+  that has scrolled off the top of the window. "esc" or scrolling
+  down far enough exits this mode.
+
+Type `edit` to enter a full-panel multiline editor.  The window
+will contain the value at the top of the stack.  For example:
+
+```
+'animate_sin.rpn' load edit
+```
+
+The editor is intended for basic tasks and supports only the following:
+
+- arrow key, page up, page down navigation
+- insert, replace, backspace, delete
+- syntax highlighting
+
+While editing, press "esc" to keep your changes (which will be
+at the top of the stack) or "ctrl-c" to exit without changing the
+value.  If you happen to want to save your work permanently, exit with
+"esc", then type something like:
+
+```
+'my_file.txt' save
+```
 
 ## Variables
 
@@ -100,6 +164,13 @@ You can move values around the stack.
     2<         # back to 10 20 30
     $2 2<      # now it's 10 10 20 30
 
+## Stack Deletions
+
+    10 20 30   # put 10 20 30 on the stack
+    1/         # now the stack is 10 30
+    0/         # now the stack is 10
+    X          # emptys all values from the stack
+
 ## Strings
 
 There are three ways to specify a string
@@ -125,28 +196,29 @@ make it even less readable than using `{}`.
 You can define a string as a macro, here is one for the area of a circle (`$pi * r * r / 2`),
 given the radius:
 
-    {$0 * $pi * 2 /} carea=
-    5 @carea -> 39.269908169872416
+    {sq $pi * 2 /} carea=
+    5 @carea -> 39.26990817
 
-## Conditionals and simple programs
+## Conditonals
 
-These can be combined with macros and varialbes for simple programming.  Here
-is a program that counts to 100.
+`if` and `ifelse` can be used to conditionally execute a bit of code
+based on the result of a `true`/`false` condition.
 
-    "print d 100 == '`loop' ifjmp 1 +" loop= 0 `loop
+```
+> true {'yes' printlnx} if
+yes
 
-Breakdown:
+> false {'yes' printlnx} if
 
-- `print` Print the head of the stack
-- `d` Duplicate the head of the stack
-- `100` push 100 to the stack
-- `==` pop 2 elements from the stack and push 1 if they are equal, 0 otherwise
-- `'\`loop'` A string that contains a macro, pushed to the stack
-- `ifjmp` pop two elements.  If the conditional one is 1, execute the string one instead of the rest of the string
-- `1 +` Adds one to the loop
-- `loop=` define the macro
-- `0` initial condition
-- `\`loop` execute
+> 5 1 > {'is greater' printlnx} if
+is greater
+
+> true {'yes'} {'no'} ifelse printlnx
+yes
+
+> false {'yes'} {'no'} ifelse printlnx
+no
+```
 
 ## Type Conversions
 
