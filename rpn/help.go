@@ -40,6 +40,8 @@ func (rpn *RPN) initHelp() {
 		"complex": "Enter a complex value as i, -i, 3+i or 3-i\n" +
 			"Do not use spaces.",
 
+		"conversions": rpn.conv.Help(),
+
 		"keymacros": "The variables .f1 to .f12 can be set to a string.\n" +
 			"Pressing the corresponding function key will execute the string\n" +
 			"as a macro.",

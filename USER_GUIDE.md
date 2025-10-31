@@ -210,34 +210,6 @@ Conditionals return a boolean:
     false neg  ->  true
     true neg   ->  false
 
-## Labels
-
-Labels can be added to non string values.  A label shows up in the stack window
-can can be used to help you remember what the number represents.  This can be
-useful when attempting to do complex calculations purely using the stack.
-
-For example, say you want to make a formulat that converts velocity, time, 
-and acceleration into distance. The formula is `(v * t) + (0.5 * a * t * t).
-You could use variables or the pure stack. If you use the pure stack, labels
-can help keep track of what is what:
-
-     1 `v
-     2 `a
-     3 `t
-
-Now the stack will look like this:
-
-     2: 1 `v
-     1: 2 `a
-     0: 3 `t
-
-You can see that `$1` is `a` and see how `a` moves around as you
-work the equation, ended up with:
-
-    {$0 $0 * 2> * 0.5 * 2< * +} dist=
-   
-Coming up with that without labels to guide an example would be a tricker ask.
-
 ## Strings
 
 There are three ways to specify a string
@@ -266,6 +238,36 @@ given the radius:
     {sq $pi * 2 /} carea=
     5 @carea -> 39.26990817
 
+## Labels
+
+Labels can be added to non string values.  A label shows up in the stack window
+can can be used to help you remember what the number represents.  This can be
+useful when attempting to do complex calculations purely using the stack.
+
+For example, say you want to make a formulat that converts velocity, time, 
+and acceleration into distance. The formula is `(v * t) + (0.5 * a * t * t)`.
+You could use variables or the pure stack. If you use the pure stack, labels
+can help keep track of what is what:
+
+     1 `v
+     2 `a
+     3 `t
+
+Now the stack will look like this:
+
+     2: 1 `v
+     1: 2 `a
+     0: 3 `t
+
+You can see that `$1` is `a` and see how `a` moves around as you
+work the equation, ended up with:
+
+    {$0 sq 2> * 2 / 2< * +} dist=
+    1 2 3 @dist  ->  12
+   
+Coming up with that without labels to guide an example would be a more difficult task.
+
+
 ## Conditonals
 
 `if` and `ifelse` can be used to conditionally execute a bit of code
@@ -287,28 +289,26 @@ yes
 no
 ```
 
-## Type Conversions
+## Unit Conversions
 
-A `;` character can be used to add a type to a number.  Adding types can help prevent errors
-during calculations.  For example, the area of a circle:
+You can convert between several unit types, some examples:
 
-    5;mm d * .pi *
-    -> 78.53981633974483 mm*mm
+    5 km>mi
+    3.106855961
 
-    mm*mm->m*m
-    -> 7.853981633974483e-05 m*m
+    60 mi/h>m/s
+    26.8224
 
-    5;m 10;s /
-    -> 0.5 m/s
+    10 liter>m*m*m
+    0.01
 
-    m/s->miles/h
-    -> 1.118468146027201 miles/h
+    1 megabyte>bits
+    8388608
 
-    5;m 5;mm +
-    -> 5.005 m
+See all possible conversions with
 
-    5;m/s 10m +
-    -> error mismatched units
+    conversions?
+
 
 ## Integers, Hex, Binary
 

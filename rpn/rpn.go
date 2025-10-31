@@ -31,6 +31,7 @@ func (r *RPN) Init(maxStackDepth int) {
 	r.functions = make(map[string]func(*RPN) error)
 	elog.Heap("alloc: /rpn/rpn.go:28: r.variables = []map[string]Frame{make(map[string]Frame)}")
 	r.variables = []map[string]Frame{make(map[string]Frame)} // object allocated on the heap: escapes at line 28
+	r.conv = convert.Init()                                  // must come before initHelp()
 	r.initHelp()
 	r.Register("ssize", stackSize, CatStack, stackSizeHelp)
 	r.Register("spush", pushStack, CatStack, pushStackHelp)
@@ -40,7 +41,6 @@ func (r *RPN) Init(maxStackDepth int) {
 	r.Register("vpop", popVariableFrame, CatVariables, popVariableFrameHelp)
 	r.Print = DefaultPrint
 	r.Interrupt = DefaultInterrupt
-	r.conv = convert.Init()
 	r.TextWidth = 80
 }
 
