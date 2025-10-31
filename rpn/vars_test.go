@@ -125,6 +125,70 @@ func TestSetGetAndClear(t *testing.T) {
 	UnitTestExecAll(t, data, nil)
 }
 
+func TestPushAndPop(t *testing.T) {
+	data := []UnitTestExecData{
+		{
+			Args:    []string{"x<"},
+			WantErr: ErrStackEmpty,
+		},
+		{
+			Args:    []string{"x<<"},
+			WantErr: ErrStackEmpty,
+		},
+		{
+			Args:    []string{"x=="},
+			WantErr: ErrStackEmpty,
+		},
+		{
+			Args:    []string{"x>>"},
+			WantErr: ErrNotFound,
+		},
+		{
+			Args:    []string{"$$x"},
+			WantErr: ErrNotFound,
+		},
+		{
+			Args: []string{"5", "x<", "$x"},
+			Want: []string{"5"},
+		},
+		{
+			Args: []string{"5", "x<", "x>"},
+			Want: []string{"5"},
+		},
+		{
+			Args:    []string{"5", "x<", "x>", "x>"},
+			Want:    []string{"5"},
+			WantErr: ErrNotFound,
+		},
+		{
+			Args: []string{"4", "5", "x<<", "$x", "$x"},
+			Want: []string{"5", "5"},
+		},
+		{
+			Args: []string{"4", "5", "x<<", "$$x", "$$x"},
+			Want: []string{"4", "5", "4", "5"},
+		},
+		{
+			Args: []string{"4", "5", "x<<", "x>>"},
+			Want: []string{"4", "5"},
+		},
+		{
+			Args:    []string{"4", "5", "x<<", "x>>", "x>>"},
+			Want:    []string{"4", "5"},
+			WantErr: ErrNotFound,
+		},
+		{
+			Args: []string{"4", "5", "x<<", "6", "7", "x<<", "$$x"},
+			Want: []string{"4", "5", "6", "7"},
+		},
+		{
+			Args: []string{"4", "5", "x==", "6", "7", "x==", "$$x"},
+			Want: []string{"6", "7"},
+		},
+	}
+	UnitTestExecAll(t, data, nil)
+}
+
 func TestGetStringVariable(t *testing.T) {
 	data := []struct {
 		name    string

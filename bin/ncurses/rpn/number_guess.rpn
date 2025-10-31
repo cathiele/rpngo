@@ -1,8 +1,6 @@
 {
-vpush              # create a new variable frame
 rand 101 * int a=  # set a to a random number
 $guess_fn for     # loop until the user guesses correctly
-vpop
 } number_guess=
 
 {

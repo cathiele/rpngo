@@ -1,6 +1,5 @@
 {rand -0.5 - 0.02 *} randvel=
 {
-  vpush
   @randvel xv=
   @randvel yv=
   0d i=
@@ -17,7 +16,6 @@
   'p' 'steps' 30 w.setp
   {@next_frame $i 1 + i= $i 1000 <} for
   'p' w.del
-  vpop
 } bounce_ball=
 
 {

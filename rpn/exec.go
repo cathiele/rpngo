@@ -18,16 +18,28 @@ func (rpn *RPN) Exec(arg string) error {
 	if len(arg) > 1 {
 		switch arg[len(arg)-1] {
 		case '=':
+			if (len(arg) >= 3) && arg[len(arg)-2] == '=' {
+				return rpn.moveAllStackToVariable(arg[:len(arg)-2])
+			}
 			return rpn.SetVariable(arg[:len(arg)-1])
 		case '/':
 			return rpn.ClearVariable(arg[:len(arg)-1])
 		case '>':
-			return rpn.moveStackVariableToHead(arg[:len(arg)-1])
+			if (len(arg) >= 3) && arg[len(arg)-2] == '>' {
+				return rpn.moveAllVariableToStack(arg[:len(arg)-2])
+			}
+			return rpn.moveVariableToHead(arg[:len(arg)-1])
 		case '<':
-			return rpn.moveHeadStackVariable(arg[:len(arg)-1])
+			if (len(arg) >= 3) && arg[len(arg)-2] == '<' {
+				return rpn.appendAllStackToVariable(arg[:len(arg)-2])
+			}
+			return rpn.moveHeadToVariable(arg[:len(arg)-1])
 		}
 		switch arg[0] {
 		case '$':
+			if (len(arg) >= 3) && arg[1] == '$' {
+				return rpn.appendAllVariableToStack(arg[2:])
+			}
 			f, err := rpn.GetVariable(arg[1:])
 			if err != nil {
 				return err

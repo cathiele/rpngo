@@ -115,32 +115,114 @@ func (r *RPN) clearStackVariable(name string) error {
 	return err
 }
 
-func (r *RPN) moveStackVariableToHead(name string) error {
-	idx, err := strconv.Atoi(name)
-	if err != nil {
+func (r *RPN) moveVariableToHead(name string) error {
+	if len(name) == 0 {
 		return ErrIllegalName
 	}
-	f, err := r.DeleteFrame(idx)
-	if err != nil {
-		return err
+	if isNum(rune(name[0])) {
+		// It's a stack variable, e.g. 2>
+		idx, err := strconv.Atoi(name)
+		if err != nil {
+			return ErrIllegalName
+		}
+		f, err := r.DeleteFrame(idx)
+		if err != nil {
+			return err
+		}
+		return r.PushFrame(f)
+	}
+	// It's a named variable, e.g. x>
+	vlist := r.variables[name]
+	if len(vlist) == 0 {
+		return ErrNotFound
+	}
+	f := vlist[len(vlist)-1]
+	if len(vlist) == 1 {
+		delete(r.variables, name)
+	} else {
+		r.variables[name] = r.variables[name][:len(vlist)-1]
 	}
 	return r.PushFrame(f)
 }
 
-func (r *RPN) moveHeadStackVariable(name string) error {
-	idx, err := strconv.Atoi(name)
-	if err != nil {
+func (r *RPN) moveHeadToVariable(name string) error {
+	if len(name) == 0 {
 		return ErrIllegalName
+	}
+	if isNum(rune(name[0])) {
+		// It's a stack variable, e.g. 2<
+		idx, err := strconv.Atoi(name)
+		if err != nil {
+			return ErrIllegalName
+		}
+		f, err := r.PopFrame()
+		if err != nil {
+			return err
+		}
+		err = r.InsertFrame(f, idx)
+		if err != nil {
+			r.PushFrame(f)
+		}
+		return err
+	}
+	// It's a named variable, e.g. x<
+	if err := checkVariableName(name); err != nil {
+		return err
 	}
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
 	}
-	err = r.InsertFrame(f, idx)
-	if err != nil {
-		r.PushFrame(f)
+	r.variables[name] = append(r.variables[name], f)
+	return nil
+}
+
+func (r *RPN) moveAllStackToVariable(name string) error {
+	if err := checkVariableName(name); err != nil {
+		return err
 	}
-	return err
+	if len(r.Frames) == 0 {
+		return ErrStackEmpty
+	}
+	r.variables[name] = make([]Frame, len(r.Frames))
+	copy(r.variables[name], r.Frames)
+	r.Frames = r.Frames[:0]
+	return nil
+}
+
+func (r *RPN) appendAllVariableToStack(name string) error {
+	if err := checkVariableName(name); err != nil {
+		return err
+	}
+	if len(r.variables[name]) == 0 {
+		return ErrNotFound
+	}
+	r.Frames = append(r.Frames, r.variables[name]...)
+	return nil
+}
+
+func (r *RPN) appendAllStackToVariable(name string) error {
+	if err := checkVariableName(name); err != nil {
+		return err
+	}
+	if (len(r.Frames) == 0) && (len(r.variables[name]) == 0) {
+		return ErrStackEmpty
+	}
+	r.variables[name] = append(r.variables[name], r.Frames...)
+	r.Frames = r.Frames[:0]
+	return nil
+}
+
+func (r *RPN) moveAllVariableToStack(name string) error {
+	if err := checkVariableName(name); err != nil {
+		return err
+	}
+	if len(r.variables[name]) == 0 {
+		return ErrNotFound
+	}
+	r.Frames = append(r.Frames, r.variables[name]...)
+	delete(r.variables, name)
+	return nil
 }
 
 // gets a variable as a string

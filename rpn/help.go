@@ -84,6 +84,13 @@ func (rpn *RPN) initHelp() {
 			"Clear a variable with a trailing /. e.g. x/\n" +
 			"Choose the first value of the stack: $0\n" +
 			"\n" +
+			"Variables can hold stacks of values:\n" +
+			"  x> Pops a value from x and pushes it to the stack. Removes x if it is empty.\n" +
+			"  x< Pops a value from the stack and pushes it to x, creating it if needed.\n" +
+			"  x>> Pops all x values to the stack and removes x\n" +
+			"  x<< Pushes all of the stack to x, creating it if needed\n" +
+			"  x== Sets x equal to to all stack values (and clears stack)\n" +
+			"  $$x Appends all values of x to the stack without changing x\n" +
 			"See Also: macros, stack",
 	}
 	rpn.help = map[string]map[string]string{CatConcepts: conceptHelp}
