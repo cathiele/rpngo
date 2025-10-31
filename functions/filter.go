@@ -16,12 +16,11 @@ const FilterHelp = "Copies each value from the bottom to the top of the stack " 
 	"See Also: filterm, filtern, filtermn"
 
 func Filter(r *rpn.RPN) error {
-	// -1 is to account for the macro term
-	return filterMN(r, len(r.Frames)-1, 0)
+	return filterMN(r, len(r.Frames)-2, 0)
 }
 
 const FilterMHelp = "This function works like filter, but selects the top m elements " +
-        "on the stack instead of working on every element (m does not include filterm arguments)" +
+	"on the stack instead of working on every element (m does not include filterm arguments)" +
 	"\n" +
 	"Examples:\n" +
 	"{2 *} 5 filterm  # multiply the top 5 stack values by 2\n" +
@@ -38,12 +37,12 @@ func FilterM(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return filterMN(r, int(m), 0)
+	return filterMN(r, int(m-1), 0)
 }
 
 const FilterNHelp = "This function works like filter, but ends at element head-n (not including " +
-        "filtern arguments)\n" +
-        "This is useful for preserving \"working values\"" +
+	"filtern arguments)\n" +
+	"This is useful for preserving \"working values\"" +
 	"\n" +
 	"Examples:\n" +
 	"0 {+} 1 filtern # sum all values\n" +
@@ -60,8 +59,7 @@ func FilterN(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	// -1 is to account for the macro term
-	return filterMN(r, len(r.Frames)-1, int(n))
+	return filterMN(r, len(r.Frames)-2, int(n))
 }
 
 const FilterMNHelp = "This function works like filterm and filtern combined, filtering\n" +
@@ -99,15 +97,15 @@ func filterMN(r *rpn.RPN, m, n int) error {
 	if err != nil {
 		return err
 	}
+	endIdx := len(r.Frames) - n
+	if endIdx < 0 {
+		return rpn.ErrNotEnoughStackFrames
+	}
 	if m == 0 {
 		return nil
 	}
 	startIdx := len(r.Frames) - m - 1
 	if startIdx < 0 {
-		return rpn.ErrNotEnoughStackFrames
-	}
-	endIdx := len(r.Frames) - n
-	if endIdx < 0 {
 		return rpn.ErrNotEnoughStackFrames
 	}
 	if endIdx < startIdx {

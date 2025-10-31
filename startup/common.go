@@ -12,7 +12,7 @@ const commonStartup = `
  $bn $root - $a2 /
  vpop} quad=
 
-{0 s= {$s + s=} filter $s s/} sum=
-{$0 v= {$0 $v < {v=} {0/} ifelse} filter $v v/} min=
-{$0 v= {$0 $v > {v=} {0/} ifelse} filter $v v/} max=
+{0 {+} 1 filtern} sum=
+{$0 {$1 $1 < {0/} {1/} ifelse} 1 filtern} min=
+{$0 {$1 $1 > {0/} {1/} ifelse} 1 filtern} max=
 `

@@ -7,7 +7,6 @@ import (
 
 func TestFilter(t *testing.T) {
 	data := []rpn.UnitTestExecData{
-/*
 		{
 			Args:    []string{"filter"},
 			WantErr: rpn.ErrStackEmpty,
@@ -48,23 +47,19 @@ func TestFilter(t *testing.T) {
 			Want: []string{"10", "100", "30"},
 		},
 		{
-			Args: []string{"filterm"},
+			Args:    []string{"filterm"},
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
-			Args: []string{"0", "filterm"},
+			Args:    []string{"0", "filterm"},
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
-			Args: []string{"1", "filterm"},
+			Args:    []string{"1", "filterm"},
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args: []string{"{sq}", "0", "filterm"},
-		},
-		{
-			Args: []string{"{sq}", "1", "filterm"},
-			WantErr: rpn.ErrNotEnoughStackFrames,
 		},
 		{
 			Args: []string{"1", "2", "3", "0", "{+}", "1", "filtern"},
@@ -75,25 +70,24 @@ func TestFilter(t *testing.T) {
 			Want: []string{"2"},
 		},
 		{
-			Args: []string{"filtern"},
+			Args:    []string{"filtern"},
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
-			Args: []string{"0", "filtern"},
+			Args:    []string{"0", "filtern"},
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
-			Args: []string{"1", "filtern"},
+			Args:    []string{"1", "filtern"},
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args: []string{"{sq}", "0", "filtern"},
 		},
 		{
-			Args: []string{"{sq}", "1", "filtern"},
+			Args:    []string{"{sq}", "1", "filtern"},
 			WantErr: rpn.ErrNotEnoughStackFrames,
 		},
-*/
 		{
 			Args: []string{"4", "5", "6", "7", "{sq}", "2", "1", "filtermn"},
 			Want: []string{"4", "7", "25", "36"},
@@ -107,19 +101,37 @@ func TestFilter(t *testing.T) {
 			Want: []string{"10", "2"},
 		},
 		{
-			Args: []string{"filtermn"},
+			Args:    []string{"filtermn"},
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
-			Args: []string{"0", "filtermn"},
+			Args:    []string{"0", "filtermn"},
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
-			Args: []string{"0", "1", "filtermn"},
+			Args:    []string{"0", "1", "filtermn"},
 			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args: []string{"{sq}", "0", "0", "filtermn"},
+		},
+		{
+			Args:    []string{"{sq}", "1", "0", "filtermn"},
+			WantErr: rpn.ErrNotEnoughStackFrames,
+		},
+		{
+			Args:    []string{"{sq}", "0", "1", "filtermn"},
+			WantErr: rpn.ErrNotEnoughStackFrames,
+		},
+		{
+			Args:    []string{"1", "{sq}", "1", "1", "filtermn"},
+			Want:    []string{"1"},
+			WantErr: rpn.ErrNotEnoughStackFrames,
+		},
+		{
+			Args:    []string{"1", "2", "3", "{sq}", "1", "3", "filtermn"},
+			Want:    []string{"1", "2", "3"},
+			WantErr: rpn.ErrIllegalValue,
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
