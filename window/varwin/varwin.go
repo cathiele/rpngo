@@ -5,22 +5,23 @@ import (
 	"mattwach/rpngo/elog"
 	"mattwach/rpngo/rpn"
 	"mattwach/rpngo/window"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 type VariableWindow struct {
-	txtb           window.TextBuffer
-	showdot        bool
-	multiline      bool
-	namesAndValues []rpn.NameAndValues
+	txtb      window.TextBuffer
+	showdot   bool
+	multiline bool
+	names     []string
 }
 
 func (w *VariableWindow) Init(txtw window.TextWindow) {
 	w.txtb.Init(txtw, 0)
 	w.txtb.TextColor(window.White)
 	elog.Heap("alloc: /window/varwin/varwin.go:21: w.namesAndValues = make([]rpn.NameAndValues, 0, 16)")
-	w.namesAndValues = make([]rpn.NameAndValues, 0, 16) // object allocated on the heap: object size 320 exceeds maximum stack allocation size 256
+	w.names = make([]string, 0, 16) // object allocated on the heap: object size 320 exceeds maximum stack allocation size 256
 }
 
 func (vw *VariableWindow) ResizeWindow(x, y, w, h int) error {
@@ -90,25 +91,27 @@ func (vw *VariableWindow) Update(r *rpn.RPN) error {
 	w, h := vw.txtb.Txtw.TextSize()
 	vw.txtb.CheckSize()
 	vw.txtb.Erase()
-	vw.namesAndValues = r.AppendAllVariableNamesAndValues(vw.namesAndValues[:0])
+	vw.names = r.AppendAllVariableNames(vw.names[:0])
+	sort.Strings(vw.names)
 	vw.txtb.SetCursorXY(0, 0)
 	hidden := 0
 	row := 0
-	for i := 0; i < len(vw.namesAndValues); i++ {
-		if !vw.showdot && (len(vw.namesAndValues[i].Name) > 0) && (vw.namesAndValues[i].Name[0] == '.') {
+	allValues := r.AllVariableNamesAndValues()
+	for _, name := range vw.names {
+		if !vw.showdot && (name[0] == '.') {
 			hidden++
 			continue
 		}
 		if row < (h - 1) {
-			name := vw.namesAndValues[i].Name + ": "
-			val := framesToString(vw.namesAndValues[i].Values)
+			val := framesToString(allValues[name])
 			if !vw.multiline {
-				val = makeSingleLine(val, w-len(name))
+				val = makeSingleLine(val, w-len(name)-2)
 			} else {
 				row += countCRs(val)
 			}
 			vw.txtb.TextColor(window.White)
 			vw.txtb.Print(name, false)
+			vw.txtb.Print(": ", false)
 			vw.txtb.TextColor(window.Cyan)
 			vw.txtb.Print(val, false)
 			vw.txtb.Write('\n', false)
@@ -117,7 +120,7 @@ func (vw *VariableWindow) Update(r *rpn.RPN) error {
 	}
 	vw.txtb.TextColor(window.Blue)
 	vw.txtb.SetCursorXY(0, h-1)
-	vw.txtb.Print("num: "+strconv.Itoa(len(vw.namesAndValues))+" hidden: "+strconv.Itoa(hidden), false)
+	vw.txtb.Print("num: "+strconv.Itoa(len(vw.names))+" hidden: "+strconv.Itoa(hidden), false)
 	vw.txtb.Update()
 	return nil
 }

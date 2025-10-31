@@ -64,9 +64,6 @@ func (rpn *RPN) initHelp() {
 
 		"stack": "Operators are provided to manipute the stack to set up calculations\n" +
 			"    If things are getting complex, consider using variables.\n" +
-			"    You can also push and pop the entire stack contents with spush\n" +
-			"    and spop, which can be useful for doing multiple operations on\n" +
-			"    the same stack values.\n" +
 			"Examples:\n" +
 			"  $x $0 + 1 /  # Uses $0 to copy the stack head and execute a/(a+1)'\n" +
 			"  '$0 cos 1> sin' pplot # parametric plot of a circle using sw to swap elements\n" +
@@ -86,9 +83,6 @@ func (rpn *RPN) initHelp() {
 			"\n" +
 			"Clear a variable with a trailing /. e.g. x/\n" +
 			"Choose the first value of the stack: $0\n" +
-			"Push a variable frame with vpush, pop with vpop\n" +
-			"Variables added after vpush will be reverted after a vpop,\n" +
-			"allowing for 'local variables' to be temporarily defined." +
 			"\n" +
 			"See Also: macros, stack",
 	}

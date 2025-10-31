@@ -189,24 +189,6 @@ func TestInsertFrame(t *testing.T) {
 	}
 }
 
-func TestPushAndPopStack(t *testing.T) {
-	data := []UnitTestExecData{
-		{
-			Args:    []string{"spop"},
-			WantErr: ErrStackEmpty,
-		},
-		{
-			Args: []string{"1", "2", "spush"},
-			Want: []string{"1", "2"},
-		},
-		{
-			Args: []string{"1", "2", "spush", "5", "spop"},
-			Want: []string{"1", "2"},
-		},
-	}
-	UnitTestExecAll(t, data, nil)
-}
-
 func TestStackSize(t *testing.T) {
 	data := []UnitTestExecData{
 		{

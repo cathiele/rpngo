@@ -1,33 +1,17 @@
 package rpn
 
 import (
-	"mattwach/rpngo/elog"
 	"mattwach/rpngo/parse"
 	"sort"
 	"strconv"
 )
 
-const pushVariableFrameHelp = "Pushes a variable frame to the variable stack"
-
-func pushVariableFrame(r *RPN) error {
-	r.variables = append(r.variables, make(map[string]Frame))
-	return nil
-}
-
-const popVariableFrameHelp = "Pops a variable frame from the variable stack"
-
-func popVariableFrame(r *RPN) error {
-	if len(r.variables) <= 1 {
-		return ErrStackEmpty
-	}
-	r.variables = r.variables[:len(r.variables)-1]
-	return nil
-}
-
 const listVariablesHelp = "Prints all variable names"
 
 func listVariables(r *RPN) error {
-	names := r.AllVariableNames()
+	names := make([]string, 0, len(r.variables))
+	names = r.AppendAllVariableNames(names)
+	sort.Strings(names)
 	for _, n := range names {
 		r.Print(n)
 		r.Print("\n")
@@ -45,7 +29,12 @@ func (r *RPN) SetVariable(name string) error {
 		r.PushFrame(f)
 		return err
 	}
-	r.variables[len(r.variables)-1][name] = f
+	vlist := r.variables[name]
+	if len(vlist) > 0 {
+		vlist[len(vlist)-1] = f
+	} else {
+		r.variables[name] = []Frame{f}
+	}
 	return nil
 }
 
@@ -84,12 +73,11 @@ func (r *RPN) ClearVariable(name string) error {
 	if isNum(rune(name[0])) {
 		return r.clearStackVariable(name)
 	}
-	vframe := r.variables[len(r.variables)-1]
-	_, ok := vframe[name]
+	_, ok := r.variables[name]
 	if !ok {
 		return ErrNotFound
 	}
-	delete(vframe, name)
+	delete(r.variables, name)
 	return nil
 }
 
@@ -101,13 +89,11 @@ func (r *RPN) GetVariable(name string) (Frame, error) {
 	if isNum(rune(name[0])) {
 		return r.getStackVariable(name)
 	}
-	for i := len(r.variables) - 1; i >= 0; i-- {
-		f, ok := r.variables[i][name]
-		if ok {
-			return f, nil
-		}
+	vlist := r.variables[name]
+	if len(vlist) == 0 {
+		return Frame{}, ErrNotFound
 	}
-	return Frame{}, ErrNotFound
+	return vlist[len(vlist)-1], nil
 }
 
 // Gets a variable from the stack
@@ -179,57 +165,27 @@ func (r *RPN) GetComplexVariable(name string) (complex128, error) {
 	return v, nil
 }
 
-func (r *RPN) appendAllValuesForVariable(name string, values []Frame) []Frame {
-	lastVal := 0
-	for i := 0; i < len(r.variables); i++ {
-		f, ok := r.variables[i][name]
-		if ok {
-			values = append(values, f)
-			lastVal = i
-		} else {
-			values = append(values, EmptyFrame())
-		}
-	}
-	if len(values) == 0 {
-		values = append(values, EmptyFrame())
-	}
-	return values[:lastVal+1]
-}
-
-type NameAndValues struct {
-	Name   string
-	Values []Frame
-}
-
 // Gets all variable names
-func (r *RPN) AllVariableNames() []string {
-	var names []string
-	for i := 0; i < len(r.variables); i++ {
-		for k := range r.variables[i] {
-			names = append(names, k)
-		}
+func (r *RPN) AppendAllVariableNames(names []string) []string {
+	for name := range r.variables {
+		names = append(names, name)
 	}
-	if len(names) == 0 {
-		return nil
-	}
-	sort.Strings(names)
 	return names
 }
 
-// Gets all variable names
-func (r *RPN) AppendAllVariableNamesAndValues(results []NameAndValues) []NameAndValues {
-	names := r.AllVariableNames()
-	// names may contain duplicates
-	var lastName string
-	for _, name := range names {
-		if name == lastName {
-			continue
+// Calls the callback for every defined variable.  The function can return
+// false to abort the process
+func (r *RPN) IterateAllVariables(fn func(string, []Frame) bool) {
+	for k, v := range r.variables {
+		if !fn(k, v) {
+			break
 		}
-		lastName = name
-		elog.Heap("alloc: /rpn/vars.go:228: results = append(results, NameAndValues{Name: name, Values: r.appendAllValuesForVariable(name, make([]Frame, 0, 1))})")
-		results = append(results, NameAndValues{Name: name, Values: r.appendAllValuesForVariable(name, make([]Frame, 0, 1))}) // object allocated on the heap: escapes at line 228
 	}
-	return results
+}
+
+// Gets all variable names
+func (r *RPN) AllVariableNamesAndValues() map[string][]Frame {
+	return r.variables
 }
 
 // Executes a Variables as a macro

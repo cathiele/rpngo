@@ -9,8 +9,7 @@ import (
 // RPN is the main structure
 type RPN struct {
 	Frames    []Frame
-	pushed    [][]Frame
-	variables []map[string]Frame
+	variables map[string][]Frame
 	functions map[string]func(*RPN) error
 	// maps are category -> command -> help
 	help          map[string]map[string]string
@@ -30,15 +29,11 @@ func (r *RPN) Init(maxStackDepth int) {
 	r.maxStackDepth = maxStackDepth
 	r.functions = make(map[string]func(*RPN) error)
 	elog.Heap("alloc: /rpn/rpn.go:28: r.variables = []map[string]Frame{make(map[string]Frame)}")
-	r.variables = []map[string]Frame{make(map[string]Frame)} // object allocated on the heap: escapes at line 28
-	r.conv = convert.Init()                                  // must come before initHelp()
+	r.variables = make(map[string][]Frame) // object allocated on the heap: escapes at line 28
+	r.conv = convert.Init()                // must come before initHelp()
 	r.initHelp()
 	r.Register("ssize", stackSize, CatStack, stackSizeHelp)
-	r.Register("spush", pushStack, CatStack, pushStackHelp)
-	r.Register("spop", popStack, CatStack, popStackHelp)
 	r.Register("vlist", listVariables, CatVariables, listVariablesHelp)
-	r.Register("vpush", pushVariableFrame, CatVariables, pushVariableFrameHelp)
-	r.Register("vpop", popVariableFrame, CatVariables, popVariableFrameHelp)
 	r.Print = DefaultPrint
 	r.Interrupt = DefaultInterrupt
 	r.TextWidth = 80

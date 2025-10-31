@@ -274,7 +274,7 @@ func TestExec(t *testing.T) {
 		},
 		{
 			name: "help one",
-			args: []string{"spush?"},
+			args: []string{"vlist?"},
 		},
 		{
 			name:    "help unknown",

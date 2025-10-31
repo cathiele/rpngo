@@ -23,16 +23,16 @@ import (
 const MAX_HISTORY_LINES = 500
 
 type getLine struct {
-	insertMode     bool
-	input          Input
-	txtb           *window.TextBuffer
-	history        [MAX_HISTORY_LINES][]byte
-	historyCount   int
-	historyFile    *os.File
-	namesAndValues []rpn.NameAndValues
+	insertMode   bool
+	input        Input
+	txtb         *window.TextBuffer
+	history      [MAX_HISTORY_LINES][]byte
+	historyCount int
+	historyFile  *os.File
 	// line is the current line.  It's kept here to support entering
 	// scrolling mode without losing the current line contents.
-	line []byte
+	names []string
+	line  []byte
 }
 
 const histFile = ".rpngo_history"
@@ -41,11 +41,11 @@ func initGetLine(input Input, txtb *window.TextBuffer) *getLine {
 	elog.Heap("alloc: /window/input/getline.go:41: gl := &getLine{")
 	elog.Heap("alloc: /window/input/getline.go:46: namesAndValues: make([]rpn.NameAndValues, 0, 8),")
 	gl := &getLine{ // object allocated on the heap: object size 6048 exceeds maximum stack allocation size 256
-		insertMode:     true,
-		input:          input,
-		txtb:           txtb,
-		historyCount:   0,
-		namesAndValues: make([]rpn.NameAndValues, 0, 8), // object allocated on the heap: escapes at line 46
+		insertMode:   true,
+		input:        input,
+		txtb:         txtb,
+		historyCount: 0,
+		names:        make([]string, 0, 16),
 	}
 	gl.loadHistory()
 	gl.prepareHistory()

@@ -26,7 +26,6 @@ func (gl *getLine) tabComplete(r *rpn.RPN, idx int) int {
 		return idx
 	}
 
-
 	startLine := string(gl.line[:startIdx])
 	endLine := string(gl.line[idx:])
 	gl.line = gl.line[:0]
@@ -109,23 +108,20 @@ func (gl *getLine) findNewWord(r *rpn.RPN, word string) string {
 }
 
 func (gl *getLine) allVariableNames(r *rpn.RPN) []string {
-	var wordList []string
-	gl.namesAndValues = r.AppendAllVariableNamesAndValues(gl.namesAndValues[:0])
-	for _, nv := range gl.namesAndValues {
-		wordList = append(wordList, nv.Name)
-	}
-	sort.Strings(wordList)
-	return wordList
+	gl.names = r.AppendAllVariableNames(gl.names[:0])
+	sort.Strings(gl.names)
+	return gl.names
 }
 
 func (gl *getLine) allStringVariables(r *rpn.RPN) []string {
 	var wordList []string
-	gl.namesAndValues = r.AppendAllVariableNamesAndValues(gl.namesAndValues[:0])
-	for _, nv := range gl.namesAndValues {
-		if nv.Values[len(nv.Values)-1].IsString() {
-			wordList = append(wordList, nv.Name)
+	fn := func(name string, vals []rpn.Frame) bool {
+		if vals[len(vals)-1].IsString() {
+			wordList = append(wordList, name)
 		}
+		return true
 	}
+	r.IterateAllVariables(fn)
 	sort.Strings(wordList)
 	return wordList
 }

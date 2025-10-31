@@ -2,31 +2,8 @@ package rpn
 
 import (
 	"errors"
-	"reflect"
 	"testing"
 )
-
-func TestPushPopVarFrame(t *testing.T) {
-	data := []UnitTestExecData{
-		{
-			Args:    []string{"vpop"},
-			WantErr: ErrStackEmpty,
-		},
-		{
-			Args: []string{"1234", "x=", "vpush", "$x"},
-			Want: []string{"1234"},
-		},
-		{
-			Args: []string{"1234", "x=", "vpush", "2345", "$x", "x=", "vpop", "$x"},
-			Want: []string{"2345", "1234"},
-		},
-		{
-			Args: []string{"1234", "x=", "vpush", "$x", "vpush", "$x", "2345", "x=", "$x", "vpop", "vpop", "$x"},
-			Want: []string{"1234", "1234", "2345", "1234"},
-		},
-	}
-	UnitTestExecAll(t, data, nil)
-}
 
 func TestSetGetAndClear(t *testing.T) {
 	data := []UnitTestExecData{
@@ -241,31 +218,6 @@ func TestGetComplexVariable(t *testing.T) {
 				t.Errorf("got=%v, want=%v", got, d.want)
 			}
 		})
-	}
-}
-
-func TestAllVariableNamesAndValues(t *testing.T) {
-	var r RPN
-	r.Init(256)
-	r.ExecSlice([]string{"1d", "a=", "2d", "b=", "vpush", "'foo'", "a=", "3d", "c="})
-	want := []NameAndValues{
-		{
-			Name:   "a",
-			Values: []Frame{IntFrame(1, INTEGER_FRAME), StringFrame("foo", STRING_SINGLE_QUOTE)},
-		},
-		{
-			Name:   "b",
-			Values: []Frame{IntFrame(2, INTEGER_FRAME)},
-		},
-		{
-			Name:   "c",
-			Values: []Frame{{}, IntFrame(3, INTEGER_FRAME)},
-		},
-	}
-	var got []NameAndValues = make([]NameAndValues, 0, 16)
-	got = r.AppendAllVariableNamesAndValues(got)
-	if !reflect.DeepEqual(want, got) {
-		t.Errorf("\n got=%+v\nwant=%+v", got, want)
 	}
 }
 
