@@ -171,6 +171,73 @@ You can move values around the stack.
     0/         # now the stack is 10
     X          # emptys all values from the stack
 
+## Numbers
+
+Many type of numbers are supported
+
+    50       # floating point (actually a 5+0i complex)
+    50+i     # complex number
+    50d      # Integer
+    32x      # Hexidecimal
+    62o      # octal
+    110010b  # binary
+
+Most operations can us a mix of these types, using the following rules:
+
+    # Any number type mixed with float results in a float
+    12.4 5d +  ->  17.4
+
+    # Two integer types added together takes the base of the left term
+    32x 50d +  ->  64x
+
+You can also convert between types using `hex`, `bin`, `oct`, `float`, `real`,
+`imag`, and `str`. You can convert from a string to a type by executing
+it with `@`
+
+    "54x" @  ->  54x
+
+## Booleans
+
+Boolean values include `true` and `false`.  These can be directly used.
+Conditionals return a boolean:
+
+    1 2 >      ->  false
+    1 2 <      ->  true
+    1 2 =      ->  false
+    1 2 !=     ->  true
+    1 2 >=     ->  false
+    1 2 <=     ->  false
+    false neg  ->  true
+    true neg   ->  false
+
+## Labels
+
+Labels can be added to non string values.  A label shows up in the stack window
+can can be used to help you remember what the number represents.  This can be
+useful when attempting to do complex calculations purely using the stack.
+
+For example, say you want to make a formulat that converts velocity, time, 
+and acceleration into distance. The formula is `(v * t) + (0.5 * a * t * t).
+You could use variables or the pure stack. If you use the pure stack, labels
+can help keep track of what is what:
+
+     1 `v
+     2 `a
+     3 `t
+
+Now the stack will look like this:
+
+     2: 1 `v
+     1: 2 `a
+     0: 3 `t
+
+You can see that `$1` is `a` and see how `a` moves around as you
+work the equation, ended up with:
+
+    {$0 $0 * 2> * 0.5 * 2< * +} dist=
+   
+Coming up with that without labels to guide an example would be a tricker ask.
+
 ## Strings
 
 There are three ways to specify a string

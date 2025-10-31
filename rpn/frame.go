@@ -136,6 +136,7 @@ func (f *Frame) UnsafeBool() bool {
 }
 
 func (f *Frame) String(quote bool) string {
+	var s string
 	switch f.ftype {
 	case EMPTY_FRAME:
 		return "nil"
@@ -152,23 +153,28 @@ func (f *Frame) String(quote bool) string {
 		}
 		return f.str
 	case COMPLEX_FRAME:
-		return f.complexString()
+		s = f.complexString()
 	case BOOL_FRAME:
 		if f.intv != 0 {
-			return "true"
+			s = "true"
+		} else {
+			s = "false"
 		}
-		return "false"
 	case INTEGER_FRAME:
-		return strconv.FormatInt(f.intv, 10) + "d"
+		s = strconv.FormatInt(f.intv, 10) + "d"
 	case HEXIDECIMAL_FRAME:
-		return strconv.FormatInt(f.intv, 16) + "x"
+		s = strconv.FormatInt(f.intv, 16) + "x"
 	case OCTAL_FRAME:
-		return strconv.FormatInt(f.intv, 8) + "o"
+		s = strconv.FormatInt(f.intv, 8) + "o"
 	case BINARY_FRAME:
-		return strconv.FormatInt(f.intv, 2) + "b"
+		s = strconv.FormatInt(f.intv, 2) + "b"
 	default:
 		return "BAD_TYPE"
 	}
+	if len(f.str) > 0 {
+		s += " " + f.str
+	}
+	return s
 }
 
 func (f *Frame) UnsafeString() string {

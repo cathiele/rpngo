@@ -36,6 +36,8 @@ func (rpn *RPN) Exec(arg string) error {
 			return nil
 		case '@':
 			return rpn.execVariableAsMacro(arg[1:])
+		case '`':
+			return rpn.addLabel(arg)
 		}
 	}
 	if len(arg) >= 2 {
@@ -173,4 +175,16 @@ func (r *RPN) convert(arg string) error {
 		return err
 	}
 	return r.PushFrame(RealFrame(newv))
+}
+
+func (r *RPN) addLabel(label string) error {
+	if len(r.Frames) == 0 {
+		return ErrStackEmpty
+	}
+	f := &r.Frames[len(r.Frames)-1]
+	if f.ftype == STRING_FRAME {
+		return ErrCanNotAddLabelToString
+	}
+	f.str = label
+	return nil
 }

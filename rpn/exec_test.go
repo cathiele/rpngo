@@ -244,6 +244,19 @@ func TestExec(t *testing.T) {
 			wantErr: ErrNotFound,
 		},
 		{
+			name:       "label",
+			args:       []string{"1d", "`foo"},
+			frameCount: 1,
+			wantFrame:  Frame{ftype: INTEGER_FRAME, intv: 1, str: "`foo"},
+		},
+		{
+			name:       "label on string",
+			args:       []string{"'foo'", "`bar"},
+			wantErr:    ErrCanNotAddLabelToString,
+			frameCount: 1,
+			wantFrame:  StringFrame("foo", STRING_SINGLE_QUOTE),
+		},
+		{
 			name:       "set and execute macro 1",
 			args:       []string{"'1 2 55d'", "foo=", "@foo"},
 			frameCount: 3,

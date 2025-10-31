@@ -5,6 +5,7 @@ import "errors"
 var (
 	ErrCanNotDeleteInputWindow   = errors.New("can not delete input window")
 	ErrCanNotDeleteRootWindow    = errors.New("can not delete root window")
+	ErrCanNotAddLabelToString    = errors.New("can not add label to string")
 	ErrComplexNumberNotSupported = errors.New("complex number not suppported")
 	ErrDivideByZero              = errors.New("divide by zero")
 	ErrExpectedABoolean          = errors.New("expected a boolean")
