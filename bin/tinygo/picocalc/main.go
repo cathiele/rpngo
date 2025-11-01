@@ -32,25 +32,50 @@ const maxStackDepth = 256
 // be used sparingly
 var rpnInst rpn.RPN
 var getInputInst getInput
+var interruptCheckInst interruptCheck
 var inputWin input.InputWindow
 var screen ili948x.Ili948xScreen
 var root window.WindowRoot
 var fileOps fileops.FileOps
 var fileOpsDriver tinyfs.FileOpsDriver
 
-// reading the keyboard excessively can slow down execution, so we only
-// do it a few tims a second.
-var nextBreakCheck time.Time
+// We need a way to implement break, but it's complicated by the fact
+// that reading the keyboard via i2c takes a long time compared to
+// executing a command.
+//
+// I tried using a time.Time based check, but that had a ~35% performance
+// hit as-measured by @benchmark.  So Instead, we go with a simple counter.
+//
+// The problem with a simple counter is that the delay function
+// can make the counts happen very slowly, thus we need a hook to handle that
+// case as well.
+const breakExecCountTrigger = 8192
 
-const breakCheckPeriod = 250 * time.Millisecond
+type interruptCheck struct {
+	calls       uint32
+	origSleepFn func(float64)
+}
 
-func checkForInterrupt() bool {
-	if time.Now().Before(nextBreakCheck) {
+// Initialize this after the keyboard is ready to read, just in case.
+func (ic *interruptCheck) Init() {
+	ic.origSleepFn = functions.DelaySleepFn
+	functions.DelaySleepFn = ic.delaySleepFn
+	rpnInst.Interrupt = ic.checkForInterrupt
+}
+
+func (ic *interruptCheck) checkForInterrupt() bool {
+	ic.calls++
+	if ic.calls < breakExecCountTrigger {
 		return false
 	}
-	nextBreakCheck = time.Now().Add(breakCheckPeriod)
-	k := getInputInst.serial.GetChar()
+	ic.calls = 0
+	k, _ := getInputInst.keyboard.GetChar()
 	return k == key.KEY_BREAK
+}
+
+func (ic *interruptCheck) delaySleepFn(t float64) {
+	ic.calls += uint32(t * float64(breakExecCountTrigger*4))
+	ic.origSleepFn(t)
 }
 
 type getInput struct {
@@ -101,6 +126,7 @@ func run() error {
 	if err := startup.LCD320Startup(&rpnInst); err != nil {
 		return err
 	}
+	interruptCheckInst.Init()
 	w, h := screen.ScreenSize()
 	if err := root.Update(&rpnInst, w, h, true); err != nil {
 		return err
@@ -124,8 +150,6 @@ func buildUI() error {
 		return err
 	}
 	getInputInst.Init()
-	// establish the interrupt link after getInput has been initialized
-	rpnInst.Interrupt = checkForInterrupt
 	inputWin.Init(&getInputInst, txtw, &rpnInst, scrollbytes)
 	getInputInst.lcd = txtw.(*ili948x.Ili948xTxtW)
 	root.AddWindowChildToRoot(&inputWin, "i", 100)

@@ -205,6 +205,11 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 			return gl.execMacro(r, idx, "@.f11")
 		case key.KEY_F12:
 			return gl.execMacro(r, idx, "@.f12")
+		case key.KEY_BREAK:
+			gl.txtb.Shift(len(gl.line) - idx)
+			gl.txtb.Write('\n', true)
+			gl.addToHistory()
+			return "", nil
 		default:
 			b := byte(c)
 			if b == '\n' {

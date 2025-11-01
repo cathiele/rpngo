@@ -7,6 +7,10 @@ import (
 
 const DelayHelp = "Pauses for the given number of seconds"
 
+var DelaySleepFn = func(t float64) {
+	time.Sleep(time.Duration(t*1000) * time.Millisecond)
+}
+
 func Delay(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
@@ -19,7 +23,7 @@ func Delay(r *rpn.RPN) error {
 	if v <= 0 {
 		return nil
 	}
-	time.Sleep(time.Duration(v*1000) * time.Millisecond)
+	DelaySleepFn(v)
 	return nil
 }
 
