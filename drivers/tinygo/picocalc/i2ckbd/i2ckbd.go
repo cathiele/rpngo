@@ -148,12 +148,15 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 		return kbd.ifNoModifiers(key.KEY_HOME)
 	case ESC_KEY:
 		return kbd.ifNoModifiers(27)
-	default:
-		if k < 0x80 {
-			return kbd.ifNoModifiers(key.Key(k))
+	case 'c':
+		if kbd.ctrlDown && !kbd.altDown {
+			return key.KEY_BREAK, nil
 		}
-		return 0, nil
 	}
+	if k < 0x80 {
+		return kbd.ifNoModifiers(key.Key(k))
+	}
+	return 0, nil
 }
 
 // Sometimes called when a key is held.  Usually just for modifier keys.
