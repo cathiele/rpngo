@@ -112,9 +112,14 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 		return err
 	}
 	inputWin.Init(&getInputInst, txtw, r, scrollbytes)
-	getInputInst.lcd = txtw.(*ili9341.Ili9341TxtW)
+	getInputInst.Init(txtw.(*ili9341.Ili9341TxtW))
 	root.AddWindowChildToRoot(&inputWin, "i", 100)
 	return nil
+}
+
+func (gi *getInput) Init(lcd *ili9341.Ili9341TxtW) {
+	gi.lcd = lcd
+	gi.serial.Init()
 }
 
 func (gi *getInput) GetChar() (key.Key, error) {

@@ -7,6 +7,7 @@ package serial
 import (
 	"machine"
 	"mattwach/rpngo/key"
+	"time"
 )
 
 type TermState int
@@ -20,7 +21,13 @@ const (
 )
 
 type Serial struct {
-	state TermState
+	state       TermState
+	ignoreUntil time.Time
+}
+
+func (sc *Serial) Init() {
+	sc.state = NORMAL
+	sc.ignoreUntil = time.Now().Add(time.Second)
 }
 
 func (sc *Serial) Open(path string) error {
@@ -43,6 +50,10 @@ func (sc *Serial) GetChar() key.Key {
 	c, err := machine.Serial.ReadByte()
 	if err != nil {
 		// nothing available
+		return 0
+	}
+	if time.Now().Before(sc.ignoreUntil) {
+		// This might be some random junk from starting up cold
 		return 0
 	}
 	switch sc.state {

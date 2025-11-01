@@ -119,6 +119,7 @@ func (gi *getInput) Init() {
 	if err := gi.keyboard.Init(); err != nil {
 		elog.Print("failed to init keyboard: ", err.Error())
 	}
+	gi.serial.Init()
 }
 
 func (gi *getInput) GetChar() (key.Key, error) {
