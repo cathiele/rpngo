@@ -129,25 +129,27 @@ func (tb *TextBuffer) RefreshArea(tx, ty, w, h int) {
 // Checks if the underlying window has resized
 func (tb *TextBuffer) CheckSize() {
 	tw, th := tb.Txtw.TextSize()
+	if (tw == 0) || (th == 0) {
+		return
+	}
 	scrollh := tb.scrollbytes / tw
 	if (int(tb.bw) == tw) && (int(tb.bh) == (scrollh + th)) {
 		// already the right size
 		return
 	}
-	if tb.cx >= tw {
-		tb.cx = tw - 1
-	}
-	if tb.cy >= th {
-		tb.cy = th - 1
-	}
+	tb.SetCursorXY(0, 0)
 	tb.bw = tw
 	tb.bh = th + scrollh
 	elog.Heap("alloc: /window/txtbuffer.go:141: tb.buffer = make([]ColorChar, tb.bw*tb.bh)")
 	tb.buffer = make([]ColorChar, tb.bw*tb.bh) // object allocated on the heap: size is not constant
 	elog.Heap("alloc: /window/txtbuffer.go:142: tb.screen = make([]ColorChar, tw*th)")
 	tb.screen = make([]ColorChar, tw*th) // object allocated on the heap: size is not constant
-	// maybe we can reflow the text instead of erasing it after the changes
-	// are proven as stable.
+	// A reflow would be nicer than an erase.  I attempted to do it in the
+	// branch reflow_text_buffer but ran into complications with handling new
+	// line characters properly.  I think it could be done if the definition
+	// of buffer was not 1:1 to the screen but instead was just a block
+	// of characters.  But this would require logic changes everywhere and
+	// we would probably want to drop DrawChar() and rework the editor.
 	tb.Erase()
 }
 
@@ -168,6 +170,10 @@ func (tb *TextBuffer) DrawChar(x, y int, c ColorChar) {
 }
 
 func (tb *TextBuffer) Write(b byte, updatenow bool) error {
+	if len(tb.buffer) == 0 {
+		// No underlying window
+		return nil
+	}
 	bidx := (tb.headidx + int(tb.cy)*tb.bw + int(tb.cx)) % len(tb.buffer)
 	if b != '\n' {
 		tb.buffer[bidx] = tb.col | ColorChar(b)

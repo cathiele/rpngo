@@ -2,6 +2,7 @@
 package curses
 
 import (
+	"log"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/window"
 
@@ -13,6 +14,9 @@ type Curses struct {
 	window    *goncurses.Window
 	rgbToPair map[uint32]int16 // maps color,color values to a pair.
 	col       window.ColorChar
+	// redrawing the border causes the contents of the input window
+	// to be wiped, thus we only want to do it if needed.
+	borderChanged bool
 }
 
 func Init() (*Curses, error) {
@@ -36,9 +40,6 @@ func (c *Curses) NewTextWindow() (window.TextWindow, error) {
 	tw := &Curses{
 		rgbToPair: c.rgbToPair,
 	}
-	if err := tw.ResizeWindow(0, 0, 8, 8); err != nil {
-		return nil, err
-	}
 	return tw, nil
 }
 
@@ -47,6 +48,9 @@ func (c *Curses) NewPixelWindow() (window.PixelWindow, error) {
 }
 
 func (c *Curses) ShowBorder(screenw, screenh int) error {
+	if !c.borderChanged {
+		return nil
+	}
 	ch, err := c.colorPairFor(window.Blue)
 	if err != nil {
 		return err
@@ -61,11 +65,14 @@ func (c *Curses) ShowBorder(screenw, screenh int) error {
 		return err
 	}
 	c.border.AttrSet(ch)
+	c.borderChanged = false
 	return nil
 }
 
 func (c *Curses) Refresh() {
-	c.window.Refresh()
+	if c.window != nil {
+		c.window.Refresh()
+	}
 }
 
 func (c *Curses) End() {
@@ -73,6 +80,14 @@ func (c *Curses) End() {
 }
 
 func (c *Curses) ResizeWindow(x, y, w, h int) error {
+	if c.border != nil {
+		by, bx := c.border.YX()
+		bh, bw := c.border.MaxYX()
+		if (x == bx) && (y == by) && (w == bw) && (h == bh) {
+			return nil
+		}
+	}
+	c.borderChanged = true
 	if c.border != nil {
 		// erase the contents so that artifacts do no collect on the screen
 		c.border.Erase()
@@ -129,6 +144,9 @@ var charMap = map[goncurses.Key]key.Key{
 }
 
 func (c *Curses) GetChar() (key.Key, error) {
+	if c.window == nil {
+		return 0, nil
+	}
 	ch := c.window.GetChar()
 	k, ok := charMap[ch]
 	if ok {
@@ -138,50 +156,77 @@ func (c *Curses) GetChar() (key.Key, error) {
 }
 
 func (c *Curses) Erase() {
-	c.window.Erase()
+	if c.window != nil {
+		c.window.Erase()
+	}
 }
 
 func (c *Curses) TextWidth() int {
+	if c.window == nil {
+		return 0
+	}
 	_, x := c.window.MaxYX()
 	return x
 }
 
 func (c *Curses) TextHeight() int {
+	if c.window == nil {
+		return 0
+	}
 	y, _ := c.window.MaxYX()
 	return y
 }
 
 func (c *Curses) TextSize() (int, int) {
+	if c.window == nil {
+		return 0, 0
+	}
 	y, x := c.window.MaxYX()
 	return x, y
 }
 
 func (c *Curses) WindowSize() (int, int) {
+	if c.window == nil {
+		return 0, 0
+	}
 	y, x := c.window.MaxYX()
 	return x, y
 }
 
 func (c *Curses) ScreenSize() (int, int) {
+	if c.window == nil {
+		return 0, 0
+	}
 	y, x := c.window.MaxYX()
 	return x, y
 }
 
 func (c *Curses) WindowXY() (int, int) {
+	if c.window == nil {
+		return 0, 0
+	}
 	y, x := c.window.YX()
 	return x, y
 }
 
 func (c *Curses) DrawChar(x, y int, ch window.ColorChar) {
+	if c.window == nil {
+		return
+	}
 	newcol := ch & 0xFF00
 	if newcol != c.col {
 		c.textColor(newcol)
 	}
 	c.window.Move(y, x)
 	b := byte(ch & 0xFF)
+	log.Printf("DrawChar: %c", b)
 	c.window.AddChar(goncurses.Char(b))
 }
 
 func (c *Curses) textColor(col window.ColorChar) {
+	if c.window == nil {
+		return
+	}
 	ch, err := c.colorPairFor(col)
 	if err != nil {
 		return
