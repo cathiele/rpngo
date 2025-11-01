@@ -7,20 +7,46 @@ import (
 )
 
 const lcd320ConfigFile = `
-"
-'s' w.new.stack
-'s' 30 w.weight
-" .init=
+{
+  30 .wweight<
+  's' w.new.stack
+  .wweight> 0/
+} .init=
 
 @.init
 
-'w.reset @.init' .f1=
+{w.reset @.init} .f1=
+{w.reset} .f2=
+{
+  w.reset
+  'root' w.columns
+  'v' w.new.var
+} .f3=
+{@.plotinit} .f4=
+{
+	w.reset
+	'g' w.new.group
+	'g' w.columns
+	'i' 'g' w.move.beg
+	'g' .wtarget<
+	'v' w.new.var
+	.wtarget> 0/
+	30 .wweight=
+	's' w.new.stack
+	.wweight> 0/
+} .f5=
 
-'time t1= 0 x= "$x 1 + x= $x 50000 <" for time $t1 - 50000 1> /' benchmark=
+{time t1= 0 x= {$x 1 + x= $x 50000 <} for time $t1 - 50000 1> /} benchmark=
 
 # Plot defaults
 'p' .plotwin=
-'w.reset $.plotwin w.new.plot $.plotwin "root" w.move.beg $.plotwin $.plotwin 200 w.weight' .plotinit=
+{
+  w.reset
+  false .wend<
+  250 .wweight<
+  $.plotwin w.new.plot
+  .wend> 0/ .wweight> 0/
+} .plotinit=
 ` + commonStartup
 
 // LCD320Startup is startup logic when using a 320x240 display
