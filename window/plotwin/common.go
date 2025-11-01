@@ -137,7 +137,8 @@ func (pw *plotWindowCommon) setAxisMinMax(r *rpn.RPN) {
 	}
 }
 
-func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, coloridx uint8) error) {
+func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, coloridx uint8) error) error {
+	var finalErr error
 	for i, plot := range pw.plots {
 		if err := pw.addPoints(r, plot, pw.steps, fn); err != nil {
 			r.Print("error plotting {")
@@ -146,8 +147,10 @@ func (pw *plotWindowCommon) createPoints(r *rpn.RPN, fn func(x, y float64, color
 			r.Print(err.Error())
 			r.Println(" (removing plot)")
 			pw.plots[i].fn = pw.plots[i].fn[:0]
+			finalErr = err
 		}
 	}
+	return finalErr
 }
 
 func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, steps uint32, fn func(x, y float64, coloridx uint8) error) error {

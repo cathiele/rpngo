@@ -57,9 +57,9 @@ func (pw *PixelPlotWindow) Update(r *rpn.RPN) error {
 	pw.common.setAxisMinMax(r)
 	pw.drawAxis()
 	pw.lastcolidx = 255
-	pw.common.createPoints(r, pw.plotPoint)
+	err := pw.common.createPoints(r, pw.plotPoint)
 	pw.pixw.Refresh()
-	return nil
+	return err
 }
 
 func (pw *PixelPlotWindow) SetProp(name string, val rpn.Frame) error {

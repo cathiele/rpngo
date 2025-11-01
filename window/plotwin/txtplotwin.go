@@ -53,8 +53,7 @@ func (pw *TxtPlotWindow) Update(r *rpn.RPN) error {
 	if err := pw.drawAxis(); err != nil {
 		return err
 	}
-	pw.common.createPoints(r, pw.plotPoint)
-	return nil
+	return pw.common.createPoints(r, pw.plotPoint)
 }
 
 func (pw *TxtPlotWindow) SetProp(name string, val rpn.Frame) error {
