@@ -38,6 +38,21 @@ var root window.WindowRoot
 var fileOps fileops.FileOps
 var fileOpsDriver tinyfs.FileOpsDriver
 
+// reading the keyboard excessively can slow down execution, so we only
+// do it a few tims a second.
+var nextBreakCheck time.Time
+
+const breakCheckPeriod = 250 * time.Millisecond
+
+func checkForInterrupt() bool {
+	if time.Now().Before(nextBreakCheck) {
+		return false
+	}
+	nextBreakCheck = time.Now().Add(breakCheckPeriod)
+	k := getInputInst.serial.GetChar()
+	return k == key.KEY_BREAK
+}
+
 type getInput struct {
 	lcd      *ili948x.Ili948xTxtW
 	serial   serial.Serial
@@ -109,6 +124,8 @@ func buildUI() error {
 		return err
 	}
 	getInputInst.Init()
+	// establish the interrupt link after getInput has been initialized
+	rpnInst.Interrupt = checkForInterrupt
 	inputWin.Init(&getInputInst, txtw, &rpnInst, scrollbytes)
 	getInputInst.lcd = txtw.(*ili948x.Ili948xTxtW)
 	root.AddWindowChildToRoot(&inputWin, "i", 100)
