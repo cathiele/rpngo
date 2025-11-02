@@ -23,11 +23,16 @@ const (
 type Serial struct {
 	state       TermState
 	ignoreUntil time.Time
+	Serial      machine.Serialer
 }
 
-func (sc *Serial) Init() {
+func (sc *Serial) Init(serial machine.Serialer) {
 	sc.state = NORMAL
 	sc.ignoreUntil = time.Now().Add(time.Second)
+	// serial and initFn exist for the picocalc which requires use of the
+	// UART to use the USB-C port, but actually using the UART incurs a 15%
+	// perf penalty in @benchmarkl so we don't want it on all of the time
+	sc.Serial = serial
 }
 
 func (sc *Serial) Open(path string) error {
@@ -39,14 +44,23 @@ func (sc *Serial) Close() error {
 }
 
 func (sc *Serial) ReadByte() (byte, error) {
-	return machine.Serial.ReadByte()
+	if sc.Serial == nil {
+		return 0, nil
+	}
+	return sc.Serial.ReadByte()
 }
 
 func (sc *Serial) WriteByte(c byte) error {
-	return machine.Serial.WriteByte(c)
+	if sc.Serial == nil {
+		return nil
+	}
+	return sc.Serial.WriteByte(c)
 }
 
 func (sc *Serial) GetChar() key.Key {
+	if sc.Serial == nil {
+		return 0
+	}
 	c, err := machine.Serial.ReadByte()
 	if err != nil {
 		// nothing available

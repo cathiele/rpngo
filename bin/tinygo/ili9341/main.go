@@ -6,6 +6,7 @@ package main
 
 import (
 	"errors"
+	"machine"
 	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/ili9341"
@@ -119,7 +120,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 
 func (gi *getInput) Init(lcd *ili9341.Ili9341TxtW) {
 	gi.lcd = lcd
-	gi.serial.Init()
+	gi.serial.Init(machine.Serial)
 }
 
 func (gi *getInput) GetChar() (key.Key, error) {

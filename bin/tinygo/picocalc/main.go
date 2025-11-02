@@ -11,7 +11,6 @@ import (
 	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
 	"mattwach/rpngo/drivers/tinygo/serial"
 	"mattwach/rpngo/drivers/tinygo/tinyfs"
-	"mattwach/rpngo/elog"
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/key"
@@ -31,10 +30,9 @@ const maxStackDepth = 256
 // which leads to heap fragmentation and thus the heap should
 // be used sparingly
 var rpnInst rpn.RPN
-var getInputInst getInput
+var picocalc picoCalcIO
 var interruptCheckInst interruptCheck
 var inputWin input.InputWindow
-var screen ili948x.Ili948xScreen
 var root window.WindowRoot
 var fileOps fileops.FileOps
 var fileOpsDriver tinyfs.FileOpsDriver
@@ -69,7 +67,7 @@ func (ic *interruptCheck) checkForInterrupt() bool {
 		return false
 	}
 	ic.calls = 0
-	k, _ := getInputInst.keyboard.GetChar()
+	k, _ := picocalc.keyboard.GetChar()
 	return k == key.KEY_BREAK
 }
 
@@ -85,12 +83,13 @@ type getInput struct {
 }
 
 func main() {
-	screen.Init()
+	time.Sleep(200 * time.Millisecond)
+	picocalc.Init()
 	// This only seeems to work for panics I throw and not errors
 	// like array out of bounds.
 	defer func() {
 		if r := recover(); r != nil {
-			handlePanic(screen.Device, r)
+			handlePanic(picocalc.screen.Device, r)
 		}
 	}()
 	if err := run(); err != nil {
@@ -98,10 +97,19 @@ func main() {
 	}
 }
 
-func run() error {
-	time.Sleep(200 * time.Millisecond)
+func newPixelPlotWindow() (window.WindowWithProps, error) {
+	var ppw plotwin.PixelPlotWindow
+	pw, err := picocalc.screen.NewPixelWindow()
+	if err != nil {
+		return nil, err
+	}
+	var pb pixelwinbuffer.PixelBuffer
+	pb.Init(pw)
+	ppw.Init(&pb)
+	return &ppw, nil
+}
 
-	elog.Print("Started")
+func run() error {
 	rpnInst.Init(maxStackDepth)
 	functions.RegisterAll(&rpnInst)
 	_ = fileOpsDriver.Init()
@@ -110,29 +118,18 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	newPixelPlotWindow := func() (window.WindowWithProps, error) {
-		var ppw plotwin.PixelPlotWindow
-		pw, err := screen.NewPixelWindow()
-		if err != nil {
-			return nil, err
-		}
-		var pb pixelwinbuffer.PixelBuffer
-		pb.Init(pw)
-		ppw.Init(&pb)
-		return &ppw, nil
-	}
-	_ = commands.InitWindowCommands(&rpnInst, &root, &screen, newPixelPlotWindow)
-	_ = plotwin.InitPlotCommands(&rpnInst, &root, &screen)
+	_ = commands.InitWindowCommands(&rpnInst, &root, &picocalc.screen, newPixelPlotWindow)
+	_ = plotwin.InitPlotCommands(&rpnInst, &root, &picocalc.screen)
 	if err := startup.LCD320Startup(&rpnInst); err != nil {
 		return err
 	}
 	interruptCheckInst.Init()
-	w, h := screen.ScreenSize()
+	w, h := picocalc.screen.ScreenSize()
 	if err := root.Update(&rpnInst, w, h, true); err != nil {
 		return err
 	}
 	for {
-		w, h = screen.ScreenSize()
+		w, h = picocalc.screen.ScreenSize()
 		if err := root.Update(&rpnInst, w, h, true); err != nil {
 			if errors.Is(err, input.ErrExit) {
 				return nil
@@ -143,46 +140,14 @@ func run() error {
 }
 
 func buildUI() error {
-	w, h := screen.ScreenSize()
+	w, h := picocalc.screen.ScreenSize()
 	root.Init(w, h)
-	txtw, err := screen.NewTextWindow()
+	txtw, err := picocalc.screen.NewTextWindow()
 	if err != nil {
 		return err
 	}
-	getInputInst.Init()
-	inputWin.Init(&getInputInst, txtw, &rpnInst, scrollbytes)
-	getInputInst.lcd = txtw.(*ili948x.Ili948xTxtW)
+	inputWin.Init(&picocalc, txtw, &rpnInst, scrollbytes)
+	picocalc.PatchInUARTPrint(&rpnInst)
 	root.AddWindowChildToRoot(&inputWin, "i", 100)
 	return nil
-}
-
-func (gi *getInput) Init() {
-	if err := gi.keyboard.Init(); err != nil {
-		elog.Print("failed to init keyboard: ", err.Error())
-	}
-	gi.serial.Init()
-}
-
-func (gi *getInput) GetChar() (key.Key, error) {
-	for {
-		time.Sleep(20 * time.Millisecond)
-		/*
-			// Using the regular UART has a big perf penalty (15%)
-			// But using the USB UART is not recommended due to how the
-			// picocalc provided 5V through the USB port while it's on
-			// (hardware issue).
-			k := gi.serial.GetChar()
-			if k != 0 {
-				return k, nil
-			}
-			var err error
-		*/
-		k, err := gi.keyboard.GetChar()
-		if err != nil {
-			elog.Print("keyboard error: ", err.Error())
-			time.Sleep(1 * time.Second)
-		} else if k != 0 {
-			return k, nil
-		}
-	}
 }
