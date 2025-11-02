@@ -2,7 +2,7 @@ build:
 	tinygo build -target=pico -scheduler=tasks -o a.uf2
 
 flash:
-	tinygo flash -target=pico -scheduler=tasks
+	tinygo flash -target=pico -scheduler=tasks -monitor
 	
 
 allocs:

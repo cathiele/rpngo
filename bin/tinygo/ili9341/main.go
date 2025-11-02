@@ -50,7 +50,7 @@ func main() {
 }
 
 func run() error {
-	time.Sleep(2 * time.Second)
+	time.Sleep(200 * time.Millisecond)
 
 	elog.Print("Started")
 	rpnInst.Init(maxStackDepth)
