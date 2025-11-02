@@ -102,5 +102,6 @@ func (sc *Serial) GetChar() key.Key {
 			return key.KEY_PAGEDOWN
 		}
 	}
-	return key.Key(c)
+	// Return zero here to avoid messing up the state machine
+	return 0
 }
