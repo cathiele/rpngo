@@ -20,6 +20,7 @@ type PixelPlotWindow struct {
 	pixw       window.PixelWindow
 	common     plotWindowCommon
 	lastcolidx uint8
+	needUpdate bool
 }
 
 func (pw *PixelPlotWindow) Init(pixw window.PixelWindow) {
@@ -28,6 +29,7 @@ func (pw *PixelPlotWindow) Init(pixw window.PixelWindow) {
 }
 
 func (pw *PixelPlotWindow) ResizeWindow(x, y, w, h int) error {
+	pw.needUpdate = true
 	if err := pw.pixw.ResizeWindow(x, y, w, h); err != nil {
 		return err
 	}
@@ -54,15 +56,21 @@ func (pw *PixelPlotWindow) Type() string {
 }
 
 func (pw *PixelPlotWindow) Update(r *rpn.RPN) error {
+	// Updates are expensive so don't do them if not needed
+	if !pw.needUpdate {
+		return nil
+	}
 	pw.common.setAxisMinMax(r)
 	pw.drawAxis()
 	pw.lastcolidx = 255
 	err := pw.common.createPoints(r, pw.plotPoint)
 	pw.pixw.Refresh()
+	pw.needUpdate = false
 	return err
 }
 
 func (pw *PixelPlotWindow) SetProp(name string, val rpn.Frame) error {
+	pw.needUpdate = true
 	return pw.common.setProp(name, val)
 }
 
