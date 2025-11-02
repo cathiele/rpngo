@@ -194,14 +194,14 @@ func (wr *WindowRoot) Update(r *rpn.RPN, screenw, screenh int, updateInput bool)
 		if input == nil {
 			return rpn.ErrNotFound
 		}
-		if err := input.Update(r); err != nil {
+		if err := input.Update(r, false); err != nil {
 			return err
 		}
 	}
 	return wr.group.update(r, screenw, screenh)
 }
 
-func (wr *WindowRoot) UpdateByName(r *rpn.RPN, name string) error {
+func (wr *WindowRoot) UpdateByName(r *rpn.RPN, name string, force bool) error {
 	if name == "root" {
 		return wr.Update(r, wr.group.w, wr.group.y, false)
 	}
@@ -212,7 +212,7 @@ func (wr *WindowRoot) UpdateByName(r *rpn.RPN, name string) error {
 	if wge.group != nil {
 		return wge.group.update(r, wr.group.w, wr.group.h)
 	}
-	return wge.window.Update(r)
+	return wge.window.Update(r, force)
 }
 
 // Removes all children

@@ -55,9 +55,9 @@ func (pw *PixelPlotWindow) Type() string {
 	return "plot"
 }
 
-func (pw *PixelPlotWindow) Update(r *rpn.RPN) error {
+func (pw *PixelPlotWindow) Update(r *rpn.RPN, force bool) error {
 	// Updates are expensive so don't do them if not needed
-	if !pw.needUpdate {
+	if !force && !pw.needUpdate {
 		return nil
 	}
 	pw.common.setAxisMinMax(r)

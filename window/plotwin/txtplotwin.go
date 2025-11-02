@@ -46,7 +46,7 @@ func (pw *TxtPlotWindow) Type() string {
 	return "plot"
 }
 
-func (pw *TxtPlotWindow) Update(r *rpn.RPN) error {
+func (pw *TxtPlotWindow) Update(r *rpn.RPN, unusedForce bool) error {
 	pw.txtw.Erase()
 	defer pw.txtw.Refresh()
 	pw.common.setAxisMinMax(r)

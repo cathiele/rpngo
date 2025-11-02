@@ -78,7 +78,7 @@ func (wc *WindowCommands) WUpdate(r *rpn.RPN) error {
 	if !f.IsString() {
 		return rpn.ErrExpectedAString
 	}
-	return wc.root.UpdateByName(r, f.UnsafeString())
+	return wc.root.UpdateByName(r, f.UnsafeString(), true)
 }
 
 const WDumpHelp = "Dump the state of all created windows and groups"

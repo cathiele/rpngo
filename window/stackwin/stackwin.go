@@ -87,7 +87,7 @@ func (sw *StackWindow) ListProps() []string {
 	return props
 }
 
-func (sw *StackWindow) Update(rpn *rpn.RPN) error {
+func (sw *StackWindow) Update(rpn *rpn.RPN, unusedForce bool) error {
 	w, h := sw.txtb.Txtw.TextSize()
 	sw.txtb.CheckSize()
 	sw.txtb.Erase()

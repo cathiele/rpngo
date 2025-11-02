@@ -7,7 +7,7 @@ import (
 
 type WindowWithProps interface {
 	WindowBase
-	Update(*rpn.RPN) error
+	Update(r *rpn.RPN, force bool) error
 	Type() string
 	SetProp(name string, val rpn.Frame) error
 	GetProp(name string) (rpn.Frame, error)
@@ -217,7 +217,7 @@ func (wg *windowGroup) update(rpn *rpn.RPN, screenw, screenh int) error {
 			continue
 		}
 		if c.window != nil {
-			if err := c.window.Update(rpn); err != nil {
+			if err := c.window.Update(rpn, false); err != nil {
 				return err
 			}
 			continue

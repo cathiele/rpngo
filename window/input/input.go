@@ -46,7 +46,7 @@ func (iw *InputWindow) Input(r *rpn.RPN) (string, error) {
 	return iw.gl.get(r)
 }
 
-func (iw *InputWindow) Update(r *rpn.RPN) error {
+func (iw *InputWindow) Update(r *rpn.RPN, unusedForce bool) error {
 	iw.txtb.CheckSize()
 	if iw.firstInput {
 		if err := iw.firstRun(r); err != nil {

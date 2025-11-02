@@ -87,7 +87,7 @@ func (vw *VariableWindow) ListProps() []string {
 	return props
 }
 
-func (vw *VariableWindow) Update(r *rpn.RPN) error {
+func (vw *VariableWindow) Update(r *rpn.RPN, unusedForce bool) error {
 	w, h := vw.txtb.Txtw.TextSize()
 	vw.txtb.CheckSize()
 	vw.txtb.Erase()
