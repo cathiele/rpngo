@@ -166,12 +166,18 @@ func (gi *getInput) Init() {
 func (gi *getInput) GetChar() (key.Key, error) {
 	for {
 		time.Sleep(20 * time.Millisecond)
-		k := gi.serial.GetChar()
-		if k != 0 {
-			return k, nil
-		}
-		var err error
-		k, err = gi.keyboard.GetChar()
+		/*
+			// Using the regular UART has a big perf penalty (15%)
+			// But using the USB UART is not recommended due to how the
+			// picocalc provided 5V through the USB port while it's on
+			// (hardware issue).
+			k := gi.serial.GetChar()
+			if k != 0 {
+				return k, nil
+			}
+			var err error
+		*/
+		k, err := gi.keyboard.GetChar()
 		if err != nil {
 			elog.Print("keyboard error: ", err.Error())
 			time.Sleep(1 * time.Second)
