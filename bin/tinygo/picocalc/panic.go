@@ -24,7 +24,7 @@ func handlePanic(lcd *ili948x.Ili948x, r any) {
 	var y int16 = 20
 	c := color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	for _, r := range msg {
-		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(lcd, x, y, c)
+		fonts.Hack12p.GetGlyph(rune(r&0xFF)).Draw(lcd, x, y, c)
 		x += fonts.FontCharWidth
 		if x > 280 {
 			x = 16

@@ -94,7 +94,7 @@ func (tw *Ili9341TxtW) DrawChar(tx, ty int, r window.ColorChar) {
 	if r != tw.lastr {
 		tw.lastr = r
 		tw.image.Image.FillSolidColor(bgColor(r))
-		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, fgColor(r))
+		fonts.Hack12pt.GetGlyph(rune(r&0xFF)).Draw(&tw.image, 0, tw.cyoffset, fgColor(r))
 	}
 	tw.device.DrawBitmap(tw.wx+int16(tx)*tw.cw+textPad, tw.wy+int16(ty)*tw.ch+textPad, tw.image.Image)
 }

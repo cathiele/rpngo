@@ -188,7 +188,7 @@ func (pb *PixelBuffer) FilledRect(x, y, w, h int) {
 func (pb *PixelBuffer) Text(s string, x, y int) {
 	// do it lower level to avoid importing a bunch of tinyfont code
 	for _, r := range s {
-		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(
+		fonts.Hack12pt.GetGlyph(rune(r&0xFF)).Draw(
 			&pb.displayer, int16(x), int16(y), pb.col)
 		x += fonts.FontCharWidth
 	}

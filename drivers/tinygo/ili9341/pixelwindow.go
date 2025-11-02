@@ -114,7 +114,7 @@ func (tw *Ili9341PixW) FilledRect(x, y, w, h int) {
 func (tw *Ili9341PixW) Text(s string, x, y int) {
 	// do it lower level to avoid importing a bunch of tinyfont code
 	for _, r := range s {
-		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(
+		fonts.Hack12pt.GetGlyph(rune(r&0xFF)).Draw(
 			tw.device, tw.px+int16(x), tw.py+int16(y), tw.col)
 		x += fonts.FontCharWidth
 	}

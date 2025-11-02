@@ -107,7 +107,7 @@ func (tw *Ili948xPixW) Text(s string, x, y int) {
 		G: uint8((tw.col>>5)&0x3F) * 8,
 		B: uint8(tw.col&0x1F) * 16}
 	for _, r := range s {
-		fonts.NimbusMono12p.GetGlyph(rune(r&0xFF)).Draw(
+		fonts.Hack12pt.GetGlyph(rune(r&0xFF)).Draw(
 			tw.device, tw.px+int16(x), tw.py+int16(y), c)
 		x += FontCharWidth
 	}
