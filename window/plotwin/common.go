@@ -2,6 +2,7 @@ package plotwin
 
 import (
 	"fmt"
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 	"strings"
@@ -103,7 +104,8 @@ func (pw *plotWindowCommon) setPlotFn(fnstr string, idx int) error {
 	if (idx < 0) || (idx >= len(pw.plots)) {
 		return rpn.ErrIllegalValue
 	}
-	p := &pw.plots[idx]
+	elog.Heap("alloc: window/plotwin/common.go:106: p := &pw.plots[idx]")
+	p := &pw.plots[idx] // object allocated on the heap: escapes at line 112
 	p.fn = p.fn[:0]
 	addField := func(t string) error {
 		p.fn = append(p.fn, t)

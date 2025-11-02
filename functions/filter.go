@@ -1,6 +1,7 @@
 package functions
 
 import (
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
 )
@@ -114,7 +115,8 @@ func filterMN(r *rpn.RPN, m, n int) error {
 	if endIdx == startIdx {
 		return nil
 	}
-	fields := make([]string, 0, 16)
+	elog.Heap("alloc: functions/filter.go:117: fields := make([]string, 0, 16)")
+	fields := make([]string, 0, 16) // object allocated on the heap: escapes at line 117
 	addField := func(t string) error {
 		fields = append(fields, t)
 		return nil

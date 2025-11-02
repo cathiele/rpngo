@@ -1,6 +1,7 @@
 package plotwin
 
 import (
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/rpn"
 	"sort"
 	"strconv"
@@ -188,7 +189,8 @@ func (pw *plotWindowCommon) getProp(name string) (rpn.Frame, error) {
 var props = []string{"autox", "autoy", "minv", "maxv", "minx", "maxx", "miny", "maxy", "numplots", "steps"}
 
 func (pw *plotWindowCommon) ListProps() []string {
-	wprops := make([]string, len(props)+len(pw.plots)*3)
+	elog.Heap("alloc: window/plotwin/props.go:191: wprops := make([]string, len(props)+len(pw.plots)*3)")
+	wprops := make([]string, len(props)+len(pw.plots)*3) // object allocated on the heap: size is not constant
 	copy(wprops, props)
 	j := len(props)
 	for i := range pw.plots {

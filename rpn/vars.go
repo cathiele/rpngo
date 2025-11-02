@@ -1,6 +1,7 @@
 package rpn
 
 import (
+	"mattwach/rpngo/elog"
 	"mattwach/rpngo/parse"
 	"sort"
 	"strconv"
@@ -9,7 +10,8 @@ import (
 const listVariablesHelp = "Prints all variable names"
 
 func listVariables(r *RPN) error {
-	names := make([]string, 0, len(r.variables))
+	elog.Heap("alloc: rpn/vars.go:12: names := make([]string, 0, len(r.variables))")
+	names := make([]string, 0, len(r.variables)) // object allocated on the heap: size is not constant
 	names = r.AppendAllVariableNames(names)
 	sort.Strings(names)
 	for _, n := range names {
@@ -33,7 +35,8 @@ func (r *RPN) SetVariable(name string) error {
 	if len(vlist) > 0 {
 		vlist[len(vlist)-1] = f
 	} else {
-		r.variables[name] = []Frame{f}
+		elog.Heap("alloc: rpn/vars.go:36: r.variables[name] = []Frame{f}")
+		r.variables[name] = []Frame{f} // object allocated on the heap: escapes at line 23
 	}
 	return nil
 }
@@ -184,7 +187,8 @@ func (r *RPN) moveAllStackToVariable(name string) error {
 	if len(r.Frames) == 0 {
 		return ErrStackEmpty
 	}
-	r.variables[name] = make([]Frame, len(r.Frames))
+	elog.Heap("alloc: rpn/vars.go:187: r.variables[name] = make([]Frame, len(r.Frames))")
+	r.variables[name] = make([]Frame, len(r.Frames)) // object allocated on the heap: size is not constant
 	copy(r.variables[name], r.Frames)
 	r.Frames = r.Frames[:0]
 	return nil

@@ -446,9 +446,10 @@ func (c *Conversion) Help() string {
 	sort.Strings(aliasNames)
 
 	for _, aliasName := range aliasNames {
+		elog.Heap("alloc: convert/convert.go:451: fmt.Sprintf('  %-15s ->  %s\n', aliasName, aliases[aliasName]))")
 		lines = append(
 			lines,
-			fmt.Sprintf("  %-15s ->  %s\n", aliasName, aliases[aliasName]))
+			fmt.Sprintf("  %-15s ->  %s\n", aliasName, aliases[aliasName])) // object allocated on the heap: escapes at line 451
 	}
 
 	return strings.Join(lines, "")

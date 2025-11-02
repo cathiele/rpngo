@@ -45,7 +45,7 @@ func initGetLine(input Input, txtb *window.TextBuffer) *getLine {
 		input:        input,
 		txtb:         txtb,
 		historyCount: 0,
-		names:        make([]string, 0, 16),
+		names:        make([]string, 0, 16), // object allocated on the heap: escapes at line 48
 	}
 	gl.loadHistory()
 	gl.prepareHistory()

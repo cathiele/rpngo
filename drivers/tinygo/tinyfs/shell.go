@@ -103,7 +103,7 @@ func (fo *FileOpsDriver) rm(args []string) error {
 	return nil
 }
 
-func (fo *FileOpsDriver) rmPath(path string) error {
+func (fo *FileOpsDriver) rmPath(path string) error { // object allocated on the heap: escapes at line 111
 	if len(path) == 0 {
 		return errEmptyArgument
 	}

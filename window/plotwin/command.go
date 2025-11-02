@@ -81,7 +81,8 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	}
 	// a quick check to make sure there will not be a parsing error after
 	// adding the new plot.  Also checks for plto that already exist.
-	var fields []string
+	elog.Heap("alloc: window/plotwin/command.go:84: var fields []string")
+	var fields []string  // object allocated on the heap: escapes at line 89
 	addField := func(t string) error {
 		fields = append(fields, t)
 		return nil
