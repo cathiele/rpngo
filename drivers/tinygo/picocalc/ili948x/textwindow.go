@@ -42,8 +42,8 @@ type Ili948xTxtW struct {
 // Init initializes a text window. x, y, w, and h are all in pixels
 func (tw *Ili948xTxtW) Init(d *Ili948x) {
 	tw.cw = FontCharWidth
-	tw.ch = 13
-	tw.cyoffset = 10
+	tw.ch = 14
+	tw.cyoffset = 11
 	tw.bitmap.Init(tw.cw, tw.ch)
 	tw.device = d
 	tw.ResizeWindow(0, 0, 1, 1)
