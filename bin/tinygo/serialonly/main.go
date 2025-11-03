@@ -6,7 +6,6 @@ package main
 
 import (
 	"machine"
-	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
@@ -24,7 +23,6 @@ func main() {
 	print("Type ? for help or topic? for more detailed help")
 
 	for {
-		tinygo.DumpMemStats()
 		line := readLine()
 		var err error
 		err = parse.Fields(line, r.Exec)

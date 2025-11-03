@@ -7,7 +7,6 @@ package main
 import (
 	"errors"
 	"machine"
-	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/ili9341"
 	"mattwach/rpngo/drivers/tinygo/serial"
@@ -87,7 +86,6 @@ func run() error {
 		return err
 	}
 	for {
-		tinygo.DumpMemStats()
 		w, h = screen.ScreenSize()
 		if err := root.Update(&rpnInst, w, h, true); err != nil {
 			if errors.Is(err, input.ErrExit) {

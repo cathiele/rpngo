@@ -29,6 +29,12 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("round", Round, rpn.CatCore, RoundHelp)
 	r.Register("true", True, rpn.CatCore, TrueHelp)
 
+	r.Register("fields", Fields, rpn.CatData, FieldsHelp)
+	r.Register("filter", Filter, rpn.CatData, FilterHelp)
+	r.Register("filterm", FilterM, rpn.CatData, FilterMHelp)
+	r.Register("filtermn", FilterMN, rpn.CatData, FilterMNHelp)
+	r.Register("filtern", FilterN, rpn.CatData, FilterNHelp)
+
 	r.Register("**", Power, rpn.CatEng, PowerHelp)
 	r.Register("abs", Abs, rpn.CatEng, AbsHelp)
 	r.Register("cos", Cos, rpn.CatEng, CosHelp)
@@ -40,6 +46,7 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("sqrt", SquareRoot, rpn.CatEng, SquareRootHelp)
 	r.Register("tan", Tan, rpn.CatEng, TanHelp)
 
+	r.Register("input", Input, rpn.CatIO, InputHelp)
 	r.Register("print", Print, rpn.CatIO, PrintHelp)
 	r.Register("printall", PrintAll, rpn.CatIO, PrintAllHelp)
 	r.Register("println", Println, rpn.CatIO, PrintlnHelp)
@@ -50,19 +57,15 @@ func RegisterAll(r *rpn.RPN) {
 
 	r.Register("@", Exec, rpn.CatProg, ExecHelp)
 	r.Register("delay", Delay, rpn.CatProg, DelayHelp)
-	r.Register("filter", Filter, rpn.CatProg, FilterHelp)
-	r.Register("filterm", FilterM, rpn.CatProg, FilterMHelp)
-	r.Register("filtermn", FilterMN, rpn.CatProg, FilterMNHelp)
-	r.Register("filtern", FilterN, rpn.CatProg, FilterNHelp)
 	r.Register("for", For, rpn.CatProg, ForHelp)
 	r.Register("if", If, rpn.CatProg, IfHelp)
 	r.Register("ifelse", IfElse, rpn.CatProg, IfElseHelp)
-	r.Register("input", Input, rpn.CatProg, InputHelp)
 	r.Register("noop", NoOp, rpn.CatProg, NoOpHelp)
-	r.Register("fields", Fields, rpn.CatProg, FieldsHelp)
 	r.Register("time", Time, rpn.CatProg, TimeHelp)
 
-	r.Register("X", DropAll, rpn.CatStack, DropAllHelp)
+	r.Register("d", DropAll, rpn.CatStack, DropAllHelp)
+
+	r.Register("heapstats", HeapStats, rpn.CatStatus, HeapStatsHelp)
 
 	r.Register("bin", Bin, rpn.CatType, BinHelp)
 	r.Register("float", Float, rpn.CatType, FloatHelp)

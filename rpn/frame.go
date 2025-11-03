@@ -31,6 +31,12 @@ type Frame struct {
 	intv int64
 }
 
+// Annotates a frame.  Don't call this on string frames
+// or the string will be replaced.
+func (f *Frame) Annotate(s string) {
+	f.str = s
+}
+
 func (f *Frame) IsInt() bool {
 	switch f.ftype {
 	case INTEGER_FRAME:
