@@ -36,7 +36,22 @@ const lcd320ConfigFile = `
 	.wweight> 0/
 } .f5=
 
-{time t1= 0 x= {$x 1 + x= $x 50000 <} for time $t1 - 50000 1> /} benchmark=
+'i' 'autofn'
+{
+  heapstats
+  2> 1024d / float 'a:' printx printx 'k f:'
+  printx float printx
+  0/ 0/
+} w.setp 
+
+{
+  time t1=
+  0 x=
+  {$x 1 + x= $x 50000 <} for
+  time $t1 - 50000 1> /
+  ' loops/second' + printlnx
+  heapstats
+} benchmark=
 
 # Plot defaults
 'p' .plotwin=

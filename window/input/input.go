@@ -24,6 +24,7 @@ type InputWindow struct {
 	gl         *getLine
 	firstInput bool
 	showFrames int
+	autofn     []string
 }
 
 func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, scrollbytes int) {
@@ -55,6 +56,13 @@ func (iw *InputWindow) Update(r *rpn.RPN, unusedForce bool) error {
 	}
 	iw.txtb.TextColor(window.White)
 	r.TextWidth = iw.txtb.Txtw.TextWidth()
+	if len(iw.autofn) != 0 {
+		if err := r.ExecSlice(iw.autofn); err != nil {
+			iw.txtb.TextColor(window.Red)
+			r.Println(err.Error())
+			iw.txtb.TextColor(window.White)
+		}
+	}
 	iw.txtb.Print("> ", true)
 	line, err := iw.gl.get(r)
 	iw.txtb.TextColor(window.Yellow)
@@ -129,33 +137,6 @@ func (iw *InputWindow) WindowSize() (int, int) {
 
 func (iw *InputWindow) Type() string {
 	return "input"
-}
-
-const MAX_SHOW_FRAMES = 1000
-
-func (iw *InputWindow) SetProp(name string, val rpn.Frame) error {
-	if name == "showframes" {
-		v, err := val.BoundedInt(0, MAX_SHOW_FRAMES)
-		if err != nil {
-			return err
-		}
-		iw.showFrames = int(v)
-		return nil
-	}
-	return rpn.ErrNotSupported
-}
-
-func (iw *InputWindow) GetProp(name string) (rpn.Frame, error) {
-	if name == "showframes" {
-		return rpn.IntFrame(int64(iw.showFrames), rpn.INTEGER_FRAME), nil
-	}
-	return rpn.Frame{}, rpn.ErrNotSupported
-}
-
-var inputProps = []string{"showframes"}
-
-func (iw *InputWindow) ListProps() []string {
-	return inputProps
 }
 
 func parseLine(r *rpn.RPN, line string) (bool, error) {
