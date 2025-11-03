@@ -59,6 +59,7 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("ifelse", IfElse, rpn.CatProg, IfElseHelp)
 	r.Register("input", Input, rpn.CatProg, InputHelp)
 	r.Register("noop", NoOp, rpn.CatProg, NoOpHelp)
+	r.Register("fields", Fields, rpn.CatProg, FieldsHelp)
 	r.Register("time", Time, rpn.CatProg, TimeHelp)
 
 	r.Register("X", DropAll, rpn.CatStack, DropAllHelp)
