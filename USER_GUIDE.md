@@ -197,6 +197,51 @@ You can move values around the stack.
     0/         # now the stack is 10
     d          # emptys all values from the stack
 
+## Variables Can Be Stacks
+
+Variables can hold more than one value.  This was created for two
+purposes:
+
+1. Snapshot the whole stack so you can easily do whole-stack operations
+   (such as sum, min, max, etc) on the same set of data
+2. Push individual variables within functions to preserve their original
+   value when the function exits.
+
+Here is the demo:
+
+```
+   # push 5 to the variable x
+   5 x<  # x is now [5]
+
+   # push 4 to x
+   4 x<  # x is now [5, 4]
+
+   # What if we use $x now?
+   $x    # well get 4
+
+   # What about this
+   $$x   # 4, then 5 will be pushed to the stack
+
+   # Pop an X value
+   x>    # 4 is pushed to the stack, x is now [5]
+
+   # Pop another one
+   x>    # 5 is pushed to the stack, x no longer exsits
+
+   # Push the whole stack to x
+   d 1 2 3 x<<  # x will be [1, 2, 3]
+
+   # Pop the whole x (similar to $$x, but removes x)
+   x>>  # 1, 2, 3 on the stack, x no longer exists
+
+   # What about this
+   d 1 2 3 x<< x/  # x is deleted, use x> to only pop one value
+```
+
+Note that using variables as stacks can create memory pressure on microcontrollers
+if it's pushed too far.
+
+
 ## Number Bases
 
 Many type of numbers are supported
