@@ -782,9 +782,9 @@ Now we can look at each property. All can be changed with `w.setp`:
   color, you can set these
 - `fn*`: Plot functions. You can set these to change the plotted function. You
   can set to an empty string to nullify a plot.
-- `minv`, `maxv`, 'steps`: Determines the range of points that will be sent to the
+- `minv`, `maxv`, `steps`: Determines the range of points that will be sent to the
   plot.
-- `minx`, `miny`, `maxx`, 'maxy`: The area the plot window covers.  If these are
+- `minx`, `miny`, `maxx`, `maxy`: The area the plot window covers.  If these are
   set, the corresponding `autox` or `autoy` will be set to `false` (and can be reset
   to `true` later if you want).
 - `numplots`: Indicates how many plots there are. This can be set to change the
@@ -809,7 +809,7 @@ if you want.  Here, we plot `sin` and `cos` using the low-level `w.setp` method:
     'p' 'minv' 0 w.setp
     'p' 'maxv' 20 w.setp
 
-![ncurses plot 4](img/ncurses_plot5.png)
+![ncurses plot 4](img/ncurses_plot6.png)
 
 ### Special Plot Variables
 
