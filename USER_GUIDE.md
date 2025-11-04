@@ -2,7 +2,7 @@
 
 You'll first need to [install golang](https://go.dev/doc/install).
 
-There is a `bin/` directory that contains various different builds of RPNGO for
+There is a `bin/` directory that contains various different builds of `rpngo` for
 the computer and for microcontrollers. Here is an overview:
 
 - `bin/minimal/rpn` - The most basic version.  Parses `args` and exits.
@@ -10,9 +10,9 @@ the computer and for microcontrollers. Here is an overview:
   support multiple view windows and even text-based plotting
 - `bin/tinygo/serialonly` - A stripped down build for  microcontrollers that uses
   serial communication only.
-- `bin/tinygo/ili9341` - A tinygo microcontroller build that still uses serial for input,
+- `bin/tinygo/ili9341` - A TinyGo microcontroller build that still uses serial for input,
   and a ili9341 color LCD for output.  Full-featured.
-- `bin/tinygo/picocalc` - A tinygo microcontroller build that targets a
+- `bin/tinygo/picocalc` - A TinyGo microcontroller build that targets a
   [PicoCalc](https://www.clockworkpi.com/picocalc). Full-featured.
 
 
@@ -28,7 +28,7 @@ go build
 
 ncurses version 
 
-You need have `libncurses-dev` already installed.  In Ubntu/Debian, the fix is:
+You need have `libncurses-dev` already installed.  In Ubuntu/Debian, the fix is:
 
 ```
 sudo apt install libncurses-dev
@@ -42,9 +42,9 @@ go build
 ./rpn
 ```
 
-### Microcontrollers using TinyGo (Raspberry Pi PICO and PICO2 tested as working)
+### Microcontrollers using TinyGo (Raspberry Pi Pico and Pico2 tested as working)
 
-You'll need to [install tinygo](https://tinygo.org/getting-started/install/).
+You'll need to [install TinyGo](https://tinygo.org/getting-started/install/).
 
 Minimal. Set your microcontroller target.  Tested on Pico and Pico2.  Other
 chips may need configuration change.
@@ -90,8 +90,8 @@ This "users guide" will take the format of being mostly working examples.
 Let's start with the basics.
 
 RPN is an old and proven way to do calculations that is popular in engineering
-fields.  Much has been written on the subject. You can start here:
-https://en.wikipedia.org/wiki/Reverse_Polish_notation
+fields.  Much has been written on the subject. You can [read more here](
+https://en.wikipedia.org/wiki/Reverse_Polish_notation)
 
 Let's start with '2 + 3'
 
@@ -111,12 +111,12 @@ Both forms (spaces and new lines) do the following:
 3. Call the `+` operator which pulls 2 stack values (`2`, `3`) and pushes the result `5`
 
 You can use the up arrow to browse command history. Command history might make
-the `2 3 +` style more effective than using separate lines.
+the `2 3 +` style more convenient than using separate lines.
 
-There are some technical reasons I could use to argue for RPN (no parens
+There are some technical reasons I could use to argue for RPN (no parenthesis
 needed, etc) but my main personal reason is that I saw my test scores in
 college jump after switching because I made fewer mistakes than with my
-previous caculator.  I carry that positive feeling with me to this day and
+previous calculator.  I carry that positive feeling with me to this day and
 simply enjoy using them now.
 
 ## Editing Features
@@ -127,12 +127,12 @@ The experience is similar to most terminals:
 - Press up and down arrows to scroll through command history
 - Ctrl-C to cancel a running program
 - Ctrl-D to exit the program
-- Press "esc" or "page up" to enter scrolling mode where you can
+- Press "ESC" or "page up" to enter scrolling mode where you can
   use page up, page down, up arrow and down arrow to view text
-  that has scrolled off the top of the window. "esc" or scrolling
+  that has scrolled off the top of the window. "ESC" or scrolling
   down far enough exits this mode.
 
-Type `edit` to enter a full-panel multiline editor.  The window
+Type `edit` to enter a full-panel multi-line editor.  The window
 will contain the value at the top of the stack.  For example:
 
 ```
@@ -145,10 +145,10 @@ The editor is currently only supports basic features:
 - insert, replace, backspace, delete
 - syntax highlighting
 
-While editing, press "esc" to keep your changes (which will be
-at the top of the stack) or "ctrl-c" to exit without changing the
+While editing, press "ESC" to keep your changes (which will be
+at the top of the stack) or "Ctrl-c" to exit without changing the
 value.  If you happen to want to save your work permanently, exit with
-"esc", then type something like:
+"ESC", then type something like:
 
 ```
 'my_file.txt' save
@@ -164,7 +164,7 @@ You can define and use variables.  Most build variants will define some
 variables, such as `$pi`, on startup.
 
     5 a=
-    2 $a +  -> 7
+    2 $a +  # 7
 
 Variables that start with a `.` are hidden by default in the variable window
 (which we'll get to later). These often are used for special configuration
@@ -224,16 +224,16 @@ it with `@`
 
 Boolean values include `true` and `false`.  Conditionals return a boolean:
 
-    true       ->  true
-    false      ->  false
-    1 2 >      ->  false
-    1 2 <      ->  true
-    1 2 =      ->  false
-    1 2 !=     ->  true
-    1 2 >=     ->  false
-    1 2 <=     ->  false
-    false neg  ->  true
-    true neg   ->  false
+    true       #  true
+    false      #  false
+    1 2 >      #  false
+    1 2 <      #  true
+    1 2 =      #  false
+    1 2 !=     #  true
+    1 2 >=     #  false
+    1 2 <=     #  false
+    false neg  #  true
+    true neg   #  false
 
 Conditionals are an essential part of programming, which we will cover
 with examples later.
@@ -299,7 +299,7 @@ not define any variables (which can be fun little puzzles to solve).
     {$0 sq 2> * 2 / 2< * +} dist=
     1 2 3 @dist  ->  12
    
-## Conditonals
+## Conditionals
 
 `if` and `ifelse` can be used to conditionally execute a bit of code
 based on the result of a `true`/`false` condition.
@@ -343,7 +343,7 @@ See all possible conversions with
 
 ## Window Layout
 
-RPNGO reprents several window types:
+The `rpngo` program supports several window types:
 
 - Input
 - Stack
@@ -366,13 +366,13 @@ For example, say we want the following:
 |                  |               |
 |                  |               |
 |                  |               |
-|   GRAPH (g1)     |  STACK (s1)   |
+|   Input (i)      |  STACK (s)    |
 |                  |               |
 |                  |               |
 +------------------+               |
 |                  |               |
 |                  |               |
-|     INPUT (i)    |               |
+|   Vars (v)       |               |
 |                  |               |
 |                  |               |
 +------------------+---------------+
@@ -380,12 +380,13 @@ For example, say we want the following:
 
 How do we do it?
 
-The rpngo window system works a bit like html tables. You have a 'root'
+The `rpngo` window system works a bit like html tables. You have a 'root'
 window (like a table) that can either contain `1xn` or `nx1` children.
 Each child can either be a window (input, stack, etc) or a window
 group with the same rules as the root group.
 
-Let get on with how you would do the above.  First, lets reset everything:
+Let get on with how you would create the layout above.  First, lets reset
+everything:
 
     w.reset
 
@@ -399,7 +400,7 @@ You'll have this default starting point:
 |                                  |
 |                                  |
 |                                  |
-|         INPUT (i)                |
+|         Input (i)                |
 |                                  |
 |                                  |
 |                                  |
@@ -418,7 +419,7 @@ and we'll have
 +----------------------------------+
 |                                  |
 |                                  |
-|         INPUT (i)                |
+|         Input (i)                |
 |                                  |
 |                                  |
 |                                  |
@@ -443,7 +444,7 @@ Let's switch the root window to column layout
 |                |                  |
 |                |                  |
 |                |                  |
-|   INPUT (i)    |    Group (g)     |
+|   Input (i)    |    Group (g)     |
 |                |                  |
 |                |                  |
 |                |                  |
@@ -464,7 +465,7 @@ and move input into the group
 |                                  |
 |                                  |
 |                                  |
-|         INPUT (i)                |
+|         Input (i)                |
 |         Group (g)                |
 |                                  |
 |                                  |
@@ -485,7 +486,7 @@ Let's add the stack window:
 |                |                  |
 |                |                  |
 |                |                  |
-|   INPUT (i)    |    Stack (s)     |
+|   Input (i)    |    Stack (s)     |
 |   Group (g)    |                  |
 |                |                  |
 |                |                  |
@@ -510,7 +511,7 @@ Note there is also `w.beg` and `w.weight` for controlling placement and size.
 Let's not worry about that yet:
 
     'g' .warget=
-    'v' w.new.vars
+    'v' w.new.var
 
 and we are done
 
@@ -519,23 +520,72 @@ and we are done
 |                  |               |
 |                  |               |
 |                  |               |
-|   GRAPH (g1)     |  STACK (s1)   |
+|   Input (i)      |  STACK (s)    |
 |                  |               |
 |                  |               |
 +------------------+               |
 |                  |               |
 |                  |               |
-|     INPUT (i)    |               |
+|   Vars (v)       |               |
 |                  |               |
 |                  |               |
 +------------------+---------------+
 ```
 
+OK, one more things.  Say we want to change some sizes above.
+Window and group "weights" are used to do this. Each window and group
+above is assigned a default weight of 100.  Weights are shared
+amongst siblings in a group to decide how much space each one gets.
+
+For example, ley's change the weight of window group 'g' from 100
+to 200.
+
+    'g' 200 w.weight
+
+Things will shift as so:
+
+```
++----------------------+-----------+
+|                      |           |
+|                      |           |
+|                      |           |
+|   Input (i)          | STACK (s) |
+|                      |           |
+|                      |           |
++----------------------+           |
+|                      |           |
+|                      |           |
+|   Vars (v)           |           |
+|                      |           |
+|                      |           |
++----------------------+-----------+
+```
+
+A "real example":
+
+![window layout](img/window_layout.png)
+
+There is a command, `w.dump` that will output the current layout for
+inspection. Let's try it:
+
+    w.dump
+
+    root(x=0, y=0, w=80, h=30, cols=true, weight=100):
+      g(x=0, y=0, w=53, h=30, cols=false, weight=200):
+        i(type=input, x=1, y=1, w=51, h=13, weight=100)
+        v(type=var, x=1, y=15, w=51, h=14, weight=100)
+      s(type=stack, x=53, y=1, w=26, h=28, weight=100)
+
+    .wtarget=g .wend=true .wweight=100d
+ 
 We might want to set `$.wtarget` back (or push/pop it with `.wtarget<` and `.wtarget>`,
-but not that `w.reset` also sets `$.wtarget` back to `root` and most window
+but note that `w.reset` also sets `$.wtarget` back to `root` and most window
 management macros start with `w.reset` anyway.
 
-One last bit, there are variables like `.f1`, `.f2` that invoke when you
+## Programmable Function Keys
+
+Configuring windows like above is flexible but cumbersome.  For everyday use,
+there are variables like `.f1`, `.f2` that invoke when you
 press the corresponding F key.  I like to set these to change window
 layouts.  For example:
 
