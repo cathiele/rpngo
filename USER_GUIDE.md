@@ -662,4 +662,163 @@ represents no rounding).
 - `multiline`: If true, then string that expand multiple lines will
   show all of these lines in the window (assuming there is space).
 
+## Plotting
+
+Let's plot `x * x`:
+
+    'sq' plot
+
+We'll see this in ncurses:
+
+![ncurses plot](img/ncurses_plot.png)
+
+And this on an LCD display:
+
+![LCD plot](img/lcd_plot.jpg)
+
+This is how `plot` works.
+
+- It pushes a range of values to the stack (from `minv` to `maxv` with `steps`
+  divisions)
+- After pushing a value, it calls the argument to `plot`. In the example above
+  that would be `sq` or "square the value"
+- The result of this calculation is used as the `y` coordinate.
+
+Let's add a second plot:
+
+    'sin' plot
+
+
+![ncurses plot 2](img/ncurses_plot2.png)
+
+It doesn't yet look like a sine wave because the x range is currently
+-1.0 to 1.0.  Let's check properties.
+
+### Plot Properties
+
+    'p' w.listp
+
+      autox: true
+      autoy: true
+      color0: 0d
+      color1: 1d
+      fn0: {sq}
+      fn1: {sin}
+      maxv: 1
+      maxx: 0.992
+      maxy: 1.368294197
+      minv: -1
+      minx: -1
+      miny: -1.209765182
+      numplots: 2d
+      parametric0: false
+      parametric1: false
+      steps: 250d
+
+There are quite a few properties because there is quite a bit that can be
+done with plots.  Let's start by updating the x range.  You might think
+`minx` and `maxx` here but these are for the window and not the plot
+points.  Currently we have `autox` and `autoy` set to `true` so
+`minx`, `maxx`, `miny` and `maxy` will be handled automatically. To
+get what we want, we adjust `minv` and `maxv`
+
+    'p' 'minv' -3.14 w.setp
+    'p' 'maxv' 3.14 w.setp
+
+![ncurses plot 3](img/ncurses_plot3.png)
+
+Still not great because the `x * x` plot has a range that is crushing the
+range of sin. This can be addressed by setting `miny` and `maxy` manually
+instead of relying on `autoy`:
+
+    'p' 'miny' -1.1 w.setp
+    'p' 'maxy' 2 w.setp
+
+
+![ncurses plot 4](img/ncurses_plot4.png)
+
+Looking better now.  To end the demo, we'll add a parametric plot
+of a circle.  For parametric plots, we don't just leave `y` on the
+stack but instead leave both `x` and `y`.  Lets draw a circle,
+who's parametric equation is `x = cos t, y = sin y`:
+
+  '$0 cos 1> sin' pplot
+
+![ncurses plot 4](img/ncurses_plot5.png)
+
+and on an LCD build:
+
+![lcd plot 4](img/lcd_plot2.png)
+
+Let's see how properties changed:
+
+    'p' w.listp
+
+      autox: true
+      autoy: false
+      color0: 0d
+      color1: 1d
+      color2: 2d
+      fn0: {sq}
+      fn1: {sin}
+      fn2: {$0 cos 1> sin}
+      maxv: 3.14
+      maxx: 3.14
+      maxy: 2
+      minv: -3.14
+      minx: -3.14
+      miny: -1.1
+      numplots: 3d
+      parametric0: false
+      parametric1: false
+      parametric2: true
+      steps: 250d
+
+Now we can look at each property. All can be changed with `w.setp`:
+
+- `autox`: If true, the x limits of the plot window are handled automatically
+- `autoy`: Just like `autox` by for the vertical range
+- `color*`: The color index of each plot. If you want to make plots a specific
+  color, you can set these
+- `fn*`: Plot functions. You can set these to change the plotted function. You
+  can set to an empty string to nullify a plot.
+- `minv`, `maxv`, 'steps`: Determines the range of points that will be sent to the
+  plot.
+- `minx`, `miny`, `maxx`, 'maxy`: The area the plot window covers.  If these are
+  set, the corresponding `autox` or `autoy` will be set to `false` (and can be reset
+  to `true` later if you want).
+- `numplots`: Indicates how many plots there are. This can be set to change the
+  number of plots.  Decreasing it will remove the higher-indexed plots.  Increasing
+  it will create null-valued plots that can be configured with additional `w.setp` calls.
+- `parameteric*`: Determines if the plot is parametric (needs to push x and y) or not
+  (just needs to push y)
+
+Now that we covered all of the properties, it can be revealed that `plot` and `pplot`
+are simply setting these properties "behind the scenes". You can do so manually,
+if you want.  Here, we plot `sin` and `cos` using the low-level `w.setp` method:
+
+    # manually create a window
+    w.reset
+    false .wend=
+    'p' w.new.plot
+    'p' 300 w.weight
+
+    # make the plot
+    'p' 'numplots' 1 w.setp
+    'p' 'fn0' 'sin' w.setp
+    'p' 'minv' 0 w.setp
+    'p' 'maxv' 20 w.setp
+
+![ncurses plot 4](img/ncurses_plot5.png)
+
+### Special Plot Variables
+
+- `$.plotwin` The name of the plot window, usually set to `p`
+- `$.plotinit` A macro that `plot` and `pplot` will execute if there
+  is no `$.plotwin` window present. It is expected that one will
+  exist after `@.plotinit` is executed. This is a variable to allow
+  you to control the automated plot creation process.
+- `$.t0` This variable is set to `true` when the very first plot point
+  is calculated and `false` otherwise. Some plot functions, especially
+  those that use variables, might need this information.
 
