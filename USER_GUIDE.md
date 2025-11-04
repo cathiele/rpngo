@@ -609,9 +609,11 @@ Each of the four window types (input, stack, variable, plot) have customizable
 properties.  We'll start with common commands, then explore details (expect
 for plot, which we cover later).
 
+### Input Window Properties
+
 You can list properties for a window with `w.listp`
 
-    `i` w.listp
+    'i' w.listp
 
        autofn: {}
        showframes: 1d
@@ -633,7 +635,31 @@ Now w have an `autocmd` property set in the input window that will print an
 incrementing command number every time you press enter.  Only one more
 property command to cover:
 
-    `i` `autofn` w.getp
+    'i' 'autofn' w.getp
 
 This copies the property value to the stack. It can be useful if you
 want to use a property value in a program.
+
+### Stack Window Properties
+
+    's' w.listp
+
+      round: -1d
+
+For now, the only property is `round` which allow you to round
+floating point numbers to a given number of decimal places (-1
+represents no rounding).
+
+### Variable Window Properties
+
+    'v' w.listp
+
+      showdot: false
+      multiline: false
+
+- `showdot`: If true, then variable names that start with a `.` (such as
+  `.wtarget`) will also be shown.
+- `multiline`: If true, then string that expand multiple lines will
+  show all of these lines in the window (assuming there is space).
+
+
