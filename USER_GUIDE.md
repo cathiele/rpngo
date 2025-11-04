@@ -1,3 +1,5 @@
+# RPNGO USERS GUIDE
+
 ## Build
 
 You'll first need to [install golang](https://go.dev/doc/install).
@@ -822,3 +824,46 @@ if you want.  Here, we plot `sin` and `cos` using the low-level `w.setp` method:
   is calculated and `false` otherwise. Some plot functions, especially
   those that use variables, might need this information.
 
+### Animated Plot
+
+Here is an example that will animate a `sin` wave:
+
+```
+# create a plot of sin and animates it running though
+# various phases
+{
+  0 t=                     # initial phase
+  {$t + sin} plot          # plot it
+  'p' 'minv' -3.14 w.setp  # set graph limits so they don't change while animating
+  'p' 'maxv' 3.14 w.setp
+  'p' 'miny' -1.1 w.setp
+  'p' 'maxy' 1.1 w.setp
+  {
+    'p' w.update  # redraw plot
+    $t 0.1 + t=   # next phase offset
+    0.015 delay   # wait a little bit (~60 FPS)
+    $t 30 <       # Check for end of program
+  } for
+} animate_sin=
+```
+
+Run it with `@animate_sin`
+
+Most of it should be familiar.  Here are the new bits:
+
+```
+0 t=
+{$t + sin} plot
+```
+
+Here we are using a `$t` variable to change the phase of the sin wave.
+
+    'p' w.update
+
+Just changing `$t` does not necessarily update the plot window, the
+`w.update` command ensures that it happens.
+
+    0.015 delay
+
+On a PC, the script above will complete in a fraction of a second unless
+we slow down the loop with a delay (here we delay for 15ms per frame).
