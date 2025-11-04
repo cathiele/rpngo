@@ -912,3 +912,51 @@ Just changing `$t` does not necessarily update the plot window, the
 
 On a PC, the script above will complete in a fraction of a second unless
 we slow down the loop with a delay (here we delay for 15ms per frame).
+
+## File Operations
+
+> File operations work well on PC platforms are are still experimental in TinyGO due to
+the current (10/2025) instability of the `tinyfs` library. You can use file operations
+in TinyGO, but don't use an SD card with critical data on it and be ready for the
+calculator to start returning errors on file operations (or even hanging) while
+executing the commands.
+
+### Shell commands
+
+Use the `sh` command to perform shell operations:
+
+    'ls' sh
+
+![sh ncurses](img/sh_command_ncurses.png)
+
+![sh lcd](img/sh_command_lcd.png)
+
+On PCs, you can call any shell command. In TinyGo, only a small set of commands
+('ls', 'rm', 'pwd') has been implemented.
+
+There are also special variables that can be set to support
+various shell usecases:
+
+    # Set $.stdin to pass data to a process stdin
+    'apple\npear\norange\ngrape' .stdin=
+    'sort' sh
+
+      apple
+      grape
+      orange
+      pear
+
+    # Push the command output to the stack (.stdin is still set)
+    true .stdout=
+    'sort' sh fields  # the stack will contain ['apple', 'grape', 'orange', 'pear']
+    
+
+### Load, Save, Execute
+
+    'foo' cd  # change directory to foo
+
+    'animate_sin.rpn' load @  # load a program and execute it
+    'animate_sin.rpn' source  # same thing
+    'animate_sin.rpn' .       # same thing
+
+    'hello world' 'hello.txt' save  # save "hello world" to a file
