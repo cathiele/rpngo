@@ -1,70 +1,87 @@
 ## Build
 
-You'll first need to install golang.
+You'll first need to [install golang](https://go.dev/doc/install).
 
-There is a `bin/` directory thast contains various different builds of rpn
-for the computer and for microtrollers.  Try the ones you like and ignore the rest/  Here is an overview:
+There is a `bin/` directory that contains various different builds of RPNGO for
+the computer and for microcontrollers. Here is an overview:
 
-- bin/minimal/rpn - The most basic version.  Parses args and exsts.
-- bin/ncurses/rpn - Uses ncurses to support multiple view windows and even text-based plotting
-- bin/tinygo/serialonly - The most basic version that runs on vaious microtrollers and uses serial console to talk to the host pc
-- bin/tinygo/ili9341 - A tinygo mcrocontroller build that still uses serial fo input, but uses an ili9341 color LCD for output.  Supports fancy pixel-based graping.  The pins are configured for a raspberry pi pico or pico2.  By adding a pin mappiong file, it should be possible to support other microcontrollers too.
+- `bin/minimal/rpn` - The most basic version.  Parses `args` and exits.
+- `bin/ncurses/rpn` - Uses [`ncurses`](https://en.wikipedia.org/wiki/Ncurses) to
+  support multiple view windows and even text-based plotting
+- `bin/tinygo/serialonly` - A stripped down build for  microcontrollers that uses
+  serial communication only.
+- `bin/tinygo/ili9341` - A tinygo microcontroller build that still uses serial for input,
+  and a ili9341 color LCD for output.  Full-featured.
+- `bin/tinygo/picocalc` - A tinygo microcontroller build that targets a
+  [PicoCalc](https://www.clockworkpi.com/picocalc). Full-featured.
 
-To build the normal build versions, you cd into the directory you want and type
 
 ### Desktop / Raspberry Pi
 
+Minimal version:
+
 ```
+cd bin/minimal/rpn
 go build
+./rpn 2 3 +
 ```
 
-Note that th ncurses build will likely give you an error unless you have `libncurses-dev` already installed.  In Ubntu/Debian, the fix is:
+ncurses version 
+
+You need have `libncurses-dev` already installed.  In Ubntu/Debian, the fix is:
 
 ```
 sudo apt install libncurses-dev
 ```
 
-## Microcontrollers using TinyGo (Raspberry Pi PICO and PICO2 tested as working)
-
-You'll need to install tinygo. After that, check the `Makefile` for the correct command
-
-e.g. to look
+then
 
 ```
-$ cd bin/tinygo/picocalc
-$ make -n flash
-tinygo flash -target=pico2 -scheduler=tasks -serial=uart
+cd bin/ncurses/rpn
+go build
+./rpn
 ```
 
-to actually flash the chip
+### Microcontrollers using TinyGo (Raspberry Pi PICO and PICO2 tested as working)
+
+You'll need to [install tinygo](https://tinygo.org/getting-started/install/).
+
+Minimal. Set your microcontroller target.  Tested on Pico and Pico2.  Other
+chips may need configuration change.
 
 ```
-$ cd bin/tinygo/picocalc
-$ make flash
+cd bin/tinygo/serialonly
+tinygo build -target=pico
 ```
 
-or
+ili9341 LCD, using serial for communication
 
 ```
-$ cd bin/tinygo/picocalc
-$ tinygo flash -target=pico2 -scheduler=tasks -serial=uart
+cd bin/tinygo/ili9341
+# check the command
+make -n flash
+# if looks ok, execute
+make flash
 ```
+
+PicoCalc
+
+```
+cd bin/tinygo/picocalc
+# check the command
+make -n flash
+# if looks ok, execute
+make flash
+```
+
 
 ### Build Everything and Run Unit Tests
 
 In the top-level directory, you can type
 
 ```
-make
-```
-
-or 
-
-```
 make all
 ```
-
-to build the more obsure targets too.  Tinygo is needed to build everything
 
 
 ## RPN Introduction
@@ -72,8 +89,9 @@ to build the more obsure targets too.  Tinygo is needed to build everything
 This "users guide" will take the format of being mostly working examples.
 Let's start with the basics.
 
-RPN is an old and proven way to do calculations that is popular in engineering fields.
-Much has been written on the subject. You can start here: https://en.wikipedia.org/wiki/Reverse_Polish_notation
+RPN is an old and proven way to do calculations that is popular in engineering
+fields.  Much has been written on the subject. You can start here:
+https://en.wikipedia.org/wiki/Reverse_Polish_notation
 
 Let's start with '2 + 3'
 
@@ -86,29 +104,31 @@ or
 
     2 3 +
 
-Both formns (spaces and new lines) do the following:
+Both forms (spaces and new lines) do the following:
 
-1. Push a `2` to the stack
-2. Push a `3` to the stack
+1. Push a `2` to a "stack"
+2. Push a `3` to the same stack
 3. Call the `+` operator which pulls 2 stack values (`2`, `3`) and pushes the result `5`
 
-One difference, however, is the "up arrow" for command history.  Sometimes it's nice to batch
-a set of commands in a line with spaces to make the command history more useful.
+You can use the up arrow to browse command history. Command history might make
+the `2 3 +` style more effective than using separate lines.
 
-The nice thing about RPN is that you don't have to enter paranthesis, which
-many people find faster and less error prone.  For example, do calculate `sqrt((10 - 2)/(5 - 3))`,
-you could say:
+There are some technical reasons I could use to argue for RPN (no parens
+needed, etc) but my main personal reason is that I saw my test scores in
+college jump after switching because I made fewer mistakes than with my
+previous caculator.  I carry that positive feeling with me to this day and
+simply enjoy using them now.
 
-    10 2 - 5 3 - / sqrt
+## Editing Features
 
-## Editing features
+The experience is similar to most terminals:
 
 - Left, right, insert, backspace, home, and end all work like you would expect
 - Press up and down arrows to scroll through command history
 - Ctrl-C to cancel a running program
 - Ctrl-D to exit the program
 - Press "esc" or "page up" to enter scrolling mode where you can
-  use page Up, page Down, up arrow and down arrow to view text
+  use page up, page down, up arrow and down arrow to view text
   that has scrolled off the top of the window. "esc" or scrolling
   down far enough exits this mode.
 
@@ -119,9 +139,9 @@ will contain the value at the top of the stack.  For example:
 'animate_sin.rpn' load edit
 ```
 
-The editor is intended for basic tasks and supports only the following:
+The editor is currently only supports basic features:
 
-- arrow key, page up, page down navigation
+- arrow key, page up, page down, home, end navigation
 - insert, replace, backspace, delete
 - syntax highlighting
 
@@ -134,24 +154,28 @@ value.  If you happen to want to save your work permanently, exit with
 'my_file.txt' save
 ```
 
-## Variables
+If you need more editing power, you can use a text editor on
+your computer and copy over the file via serial or
+an SD Card.
 
-You can define and use variables.  This can make it easier to work through
-calculations. Most implementation will define some varialbes, such as `$pi`,
-on startup.
+## Beyond the Stack: Variables
+
+You can define and use variables.  Most build variants will define some
+variables, such as `$pi`, on startup.
 
     5 a=
     2 $a +  -> 7
 
 Variables that start with a `.` are hidden by default in the variable window
-(which we'll get to later).
+(which we'll get to later). These often are used for special configuration
+settings.
 
 There are also special variables, `$0`, `$1`, etc, which represent values on
 stack. `$0` represents the value at the top of the stack. If the stack
 is empty, then using `$0` results in an error.  e.g.
 
-    5 sq    # square the number
-    5 $0 *  # same result
+    5 sq    # squares the number 5
+    5 $0 *  # also squares the number 5
 
 ## Stack Shifts
 
@@ -169,9 +193,9 @@ You can move values around the stack.
     10 20 30   # put 10 20 30 on the stack
     1/         # now the stack is 10 30
     0/         # now the stack is 10
-    X          # emptys all values from the stack
+    d          # emptys all values from the stack
 
-## Numbers
+## Number Bases
 
 Many type of numbers are supported
 
@@ -187,7 +211,7 @@ Most operations can us a mix of these types, using the following rules:
     # Any number type mixed with float results in a float
     12.4 5d +  ->  17.4
 
-    # Two integer types added together takes the base of the left term
+    # Two integer types combined takes the base of the left term
     32x 50d +  ->  64x
 
 You can also convert between types using `hex`, `bin`, `oct`, `float`, `real`,
@@ -196,11 +220,12 @@ it with `@`
 
     "54x" @  ->  54x
 
-## Booleans
+## Booleans and Conditionals
 
-Boolean values include `true` and `false`.  These can be directly used.
-Conditionals return a boolean:
+Boolean values include `true` and `false`.  Conditionals return a boolean:
 
+    true       ->  true
+    false      ->  false
     1 2 >      ->  false
     1 2 <      ->  true
     1 2 =      ->  false
@@ -210,6 +235,9 @@ Conditionals return a boolean:
     false neg  ->  true
     true neg   ->  false
 
+Conditionals are an essential part of programming, which we will cover
+with examples later.
+
 ## Strings
 
 There are three ways to specify a string
@@ -218,33 +246,38 @@ There are three ways to specify a string
     'hello world'
     {hello world}
 
-All three are just strings.  The third form can be useful when you want to nest
-terms in a program.
+All three examples define the same string.  The third form can be useful
+when you want to nest terms in a program.
 
     {0 x= {$x 1 + x= $x println 1000 <} for} count=
 
-It could also be done with other string types:
+It could also be done with other string types, rpngo will execute them
+the same way:
 
     '0 x= "$x 1 + x= $x println 1000 <" for' count=
 
-but this is arguably not as easy to read and further nesting would
-make it even less readable than using `{}`.
+Which do you find easier to read?
 
 ## Macros
 
-You can define a string as a macro, here is one for the area of a circle (`$pi * r * r / 2`),
-given the radius:
+You can define a string as a macro, here is one for the area of a circle (`$pi
+* r * r / 2`), given the radius:
 
     {sq $pi * 2 /} carea=
     5 @carea -> 39.26990817
 
+A macro can also contain loops, conditionals and calls to other macros (needed
+for programming). 
+
 ## Labels
 
 Labels can be added to non string values.  A label shows up in the stack window
-can can be used to help you remember what the number represents.  This can be
+and can be used to annotate what the number represents.  This can be
 useful when attempting to do complex calculations purely using the stack.
+It cal also be used to communicate what values are (The `heapstats` function
+uses this)
 
-For example, say you want to make a formulat that converts velocity, time, 
+For example, say you want to make a formula that converts velocity, time, 
 and acceleration into distance. The formula is `(v * t) + (0.5 * a * t * t)`.
 You could use variables or the pure stack. If you use the pure stack, labels
 can help keep track of what is what:
@@ -259,15 +292,13 @@ Now the stack will look like this:
      1: 2 `a
      0: 3 `t
 
-You can see that `$1` is `a` and see how `a` moves around as you
-work the equation, ended up with:
+You can see that `$1` is `a` and see how `a` changes stack slots as you
+work the equation.  This makes it easier to create a macro that does
+not define any variables (which can be fun little puzzles to solve).
 
     {$0 sq 2> * 2 / 2< * +} dist=
     1 2 3 @dist  ->  12
    
-Coming up with that without labels to guide an example would be a more difficult task.
-
-
 ## Conditonals
 
 `if` and `ifelse` can be used to conditionally execute a bit of code
@@ -310,73 +341,249 @@ See all possible conversions with
     conversions?
 
 
-## Integers, Hex, Binary
+## Window Layout
 
-The C convention is used for inputting the values.  How the values are displayed depends on
-the code that uses the library:
-
-    0xff   # hex
-    0b1101 # binary
-    0i123  # integer
-
-## Windows
-
-The RPN calculator has differerent optoional display windows, including:
+RPNGO reprents several window types:
 
 - Input
-- Stack Display (in various formats)
-- Graphics
+- Stack
+- Variables
+- Plot
 
-Every display window (other than Input) can have multiple instances.  This allows
-for multiple graphs, seeing hex along decimal values, etc.
+Of the above, only the input is required.  For the others,
+you can have zero or more of them.  For example, if you
+want an input window and two separate plot windows, you
+can do it. You might also have two stack windows with
+different configuration options set.  Whatever you want.
 
-The layout of these windows follows a window-group -> window tree with the window
-group `root` always at the top.
-
-Window groups can contain window or other wiundow groups.  They have either a
-horizontal or vertical tile orientation. Each child in a window group gets
-a default "weight" of 100. Relative weights determine how much space
-a window group child is given relative to it's siblings.
+These options need a means to create windows and put
+them in the position and size you want.
 
 For example, say we want the following:
 
 ```
-+--------------------------------------------------------------+---------------+
-|                                                              |               |
-|                                                              |               |
-|                                                              |               |
-|                                                              |               |
-|                                                              |               |
-|                                                              |               |
-|                                                              |               |
-|                   GRAPH (g1)                                 |  STACK (s1)   |
-|                                                              |               |
-|                                                              |               |
-|                                                              |               |
-|                                                              |               |
-|                                                              |               |
-|                                                              |               |
-+--------------------------------------------------------------+               |
-|                                                              |               |
-|                                                              |               |
-|                   INPUT (i)                                  |               |
-|                                                              |               |
-|                                                              |               |
-+--------------------------------------------------------------+---------------+
++------------------+---------------+
+|                  |               |
+|                  |               |
+|                  |               |
+|   GRAPH (g1)     |  STACK (s1)   |
+|                  |               |
+|                  |               |
++------------------+               |
+|                  |               |
+|                  |               |
+|     INPUT (i)    |               |
+|                  |               |
+|                  |               |
++------------------+---------------+
 ```
 
-We would get this using the following commands:
+How do we do it?
+
+The rpngo window system works a bit like html tables. You have a 'root'
+window (like a table) that can either contain `1xn` or `nx1` children.
+Each child can either be a window (input, stack, etc) or a window
+group with the same rules as the root group.
+
+Let get on with how you would do the above.  First, lets reset everything:
+
+    w.reset
+
+You'll have this default starting point:
 
 ```
-resetwg              # reset any existing wnidow groups, leading to 'root' with 'i'
-'root' vertwg        # set root window group orientation to vertical 
-'gr1' 'root' newwg   # create a left window group and add it to root
-'g1' 'gr1' newgraph  # create a graph window and add it to 'gr1'
-'i' 'gr1' movewg     # move window 'i' from 'root' to 'gr1'
-'i' 30 weight        # change the weight of the 'i' window to 30 so it takes less space
-'s1' 'root' newstack # create a new stack window
-'s1' 25 weight       # change the weight of the 's1' window so it takes less space
++----------------------------------+
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|         INPUT (i)                |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
++----------------------------------+
 ```
 
-Normally, you would not use these commands on the fly but instead have precooked
-macros that can change the window layout to your preferences.
+Now lets add a window group names g
+
+    'g' w.new.group 
+
+and we'll have
+
+```
++----------------------------------+
+|                                  |
+|                                  |
+|         INPUT (i)                |
+|                                  |
+|                                  |
+|                                  |
++----------------------------------+
+|                                  |
+|                                  |
+|         Group (g)                |
+|                                  |
+|                                  |
++----------------------------------+
+```
+
+Let's switch the root window to column layout
+
+    'root' w.columns
+
+```
++----------------+------------------+
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
+|   INPUT (i)    |    Group (g)     |
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
++----------------+------------------+
+```
+
+and move input into the group
+
+    'i' 'g' w.move.beg
+
+```
++----------------------------------+
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|         INPUT (i)                |
+|         Group (g)                |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
++----------------------------------+
+```
+
+Let's add the stack window:
+
+    's' w.new.stack
+
+```
++----------------+------------------+
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
+|   INPUT (i)    |    Stack (s)     |
+|   Group (g)    |                  |
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
+|                |                  |
++----------------+------------------+
+```
+
+and finally the vars window. We have two options here. We can either add the vars
+window to the root window, then move it to `g` or create it in `g` to begin with.
+If we just say:
+
+    $.warget
+
+It will say
+
+    'root'
+
+We can change this "special" variable to alter the behavior of `w.new.*` commands.
+Note there is also `w.beg` and `w.weight` for controlling placement and size.
+Let's not worry about that yet:
+
+    'g' .warget=
+    'v' w.new.vars
+
+and we are done
+
+```
++------------------+---------------+
+|                  |               |
+|                  |               |
+|                  |               |
+|   GRAPH (g1)     |  STACK (s1)   |
+|                  |               |
+|                  |               |
++------------------+               |
+|                  |               |
+|                  |               |
+|     INPUT (i)    |               |
+|                  |               |
+|                  |               |
++------------------+---------------+
+```
+
+We might want to set `$.wtarget` back (or push/pop it with `.wtarget<` and `.wtarget>`,
+but not that `w.reset` also sets `$.wtarget` back to `root` and most window
+management macros start with `w.reset` anyway.
+
+One last bit, there are variables like `.f1`, `.f2` that invoke when you
+press the corresponding F key.  I like to set these to change window
+layouts.  For example:
+
+```
+# Input and stack window
+{
+  w.reset
+  's' w.new.stack
+  's' 30 w.weight
+} .f1=
+
+# Just one big input window
+{w.reset} .f2=
+```
+
+and so on.
+
+## Window Properties
+
+Each of the four window types (input, stack, variable, plot) have customizable
+properties.  We'll start with common commands, then explore details (expect
+for plot, which we cover later).
+
+You can list properties for a window with `w.listp`
+
+    `i` w.listp
+
+       autofn: {}
+       showframes: 1d
+
+These are what the input properties do:
+
+- `autofn` Executes the given code before showing a prompt.  This can be used to
+  track memory usage, print a custom message, update a graph, or anything you want.
+- `showframes` How much of the stack to copy to the input window after each
+  entered command. More or less stack in the history has it's trade-offs and is
+  personal preference.
+
+Here is an example of setting properties:
+
+    0 cmd=
+    'i' 'autofn' {$cmd 1 + print cmd=} w.setp
+
+Now w have an `autocmd` property set in the input window that will print an
+incrementing command number every time you press enter.  Only one more
+property command to cover:
+
+    `i` `autofn` w.getp
+
+This copies the property value to the stack. It can be useful if you
+want to use a property value in a program.
