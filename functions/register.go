@@ -34,6 +34,8 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("filterm", FilterM, rpn.CatData, FilterMHelp)
 	r.Register("filtermn", FilterMN, rpn.CatData, FilterMNHelp)
 	r.Register("filtern", FilterN, rpn.CatData, FilterNHelp)
+	r.Register("sort", Sort, rpn.CatData, SortHelp)
+	r.Register("sortn", SortN, rpn.CatData, SortNHelp)
 
 	r.Register("**", Power, rpn.CatEng, PowerHelp)
 	r.Register("abs", Abs, rpn.CatEng, AbsHelp)

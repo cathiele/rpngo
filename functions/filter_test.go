@@ -62,6 +62,10 @@ func TestFilter(t *testing.T) {
 			Args: []string{"{sq}", "0", "filterm"},
 		},
 		{
+			Args: []string{"{sq}", "-1", "filterm"},
+			WantErr: rpn.ErrIllegalValue,
+		},
+		{
 			Args: []string{"1", "2", "3", "0", "{+}", "1", "filtern"},
 			Want: []string{"6"},
 		},
@@ -83,6 +87,10 @@ func TestFilter(t *testing.T) {
 		},
 		{
 			Args: []string{"{sq}", "0", "filtern"},
+		},
+		{
+			Args: []string{"{sq}", "-1", "filtern"},
+			WantErr: rpn.ErrNotEnoughStackFrames,
 		},
 		{
 			Args:    []string{"{sq}", "1", "filtern"},
@@ -114,6 +122,14 @@ func TestFilter(t *testing.T) {
 		},
 		{
 			Args: []string{"{sq}", "0", "0", "filtermn"},
+		},
+		{
+			Args:    []string{"-1", "0", "filtermn"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args:    []string{"0", "-1", "filtermn"},
+			WantErr: rpn.ErrStackEmpty,
 		},
 		{
 			Args:    []string{"{sq}", "1", "0", "filtermn"},
