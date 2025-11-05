@@ -121,7 +121,9 @@ college jump after switching because I made fewer mistakes than with my
 previous calculator.  I carry that positive feeling with me to this day and
 simply enjoy using them now.
 
-## Editing Features
+## Base Features
+
+### User Interface
 
 The experience is similar to most terminals:
 
@@ -160,7 +162,26 @@ If you need more editing power, you can use a text editor on
 your computer and copy over the file via serial or
 an SD Card.
 
-## Beyond the Stack: Variables
+### Stack Shifts
+
+You can move values around the stack.
+
+    10 20 30   # put 10 20 30 on th stack
+    1>         # now the stack is 10 30 20
+    1<         # back to 10 20 30
+    2>         # now the stack is 20 30 10
+    2<         # back to 10 20 30
+    $2 2<      # now it's 10 10 20 30
+
+### Stack Deletions
+
+    10 20 30   # put 10 20 30 on the stack
+    1/         # now the stack is 10 30
+    0/         # now the stack is 10
+    d          # emptys all values from the stack
+
+
+### Using Variables
 
 You can define and use variables.  Most build variants will define some
 variables, such as `$pi`, on startup.
@@ -179,25 +200,7 @@ is empty, then using `$0` results in an error.  e.g.
     5 sq    # squares the number 5
     5 $0 *  # also squares the number 5
 
-## Stack Shifts
-
-You can move values around the stack.
-
-    10 20 30   # put 10 20 30 on th stack
-    1>         # now the stack is 10 30 20
-    1<         # back to 10 20 30
-    2>         # now the stack is 20 30 10
-    2<         # back to 10 20 30
-    $2 2<      # now it's 10 10 20 30
-
-## Stack Deletions
-
-    10 20 30   # put 10 20 30 on the stack
-    1/         # now the stack is 10 30
-    0/         # now the stack is 10
-    d          # emptys all values from the stack
-
-## Variables Can Be Stacks
+### Variables Can Be Stacks
 
 Variables can hold more than one value.  This was created for two
 purposes:
@@ -242,7 +245,7 @@ Note that using variables as stacks can create memory pressure on microcontrolle
 if it's pushed too far.
 
 
-## Number Bases
+### Number Bases
 
 Many type of numbers are supported
 
@@ -267,7 +270,7 @@ it with `@`
 
     "54x" @  ->  54x
 
-## Booleans and Conditionals
+### Booleans and Conditionals
 
 Boolean values include `true` and `false`.  Conditionals return a boolean:
 
@@ -285,7 +288,7 @@ Boolean values include `true` and `false`.  Conditionals return a boolean:
 Conditionals are an essential part of programming, which we will cover
 with examples later.
 
-## Strings
+### Strings
 
 There are three ways to specify a string
 
@@ -305,7 +308,7 @@ the same way:
 
 Which do you find easier to read?
 
-## Macros
+### Macros
 
 You can define a string as a macro, here is one for the area of a circle (`$pi
 * r * r / 2`), given the radius:
@@ -313,10 +316,10 @@ You can define a string as a macro, here is one for the area of a circle (`$pi
     {sq $pi * 2 /} carea=
     5 @carea -> 39.26990817
 
-A macro can also contain loops, conditionals and calls to other macros (needed
-for programming). 
+Macros are a building block in programming, a deeper topic that is covered
+later.
 
-## Labels
+### Labels
 
 Labels can be added to non string values.  A label shows up in the stack window
 and can be used to annotate what the number represents.  This can be
@@ -346,28 +349,7 @@ not define any variables (which can be fun little puzzles to solve).
     {$0 sq 2> * 2 / 2< * +} dist=
     1 2 3 @dist  ->  12
    
-## Conditionals
-
-`if` and `ifelse` can be used to conditionally execute a bit of code
-based on the result of a `true`/`false` condition.
-
-```
-> true {'yes' printlnx} if
-yes
-
-> false {'yes' printlnx} if
-
-> 5 1 > {'is greater' printlnx} if
-is greater
-
-> true {'yes'} {'no'} ifelse printlnx
-yes
-
-> false {'yes'} {'no'} ifelse printlnx
-no
-```
-
-## Unit Conversions
+### Unit Conversions
 
 You can convert between several unit types, some examples:
 
@@ -869,49 +851,6 @@ if you want.  Here, we plot `sin` and `cos` using the low-level `w.setp` method:
   is calculated and `false` otherwise. Some plot functions, especially
   those that use variables, might need this information.
 
-### Animated Plot
-
-Here is an example that will animate a `sin` wave:
-
-```
-# create a plot of sin and animates it running though
-# various phases
-{
-  0 t=                     # initial phase
-  {$t + sin} plot          # plot it
-  'p' 'minv' -3.14 w.setp  # set graph limits so they don't change while animating
-  'p' 'maxv' 3.14 w.setp
-  'p' 'miny' -1.1 w.setp
-  'p' 'maxy' 1.1 w.setp
-  {
-    'p' w.update  # redraw plot
-    $t 0.1 + t=   # next phase offset
-    0.015 delay   # wait a little bit (~60 FPS)
-    $t 30 <       # Check for end of program
-  } for
-} animate_sin=
-```
-
-Run it with `@animate_sin`
-
-Most of it should be familiar.  Here are the new bits:
-
-```
-0 t=
-{$t + sin} plot
-```
-
-Here we are using a `$t` variable to change the phase of the sin wave.
-
-    'p' w.update
-
-Just changing `$t` does not necessarily update the plot window, the
-`w.update` command ensures that it happens.
-
-    0.015 delay
-
-On a PC, the script above will complete in a fraction of a second unless
-we slow down the loop with a delay (here we delay for 15ms per frame).
 
 ## File Operations
 
@@ -960,3 +899,290 @@ various shell usecases:
     'animate_sin.rpn' .       # same thing
 
     'hello world' 'hello.txt' save  # save "hello world" to a file
+
+## Programming
+
+RPNGO provides support for simple programming. It's not going to replace
+your favorite programming language for general work, but will allow
+you to customize the calculator and mold it's functionality to meet
+your usecase.
+
+First, the building blocks:
+
+## Conditionals
+
+`if` and `ifelse` can be used to conditionally execute a bit of code
+based on the result of a `true`/`false` condition.
+
+```
+> true {'yes' printlnx} if
+yes
+
+> false {'yes' printlnx} if
+
+> 5 1 > {'is greater' printlnx} if
+is greater
+
+> true {'yes'} {'no'} ifelse printlnx
+yes
+
+> false {'yes'} {'no'} ifelse printlnx
+no
+```
+
+## For Loop
+
+You can use the `for` command to loop until a condition returns false.
+Let's start with some impractical examples:
+
+    {false} for  # exits immediately
+    {true} for   # loops until you press ctrl-c to break
+
+Now for something more interesting, how about counting to 1000?
+
+    0 x= {$x 1 + println x= $x 1000 <} for
+
+Note that it's the last three statements (`$x 1000 <`) that
+is creating the `true` / `false` boolean that `for` uses
+to decide when to end.
+
+A simple tweak let's us load up the stack with numbers.
+
+    0 x= {$x $x 1 + x= $x 100 <} for 
+
+## Filtering
+
+Filtering is a convenience command that allows some kind of for
+loops to be written with less code - particularity ones that work
+with multiple stack values.
+
+As an example, say you want a sum of every number on the stack.
+A for loop can be used:
+
+    {0 v= {$v + v= size 0 >} for $v} sum=
+    1 2 3 @sum  # results in 6 on the stack
+
+It works ok and we can even preserve any existing `v` if we push and
+pop it:
+ 
+    {0 v< {$v + v= ssize 0 >} for v>} sum=
+
+We can also use `filter`, which manages the work for us
+
+    {0 v< {$v + v=} filter v>} sum=
+
+The `filter` command does this:
+
+1. Takes each value on the stack
+2. Copies to it the top
+3. Calls it's argument.
+
+The `filter` command works especially well for transforming every
+value:
+
+    {int} filter # converts every number to an integer
+
+or filtering away values:
+
+    {$0 50 >= {0/} if} filter  # remove numbers >= 50
+
+For sum (or min, max, anything that aggregates), having to use a
+variable is still a bit awkward.  There is an answer: `filtern`. The
+`filtern` processed values from the bottom of the stack to the top - `n`.
+This makes it easy to put some "working" variables on the stack.
+Here is sum, rewritten using `filtern`
+
+    {0 {+} 1 filtern} sum=
+
+Instead of using a `$v` to hold the num, we push a zero on the stack,
+then use `1 filtern` to ignore that value.
+
+Finally, we have `filterm` and `filtermn`.  These start at top - `m` instead
+of the bottom of the stack.  For an example, this will sum the top 5
+values on the stack, no matter how deep it may be:
+
+    {0 {+} 5 1 filtermn} sum=
+
+### Other Programming Notes
+
+Some of this is covered in other sections of the guide, but it's here
+to make you aware in case you have not read it all.
+
+- `@`: Executes the head element (usually a string).  e.g. `{2 2 +} @`.
+  Note that `$foo @` has the same result as `@foo`.
+- `print`, `println`, `printx`, `printlnx`:  Prints the head of the stack
+  The `x` versions also remove the stack element.
+- `prints`, `prints`: Prints with a space after
+- `load`, `save`: Loads and saves values to disk
+- `.`, `source`: The same as `load @`.
+- `noop`: Does nothing. This is sometimes useful as a placeholder.
+- `delay`: Delays for the given number of seconds (which can be a floating
+  point number like `0.1`). Delays are useful when animating graphs.
+- `time`: Prints a relative time in floating point seconds. This is useful
+  when benchmarking (take a `t0`, do your operation, then do `time $t0 -`).
+- `edit`: A simple editor for multiline strings.
+- `rand`: Create a random value from 0 to 1
+- `input`: Waits for the user to enter input, pushes it to the stack as a
+  string.
+
+## Example Programs
+
+### Number Guess
+
+```
+{
+  rand 101 * int a=  # set a to a random number
+  $guess_fn for     # loop until the user guesses correctly
+  {
+    "enter a number from 0-100: " printx input int g=
+    # The next 3 lines put one message on the stack
+    $g $a < {"too low"} if
+    $g $a > {"too high"} if
+    $g $a = {"correct!"} if
+    printlnx # print the message
+    $g $a != # loop conditional
+  } for
+} number_guess=
+```
+
+Run it with
+
+    @number_guess
+
+- First we come up with a random number from 0-100 and store
+  it in `a`.  Don't worry about the user seeing the number
+  because the variable window will not update until the program
+  has finished (as we are not calling `'v' w.update` anywhere).
+- Next is a loop which asks the user for a guess, then uses three
+  `if` statements to feedback a message.  Finally, a check
+  to see if the `for` loop should exit.
+
+### Animated Plot
+
+Here is an example that will animate a `sin` wave:
+
+```
+# create a plot of sin and animates it running though
+# various phases
+{
+  0 t=                     # initial phase
+  {$t + sin} plot          # plot it
+  'p' 'minv' -3.14 w.setp  # set graph limits so they don't change while animating
+  'p' 'maxv' 3.14 w.setp
+  'p' 'miny' -1.1 w.setp
+  'p' 'maxy' 1.1 w.setp
+  {
+    'p' w.update  # redraw plot
+    $t 0.1 + t=   # next phase offset
+    0.015 delay   # wait a little bit (~60 FPS)
+    $t 30 <       # Check for end of program
+  } for
+} animate_sin=
+```
+
+Run it with `@animate_sin`
+
+Most of it should be familiar.  Here are the new bits:
+
+```
+0 t=
+{$t + sin} plot
+```
+
+Here we are using a `$t` variable to change the phase of the sin wave.
+
+    'p' w.update
+
+Just changing `$t` does not necessarily update the plot window, the
+`w.update` command ensures that it happens.
+
+    0.015 delay
+
+On a PC, the script above will complete in a fraction of a second unless
+we slow down the loop with a delay (here we delay for 15ms per frame).
+
+### Bouncing Ball
+
+Understand "Animated Plot" before going here.
+
+```
+{rand 0.5 - 0.02 *} randvel=
+{
+  @randvel xv=
+  @randvel yv=
+  0d i=
+  0 x=
+  0 y=
+  0.05 diameter=
+  {$0 cos $diameter * $x + 1> sin $diameter * $y +} pplot
+  'p' 'minv' 0 w.setp
+  'p' 'maxv' $pi 2 * w.setp
+  'p' 'minx' -1 w.setp
+  'p' 'maxx' 1 w.setp
+  'p' 'miny' -1 w.setp
+  'p' 'maxy' 1 w.setp
+  'p' 'steps' 30 w.setp
+  {@next_frame $i 1 + i= $i 1000 <} for
+  'p' w.del
+} bounce_ball=
+
+{
+  $x $xv +
+  $0 abs 1 > {$xv neg xv= $xv + x=} {x=} ifelse
+
+  $y $yv +
+  $0 abs 1 > {$yv neg yv= $yv + y=} {y=} ifelse
+
+  'p' w.update
+  1 60 / delay
+} next_frame=
+```
+
+Three functions:
+
+- `randvel`: Creates a random velocity from -0.02 to 0.02.
+- `bounce_ball`: Similar to the animated sin example, but draws a ball at
+  `$x`, `$y`
+- `next_frame`: A helper that updates `$x` and `$y` and handles bouncing off
+  the edges of the graph areas.
+
+### Numerical Derivative Plot (dy/dx):
+
+```
+{
+  'p' 'maxv' w.getp 'p' 'minv' w.getp - 'p' 'steps' w.getp / dx=
+  'p' 'minv' w.getp $dx - @dydx.fn yprev=
+} init=
+
+{
+  dydx.fn=
+  {
+    $.t0 $init if
+    @dydx.fn
+    $0 $yprev -
+    1> yprev=
+    $dx /
+  } plot
+} dydx=
+```
+
+Try it with
+
+    'sq' plot
+    'sq' @dydx
+
+![derivative plot](derivative_plot.jpg)
+
+- Snapshot the argument into `$dydx.fn` so we can call it multiple
+  times later.
+- Calculate `dx` by looking at plot limits and steps.
+- An initial `yprev` needs to be calculated to allow the first point
+  to be calculated
+- The plot function looks at `$t0` which is true when the first plot
+  is presented (this is a feature of the calculator). It needs this
+  information to calcuate `dx` and the initial `yprev` above.
+- Execute `@dydx.fn` to get the value.
+- Use `$yprev` to calculate `dy` and divide by `$dx`. That's our plot point.
+
+### A Set of Statistics
+
