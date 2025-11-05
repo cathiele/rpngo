@@ -17,10 +17,10 @@ func TestNOOP(t *testing.T) {
 func TestDropAll(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
-			Args: []string{"X"},
+			Args: []string{"d"},
 		},
 		{
-			Args: []string{"1", "2", "3", "X"},
+			Args: []string{"1", "2", "3", "d"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })

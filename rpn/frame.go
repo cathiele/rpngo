@@ -39,13 +39,7 @@ func (f *Frame) Annotate(s string) {
 
 func (f *Frame) IsInt() bool {
 	switch f.ftype {
-	case INTEGER_FRAME:
-		return true
-	case HEXIDECIMAL_FRAME:
-		return true
-	case OCTAL_FRAME:
-		return true
-	case BINARY_FRAME:
+	case INTEGER_FRAME, HEXIDECIMAL_FRAME, OCTAL_FRAME, BINARY_FRAME:
 		return true
 	default:
 		return false

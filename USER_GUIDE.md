@@ -285,6 +285,21 @@ Boolean values include `true` and `false`.  Conditionals return a boolean:
     false neg  #  true
     true neg   #  false
 
+You can also compare different types, which is in support of `sort` and
+`sortn`:
+
+    true 1 <       # true: booleans are always less than numbers
+    1 "foo" <      # true: numbers are always less than strings
+    "bar" "foo" <  # true
+    1 1d =         # true: you can compare floats and integers
+    1 1+i =        # false
+    1+i 2 <        # true: This is mathmatically wrong (can't really compare complex)
+                   #       but we need it for programming. < only
+                   #       compares real parts and ignores complex parts
+
+The final rule may be changed in the future (to an error), if a compelling
+usecase can be presented.
+
 Conditionals are an essential part of programming, which we will cover
 with examples later.
 

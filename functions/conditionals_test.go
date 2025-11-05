@@ -21,11 +21,11 @@ func TestConditionals(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "2", ">"},
-			WantErr: rpn.ErrExpectedANumber,
+			Want: []string{"true"},
 		},
 		{
 			Args:    []string{"2", "'foo'", ">"},
-			WantErr: rpn.ErrExpectedANumber,
+			Want: []string{"false"},
 		},
 
 		{
@@ -42,11 +42,11 @@ func TestConditionals(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "2", ">="},
-			WantErr: rpn.ErrExpectedANumber,
+			Want: []string{"true"},
 		},
 		{
 			Args:    []string{"2", "'foo'", ">="},
-			WantErr: rpn.ErrExpectedANumber,
+			Want: []string{"false"},
 		},
 
 		{
@@ -63,11 +63,11 @@ func TestConditionals(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "2", "<"},
-			WantErr: rpn.ErrExpectedANumber,
+			Want: []string{"false"},
 		},
 		{
 			Args:    []string{"2", "'foo'", "<"},
-			WantErr: rpn.ErrExpectedANumber,
+			Want: []string{"true"},
 		},
 
 		{
@@ -84,11 +84,11 @@ func TestConditionals(t *testing.T) {
 		},
 		{
 			Args:    []string{"'foo'", "2", "<="},
-			WantErr: rpn.ErrExpectedANumber,
+			Want: []string{"false"},
 		},
 		{
 			Args:    []string{"2", "'foo'", "<="},
-			WantErr: rpn.ErrExpectedANumber,
+			Want: []string{"true"},
 		},
 
 		{
