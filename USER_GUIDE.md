@@ -971,20 +971,15 @@ Filtering is a convenience command that allows some kind of for
 loops to be written with less code - particularity ones that work
 with multiple stack values.
 
-As an example, say you want a sum of every number on the stack.
+As an example, say you want to multiply every value on the stack by 2.
 A for loop can be used:
 
-    {0 v= {$v + v= size 0 >} for $v} sum=
-    1 2 3 @sum  # results in 6 on the stack
+    {{2 * vals< ssize 0 >} for vals>> reverse} double=
+    1 2 3 @double  # results in 2 4 6 on the stack
 
-It works ok and we can even preserve any existing `v` if we push and
-pop it:
- 
-    {0 v< {$v + v= ssize 0 >} for v>} sum=
+We can also use `filter`, which manages some of the work for us
 
-We can also use `filter`, which manages the work for us
-
-    {0 v< {$v + v=} filter v>} sum=
+    {{2 *} filter} double=
 
 The `filter` command does this:
 
@@ -992,31 +987,21 @@ The `filter` command does this:
 2. Copies to it the top
 3. Calls it's argument.
 
-The `filter` command works especially well for transforming every
-value:
-
-    {int} filter # converts every number to an integer
-
-or filtering away values:
+In addition to transforming every value, the `filter` command can filter values:
 
     {$0 50 >= {0/} if} filter  # remove numbers >= 50
 
-For sum (or min, max, anything that aggregates), having to use a
-variable is still a bit awkward.  There is an answer: `filtern`. The
-`filtern` processed values from the bottom of the stack to the top - `n`.
-This makes it easy to put some "working" variables on the stack.
-Here is sum, rewritten using `filtern`
+## Sorting
 
-    {0 {+} 1 filtern} sum=
+The sort command will sort every value on the stack
 
-Instead of using a `$v` to hold the num, we push a zero on the stack,
-then use `1 filtern` to ignore that value.
+    2 10 5 6 3 sort  # 2 3 5 6 10
 
-Finally, we have `filterm` and `filtermn`.  These start at top - `m` instead
-of the bottom of the stack.  For an example, this will sum the top 5
-values on the stack, no matter how deep it may be:
+Note that, when you sort different types, the convention-based comparison rules
+are followed (strings > numbers > boolean):
 
-    {0 {+} 5 1 filtermn} sum=
+    5d 10 4d 3 'foo' 'bar' true false sort  # false true 3 4d 5d 10 'bar' 'foo'
+
 
 ### Other Programming Notes
 
