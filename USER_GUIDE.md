@@ -4,18 +4,18 @@
 
 You'll first need to [install golang](https://go.dev/doc/install).
 
-There is a `bin/` directory that contains various different builds of `rpngo` for
-the computer and for microcontrollers. Here is an overview:
+There is a `bin/` directory that contains various different configurations of `rpngo` for
+PCs and for microcontrollers. Here is an overview:
 
 - `bin/minimal/rpn` - The most basic version.  Parses `args` and exits.
 - `bin/ncurses/rpn` - Uses [`ncurses`](https://en.wikipedia.org/wiki/Ncurses) to
   support multiple view windows and even text-based plotting
-- `bin/tinygo/serialonly` - A stripped down build for  microcontrollers that uses
+- `bin/tinygo/serialonly` - A minimal build for  microcontrollers that uses
   serial communication only.
-- `bin/tinygo/ili9341` - A TinyGo microcontroller build that still uses serial for input,
-  and a ili9341 color LCD for output.  Full-featured.
-- `bin/tinygo/picocalc` - A TinyGo microcontroller build that targets a
-  [PicoCalc](https://www.clockworkpi.com/picocalc). Full-featured.
+- `bin/tinygo/ili9341` - A full-featured TinyGo microcontroller build that uses
+   USB serial for input, and a ili9341 color LCD for output.
+- `bin/tinygo/picocalc` - A full-featured TinyGo microcontroller build that
+   targets a [PicoCalc](https://www.clockworkpi.com/picocalc).
 
 
 ### Desktop / Raspberry Pi
@@ -30,7 +30,7 @@ go build
 
 ncurses version 
 
-You need have `libncurses-dev` already installed.  In Ubuntu/Debian, the fix is:
+You need have `libncurses-dev` installed.  In Ubuntu/Debian, the command is:
 
 ```
 sudo apt install libncurses-dev
@@ -48,8 +48,8 @@ go build
 
 You'll need to [install TinyGo](https://tinygo.org/getting-started/install/).
 
-Minimal. Set your microcontroller target.  Tested on Pico and Pico2.  Other
-chips may need configuration change.
+Minimal. Tested on Pico and Pico2.  Other chips may need some configuration
+changes. Chipe with low resources (like atmega328p) probably won't work:
 
 ```
 cd bin/tinygo/serialonly
@@ -68,6 +68,10 @@ make flash
 
 PicoCalc
 
+The default assumed you have a rp2350 (Pico2) installed.
+You can change the target in `Makefile` to `pico` if you have
+an original Pico installed instead.
+
 ```
 cd bin/tinygo/picocalc
 # check the command
@@ -79,7 +83,8 @@ make flash
 
 ### Build Everything and Run Unit Tests
 
-In the top-level directory, you can type
+When changing the code, it's good to run unit tests and assert that everything
+can still compile without errors. In the top-level directory, you can type
 
 ```
 make all
