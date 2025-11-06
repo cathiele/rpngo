@@ -25,6 +25,8 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("/", Divide, rpn.CatCore, DivideHelp)
 	r.Register("+", Add, rpn.CatCore, AddHelp)
 	r.Register("false", False, rpn.CatCore, FalseHelp)
+	r.Register("min", Min, rpn.CatCore, MinHelp)
+	r.Register("max", Max, rpn.CatCore, MaxHelp)
 	r.Register("neg", Negate, rpn.CatCore, NegateHelp)
 	r.Register("round", Round, rpn.CatCore, RoundHelp)
 	r.Register("true", True, rpn.CatCore, TrueHelp)

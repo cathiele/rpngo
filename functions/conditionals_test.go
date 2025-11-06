@@ -20,11 +20,11 @@ func TestConditionals(t *testing.T) {
 			Want: []string{"true"},
 		},
 		{
-			Args:    []string{"'foo'", "2", ">"},
+			Args: []string{"'foo'", "2", ">"},
 			Want: []string{"true"},
 		},
 		{
-			Args:    []string{"2", "'foo'", ">"},
+			Args: []string{"2", "'foo'", ">"},
 			Want: []string{"false"},
 		},
 
@@ -41,11 +41,11 @@ func TestConditionals(t *testing.T) {
 			Want: []string{"true"},
 		},
 		{
-			Args:    []string{"'foo'", "2", ">="},
+			Args: []string{"'foo'", "2", ">="},
 			Want: []string{"true"},
 		},
 		{
-			Args:    []string{"2", "'foo'", ">="},
+			Args: []string{"2", "'foo'", ">="},
 			Want: []string{"false"},
 		},
 
@@ -62,11 +62,11 @@ func TestConditionals(t *testing.T) {
 			Want: []string{"false"},
 		},
 		{
-			Args:    []string{"'foo'", "2", "<"},
+			Args: []string{"'foo'", "2", "<"},
 			Want: []string{"false"},
 		},
 		{
-			Args:    []string{"2", "'foo'", "<"},
+			Args: []string{"2", "'foo'", "<"},
 			Want: []string{"true"},
 		},
 
@@ -83,11 +83,11 @@ func TestConditionals(t *testing.T) {
 			Want: []string{"false"},
 		},
 		{
-			Args:    []string{"'foo'", "2", "<="},
+			Args: []string{"'foo'", "2", "<="},
 			Want: []string{"false"},
 		},
 		{
-			Args:    []string{"2", "'foo'", "<="},
+			Args: []string{"2", "'foo'", "<="},
 			Want: []string{"true"},
 		},
 
@@ -227,6 +227,46 @@ func TestConditionals(t *testing.T) {
 		{
 			Args: []string{"true", "true", "!="},
 			Want: []string{"false"},
+		},
+		{
+			Args:    []string{"min"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args:    []string{"0", "min"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args: []string{"0x", "0d", "min"},
+			Want: []string{"0x"},
+		},
+		{
+			Args: []string{"0x", "1d", "min"},
+			Want: []string{"0x"},
+		},
+		{
+			Args: []string{"1x", "0d", "min"},
+			Want: []string{"0d"},
+		},
+		{
+			Args:    []string{"max"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args:    []string{"0", "max"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args: []string{"0x", "0d", "max"},
+			Want: []string{"0x"},
+		},
+		{
+			Args: []string{"0x", "1d", "max"},
+			Want: []string{"1d"},
+		},
+		{
+			Args: []string{"1x", "0d", "max"},
+			Want: []string{"1x"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })

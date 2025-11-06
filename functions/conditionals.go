@@ -4,7 +4,6 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-
 const GreaterThanHelp = "Returns true if a > b, false otherwise"
 
 func GreaterThan(r *rpn.RPN) error {
@@ -65,3 +64,28 @@ func NotEqual(r *rpn.RPN) error {
 	return r.PushFrame(rpn.BoolFrame(!af.IsEqual(bf)))
 }
 
+const MinHelp = "Pops two frames and repushes the minimum value.  Pushes $1 if the frames were equal."
+
+func Min(r *rpn.RPN) error {
+	af, bf, err := r.Pop2Frames()
+	if err != nil {
+		return err
+	}
+	if af.IsLessThanOrEqual(bf) {
+		return r.PushFrame(af)
+	}
+	return r.PushFrame(bf)
+}
+
+const MaxHelp = "Pops two frames and repushes the maximum value.  Pushes $1 if the frames were equal."
+
+func Max(r *rpn.RPN) error {
+	af, bf, err := r.Pop2Frames()
+	if err != nil {
+		return err
+	}
+	if af.IsLessThan(bf) {
+		return r.PushFrame(bf)
+	}
+	return r.PushFrame(af)
+}

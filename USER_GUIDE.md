@@ -123,6 +123,29 @@ simply enjoy using them now.
 
 ## Base Features
 
+    2 4 +            # 6
+    2 4 -            # -2
+    2 4 *            # 8
+    2 4 /            # 0.5
+    4 sq             # 16
+    4 sqrt           # 2
+    -1 sqrt          # i
+    4+i 5-2i +       # 9-i
+    2 4 min          # 2
+    2 4 max          # 4
+    4 neg            # -4
+    -4 abs           # 4
+    3.14159 3 round  # 3.142
+
+## Scientific
+
+    2 4 **    # 16
+    3.14 sin  # 0.001592652916
+    3.14 cos  # -0.9999987317
+    3.14 tan  # -0.001592654936
+    5 log     # 1.609437912
+    10 log10  # 1
+
 ### User Interface
 
 The experience is similar to most terminals:
