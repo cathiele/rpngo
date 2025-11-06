@@ -235,12 +235,12 @@ func EmptyFrame() Frame {
 
 func (f *Frame) complexString() string {
 	if imag(f.cmplx) == 0 {
-		return strconv.FormatFloat(real(f.cmplx), 'g', 10, 64)
+		return strconv.FormatFloat(real(f.cmplx), 'g', 16, 64)
 	}
 	if real(f.cmplx) == 0 {
 		return complexString(imag(f.cmplx))
 	}
-	r := strconv.FormatFloat(real(f.cmplx), 'g', 10, 64)
+	r := strconv.FormatFloat(real(f.cmplx), 'g', 16, 64)
 	if imag(f.cmplx) < 0 {
 		return r + complexString(imag(f.cmplx))
 	}
@@ -254,5 +254,5 @@ func complexString(v float64) string {
 	if v == -1 {
 		return "-i"
 	}
-	return strconv.FormatFloat(v, 'g', 10, 64) + "i"
+	return strconv.FormatFloat(v, 'g', 16, 64) + "i"
 }
