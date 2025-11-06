@@ -198,10 +198,12 @@ You can move values around the stack.
 
 ### Stack Deletions
 
-    10 20 30   # put 10 20 30 on the stack
-    1/         # now the stack is 10 30
-    0/         # now the stack is 10
-    d          # emptys all values from the stack
+    10 20 30         # put 10 20 30 on the stack
+    1/               # now the stack is 10 30
+    0/               # now the stack is 10
+    d                # emptys all values from the stack
+    10 20 30 2 del   # delete 2 values from the stack (leaving 10)
+    10 20 30 2 keep  # keep 2 values from the stack (leaving 20 30)
 
 
 ### Using Variables
@@ -1013,6 +1015,21 @@ The `filter` command does this:
 In addition to transforming every value, the `filter` command can filter values:
 
     {$0 50 >= {0/} if} filter  # remove numbers >= 50
+
+Note that `del`, `keep` and variable pushes (e.g. `x<<`, 'x>>`) can be combined
+to filter a subset of values:
+
+    {
+      st== $$st            # snapshot stack
+      5 keep {2 *} filter  # filter 5 values
+      doubled<<            # store those
+      st>> 5 del           # restore stack, remove 5 values
+      doubled>>            # sub in doubled values
+    } double5=
+
+This can be applied to other functions (`sort`, `reverse`, etc) as well and
+has endless possible tweaks (for example, use a variable instead of a
+hard-coded 5)
 
 ## Sorting
 

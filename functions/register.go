@@ -31,8 +31,10 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("round", Round, rpn.CatCore, RoundHelp)
 	r.Register("true", True, rpn.CatCore, TrueHelp)
 
+	r.Register("del", Del, rpn.CatData, DelHelp)
 	r.Register("fields", Fields, rpn.CatData, FieldsHelp)
 	r.Register("filter", Filter, rpn.CatData, FilterHelp)
+	r.Register("keep", Keep, rpn.CatData, KeepHelp)
 	r.Register("sort", Sort, rpn.CatData, SortHelp)
 
 	r.Register("**", Power, rpn.CatEng, PowerHelp)
