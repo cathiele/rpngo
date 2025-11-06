@@ -1011,6 +1011,7 @@ The `filter` command does this:
 1. Takes each value on the stack
 2. Copies to it the top
 3. Calls it's argument.
+4. Removes the original values
 
 In addition to transforming every value, the `filter` command can filter values:
 
@@ -1041,6 +1042,12 @@ Note that, when you sort different types, the convention-based comparison rules
 are followed (strings > numbers > boolean):
 
     5d 10 4d 3 'foo' 'bar' true false sort  # false true 3 4d 5d 10 'bar' 'foo'
+
+## Reverse
+
+Reverse a stack with `reverse`
+
+    1 2 3 4 reverse  # is now 4 3 2 1
 
 
 ### Other Programming Notes
