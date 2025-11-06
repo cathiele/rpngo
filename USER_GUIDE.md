@@ -1269,7 +1269,7 @@ Try it with
       $$vals @min statv<
       $$vals @max statv<
       $$vals 10 @percent statv<
-      $$vals 10 @median statv<
+      $$vals @median statv<
       $$vals 90 @percent statv<
       $$vals @mean statv<
       $$vals @stddev statv<
