@@ -20,7 +20,7 @@ import (
 )
 
 const scrollbytes = 256 * 1024
-const maxStackDepth = 1024
+const maxStackDepth = 65536
 
 func run() error {
 	os.RemoveAll("/tmp/rpngo.log")

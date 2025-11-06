@@ -50,10 +50,10 @@ func (pw *TxtPlotWindow) Update(r *rpn.RPN, unusedForce bool) error {
 	pw.txtw.Erase()
 	defer pw.txtw.Refresh()
 	pw.common.setAxisMinMax(r)
-	if err := pw.drawAxis(); err != nil {
-		return err
-	}
-	return pw.common.createPoints(r, pw.plotPoint)
+	// do not exit the program if either of these fail
+	_ = pw.drawAxis()
+	_ = pw.common.createPoints(r, pw.plotPoint)
+	return nil
 }
 
 func (pw *TxtPlotWindow) SetProp(name string, val rpn.Frame) error {
