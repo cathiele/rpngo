@@ -1233,3 +1233,52 @@ Try it with
 
 ### A Set of Statistics
 
+```
+    {0 {+ ssize 1 >} for `sum} sum=
+
+    {ssize n< @sum n> / `mean} mean=
+
+    {
+      ssize sn<
+      svals==
+      $$svals @mean smean<
+      svals>> {$smean - sq} filter
+      @sum
+      sn> / sqrt
+      `stddev
+      smean/
+    } stddev=
+
+    {$0 {min ssize 1 >} for `min} min=
+
+    {$0 {max ssize 1 >} for `max} max=
+
+    {
+      int p<
+      sort reverse
+      ssize $p * 100d / float '>' + @
+      1 keep
+      "`" p> float 'th-percent' + + @
+    } percent=
+
+    {50 @percent `median} median=
+
+    {
+      vals==
+      $$vals @sum statv<
+      $$vals @min statv<
+      $$vals @max statv<
+      $$vals 10 @percent statv<
+      $$vals 10 @median statv<
+      $$vals 90 @percent statv<
+      $$vals @mean statv<
+      $$vals @stddev statv<
+      vals>>
+      statv>>
+    } stats=
+```
+
+There are a number of different functions above that separately calculate
+`sum`, `min`, `max`, `mean`, `stddev`, `10th percentile`, `median`, `90th percentile`,
+and finally one wrap-up function called `stats` that calculates all of the above
+on a given set of numbers.  Try to understand them individually.
