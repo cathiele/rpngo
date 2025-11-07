@@ -95,3 +95,67 @@ func Input(r *rpn.RPN) error {
 	}
 	return r.PushFrame(rpn.StringFrame(str, rpn.STRING_DOUBLE_QUOTE))
 }
+
+const HexDumpHelp = "Hex dump of the top of the stack (converted to a string)"
+
+func HexDump(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	str := f.String(false)
+	bytesPerRow := 1
+	for {
+		// Example if bytesPerRow = 4
+		// 0000 | 40 40 40 40  AAAA
+		// (24 bytes needed)
+		widthNeeded := (bytesPerRow * 4) + (bytesPerRow / 4) + 7
+		if widthNeeded >= r.TextWidth {
+			bytesPerRow /= 2
+			break
+		}
+		bytesPerRow *= 2
+	}
+
+	rowStart := 0
+	for rowStart < len(str) {
+		s := strconv.FormatInt(int64(rowStart), 16)
+		for i := len(s); i < 4; i++ {
+			r.Print("0")
+		}
+		r.Print(s)
+		r.Print(" | ")
+		bytesThisRow := len(str) - rowStart
+		if bytesThisRow > bytesPerRow {
+			bytesThisRow = bytesPerRow
+		}
+		for i := 0; i < bytesThisRow; i++ {
+			s = strconv.FormatInt(int64(str[rowStart+i]), 16)
+			if len(s) < 2 {
+				r.Print("0")
+			}
+			r.Print(s)
+			r.Print(" ")
+			if ((rowStart + i + 1) % 4) == 0 {
+				r.Print(" ")
+			}
+		}
+		for i := bytesThisRow; i < bytesPerRow; i++ {
+			r.Print("   ")
+			if ((rowStart + i + 1) % 4) == 0 {
+				r.Print(" ")
+			}
+		}
+		for i := 0; i < bytesThisRow; i++ {
+			c := byte(str[rowStart+i])
+			if (c < 32) || (c > 127) {
+				r.Print(".")
+			} else {
+				r.Print(string(str[rowStart+i]))
+			}
+		}
+		r.Print("\n")
+		rowStart += bytesPerRow
+	}
+	return nil
+}

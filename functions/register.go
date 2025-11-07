@@ -49,6 +49,7 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("sqrt", SquareRoot, rpn.CatEng, SquareRootHelp)
 	r.Register("tan", Tan, rpn.CatEng, TanHelp)
 
+	r.Register("hexdump", HexDump, rpn.CatIO, HexDumpHelp)
 	r.Register("input", Input, rpn.CatIO, InputHelp)
 	r.Register("print", Print, rpn.CatIO, PrintHelp)
 	r.Register("printall", PrintAll, rpn.CatIO, PrintAllHelp)
