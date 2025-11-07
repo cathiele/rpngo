@@ -2,6 +2,7 @@ package xmodem
 
 import (
 	"errors"
+	"log"
 	"mattwach/rpngo/rpn"
 	"time"
 )
@@ -49,6 +50,7 @@ type readState uint8
 const (
 	InitialHandshake readState = iota
 	ReadingPackets
+	Finished
 )
 
 const (
@@ -75,11 +77,18 @@ func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
 			if err := sc.readPacket(); err != nil {
 				return err
 			}
+		case ReadingPackets:
+			if err := sc.readPacket(); err != nil {
+				return err
+			}
+		case Finished:
+			return r.PushFrame(rpn.StringFrame(string(sc.buff), rpn.STRING_BRACES))
 		}
 	}
 }
 
 func (sc *XmodemCommands) readPacket() error {
+	log.Printf("readPacket. State=%v", sc.state)
 	for {
 		if sc.state == InitialHandshake {
 			sc.deadline = time.Now().Add(3 * time.Second)
@@ -90,11 +99,25 @@ func (sc *XmodemCommands) readPacket() error {
 		var idx int
 		for idx < len(sc.packet) {
 			if time.Now().After(sc.deadline) {
+				log.Print("timeout")
 				return sc.nakWith(errReadTimeout)
 			}
 			// read in bursts so we are not checking the timer on every byte
 			for n := 0; n < 1024; n++ {
 				b, err := sc.serial.ReadByte()
+				if (idx == 0) && (sc.state == ReadingPackets) {
+					if b == EOT {
+						log.Print("EOT")
+						return sc.serial.WriteByte(ACK)
+					} else if b == ETB {
+						if err := sc.serial.WriteByte(ACK); err != nil {
+							return err
+						}
+						log.Print("ETB")
+						sc.state = Finished
+						return nil
+					}
+				}
 				if err != nil {
 					return err
 				}
@@ -113,7 +136,10 @@ func (sc *XmodemCommands) readPacket() error {
 		}
 
 		if sc.packet[1] == sc.nextPacketId {
+			log.Printf("Packet ok: id=%v", sc.packet[1])
 			sc.nextPacketId++
+			sc.attemptsLeft = handshakeAttempt
+			sc.buff = append(sc.buff, sc.packet[3:131]...)
 			if sc.state == InitialHandshake {
 				if sc.packet[0] != SOH {
 					return errInvalidInitialPacket
@@ -122,11 +148,13 @@ func (sc *XmodemCommands) readPacket() error {
 			}
 			return sc.serial.WriteByte(ACK)
 		} else if sc.packet[1] == (sc.nextPacketId - 1) {
+			log.Printf("Packet repeated: id=%v", sc.packet[1])
 			// sender might have not received our previous ack
 			if err := sc.serial.WriteByte(ACK); err != nil {
 				return err
 			}
 		} else {
+			log.Printf("Unexpected packet: id=%v", sc.packet[1])
 			return errIncorrectPacketId
 		}
 	}
@@ -147,10 +175,12 @@ func (sc *XmodemCommands) validatePacket() error {
 	case SOH, EOT, ETB, CAN:
 		// ok
 	default:
+		log.Printf("unexpted header byte %v", sc.packet[0])
 		return errUnexpectedHeaderByte
 	}
 
 	if uint16(sc.packet[1])+uint16(sc.packet[2]) != 0xFF {
+		log.Printf("bad sum 1=%v 2=%v", sc.packet[1], sc.packet[2])
 		return errIncorrectPacketIdSum
 	}
 
@@ -167,13 +197,15 @@ func (sc *XmodemCommands) validatePacket() error {
 	}
 
 	if (sc.packet[131] != uint8(crc>>8)) || (sc.packet[132] != uint8(crc&0xFF)) {
+		log.Printf("bad crc 0: want %x, got %v, 1: want %x, got %x",
+			sc.packet[131], uint8(crc>>8), sc.packet[132], uint8(crc&0xFF))
 		return errCRCMismatch
 	}
 
 	return nil
 }
 
-const xmodemWriteHelp = "Attempts to send th data at the top of the stack using the xmodem protocol."
+const xmodemWriteHelp = "Attempts to send the data at the top of the stack using the xmodem protocol."
 
 func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
 	return rpn.ErrNotSupported

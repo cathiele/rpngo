@@ -21,6 +21,7 @@ import (
 	"mattwach/rpngo/window/commands"
 	"mattwach/rpngo/window/input"
 	"mattwach/rpngo/window/plotwin"
+	"mattwach/rpngo/xmodem"
 	"time"
 )
 
@@ -37,6 +38,7 @@ var screen ili9341.Ili9341Screen
 var root window.WindowRoot
 var fileOps fileops.FileOps
 var fileOpsDriver tinyfs.FileOpsDriver
+var xmodemCommands xmodem.XmodemCommands
 
 type getInput struct {
 	lcd    *ili9341.Ili9341TxtW
@@ -112,6 +114,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	}
 	inputWin.Init(&getInputInst, txtw, r, scrollbytes)
 	getInputInst.Init(txtw.(*ili9341.Ili9341TxtW))
+	xmodemCommands.InitAndRegister(&rpnInst, &getInputInst.serial)
 	root.AddWindowChildToRoot(&inputWin, "i", 100)
 	return nil
 }
