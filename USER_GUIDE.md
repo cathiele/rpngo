@@ -945,6 +945,40 @@ various shell usecases:
 
     'hello world' 'hello.txt' save  # save "hello world" to a file
 
+### XMODEM send and receive
+
+What is old is new.  It's possible to send and receive data from rpngo on
+microcontrollers using the XMODEM protocol.  XMODEM was chosen because the
+PicoCalc UART via TinyGo loses bytes now and then and XMODEM is the least
+complicated well-supported way to get around that problem.
+
+## Send a file to RPNGO
+
+You can, in theory, use any PC program that supports XMODEM-CRC (128 byte
+packets, 16-bit CRC).  I actually tested it with `screen` and `sx`.  First,
+installation:
+
+    sudo apt install screen lrzsz
+
+Then start screen with the following option:
+
+    screen /dev/ttyACM0 115200
+
+I'm assuming the serial device on my PC and yours will be the same, which could
+be incorrect.  I'm also assuming you want to send a file named `bounce_ball.rpn`;
+change the name to the file you actually want to send.
+
+Next type `Ctrl-A`, `:` and type this at the prompt:
+
+    exec !! xc bounce_ball.rpn
+
+and on the calculator:
+
+    xmodemr
+
+If everyting worked, you will have the contents of the file as a string
+at the top of the stack.
+
 ## Programming
 
 RPNGO provides support for simple programming. It's not going to replace
