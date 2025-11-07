@@ -98,20 +98,22 @@ func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
 		case ReadingPackets:
 			err = sc.readPacket(r)
 		case Finished:
-			return r.PushFrame(rpn.StringFrame(sc.trimZeros(), rpn.STRING_BRACES))
+			return r.PushFrame(rpn.StringFrame(sc.trimExtra(), rpn.STRING_BRACES))
 		}
 	}
 	return err
 }
 
-func (sc *XmodemCommands) trimZeros() string {
+func (sc *XmodemCommands) trimExtra() string {
+	// I see a string of 0x1A (SUB) characters in the last
+	// block.  A bit surprising.
 	end := len(sc.buff) - 1
 	for ; end > 0; end-- {
-		if sc.buff[end] != 0 {
+		if (sc.buff[end] == '\n') || (sc.buff[end] >= 32) {
 			break
 		}
 	}
-	sc.buff = sc.buff[:end]
+	sc.buff = sc.buff[:end+1]
 	return string(sc.buff)
 }
 

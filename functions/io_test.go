@@ -205,8 +205,8 @@ func TestHexDump(t *testing.T) {
 	if err != nil {
 		t.Errorf("err=%v, want nil", err)
 	}
-	want := "0000 | 48 65 6c 6c  Hell\n0004 | 6f 20 20 57  o  W\n" +
-		"0008 | 6f 72 6c 64  orld\n000c | 21           !\n"
+	want := "0000| 48 65 6c 6c  Hell\n0004| 6f 20 20 57  o  W\n" +
+		"0008| 6f 72 6c 64  orld\n000c| 21           !\n"
 	if got != want {
 		t.Errorf("want:\n%s\ngot:\n%s", want, got)
 	}

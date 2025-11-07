@@ -107,9 +107,9 @@ func HexDump(r *rpn.RPN) error {
 	bytesPerRow := 1
 	for {
 		// Example if bytesPerRow = 4
-		// 0000 | 40 40 40 40  AAAA
-		// (24 bytes needed)
-		widthNeeded := (bytesPerRow * 4) + (bytesPerRow / 4) + 7
+		// 0000| 40 40 40 40  AAAA
+		// (23 bytes needed)
+		widthNeeded := (bytesPerRow * 4) + (bytesPerRow / 4) + 6
 		if widthNeeded >= r.TextWidth {
 			bytesPerRow /= 2
 			break
@@ -124,7 +124,7 @@ func HexDump(r *rpn.RPN) error {
 			r.Print("0")
 		}
 		r.Print(s)
-		r.Print(" | ")
+		r.Print("| ")
 		bytesThisRow := len(str) - rowStart
 		if bytesThisRow > bytesPerRow {
 			bytesThisRow = bytesPerRow
