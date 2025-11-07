@@ -5,6 +5,15 @@ import (
 	"testing"
 )
 
+func TestNOOP(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args: []string{"noop"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
+
 func TestAdd(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{

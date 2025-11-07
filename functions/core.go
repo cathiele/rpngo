@@ -8,6 +8,12 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
+const NoOpHelp = "No operation. e.g. 'noop' plot will plot y = x"
+
+func NoOp(r *rpn.RPN) error {
+	return nil
+}
+
 const AddHelp = "Adds two numbers"
 
 func Add(r *rpn.RPN) error {
