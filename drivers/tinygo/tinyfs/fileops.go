@@ -7,10 +7,9 @@ import (
 	"machine"
 	"mattwach/rpngo/elog"
 	"os"
-	"strconv"
 
 	"tinygo.org/x/drivers/sdcard"
-	"tinygo.org/x/tinyfs/fatfs"
+	"tinygo.org/x/tinyfs"
 )
 
 var errNotADirectory = errors.New("not a directory")
@@ -25,30 +24,42 @@ const csPin = machine.GP17
 
 type FileOpsDriver struct {
 	initErr error
-	fs      *fatfs.FATFS
+	mounted bool
+	fs      tinyfs.Filesystem
 	// present working directory.  '/' should only be used
 	// between directories
 	pwd string
 }
 
 func (fo *FileOpsDriver) Init() error {
+	fo.mounted = false
 	elog.Heap("alloc: /drivers/tinygo/tinyfs/fileops.go:34: sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin)")
 	sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin) // object allocated on the heap: escapes at line 39
 	fo.initErr = sd.Configure()
 	if fo.initErr != nil {
 		return fo.initErr
 	}
-	fo.fs = fatfs.New(&sd)
-	fo.fs.Configure(&fatfs.Config{
-		SectorSize: 512,
-	})
-	fo.initErr = fo.fs.Mount()
+	fo.initFS(sd)
 	return fo.initErr
 }
 
-func (fo *FileOpsDriver) FileSize(path string) (int, error) {
+func (fo *FileOpsDriver) checkMount() error {
 	if fo.initErr != nil {
-		return 0, fo.initErr
+		return fo.initErr
+	}
+	if fo.mounted {
+		return nil
+	}
+	if err := fo.fs.Mount(); err != nil {
+		return err
+	}
+	fo.mounted = true
+	return nil
+}
+
+func (fo *FileOpsDriver) FileSize(path string) (int, error) {
+	if err := fo.checkMount(); err != nil {
+		return 0, err
 	}
 	s, err := fo.fs.Stat(absPath(fo.pwd, path, true, false))
 	if err != nil {
@@ -57,17 +68,30 @@ func (fo *FileOpsDriver) FileSize(path string) (int, error) {
 	return int(s.Size()), nil
 }
 
-func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
+func (fo *FileOpsDriver) Format() error {
 	if fo.initErr != nil {
-		return nil, fo.initErr
+		return fo.initErr
 	}
-	f, err := fo.fs.Open(absPath(fo.pwd, path, true, false))
+	if fo.mounted {
+		if err := fo.fs.Unmount(); err != nil {
+			return err
+		}
+		fo.mounted = false
+	}
+	return fo.fs.Format()
+}
+
+func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
+	if err := fo.checkMount(); err != nil {
+		return nil, err
+	}
+	apath := absPath(fo.pwd, path, true, false)
+	f, err := fo.fs.Open(apath)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	ff := f.(*fatfs.File)
-	sz, err := ff.Size()
+	sz, err := fo.FileSize(apath)
 	if err != nil {
 		return nil, err
 	}
@@ -97,14 +121,12 @@ func (fo *FileOpsDriver) AppendToFile(path string, data []byte) error {
 }
 
 func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) error {
-	if fo.initErr != nil {
-		return fo.initErr
+	if err := fo.checkMount(); err != nil {
+		return err
 	}
 	for len(path) > 0 && path[0] == '/' {
 		path = path[1:]
 	}
-	print("Opening file ")
-	println(path)
 	f, err := fo.fs.OpenFile(absPath(fo.pwd, path, true, false), flags)
 	if err != nil {
 		return err
@@ -112,17 +134,12 @@ func (fo *FileOpsDriver) writeOrAppend(path string, data []byte, flags int) erro
 	defer f.Close()
 	totalWritten := 0
 	for totalWritten < len(data) {
-		print("writing '")
-		print(data[totalWritten:])
-		println("'")
 		written, err := f.Write(data[totalWritten:])
 		if err != nil {
 			return err
 		}
 		totalWritten += written
 	}
-	print("Wrote bytes:")
-	println(strconv.Itoa(totalWritten))
 	return nil
 }
 

@@ -6,6 +6,7 @@ func (fo *FileOps) register(r *rpn.RPN) {
 	r.Register(".", fo.Source, rpn.CatIO, SourceHelp)
 	r.Register("append", fo.Append, rpn.CatIO, AppendHelp)
 	r.Register("cd", fo.ChangeDir, rpn.CatIO, ChangeDirHelp)
+	r.Register("format", fo.Format, rpn.CatIO, FormatHelp)
 	r.Register("load", fo.Load, rpn.CatIO, LoadHelp)
 	r.Register("save", fo.Save, rpn.CatIO, SaveHelp)
 	r.Register("source", fo.Source, rpn.CatIO, SourceHelp)

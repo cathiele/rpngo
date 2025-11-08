@@ -1,6 +1,7 @@
 package fileops
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"mattwach/rpngo/elog"
@@ -12,6 +13,7 @@ import (
 
 type FileOpsDriver interface {
 	FileSize(path string) (int, error)
+	Format() error
 	ReadFile(path string) ([]byte, error)
 	WriteFile(path string, data []byte) error
 	AppendToFile(path string, data []byte) error
@@ -28,6 +30,19 @@ func (fo *FileOps) InitAndRegister(r *rpn.RPN, maxFileSize int, driver FileOpsDr
 	fo.maxFileSize = maxFileSize
 	fo.driver = driver
 	fo.register(r)
+}
+
+const FormatHelp = "Formats an SD card. For safety, must provide a single \"YES\" string argument. Not suported on PCs"
+
+func (fo *FileOps) Format(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	if !f.IsString() || (f.UnsafeString() != "YES") {
+		return errors.New("provide the argument 'YES' to confirm SD Card reformat")
+	}
+	return fo.driver.Format()
 }
 
 const LoadHelp = "Loads the given filename and places it on the stack as a string variable"

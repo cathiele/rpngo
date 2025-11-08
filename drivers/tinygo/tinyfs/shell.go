@@ -25,8 +25,8 @@ var (
 // much mor robust with a real shell, of course).
 
 func (fo *FileOpsDriver) Shell(args []string, stdin io.Reader) (string, error) {
-	if fo.initErr != nil {
-		return "", fo.initErr
+	if err := fo.checkMount(); err != nil {
+		return "", err
 	}
 	if len(args) == 0 {
 		return "", nil
@@ -65,19 +65,15 @@ func (fo *FileOpsDriver) ls(args []string) (string, error) {
 		}
 	}
 	path = absPath(fo.pwd, path, true, false)
-	print("open ")
-	println(path)
 	dir, err := fo.fs.Open(path)
 	if err != nil {
 		return "", err
 	}
 	defer dir.Close()
-	println("read dir")
 	infos, err := dir.Readdir(0)
 	if err != nil {
 		return "", err
 	}
-	println("for loop")
 	elog.Heap("alloc: /drivers/tinygo/tinyfs/shell.go:77: buff := make([]byte, 0, 128)")
 	buff := make([]byte, 0, 128) // object allocated on the heap: escapes at line 77
 	for _, info := range infos {
@@ -87,7 +83,6 @@ func (fo *FileOpsDriver) ls(args []string) (string, error) {
 			buff = appendShortInfo(buff, info)
 		}
 	}
-	println("done")
 	return string(buff), nil
 }
 

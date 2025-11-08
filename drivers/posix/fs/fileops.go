@@ -1,6 +1,9 @@
 package fs
 
-import "os"
+import (
+	"mattwach/rpngo/rpn"
+	"os"
+)
 
 type FileOpsDriver struct{}
 
@@ -32,4 +35,8 @@ func (fo *FileOpsDriver) AppendToFile(path string, data []byte) error {
 
 func (fo *FileOpsDriver) Chdir(path string) error {
 	return os.Chdir(path)
+}
+
+func (fo *FileOpsDriver) Format() error {
+	return rpn.ErrNotSupported
 }
