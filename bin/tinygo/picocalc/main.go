@@ -146,7 +146,7 @@ func buildUI() error {
 	if err != nil {
 		return err
 	}
-	inputWin.Init(&picocalc, txtw, &rpnInst, scrollbytes)
+	inputWin.Init(&picocalc, txtw, &rpnInst, &fileOpsDriver, scrollbytes)
 	picocalc.PatchInUARTPrint(&rpnInst)
 	root.AddWindowChildToRoot(&inputWin, "i", 100)
 	return nil

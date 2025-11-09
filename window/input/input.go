@@ -4,6 +4,7 @@ package input
 
 import (
 	"errors"
+	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
@@ -27,11 +28,11 @@ type InputWindow struct {
 	autofn     []string
 }
 
-func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, scrollbytes int) {
+func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, fs fileops.FileOpsDriver, scrollbytes int) {
 	iw.input = input
 	// Make this >0 when we are ready to try scrolling.
 	iw.txtb.Init(txtw, scrollbytes)
-	iw.gl = initGetLine(input, &iw.txtb)
+	iw.gl = initGetLine(input, &iw.txtb, fs)
 	iw.firstInput = true
 	iw.showFrames = 1
 	r.Print = iw.Print

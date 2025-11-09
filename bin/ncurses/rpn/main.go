@@ -132,7 +132,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 		return err
 	}
 	var iw input.InputWindow
-	iw.Init(txtw.(*curses.Curses), txtw, r, scrollbytes)
+	iw.Init(txtw.(*curses.Curses), txtw, r, &fs.FileOpsDriver{}, scrollbytes)
 	if err != nil {
 		return err
 	}

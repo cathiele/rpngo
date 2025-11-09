@@ -1,3 +1,5 @@
+//go:build pico || pico2
+
 package tinyfs
 
 import (

@@ -112,7 +112,7 @@ func addInputWindow(screen window.Screen, root *window.WindowRoot, r *rpn.RPN) e
 	if err != nil {
 		return err
 	}
-	inputWin.Init(&getInputInst, txtw, r, scrollbytes)
+	inputWin.Init(&getInputInst, txtw, r, &fileOpsDriver, scrollbytes)
 	getInputInst.Init(txtw.(*ili9341.Ili9341TxtW))
 	xmodemCommands.InitAndRegister(&rpnInst, &getInputInst.serial)
 	root.AddWindowChildToRoot(&inputWin, "i", 100)
