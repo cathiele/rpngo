@@ -696,6 +696,7 @@ These are what the input properties do:
 
 - `autofn` Executes the given code before showing a prompt.  This can be used to
   track memory usage, print a custom message, update a graph, or anything you want.
+- `autohist` If enabled, the history file is updated after every entered command.
 - `histpath` Te path to load history from and save it to.  This is `$HOME/.rpngo_history`
   by default. Changing th path can be usedful when combined with `histl` and `hists`.
 - `showframes` How much of the stack to copy to the input window after each
@@ -715,6 +716,18 @@ property command to cover:
 
 This copies the property value to the stack. It can be useful if you
 want to use a property value in a program.
+
+#### History
+
+History is set to be automatic on PC. History is manual by default
+on microcontrollers (mostly because of slow write speeds and elevated
+power usage).  For micorcontroller it is suggeted to bind `hists` to
+a function key for quick save ability. You can take further contol as needed:
+
+Use the `autohist` and `histpath` input window properties to determine
+if history is automatic or manual and what the path should be.
+
+Use `histl` and `hists` to load and save history (`to histpath`) manually.
 
 ### Stack Window Properties
 

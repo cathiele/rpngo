@@ -13,4 +13,7 @@ const commonStartup = `
 {ssize n< 0 {+ ssize 1 >} for n> /} mean=
 {$0 {min ssize 1 >} for} min=
 {$0 {max ssize 1 >} for} max=
+
+histl
+hists
 `

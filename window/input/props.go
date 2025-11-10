@@ -21,6 +21,13 @@ func (iw *InputWindow) SetProp(name string, val rpn.Frame) error {
 		}
 		iw.autofn = fn
 		return nil
+	case "autohist":
+		enabled, err := val.Bool()
+		if err != nil {
+			return err
+		}
+		iw.gl.autoHistory = enabled
+		return nil
 	case "histpath":
 		if !val.IsString() {
 			return rpn.ErrExpectedAString
@@ -42,6 +49,8 @@ func (iw *InputWindow) GetProp(name string) (rpn.Frame, error) {
 	switch name {
 	case "autofn":
 		return rpn.StringFrame(strings.Join(iw.autofn, " "), rpn.STRING_BRACES), nil
+	case "autohist":
+		return rpn.BoolFrame(iw.gl.autoHistory), nil
 	case "histpath":
 		return rpn.StringFrame(iw.gl.histpath, rpn.STRING_SINGLE_QUOTE), nil
 	case "showframes":
@@ -50,7 +59,7 @@ func (iw *InputWindow) GetProp(name string) (rpn.Frame, error) {
 	return rpn.Frame{}, rpn.ErrNotSupported
 }
 
-var inputProps = []string{"autofn", "histpath", "showframes"}
+var inputProps = []string{"autofn", "autohist", "histpath", "showframes"}
 
 func (iw *InputWindow) ListProps() []string {
 	return inputProps

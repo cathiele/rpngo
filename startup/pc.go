@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-const defaultConfigFile = `
+const defaultConfigFile = commonStartup + `
 # Create and layout windows
 "
 'g' w.new.group
@@ -38,7 +38,8 @@ const defaultConfigFile = `
 '$.plotwin w.new.plot' .plotinit=
 
 '/dev/ttyACM0' .serial=
-` + commonStartup
+'i' 'autohist' true w.setp
+`
 
 const configName = ".rpngo"
 

@@ -25,7 +25,6 @@ type InputWindow struct {
 	gl         *getLine
 	firstInput bool
 	showFrames int
-	histfile   string
 	autofn     []string
 }
 
@@ -39,6 +38,8 @@ func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, fs 
 	r.Print = iw.Print
 	r.Input = iw.Input
 	r.Register("edit", iw.Edit, rpn.CatProg, EditHelp)
+	r.Register("histl", iw.gl.HistLoad, rpn.CatStatus, HistLoadHelp)
+	r.Register("hists", iw.gl.HistSave, rpn.CatStatus, HistSaveHelp)
 }
 
 func (iw *InputWindow) Print(msg string) {

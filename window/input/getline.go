@@ -11,6 +11,7 @@ package input
 
 import (
 	"bytes"
+	"errors"
 	"mattwach/rpngo/elog"
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/key"
@@ -19,6 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 )
+
+var errDisableAutoHistoryFirst = errors.New("disable auto history first")
 
 const MAX_HISTORY_LINES = 500
 
@@ -29,6 +32,7 @@ type getLine struct {
 	history      [MAX_HISTORY_LINES][]byte
 	historyCount int
 	histpath     string
+	autoHistory  bool
 	fs           fileops.FileOpsDriver
 	// line is the current line.  It's kept here to support entering
 	// scrolling mode without losing the current line contents.
@@ -55,16 +59,24 @@ func initGetLine(input Input, txtb *window.TextBuffer, fs fileops.FileOpsDriver)
 		fs:           fs,
 		names:        make([]string, 0, 16), // object allocated on the heap: escapes at line 48
 	}
-	gl.loadHistory()
 	return gl
 }
 
-func (gl *getLine) loadHistory() {
+const HistLoadHelp = "Loads in-memory history from 'histpath' (an input window property)"
+
+func (gl *getLine) HistLoad(r *rpn.RPN) error {
+	if gl.autoHistory {
+		return errDisableAutoHistoryFirst
+	}
+	return gl.loadHistory()
+}
+
+func (gl *getLine) loadHistory() error {
 	data, err := gl.fs.ReadFile(gl.histpath)
 	if err != nil {
 		elog.Heap("alloc: /window/input/getline.go:69: elog.Print('Could not read hitory file: ', err.Error())")
 		elog.Print("Could not read hitory file: ", err.Error()) // object allocated on the heap: escapes at line 69
-		return
+		return err
 	}
 	for _, line := range strings.Split(string(data), "\n") {
 		line := strings.TrimSpace(line)
@@ -81,10 +93,19 @@ func (gl *getLine) loadHistory() {
 		}
 		gl.historyCount++
 	}
-	gl.writeAllHistory()
+	return nil
 }
 
-func (gl *getLine) writeAllHistory() {
+const HistSaveHelp = "Saves in-memory history to 'histpath' (an input window property)"
+
+func (gl *getLine) HistSave(r *rpn.RPN) error {
+	if gl.autoHistory {
+		return errDisableAutoHistoryFirst
+	}
+	return gl.writeAllHistory()
+}
+
+func (gl *getLine) writeAllHistory() error {
 	mini := gl.historyCount - MAX_HISTORY_LINES
 	if mini < 0 {
 		mini = 0
@@ -99,6 +120,7 @@ func (gl *getLine) writeAllHistory() {
 	if err != nil {
 		elog.Print("failed to save history file: ", err.Error())
 	}
+	return err
 }
 
 func (gl *getLine) get(r *rpn.RPN) (string, error) {
@@ -187,14 +209,14 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 		case key.KEY_BREAK:
 			gl.txtb.Shift(len(gl.line) - idx)
 			gl.txtb.Write('\n', true)
-			gl.addToHistory()
+			gl.addToHistoryIfAutoEnabled()
 			return "", nil
 		default:
 			b := byte(c)
 			if b == '\n' {
 				gl.txtb.Shift(len(gl.line) - idx)
 				gl.txtb.Write(b, true)
-				gl.addToHistory()
+				gl.addToHistoryIfAutoEnabled()
 				return string(gl.line), nil
 			}
 			gl.addChar(idx, b)
@@ -228,7 +250,10 @@ func (gl *getLine) addChar(idx int, b byte) {
 	}
 }
 
-func (gl *getLine) addToHistory() {
+func (gl *getLine) addToHistoryIfAutoEnabled() {
+	if !gl.autoHistory {
+		return
+	}
 	// if the last history element is the same as line, don't repeat it
 	if gl.historyCount > 0 && bytes.Equal(gl.history[(gl.historyCount-1)%MAX_HISTORY_LINES], gl.line) {
 		return

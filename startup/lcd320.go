@@ -6,7 +6,7 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const lcd320ConfigFile = `
+const lcd320ConfigFile = commonStartup + `
 {
   30 .wweight<
   's' w.new.stack
@@ -23,18 +23,7 @@ const lcd320ConfigFile = `
   'v' w.new.var
 } .f3=
 {@.plotinit} .f4=
-{
-	w.reset
-	'g' w.new.group
-	'g' w.columns
-	'i' 'g' w.move.beg
-	'g' .wtarget<
-	'v' w.new.var
-	.wtarget> 0/
-	30 .wweight=
-	's' w.new.stack
-	.wweight> 0/
-} .f5=
+{ hists 'command history saved to' printsx 'i' 'histpath' w.getp printlnx } .f5=
 
 'i' 'autofn'
 {
@@ -62,7 +51,7 @@ const lcd320ConfigFile = `
   $.plotwin w.new.plot
   .wend> 0/ .wweight> 0/
 } .plotinit=
-` + commonStartup
+`
 
 // LCD320Startup is startup logic when using a 320x240 display
 // filesystem available)
