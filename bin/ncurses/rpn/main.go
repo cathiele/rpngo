@@ -81,7 +81,7 @@ func interactive(r *rpn.RPN) error {
 	}
 	_ = commands.InitWindowCommands(r, &root, screen, newTextPlotWindow)
 	_ = plotwin.InitPlotCommands(r, &root, screen)
-	if err := startup.OSStartup(r); err != nil {
+	if err := startup.Startup(r, &fs.FileOpsDriver{}); err != nil {
 		return err
 	}
 	w, h := screen.ScreenSize()

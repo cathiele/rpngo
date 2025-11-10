@@ -1,12 +1,8 @@
+//go:build pico || pico2
+
 package startup
 
-import (
-	"fmt"
-	"mattwach/rpngo/parse"
-	"mattwach/rpngo/rpn"
-)
-
-const lcd320ConfigFile = commonStartup + `
+const defaultConfig = commonStartup + `
 {
   30 .wweight<
   's' w.new.stack
@@ -52,13 +48,3 @@ const lcd320ConfigFile = commonStartup + `
   .wend> 0/ .wweight> 0/
 } .plotinit=
 `
-
-// LCD320Startup is startup logic when using a 320x240 display
-// filesystem available)
-func LCD320Startup(r *rpn.RPN) error {
-	err := parse.Fields(lcd320ConfigFile, r.Exec)
-	if err != nil {
-		return fmt.Errorf("while parsing lcd320ConfigFile var: %w", err)
-	}
-	return nil
-}

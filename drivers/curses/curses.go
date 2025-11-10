@@ -2,7 +2,6 @@
 package curses
 
 import (
-	"log"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/window"
 
@@ -219,7 +218,6 @@ func (c *Curses) DrawChar(x, y int, ch window.ColorChar) {
 	}
 	c.window.Move(y, x)
 	b := byte(ch & 0xFF)
-	log.Printf("DrawChar: %c", b)
 	c.window.AddChar(goncurses.Char(b))
 }
 

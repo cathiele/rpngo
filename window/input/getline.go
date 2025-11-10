@@ -46,7 +46,7 @@ func initGetLine(input Input, txtb *window.TextBuffer, fs fileops.FileOpsDriver)
 	elog.Heap("alloc: /window/input/getline.go:41: gl := &getLine{")
 	elog.Heap("alloc: /window/input/getline.go:46: namesAndValues: make([]rpn.NameAndValues, 0, 8),")
 	var histpath string
-	home, err := homeDir()
+	home, err := fileops.HomeDir()
 	if err == nil {
 		histpath = filepath.Join(home, histFile)
 	}

@@ -994,6 +994,24 @@ and on the calculator:
 If everyting worked, you will have the contents of the file as a string
 at the top of the stack.
 
+## The startup file
+
+A file named `$HOME/.rpngo` will be created if it does not yet exist using the
+data files in the `startup/` source folder.  You can edit this file
+in order to customize the calculator at startup. Here are some thing you
+might want to configure:
+
+- The default window layout
+- How to create the plot window
+- Varables and macros that you always want available
+- F1-F12 key bindings
+- How command history is saved
+- Actions to perform on every command entered
+- Serial port echo (on microcontrollers)
+
+If you delete or renaem the file, a new one with default properties will
+be created.
+
 ## Programming
 
 RPNGO provides support for simple programming. It's not going to replace

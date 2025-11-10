@@ -120,8 +120,8 @@ func run() error {
 	}
 	_ = commands.InitWindowCommands(&rpnInst, &root, &picocalc.screen, newPixelPlotWindow)
 	_ = plotwin.InitPlotCommands(&rpnInst, &root, &picocalc.screen)
-	if err := startup.LCD320Startup(&rpnInst); err != nil {
-		return err
+	if err := startup.Startup(&rpnInst, &fileOpsDriver); err != nil {
+		rpnInst.Print(err.Error())
 	}
 	interruptCheckInst.Init()
 	w, h := picocalc.screen.ScreenSize()

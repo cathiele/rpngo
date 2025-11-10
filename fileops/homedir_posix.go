@@ -1,9 +1,9 @@
 //go:build !pico && !pico2
 
-package input
+package fileops
 
 import "os"
 
-func homeDir() (string, error) {
+func HomeDir() (string, error) {
 	return os.UserHomeDir()
 }

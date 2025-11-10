@@ -80,8 +80,8 @@ func run() error {
 	}
 	_ = commands.InitWindowCommands(&rpnInst, &root, &screen, newPixelPlotWindow)
 	_ = plotwin.InitPlotCommands(&rpnInst, &root, &screen)
-	if err := startup.LCD320Startup(&rpnInst); err != nil {
-		return err
+	if err := startup.Startup(&rpnInst, &fileOpsDriver); err != nil {
+		rpnInst.Print(err.Error())
 	}
 	w, h := screen.ScreenSize()
 	if err := root.Update(&rpnInst, w, h, true); err != nil {
