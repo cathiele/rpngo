@@ -25,6 +25,7 @@ type InputWindow struct {
 	gl         *getLine
 	firstInput bool
 	showFrames int
+	histfile   string
 	autofn     []string
 }
 

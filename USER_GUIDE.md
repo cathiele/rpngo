@@ -696,6 +696,8 @@ These are what the input properties do:
 
 - `autofn` Executes the given code before showing a prompt.  This can be used to
   track memory usage, print a custom message, update a graph, or anything you want.
+- `histpath` Te path to load history from and save it to.  This is `$HOME/.rpngo_history`
+  by default. Changing th path can be usedful when combined with `histl` and `hists`.
 - `showframes` How much of the stack to copy to the input window after each
   entered command. More or less stack in the history has it's trade-offs and is
   personal preference.

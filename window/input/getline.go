@@ -28,6 +28,7 @@ type getLine struct {
 	txtb         *window.TextBuffer
 	history      [MAX_HISTORY_LINES][]byte
 	historyCount int
+	histpath     string
 	fs           fileops.FileOpsDriver
 	// line is the current line.  It's kept here to support entering
 	// scrolling mode without losing the current line contents.
@@ -40,11 +41,17 @@ const histFile = ".rpngo_history"
 func initGetLine(input Input, txtb *window.TextBuffer, fs fileops.FileOpsDriver) *getLine {
 	elog.Heap("alloc: /window/input/getline.go:41: gl := &getLine{")
 	elog.Heap("alloc: /window/input/getline.go:46: namesAndValues: make([]rpn.NameAndValues, 0, 8),")
+	var histpath string
+	home, err := homeDir()
+	if err == nil {
+		histpath = filepath.Join(home, histFile)
+	}
 	gl := &getLine{ // object allocated on the heap: object size 6048 exceeds maximum stack allocation size 256
 		insertMode:   true,
 		input:        input,
 		txtb:         txtb,
 		historyCount: 0,
+		histpath:     histpath,
 		fs:           fs,
 		names:        make([]string, 0, 16), // object allocated on the heap: escapes at line 48
 	}
@@ -52,22 +59,8 @@ func initGetLine(input Input, txtb *window.TextBuffer, fs fileops.FileOpsDriver)
 	return gl
 }
 
-func historyPath() (string, error) {
-	home, err := homeDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, histFile), nil
-}
-
 func (gl *getLine) loadHistory() {
-	path, err := historyPath()
-	if err != nil {
-		elog.Heap("alloc: /window/input/getline.go:64: elog.Print('Could not generate history path for load: ', err.Error())")
-		elog.Print("Could not generate history path for load: ", err.Error()) // object allocated on the heap: escapes at line 64
-		return
-	}
-	data, err := gl.fs.ReadFile(path)
+	data, err := gl.fs.ReadFile(gl.histpath)
 	if err != nil {
 		elog.Heap("alloc: /window/input/getline.go:69: elog.Print('Could not read hitory file: ', err.Error())")
 		elog.Print("Could not read hitory file: ", err.Error()) // object allocated on the heap: escapes at line 69
@@ -88,16 +81,10 @@ func (gl *getLine) loadHistory() {
 		}
 		gl.historyCount++
 	}
-	gl.prepareHistory()
+	gl.writeAllHistory()
 }
 
-func (gl *getLine) prepareHistory() {
-	path, err := historyPath()
-	if err != nil {
-		elog.Heap("alloc: /window/input/getline.go:92: elog.Print('Could not generate history path for prepare: ', err.Error())")
-		elog.Print("Could not generate history path for prepare: ", err.Error()) // object allocated on the heap: escapes at line 92
-		return
-	}
+func (gl *getLine) writeAllHistory() {
 	mini := gl.historyCount - MAX_HISTORY_LINES
 	if mini < 0 {
 		mini = 0
@@ -108,7 +95,7 @@ func (gl *getLine) prepareHistory() {
 		buff = append(buff, line...)
 		buff = append(buff, '\n')
 	}
-	err = gl.fs.WriteFile(path, buff)
+	err := gl.fs.WriteFile(gl.histpath, buff)
 	if err != nil {
 		elog.Print("failed to save history file: ", err.Error())
 	}
@@ -259,14 +246,8 @@ func (gl *getLine) addToHistory() {
 	}
 	gl.history[hidx] = append(gl.history[hidx], gl.line...)
 	gl.historyCount++
-	path, err := historyPath()
-	if err != nil {
-		elog.Print("Could nort determine history path: ", err.Error())
-		gl.fs = nil
-		return
-	}
 	line := append(gl.line, '\n')
-	err = gl.fs.AppendToFile(path, line)
+	err := gl.fs.AppendToFile(gl.histpath, line)
 	if err != nil {
 		elog.Print("could not write history line: ", err.Error()) // object allocated on the heap: escapes at line 259
 		gl.fs = nil
