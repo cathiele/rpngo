@@ -20,9 +20,14 @@ const (
 	PAGEDOWN
 )
 
+// Escape codes make it a bit trickey to determine when only ESC was pressed
+// Using a timeout delay is the usual tactic.
+const escWait = 100 * time.Millis
+
 type Serial struct {
 	state       TermState
 	ignoreUntil time.Time
+	escTimeout time.Time
 	Serial      machine.Serialer
 }
 
@@ -63,6 +68,10 @@ func (sc *Serial) GetChar() key.Key {
 	}
 	c, err := machine.Serial.ReadByte()
 	if err != nil {
+		if (sc.state == ESC) && time.Now().After(sc.escTimeout) {
+			sc.state = NORMAL
+			return 27
+		}
 		// nothing available
 		return 0
 	}
@@ -76,6 +85,7 @@ func (sc *Serial) GetChar() key.Key {
 		case 13:
 			return '\n'
 		case 27:
+			sc.escTimeout = time.Now().Add(escWait)
 			sc.state = ESC
 		case 127:
 			return key.KEY_BACKSPACE
