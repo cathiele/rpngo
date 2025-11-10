@@ -251,9 +251,6 @@ func (gl *getLine) addChar(idx int, b byte) {
 }
 
 func (gl *getLine) addToHistoryIfAutoEnabled() {
-	if !gl.autoHistory {
-		return
-	}
 	// if the last history element is the same as line, don't repeat it
 	if gl.historyCount > 0 && bytes.Equal(gl.history[(gl.historyCount-1)%MAX_HISTORY_LINES], gl.line) {
 		return
@@ -271,11 +268,13 @@ func (gl *getLine) addToHistoryIfAutoEnabled() {
 	}
 	gl.history[hidx] = append(gl.history[hidx], gl.line...)
 	gl.historyCount++
-	line := append(gl.line, '\n')
-	err := gl.fs.AppendToFile(gl.histpath, line)
-	if err != nil {
-		elog.Print("could not write history line: ", err.Error()) // object allocated on the heap: escapes at line 259
-		gl.fs = nil
+	if gl.autoHistory {
+		line := append(gl.line, '\n')
+		err := gl.fs.AppendToFile(gl.histpath, line)
+		if err != nil {
+			elog.Print("could not write history line: ", err.Error()) // object allocated on the heap: escapes at line 259
+			gl.fs = nil
+		}
 	}
 }
 

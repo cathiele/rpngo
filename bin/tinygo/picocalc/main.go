@@ -120,7 +120,7 @@ func run() error {
 	}
 	_ = commands.InitWindowCommands(&rpnInst, &root, &picocalc.screen, newPixelPlotWindow)
 	_ = plotwin.InitPlotCommands(&rpnInst, &root, &picocalc.screen)
-	if err := startup.Startup(&rpnInst, &fileOpsDriver); err != nil {
+	if err := startup.Startup(&rpnInst, nil); err != nil {
 		rpnInst.Print(err.Error())
 	}
 	interruptCheckInst.Init()

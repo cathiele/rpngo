@@ -53,9 +53,15 @@ func genConfigPath() (string, error) {
 }
 
 func loadOrCreateConfigFile(fs fileops.FileOpsDriver, configPath string) string {
-	s, err := fs.ReadFile(configPath)
+	var s []byte
+	var err error
+	if fs != nil {
+		s, err = fs.ReadFile(configPath)
+	}
 	if err != nil {
 		elog.Print("while loading config ", configPath, ": ", err.Error())
+	}
+	if fs == nil || (err != nil) {
 		s = createConfigFile(fs, configPath)
 	}
 	return string(s)
@@ -63,8 +69,10 @@ func loadOrCreateConfigFile(fs fileops.FileOpsDriver, configPath string) string 
 
 func createConfigFile(fs fileops.FileOpsDriver, configPath string) []byte {
 	s := []byte(defaultConfig)
-	if err := fs.WriteFile(configPath, s); err != nil {
-		elog.Print("while saving config ", configPath, ": ", err.Error())
+	if fs != nil {
+		if err := fs.WriteFile(configPath, s); err != nil {
+			elog.Print("while saving config ", configPath, ": ", err.Error())
+		}
 	}
 	return s
 }
