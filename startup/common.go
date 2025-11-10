@@ -6,7 +6,6 @@ import (
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
-	"os"
 	"path/filepath"
 )
 
@@ -64,9 +63,8 @@ func loadOrCreateConfigFile(fs fileops.FileOpsDriver, configPath string) string 
 
 func createConfigFile(fs fileops.FileOpsDriver, configPath string) []byte {
 	s := []byte(defaultConfig)
-	if err := os.WriteFile(configPath, s, 0644); err != nil {
+	if err := fs.WriteFile(configPath, s); err != nil {
 		elog.Print("while saving config ", configPath, ": ", err.Error())
-		s = createConfigFile(fs, configPath)
 	}
 	return s
 }
