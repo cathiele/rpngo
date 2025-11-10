@@ -960,6 +960,29 @@ various shell usecases:
 
     'hello world' 'hello.txt' save  # save "hello world" to a file
 
+### Serial communications between PC and PicoCalc
+
+Serial communications are off-by-defualt on the PicoCalc becuase of a
+performance penalty of having them enabled.  For example, printing
+can get throttled by the 115200 buad rate of the UART.  They can be
+enabled by issuing this command on the PicoCalc:
+
+    true serial
+
+If you want them on all of the time, you can add the above
+line to `startup/lcd320.go`.
+
+Once-enabled, you can use `tinygo monitor`, `screen`, `minicom`
+or some other serial communications software to send and
+receive information from the PicoCalc using it's USB-C interface.
+
+Note that, due to limitations of the PicoCalc UART (which is an
+actual RP2040/TP2350 UART connected to the STM helper chip), TinyGo,
+and the limitations of LCD screen updates, block transfers to the
+PicoCalc have been observed to drop data. It is thus suggested
+that this path is only used for interactive usecases.  To transfer
+larger amounts of data, use the XMODEM commands described below.
+
 ### XMODEM send and receive
 
 What is old is new.  It's possible to send and receive data from rpngo on

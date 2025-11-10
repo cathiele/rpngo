@@ -76,12 +76,6 @@ func (ic *interruptCheck) delaySleepFn(t float64) {
 	ic.origSleepFn(t)
 }
 
-type getInput struct {
-	lcd      *ili948x.Ili948xTxtW
-	serial   serial.Serial
-	keyboard i2ckbd.I2CKbd
-}
-
 func main() {
 	time.Sleep(200 * time.Millisecond)
 	picocalc.Init()
@@ -112,6 +106,7 @@ func newPixelPlotWindow() (window.WindowWithProps, error) {
 func run() error {
 	rpnInst.Init(maxStackDepth)
 	functions.RegisterAll(&rpnInst)
+	rpnInst.Register('serial', &picocalc.Serial, rpn.CatIO, SerialHelp)
 	_ = fileOpsDriver.Init()
 	fileOps.InitAndRegister(&rpnInst, 65536, &fileOpsDriver)
 	err := buildUI()

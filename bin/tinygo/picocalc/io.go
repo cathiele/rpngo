@@ -40,11 +40,6 @@ func (gi *picoCalcIO) GetChar() (key.Key, error) {
 	}
 }
 
-func (gi *picoCalcIO) PatchInUARTPrint(r *rpn.RPN) {
-	gi.originalPrint = r.Print
-	r.Print = gi.Print
-}
-
 func (gi *picoCalcIO) Print(str string) {
 	if gi.serial.Serial != nil {
 		for _, c := range str {
@@ -52,4 +47,30 @@ func (gi *picoCalcIO) Print(str string) {
 		}
 	}
 	gi.originalPrint(str)
+}
+
+const SerialHelp = "If true, enables serial communications with a host PC."
+
+func (gi *picoCalcIO) Serial(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	enabled, err := f.Bool()
+	if err != nil {
+		return err
+	}
+	if !enabled {
+		if gi.serial.Serial != nil {
+			return rpn.ErrNotSupported 
+		}
+		return nil
+	}
+	if gi.serial.Serial != nil {
+		return nil
+	}
+	gi.serial.Init(machine.Serial)
+	gi.originalPrint = r.Print
+	r.Print = gi.Print
+	return nil
 }
