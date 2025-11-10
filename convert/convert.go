@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+var (
+	errUnknownConversionType = errors.New("unknown conversion type")
+)
+
 //
 // Implementation:
 //
@@ -87,8 +91,8 @@ var massConvert = []unit{
 
 var cycleConvert = []unit{
 	{1.0000, 0, []string{"cycle", "cycles"}},
-	{1000000.0000, 0, []string{"kilacycle", "kilacycles"}},
-	{1000000.0000, 0, []string{"megacycle", "megacycles"}},
+	{1000.0000, 0, []string{"kilocycle", "kilocycles"}},
+	{1000000.0000, 0, []string{"megacycle", "megacycles", "megahertz", "mhz"}},
 	{1000000000.0000, 0, []string{"gigacycle", "gigacycles"}},
 }
 
@@ -128,7 +132,7 @@ var energyConvert = []unit{
 	{1055.0600, 0, []string{"btu"}},        // EC standard
 	{105506000.0000, 0, []string{"therm"}}, // EC standard
 	{4.2000, 0, []string{"calorie", "cal", "calories"}},
-	{4200.0000, 0, []string{"kilocalorie", "kilocalories"}},
+	{4184.0000, 0, []string{"kilocalorie", "kilocalories"}},
 }
 
 //
@@ -155,7 +159,7 @@ var aliases = map[string]string{
 	"ghz":         "gigacycles/second",
 	"hp":          "hps/second",
 	"hz":          "cycles/second",
-	"khz":         "kilacycles/second",
+	"khz":         "kilocycles/second",
 	"kilowatt":    "kilojoules/second",
 	"kilowatts":   "kilowatt",
 	"kw":          "kilojoules/second",
@@ -320,7 +324,7 @@ func (c *Conversion) analyzeType(t string, data *conversionData) error {
 	for _, numeratorType := range numeratorTypeList {
 		n, ok := c.convertDict[numeratorType]
 		if !ok {
-			return fmt.Errorf("unknown conversion type: %v", numeratorType)
+			return fmt.Errorf("%v: %w", numeratorType, errUnknownConversionType)
 		}
 		numerator = append(numerator, n)
 	}
@@ -328,7 +332,7 @@ func (c *Conversion) analyzeType(t string, data *conversionData) error {
 	for _, denominatorType := range denominatorTypeList {
 		d, ok := c.convertDict[denominatorType]
 		if !ok {
-			return fmt.Errorf("unknown conversion type: %v", denominatorType)
+			return fmt.Errorf("%v: %w", denominatorType, errUnknownConversionType)
 		}
 		denominator = append(denominator, d)
 	}
