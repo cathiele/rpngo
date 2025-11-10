@@ -967,7 +967,7 @@ microcontrollers using the XMODEM protocol.  XMODEM was chosen because the
 PicoCalc UART via TinyGo loses bytes now and then and XMODEM is the least
 complicated well-supported way to get around that problem.
 
-## Send a file to RPNGO
+#### Send a file to RPNGO using sx
 
 You can, in theory, use any PC program that supports XMODEM-CRC (128 byte
 packets, 16-bit CRC).  I actually tested it with `screen` and `sx`.  First,
@@ -985,14 +985,43 @@ change the name to the file you actually want to send.
 
 Next type `Ctrl-A`, `:` and type this at the prompt:
 
-    exec !! xc bounce_ball.rpn
+    exec !! sx bounce_ball.rpn
 
 and on the calculator:
 
-    xmodemr
+    rx
 
 If everyting worked, you will have the contents of the file as a string
 at the top of the stack.
+
+#### Receive a file from RPNGO using rx
+
+The directions here are the same as the previous section, but you type this
+in screen instead:
+
+    exec !! sx bounce_ball.rpn
+
+and on the calculator:
+
+    sx
+
+The calculator will send the top of the stack via xmodem
+
+#### Send and receive from another RPNGO instance
+
+Sending from one calculator to another should be possible
+by using `sx` on one and `rx` on the other. To get it to work
+between PC and a microcontroller, you'll want to confirm that
+the `$.serial` variable is set correctly on the PC. You'll
+also want to use the `stty` command (if using linux) to
+confirm that your baud rate is set correctly.
+
+Microcontroller to microcontroller should also be possible
+using baseline UART (USB to USB is not so easy because
+there is no USB host mode support). Doing so will require
+that the serial port be configured correctly in `main.go`
+on both devices (e.g. this is a bit more advanced than other
+options).
 
 ## The startup file
 
