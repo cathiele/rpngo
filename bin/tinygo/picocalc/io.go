@@ -1,6 +1,7 @@
 package main
 
 import (
+	"machine"
 	"mattwach/rpngo/drivers/tinygo/picocalc/i2ckbd"
 	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
 	"mattwach/rpngo/drivers/tinygo/serial"
@@ -62,7 +63,7 @@ func (gi *picoCalcIO) Serial(r *rpn.RPN) error {
 	}
 	if !enabled {
 		if gi.serial.Serial != nil {
-			return rpn.ErrNotSupported 
+			return rpn.ErrNotSupported
 		}
 		return nil
 	}

@@ -22,12 +22,12 @@ const (
 
 // Escape codes make it a bit trickey to determine when only ESC was pressed
 // Using a timeout delay is the usual tactic.
-const escWait = 100 * time.Millis
+const escWait = 100 * time.Millisecond
 
 type Serial struct {
 	state       TermState
 	ignoreUntil time.Time
-	escTimeout time.Time
+	escTimeout  time.Time
 	Serial      machine.Serialer
 }
 

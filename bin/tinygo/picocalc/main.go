@@ -7,9 +7,6 @@ package main
 import (
 	"errors"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
-	"mattwach/rpngo/drivers/tinygo/picocalc/i2ckbd"
-	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
-	"mattwach/rpngo/drivers/tinygo/serial"
 	"mattwach/rpngo/drivers/tinygo/tinyfs"
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
@@ -106,7 +103,7 @@ func newPixelPlotWindow() (window.WindowWithProps, error) {
 func run() error {
 	rpnInst.Init(maxStackDepth)
 	functions.RegisterAll(&rpnInst)
-	rpnInst.Register('serial', &picocalc.Serial, rpn.CatIO, SerialHelp)
+	rpnInst.Register("serial", picocalc.Serial, rpn.CatIO, SerialHelp)
 	_ = fileOpsDriver.Init()
 	fileOps.InitAndRegister(&rpnInst, 65536, &fileOpsDriver)
 	err := buildUI()
@@ -142,7 +139,6 @@ func buildUI() error {
 		return err
 	}
 	inputWin.Init(&picocalc, txtw, &rpnInst, &fileOpsDriver, scrollbytes)
-	picocalc.PatchInUARTPrint(&rpnInst)
 	root.AddWindowChildToRoot(&inputWin, "i", 100)
 	return nil
 }

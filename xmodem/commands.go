@@ -7,16 +7,17 @@ import (
 )
 
 var (
-	errCRCMismatch          = errors.New("crc mismatch")
-	errEarlyReceiverResponse = errors.New("receiver responded mid-packet")
-	errEndOfTransmission    = errors.New("end of transmission")
-	errIncorrectPacketId    = errors.New("incorrect packet id")
-	errIncorrectPacketIdSum = errors.New("incorrect packet id sum")
-	errInvalidInitialPacket = errors.New("invalid initial packet type")
-	errReadTimeout          = errors.New("read timeout")
-	errNakReceived              = errors.New("nak received")
-	errNakSent              = errors.New("nak sent")
-	errUnexpectedHeaderByte = errors.New("unexpected header byte")
+	errCRCMismatch            = errors.New("crc mismatch")
+	errEarlyReceiverResponse  = errors.New("receiver responded mid-packet")
+	errEndOfTransmission      = errors.New("end of transmission")
+	errIncorrectPacketId      = errors.New("incorrect packet id")
+	errIncorrectPacketIdSum   = errors.New("incorrect packet id sum")
+	errInvalidInitialPacket   = errors.New("invalid initial packet type")
+	errReadTimeout            = errors.New("read timeout")
+	errNakReceived            = errors.New("nak received")
+	errNakSent                = errors.New("nak sent")
+	errResponseTimeout        = errors.New("response timeout")
+	errUnexpectedHeaderByte   = errors.New("unexpected header byte")
 	errTimeoutWaitingForStart = errors.New("timeout waiting for start message")
 	errUnexpectedByteReceived = errors.New("unexpected byte received (not ack/nak)")
 )
@@ -113,12 +114,11 @@ func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	sc.buff = []byte(s)
+	sc.buff = []byte(s.String(false))
 	sc.state = InitialHandshake
 	sc.attemptsLeft = handshakeAttempt
 	sc.nextPacketId = 0x01
 	sc.deadline = time.Now().Add(60 * time.Second)
-	var err error
 	for err == nil {
 		switch sc.state {
 		case InitialHandshake:
@@ -149,9 +149,9 @@ func (sc *XmodemCommands) trimExtra() string {
 			break
 		}
 	}
-	s := string(sc.buff[:end+1)
+	s := string(sc.buff[:end+1])
 	sc.buff = nil
-	return
+	return s
 }
 
 func (sc *XmodemCommands) writePacket(r *rpn.RPN) error {
@@ -162,7 +162,7 @@ func (sc *XmodemCommands) writePacket(r *rpn.RPN) error {
 		if err != nil {
 			return err
 		}
-		c, err := sc.serial.ReadByte()
+		_, err = sc.serial.ReadByte()
 		if err == nil {
 			// not expecting a byte yet
 			return sc.writeRetry(errEarlyReceiverResponse)
@@ -198,9 +198,8 @@ func (sc *XmodemCommands) sendEOT() error {
 	}
 }
 
-
 func (sc *XmodemCommands) waitForAck() error {
-	deadline := time.Now().Add(3 * time.Seconds)
+	deadline := time.Now().Add(3 * time.Second)
 	for {
 		c, err := sc.serial.ReadByte()
 		if err == nil {
@@ -225,20 +224,20 @@ func (sc *XmodemCommands) buildWritePacket() bool {
 	sc.packet[0] = SOH
 	sc.packet[1] = sc.nextPacketId
 	sc.packet[2] = 0xFF - sc.packet[1]
-	start := (sc.nextPacketId - 1) * 128
+	start := (int(sc.nextPacketId) - 1) * 128
 	end := start + 128
-	lastPacket := end > len(s.buff)
+	lastPacket := end > len(sc.buff)
 	if lastPacket {
-		end = len(s.buff)
+		end = len(sc.buff)
 		// fill in some pad
-		for i := 3; i < (3+128); i++ {
+		for i := 3; i < (3 + 128); i++ {
 			sc.packet[i] = 0x1A
 		}
-	} 
-	copy(sc.packet[3:], s.buff[start:end])
+	}
+	copy(sc.packet[3:], sc.buff[start:end])
 	crc := sc.calcPacketChecksum()
-	sc.packet[131] = uint8(crc>>8)
-	sc.packet[132] = uint8(crc&0xFF)
+	sc.packet[131] = uint8(crc >> 8)
+	sc.packet[132] = uint8(crc & 0xFF)
 	return lastPacket
 }
 
@@ -252,7 +251,7 @@ func (sc *XmodemCommands) writeRetry(err error) error {
 
 func (sc *XmodemCommands) readPacket(r *rpn.RPN) error {
 	for {
-		if err := sc.readPacketData(); err != nil {
+		if err := sc.readPacketData(r); err != nil {
 			return err
 		}
 
@@ -283,7 +282,7 @@ func (sc *XmodemCommands) readPacket(r *rpn.RPN) error {
 
 }
 
-func (sc *XmodemCommands) readPacketData() error {
+func (sc *XmodemCommands) readPacketData(r *rpn.RPN) error {
 	if sc.state == InitialHandshake {
 		sc.deadline = time.Now().Add(3 * time.Second)
 	} else {
@@ -322,7 +321,6 @@ func (sc *XmodemCommands) readPacketData() error {
 
 	return nil
 }
-
 
 func (sc *XmodemCommands) nakWith(r *rpn.RPN, err error) error {
 	//sc.debugDump(r, err)
@@ -370,7 +368,3 @@ func (sc *XmodemCommands) calcPacketChecksum() uint16 {
 }
 
 const xmodemWriteHelp = "Attempts to send the data at the top of the stack using the xmodem protocol."
-
-func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
-	return rpn.ErrNotSupported
-}
