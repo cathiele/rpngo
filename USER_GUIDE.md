@@ -128,28 +128,31 @@ simply enjoy using them now.
 
 ## Base Features
 
-    2 4 +            # 6
-    2 4 -            # -2
-    2 4 *            # 8
-    2 4 /            # 0.5
-    4 sq             # 16
-    4 sqrt           # 2
-    -1 sqrt          # i
-    4+i 5-2i +       # 9-i
-    2 4 min          # 2
-    2 4 max          # 4
-    4 neg            # -4
-    -4 abs           # 4
-    3.14159 3 round  # 3.142
+    2 4 +                   # 6
+    2 4 -                   # -2
+    2 4 *                   # 8
+    2 4 /                   # 0.5
+    4 sq                    # 16
+    4 sqrt                  # 2
+    -1 sqrt                 # i
+    4+i 5-2i +              # 9-i
+    i polar                 # 1<1.570796326794897
+    1<1.5707 float 3 round  # i
+    2 4 min                 # 2
+    2 4 max                 # 4
+    4 neg                   # -4
+    -4 abs                  # 4
+    3.14159 3 round         # 3.142
 
 ## Scientific
 
-    2 4 **    # 16
-    3.14 sin  # 0.001592652916
-    3.14 cos  # -0.9999987317
-    3.14 tan  # -0.001592654936
-    5 log     # 1.609437912
-    10 log10  # 1
+    2 4 **       # 16
+    3.14 sin     # 0.001592652916
+    3.14 cos     # -0.9999987317
+    3.14 tan     # -0.001592654936
+    5 log        # 1.609437912
+    10 log10     # 1
+    deg 180 sin  # 0
 
 ### User Interface
 
@@ -230,6 +233,11 @@ is empty, then using `$0` results in an error.  e.g.
     5 sq    # squares the number 5
     5 $0 *  # also squares the number 5
 
+### Viewing Variables
+
+You can use `vlist` to list all assigned variables. There is also a special
+window view that can list variables that is described later.
+
 ### Variables Can Be Stacks
 
 Variables can hold more than one value.  This was created for two
@@ -274,6 +282,34 @@ Here is the demo:
 Note that using variables as stacks can create memory pressure on microcontrollers
 if it's pushed too far.
 
+### Special variables
+
+Variables that start with a `.` are generally considered special. Although
+you can create dot variables yourself, doing so might create
+unintended conflicts now or in the future. The current
+list of variables is briefly described here. Many of these
+are covered in more detail in upcoming sections:
+
+- `.f1`, `.f2`, `.f3`... These define macros that will be executed
+  when the corresponding function key is pressed
+- `.init` The startup script defines this by-convention to
+  make the initilization code (located in `$HOME/.rpngo`)
+  viewable. If the user provides a custom `.rpngo`, this
+  may not be defined.
+- `.plotinit` If the user asks for a plot (e.g. `'sin' plot`) and
+  no plot window exists, this macro is used to create one.
+  The user can customize this macro as-needed
+- `.plotwin` The name of the plot window to create. This will
+  usually be set to `p`.
+- `.serial` The path of the serial device to use on PCs (e.g.
+  `/dev/ttyACMO`).
+- `.wend`, `.wtarget`, `.wweight` These can be used to control
+  how a new window is created. The concept is covered later.
+
+### Viewing Variables
+
+You can use `vlist` to list all assigned variables. There is also a special
+window view that can list variables that is described later.
 
 ### Number Bases
 
@@ -283,6 +319,11 @@ Many type of numbers are supported
     50+i     # complex number
     50d      # Integer
     32x      # Hexidecimal
+
+### Viewing Variables
+
+You can use `vlist` to list all assigned variables. There is also a special
+window view that can list variables that is described later.
     62o      # octal
     110010b  # binary
 
@@ -291,11 +332,21 @@ Most operations can us a mix of these types, using the following rules:
     # Any number type mixed with float results in a float
     12.4 5d +  ->  17.4
 
+### Viewing Variables
+
+You can use `vlist` to list all assigned variables. There is also a special
+window view that can list variables that is described later.
+
     # Two integer types combined takes the base of the left term
     32x 50d +  ->  64x
 
 You can also convert between types using `hex`, `bin`, `oct`, `float`, `real`,
 `imag`, and `str`. You can convert from a string to a type by executing
+
+### Viewing Variables
+
+You can use `vlist` to list all assigned variables. There is also a special
+window view that can list variables that is described later.
 it with `@`
 
     "54x" @  ->  54x

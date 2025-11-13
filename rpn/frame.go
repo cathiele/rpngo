@@ -32,6 +32,7 @@ type Frame struct {
 	cmplx complex128
 	// If ftype == BOOL_FRAME, intv holds 1 or 0
 	// if ftype == STRING_FRAME, intv holds the quote type
+	// If ftype == POLAR_FRAME, intv holds AngleUnit
 	intv int64
 }
 
@@ -206,16 +207,16 @@ func IntFrameCloneType(v int64, f Frame) Frame {
 	return Frame{intv: v, ftype: f.ftype}
 }
 
-func ComplexFrame(v complex128, t FrameType) Frame {
-	return Frame{cmplx: v, ftype: t}
+func ComplexFrame(v complex128) Frame {
+	return Frame{cmplx: v, ftype: COMPLEX_FRAME}
 }
 
 func ComplexFrameCloneType(v complex128, f Frame) Frame {
-	return Frame{cmplx: v, ftype: f.ftype}
+	return Frame{cmplx: v, ftype: f.ftype, intv: f.intv}
 }
 
-func PolarFrame2(r, a float64) Frame {
-	return Frame{cmplx: cmplx.Rect(r, a), ftype: POLAR_FRAME}
+func PolarFrame2(r, a float64, u AngleUnit) Frame {
+	return Frame{cmplx: cmplx.Rect(r, a), ftype: POLAR_FRAME, intv: int(u)}
 }
 
 func RealFrame(v float64) Frame {
@@ -246,7 +247,7 @@ func (f *Frame) complexString() string {
 
 func (f *Frame) polarString() string {
 	r, a := cmplx.Polar(f.cmplx)
-	return strconv.FormatFloat(r, 'g', 16, 64) + "<" + strconv.FormatFloat(a, 'g', 16, 64)
+	return strconv.FormatFloat(r, 'g', 16, 64) + "<" + strconv.FormatFloat(FromRadiansBase(a), 'g', 16, 64)
 }
 
 func complexString(v float64) string {

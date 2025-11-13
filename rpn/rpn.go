@@ -6,6 +6,14 @@ import (
 	"sort"
 )
 
+type AngleUnit int
+
+const (
+	ANGLE_RADIANS AngleUnit = iota
+	ANGLE_DEGREES
+	ANGLE_GRADS
+)
+
 // RPN is the main structure
 type RPN struct {
 	Frames    []Frame
@@ -18,6 +26,7 @@ type RPN struct {
 	Input         func(*RPN) (string, error)
 	TextWidth     int
 	maxStackDepth int
+	AngleUnits    AngleUnit
 	conv          *convert.Conversion
 }
 
@@ -36,6 +45,7 @@ func (r *RPN) Init(maxStackDepth int) {
 	r.Register("vlist", listVariables, CatVariables, listVariablesHelp)
 	r.Print = DefaultPrint
 	r.Interrupt = DefaultInterrupt
+	r.AngleUnits = ANGLE_RADIANS
 	r.TextWidth = 80
 }
 
@@ -71,3 +81,49 @@ func (r *RPN) Println(msg string) {
 	r.Print(msg)
 	r.Print("\n")
 }
+
+
+func (r *RPN) FromRadians(rad complex128, t Frame) Frame {
+	switch r.AngleUnits {
+	case ANGLE_DEGREES:
+		return Frame{ftype: t.ftype, cmplx: rad * 57.29577951308232, str: "`deg"}
+	case ANGLE_GRADS:
+		return Frame{ftype: t.ftype, cmplx: rad * 63.66197723675813, str: "`grad"}
+	default:
+		return Frame{ftype: t.ftype, cmplx: rad, str: "`rad"}
+	} 
+}
+
+func fromRadiansBase(rad complex128, u AngleUnit) complex128 {
+	switch u {
+	case ANGLE_DEGREES:
+		return rad * 57.29577951308232
+	case ANGLE_GRADS:
+		return rad * 63.66197723675813
+	default:
+		return rad
+	} 
+}
+
+func (r *RPN) ToRadians(angle complex128) complex128 {
+	switch r.AngleUnits {
+	case ANGLE_DEGREES:
+		return angle * 0.0174532925199433
+	case ANGLE_GRADS:
+		return angle * 0.01570796326794897
+	default:
+		return angle
+	} 
+}
+
+func toRadiansBase(angle complex128, u AngleUnit) complex128 {
+	switch u {
+	case ANGLE_DEGREES:
+		return angle * 0.0174532925199433
+	case ANGLE_GRADS:
+		return angle * 0.01570796326794897
+	default:
+		return angle
+	} 
+}
+

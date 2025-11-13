@@ -25,6 +25,7 @@ const commonStartup = `
 
 histl
 hists
+rad
 `
 
 const configName = ".rpngo"
