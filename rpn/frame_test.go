@@ -28,12 +28,22 @@ func TestIs(t *testing.T) {
 			want:  true,
 		},
 		{
+			frame: PolarFrame(1),
+			fn:    func(f Frame) bool { return f.IsComplex() },
+			want:  true,
+		},
+		{
 			frame: IntFrame(1, INTEGER_FRAME),
 			fn:    func(f Frame) bool { return f.IsComplex() },
 			want:  false,
 		},
 		{
 			frame: ComplexFrame(1),
+			fn:    func(f Frame) bool { return f.IsNumber() },
+			want:  true,
+		},
+		{
+			frame: PolarFrame(1),
 			fn:    func(f Frame) bool { return f.IsNumber() },
 			want:  true,
 		},
@@ -95,6 +105,10 @@ func TestComplex(t *testing.T) {
 			want:  complex(1, 1),
 		},
 		{
+			frame: PolarFrame(complex(1, 1)),
+			want:  complex(1, 1),
+		},
+		{
 			frame: IntFrame(1, INTEGER_FRAME),
 			want:  complex(1, 0),
 		},
@@ -140,6 +154,10 @@ func TestReal(t *testing.T) {
 			wantErr: ErrComplexNumberNotSupported,
 		},
 		{
+			frame:   PolarFrame(complex(1, 1)),
+			wantErr: ErrComplexNumberNotSupported,
+		},
+		{
 			frame:   BoolFrame(true),
 			wantErr: ErrExpectedANumber,
 		},
@@ -178,6 +196,10 @@ func TestInt(t *testing.T) {
 		},
 		{
 			frame:   ComplexFrame(complex(1, 1)),
+			wantErr: ErrComplexNumberNotSupported,
+		},
+		{
+			frame:   PolarFrame(complex(1, 1)),
 			wantErr: ErrComplexNumberNotSupported,
 		},
 		{
@@ -227,6 +249,10 @@ func TestBool(t *testing.T) {
 		},
 		{
 			frame:   ComplexFrame(1),
+			wantErr: ErrExpectedABoolean,
+		},
+		{
+			frame:   PolarFrame(1),
 			wantErr: ErrExpectedABoolean,
 		},
 	}
@@ -308,6 +334,31 @@ func TestString(t *testing.T) {
 			want:  "-1.2-0.4i",
 		},
 		{
+			name:  "polar 1",
+			frame: PolarFrame(-1),
+			want:  "1<3.141592653589793",
+		},
+		{
+			name:  "polar 2",
+			frame: PolarFrame(0),
+			want:  "0<0",
+		},
+		{
+			name:  "polar 3",
+			frame: PolarFrame(complex(0, 1)),
+			want:  "1<1.570796326794897",
+		},
+		{
+			name:  "polar 4",
+			frame: PolarFrame(complex(0, -1)),
+			want:  "1<-1.570796326794897",
+		},
+		{
+			name:  "polar 5",
+			frame: PolarFrame2(1, 1),
+			want:  "1<1",
+		},
+		{
 			name:  "bool true",
 			frame: BoolFrame(true),
 			want:  "true",
@@ -373,6 +424,11 @@ func TestCheckIfNumbers(t *testing.T) {
 		},
 		{
 			a:            ComplexFrame(complex(1, 1)),
+			b:            RealFrame(1),
+			wantBothInts: false,
+		},
+		{
+			a:            PolarFrame(complex(1, 1)),
 			b:            RealFrame(1),
 			wantBothInts: false,
 		},

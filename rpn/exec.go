@@ -128,11 +128,30 @@ func (rpn *RPN) parseAndPushComplex(arg string) error {
 	} else {
 		fv, err := strconv.ParseFloat(arg, 64)
 		if err != nil {
-			return ErrSyntax
+			return rpn.parseAndPushPolar(arg)
 		}
 		v = complex(fv, 0)
 	}
 	return rpn.PushFrame(ComplexFrame(v))
+}
+
+func (rpn *RPN) parseAndPushPolar(arg string) error {
+	ltIdx := strings.IndexRune(arg, '<')
+	if (ltIdx < 0) || (ltIdx >= (len(arg) - 1)) {
+		return ErrSyntax
+	}
+	real := arg[:ltIdx]
+	cmplx := arg[ltIdx+1:]
+	r, err := strconv.ParseFloat(real, 64)
+	if err != nil {
+		return err
+	}
+	a, err := strconv.ParseFloat(cmplx, 64)
+	if err != nil {
+		return err
+	}
+	return rpn.PushFrame(PolarFrame2(r, a))
+
 }
 
 // parses a complex string that contains an i

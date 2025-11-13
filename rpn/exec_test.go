@@ -93,6 +93,18 @@ func TestExec(t *testing.T) {
 			wantFrame:  ComplexFrame(complex(-0.2, -0.3)),
 		},
 		{
+			name:       "polar 1",
+			args:       []string{"1<0"},
+			frameCount: 1,
+			wantFrame:  PolarFrame2(1, 0),
+		},
+		{
+			name:       "polar 1",
+			args:       []string{"1<1"},
+			frameCount: 1,
+			wantFrame:  PolarFrame2(1, 1),
+		},
+		{
 			name:       "integer 1",
 			args:       []string{"10d"},
 			frameCount: 1,

@@ -1,6 +1,9 @@
 package rpn
 
-import "strconv"
+import (
+	"math/cmplx"
+	"strconv"
+)
 
 type FrameType uint8
 
@@ -8,6 +11,7 @@ const (
 	EMPTY_FRAME FrameType = iota
 	STRING_FRAME
 	COMPLEX_FRAME
+	POLAR_FRAME
 	BOOL_FRAME
 	INTEGER_FRAME
 	HEXIDECIMAL_FRAME
@@ -47,7 +51,7 @@ func (f *Frame) IsInt() bool {
 }
 
 func (f *Frame) IsComplex() bool {
-	return f.ftype == COMPLEX_FRAME
+	return (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME)
 }
 
 func (f *Frame) IsNumber() bool {
@@ -67,7 +71,7 @@ func (f *Frame) QuoteType() int {
 }
 
 func (f *Frame) Complex() (complex128, error) {
-	if f.ftype == COMPLEX_FRAME {
+	if (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME) {
 		return f.cmplx, nil
 	}
 	if f.IsInt() {
@@ -77,14 +81,14 @@ func (f *Frame) Complex() (complex128, error) {
 }
 
 func (f *Frame) UnsafeComplex() complex128 {
-	if f.ftype == COMPLEX_FRAME {
+	if (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME) {
 		return f.cmplx
 	}
 	return complex(float64(f.intv), 0)
 }
 
 func (f *Frame) Real() (float64, error) {
-	if f.ftype == COMPLEX_FRAME {
+	if (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME) {
 		if imag(f.cmplx) != 0 {
 			return 0, ErrComplexNumberNotSupported
 		}
@@ -100,7 +104,7 @@ func (f *Frame) Int() (int64, error) {
 	if f.IsInt() {
 		return f.intv, nil
 	}
-	if f.ftype == COMPLEX_FRAME {
+	if (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME) {
 		if imag(f.cmplx) != 0 {
 			return 0, ErrComplexNumberNotSupported
 		}
@@ -154,6 +158,8 @@ func (f *Frame) String(quote bool) string {
 		return f.str
 	case COMPLEX_FRAME:
 		s = f.complexString()
+	case POLAR_FRAME:
+		s = f.polarString()
 	case BOOL_FRAME:
 		if f.intv != 0 {
 			s = "true"
@@ -221,6 +227,14 @@ func ComplexFrame(v complex128) Frame {
 	return Frame{cmplx: v, ftype: COMPLEX_FRAME}
 }
 
+func PolarFrame(v complex128) Frame {
+	return Frame{cmplx: v, ftype: POLAR_FRAME}
+}
+
+func PolarFrame2(r, a float64) Frame {
+	return Frame{cmplx: cmplx.Rect(r, a), ftype: POLAR_FRAME}
+}
+
 func RealFrame(v float64) Frame {
 	return Frame{cmplx: complex(v, 0), ftype: COMPLEX_FRAME}
 }
@@ -245,6 +259,11 @@ func (f *Frame) complexString() string {
 		return r + complexString(imag(f.cmplx))
 	}
 	return r + "+" + complexString(imag(f.cmplx))
+}
+
+func (f *Frame) polarString() string {
+	r, a := cmplx.Polar(f.cmplx)
+	return strconv.FormatFloat(r, 'g', 16, 64) + "<" + strconv.FormatFloat(a, 'g', 16, 64)
 }
 
 func complexString(v float64) string {
