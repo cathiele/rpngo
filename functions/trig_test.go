@@ -5,6 +5,28 @@ import (
 	"testing"
 )
 
+func TestASin(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"asin"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args:    []string{"true", "asin"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+		{
+			Args: []string{"1", "asin", "3", "round"},
+			Want: []string{"1.571"},
+		},
+		{
+			Args: []string{"2+i", "asin", "3", "round"},
+			Want: []string{"1.063+1.469i"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
+
 func TestSin(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
@@ -22,6 +44,28 @@ func TestSin(t *testing.T) {
 		{
 			Args: []string{"1+i", "sin", "3", "round"},
 			Want: []string{"1.298+0.635i"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
+
+func TestACos(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"acos"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args:    []string{"true", "acos"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+		{
+			Args: []string{"1", "acos", "3", "round"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"2+i", "acos", "3", "round"},
+			Want: []string{"0.507-1.469i"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
@@ -66,6 +110,28 @@ func TestTan(t *testing.T) {
 		{
 			Args: []string{"1.5+2.1i", "tan", "3", "round"},
 			Want: []string{"0.004+1.03i"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
+
+func TestATan(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"atan"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args:    []string{"true", "atan"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+		{
+			Args: []string{"2", "atan", "3", "round"},
+			Want: []string{"1.107"},
+		},
+		{
+			Args: []string{"1+2i", "atan", "3", "round"},
+			Want: []string{"1.339+0.402i"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })

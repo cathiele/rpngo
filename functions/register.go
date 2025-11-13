@@ -39,6 +39,9 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("sort", Sort, rpn.CatData, SortHelp)
 
 	r.Register("**", Power, rpn.CatEng, PowerHelp)
+	r.Register("acos", ACos, rpn.CatEng, ACosHelp)
+	r.Register("asin", ASin, rpn.CatEng, ASinHelp)
+	r.Register("atan", ATan, rpn.CatEng, ATanHelp)
 	r.Register("abs", Abs, rpn.CatEng, AbsHelp)
 	r.Register("cos", Cos, rpn.CatEng, CosHelp)
 	r.Register("log", Log, rpn.CatEng, LogHelp)
