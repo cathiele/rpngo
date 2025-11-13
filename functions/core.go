@@ -3,6 +3,7 @@ package functions
 
 import (
 	"math"
+	"math/cmplx"
 	"math/rand"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
@@ -27,16 +28,19 @@ func Add(r *rpn.RPN) error {
 	if b.IsString() {
 		return r.PushFrame(rpn.StringFrame(a.String(false)+b.String(false), b.QuoteType()))
 	}
-	if a.IsComplex() || b.IsComplex() {
-		ac, err := a.Complex()
-		if err != nil {
-			return err
-		}
+	if a.IsComplex() {
 		bc, err := b.Complex()
 		if err != nil {
 			return err
 		}
-		return r.PushFrame(rpn.ComplexFrame(ac + bc))
+		return r.PushFrame(rpn.ComplexFrameCloneType(a.UnsafeComplex()+bc, a))
+	}
+	if b.IsComplex() {
+		ac, err := a.Complex()
+		if err != nil {
+			return err
+		}
+		return r.PushFrame(rpn.ComplexFrameCloneType(ac+b.UnsafeComplex(), b))
 	}
 	ab, err := a.Int()
 	if err != nil {
@@ -56,14 +60,29 @@ func Subtract(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	bothints, err := rpn.CheckIfNumbers(a, b)
+	if a.IsComplex() {
+		bc, err := b.Complex()
+		if err != nil {
+			return err
+		}
+		return r.PushFrame(rpn.ComplexFrameCloneType(a.UnsafeComplex()-bc, a))
+	}
+	if b.IsComplex() {
+		ac, err := a.Complex()
+		if err != nil {
+			return err
+		}
+		return r.PushFrame(rpn.ComplexFrameCloneType(ac-b.UnsafeComplex(), b))
+	}
+	ab, err := a.Int()
 	if err != nil {
 		return err
 	}
-	if bothints {
-		return r.PushFrame(rpn.IntFrameCloneType(a.UnsafeInt()-b.UnsafeInt(), a))
+	bb, err := b.Int()
+	if err != nil {
+		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(a.UnsafeComplex() - b.UnsafeComplex()))
+	return r.PushFrame(rpn.IntFrameCloneType(ab-bb, a))
 }
 
 const MultiplyHelp = "Multiplies two numbers"
@@ -73,14 +92,29 @@ func Multiply(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	bothints, err := rpn.CheckIfNumbers(a, b)
+	if a.IsComplex() {
+		bc, err := b.Complex()
+		if err != nil {
+			return err
+		}
+		return r.PushFrame(rpn.ComplexFrameCloneType(a.UnsafeComplex()*bc, a))
+	}
+	if b.IsComplex() {
+		ac, err := a.Complex()
+		if err != nil {
+			return err
+		}
+		return r.PushFrame(rpn.ComplexFrameCloneType(ac*b.UnsafeComplex(), b))
+	}
+	ab, err := a.Int()
 	if err != nil {
 		return err
 	}
-	if bothints {
-		return r.PushFrame(rpn.IntFrameCloneType(a.UnsafeInt()*b.UnsafeInt(), a))
+	bb, err := b.Int()
+	if err != nil {
+		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(a.UnsafeComplex() * b.UnsafeComplex()))
+	return r.PushFrame(rpn.IntFrameCloneType(ab*bb, a))
 }
 
 const DivideHelp = "Divides two numbers"
@@ -90,22 +124,39 @@ func Divide(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	bothints, err := rpn.CheckIfNumbers(a, b)
+	if a.IsComplex() {
+		bc, err := b.Complex()
+		if err != nil {
+			return err
+		}
+		if bc == 0 {
+			return rpn.ErrDivideByZero
+		}
+		return r.PushFrame(rpn.ComplexFrameCloneType(a.UnsafeComplex()/bc, a))
+	}
+	if b.IsComplex() {
+		ac, err := a.Complex()
+		if err != nil {
+			return err
+		}
+		bc := b.UnsafeComplex()
+		if bc == 0 {
+			return rpn.ErrDivideByZero
+		}
+		return r.PushFrame(rpn.ComplexFrameCloneType(ac/bc, b))
+	}
+	ab, err := a.Int()
 	if err != nil {
 		return err
 	}
-	if bothints {
-		bi := b.UnsafeInt()
-		if bi == 0 {
-			return rpn.ErrDivideByZero
-		}
-		return r.PushFrame(rpn.IntFrameCloneType(a.UnsafeInt()/bi, a))
+	bb, err := b.Int()
+	if err != nil {
+		return err
 	}
-	bc := b.UnsafeComplex()
-	if bc == 0 {
+	if bb == 0 {
 		return rpn.ErrDivideByZero
 	}
-	return r.PushFrame(rpn.ComplexFrame(a.UnsafeComplex() / bc))
+	return r.PushFrame(rpn.IntFrameCloneType(ab/bb, a))
 }
 
 const NegateHelp = "Negates the top number"
@@ -117,7 +168,7 @@ func Negate(r *rpn.RPN) error {
 	}
 	if f.IsComplex() {
 		c, _ := f.Complex()
-		return r.PushFrame(rpn.ComplexFrame(-c))
+		return r.PushFrame(rpn.ComplexFrameCloneType(-c, f))
 	}
 	if f.IsBool() {
 		b, _ := f.Bool()
@@ -175,7 +226,7 @@ func Imag(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(complex(0, imag(c))))
+	return r.PushFrame(rpn.ComplexFrame(complex(0, imag(c)), rpn.COMPLEX_FRAME))
 }
 
 const TrueHelp = "Pushes a boolean true"
@@ -208,6 +259,20 @@ func Round(r *rpn.RPN) error {
 	if (b < 0) || (b > 16) {
 		return rpn.ErrIllegalValue
 	}
+	if af.IsPolarComplex() {
+		rl, an := cmplx.Polar(a)
+		for i := 0; i < int(b); i++ {
+			rl *= 10
+			an *= 10
+		}
+		rl = math.Round(rl)
+		an = math.Round(an)
+		for i := 0; i < int(b); i++ {
+			rl /= 10
+			an /= 10
+		}
+		return r.PushFrame(rpn.PolarFrame2(rl, an))
+	}
 	rl := real(a)
 	im := imag(a)
 	for i := 0; i < int(b); i++ {
@@ -220,5 +285,5 @@ func Round(r *rpn.RPN) error {
 		rl /= 10
 		im /= 10
 	}
-	return r.PushFrame(rpn.ComplexFrame(complex(rl, im)))
+	return r.PushFrame(rpn.ComplexFrame(complex(rl, im), rpn.COMPLEX_FRAME))
 }

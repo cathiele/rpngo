@@ -16,7 +16,7 @@ func Sin(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(cmplx.Sin(a)))
+	return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Sin(a), af))
 }
 
 const ASinHelp = "takes the inverse sine of a number"
@@ -30,7 +30,7 @@ func ASin(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(cmplx.Asin(a)))
+	return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Asin(a), af))
 }
 
 const CosHelp = "takes the cosine of a number"
@@ -44,7 +44,7 @@ func Cos(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(cmplx.Cos(a)))
+	return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Cos(a), af))
 }
 
 const ACosHelp = "takes the inverse cosine of a number"
@@ -58,7 +58,7 @@ func ACos(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(cmplx.Acos(a)))
+	return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Acos(a), af))
 }
 
 const TanHelp = "takes the tangent of a number"
@@ -72,7 +72,7 @@ func Tan(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(cmplx.Tan(a)))
+	return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Tan(a), af))
 }
 
 const ATanHelp = "takes the inverse tangent of a number"
@@ -86,5 +86,5 @@ func ATan(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(cmplx.Atan(a)))
+	return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Atan(a), af))
 }

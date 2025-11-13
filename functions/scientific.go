@@ -12,14 +12,29 @@ func Power(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	bothints, err := rpn.CheckIfNumbers(af, bf)
+	if af.IsComplex() {
+		b, err := bf.Complex()
+		if err != nil {
+			return err
+		}
+		return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Pow(af.UnsafeComplex(), b), af))
+	}
+	if bf.IsComplex() {
+		a, err := af.Complex()
+		if err != nil {
+			return err
+		}
+		return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Pow(a, bf.UnsafeComplex()), bf))
+	}
+	a, err := af.Int()
 	if err != nil {
 		return err
 	}
-	if bothints {
-		return r.PushFrame(rpn.IntFrameCloneType(powInts(af.UnsafeInt(), bf.UnsafeInt()), af))
+	b, err := bf.Int()
+	if err != nil {
+		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(cmplx.Pow(af.UnsafeComplex(), bf.UnsafeComplex())))
+	return r.PushFrame(rpn.IntFrameCloneType(powInts(a, b), af))
 }
 
 func powInts(x, n int64) int64 {
@@ -52,7 +67,7 @@ func SquareRoot(r *rpn.RPN) error {
 	}
 	a = cmplx.Sqrt(a)
 	if af.IsComplex() {
-		return r.PushFrame(rpn.ComplexFrame(a))
+		return r.PushFrame(rpn.ComplexFrameCloneType(a, af))
 	}
 	return r.PushFrame(rpn.IntFrameCloneType(int64(real(a)), af))
 }
@@ -87,7 +102,7 @@ func Square(r *rpn.RPN) error {
 	}
 	if a.IsComplex() {
 		ac := a.UnsafeComplex()
-		return r.PushFrame(rpn.ComplexFrame(ac * ac))
+		return r.PushFrame(rpn.ComplexFrameCloneType(ac*ac, a))
 	}
 	ai, err := a.Int()
 	if err != nil {
@@ -103,11 +118,14 @@ func Log(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
+	if a.IsComplex() {
+		return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Log(a.UnsafeComplex()), a))
+	}
 	ac, err := a.Complex()
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(cmplx.Log(ac)))
+	return r.PushFrame(rpn.ComplexFrame(cmplx.Log(ac), rpn.COMPLEX_FRAME))
 }
 
 const Log10Help = "executes base 10 logrithm"
@@ -117,9 +135,12 @@ func Log10(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
+	if a.IsComplex() {
+		return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Log10(a.UnsafeComplex()), a))
+	}
 	ac, err := a.Complex()
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(cmplx.Log10(ac)))
+	return r.PushFrame(rpn.ComplexFrame(cmplx.Log10(ac), rpn.COMPLEX_FRAME))
 }

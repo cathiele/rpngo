@@ -6,176 +6,176 @@ import (
 )
 
 func TestIsLessThan(t *testing.T) {
-	data := []struct{
-		a Frame
-		b Frame
+	data := []struct {
+		a    Frame
+		b    Frame
 		want bool
 	}{
 		// a = complex
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: ComplexFrame(complex(0, -1)),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: ComplexFrame(complex(1, -1)),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(1, -1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: ComplexFrame(complex(1, 1)),
-			b: ComplexFrame(complex(0, -1)),
+			a:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: BoolFrame(true),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: BoolFrame(false),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    BoolFrame(false),
 			want: false,
 		},
 
 		// a = int
-	        {	
-			a: IntFrame(0, INTEGER_FRAME),
-			b: ComplexFrame(complex(0, 1)),
+		{
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: ComplexFrame(complex(1, 1)),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: IntFrame(1, OCTAL_FRAME),
-			b: ComplexFrame(complex(0, 1)),
+			a:    IntFrame(1, OCTAL_FRAME),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: IntFrame(1, HEXIDECIMAL_FRAME),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    IntFrame(1, HEXIDECIMAL_FRAME),
 			want: true,
 		},
 		{
-			a: IntFrame(1, OCTAL_FRAME),
-			b: IntFrame(0, HEXIDECIMAL_FRAME),
+			a:    IntFrame(1, OCTAL_FRAME),
+			b:    IntFrame(0, HEXIDECIMAL_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: BoolFrame(true),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: BoolFrame(false),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    BoolFrame(false),
 			want: false,
 		},
 
 		// a = string
-	        {	
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: ComplexFrame(complex(0, 1)),
+		{
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: false,
 		},
 		{
-			a: StringFrame("bar", STRING_SINGLE_QUOTE),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("bar", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: StringFrame("bar", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("bar", STRING_SINGLE_QUOTE),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: BoolFrame(true),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: BoolFrame(false),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    BoolFrame(false),
 			want: false,
 		},
 
 		// a = bool
-	        {	
-			a: BoolFrame(true),
-			b: ComplexFrame(complex(0, 1)),
-			want: true,
-		},
-	        {	
-			a: BoolFrame(false),
-			b: ComplexFrame(complex(0, 1)),
+		{
+			a:    BoolFrame(true),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: BoolFrame(true),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    BoolFrame(false),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: BoolFrame(false),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    BoolFrame(true),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: true,
 		},
 		{
-			a: BoolFrame(true),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    BoolFrame(false),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: true,
 		},
 		{
-			a: BoolFrame(false),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    BoolFrame(true),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: BoolFrame(false),
-			b: BoolFrame(false),
+			a:    BoolFrame(false),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			want: true,
+		},
+		{
+			a:    BoolFrame(false),
+			b:    BoolFrame(false),
 			want: false,
 		},
 		{
-			a: BoolFrame(false),
-			b: BoolFrame(true),
+			a:    BoolFrame(false),
+			b:    BoolFrame(true),
 			want: true,
 		},
 		{
-			a: BoolFrame(true),
-			b: BoolFrame(false),
+			a:    BoolFrame(true),
+			b:    BoolFrame(false),
 			want: false,
 		},
 		{
-			a: BoolFrame(true),
-			b: BoolFrame(true),
+			a:    BoolFrame(true),
+			b:    BoolFrame(true),
 			want: false,
 		},
 	}
@@ -192,181 +192,181 @@ func TestIsLessThan(t *testing.T) {
 }
 
 func TestIsLessThanOrEqual(t *testing.T) {
-	data := []struct{
-		a Frame
-		b Frame
+	data := []struct {
+		a    Frame
+		b    Frame
 		want bool
 	}{
 		// a = complex
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: ComplexFrame(complex(0, -1)),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(-1, 1)),
-			b: ComplexFrame(complex(0, -1)),
+			a:    ComplexFrame(complex(-1, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: ComplexFrame(complex(1, -1)),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(1, -1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: ComplexFrame(complex(1, 1)),
-			b: ComplexFrame(complex(0, -1)),
+			a:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: BoolFrame(true),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: BoolFrame(false),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    BoolFrame(false),
 			want: false,
 		},
 
 		// a = int
-	        {	
-			a: IntFrame(0, INTEGER_FRAME),
-			b: ComplexFrame(complex(0, 1)),
+		{
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: ComplexFrame(complex(1, 1)),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: IntFrame(1, OCTAL_FRAME),
-			b: ComplexFrame(complex(0, 1)),
+			a:    IntFrame(1, OCTAL_FRAME),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: true,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: IntFrame(1, HEXIDECIMAL_FRAME),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    IntFrame(1, HEXIDECIMAL_FRAME),
 			want: true,
 		},
 		{
-			a: IntFrame(1, OCTAL_FRAME),
-			b: IntFrame(0, HEXIDECIMAL_FRAME),
+			a:    IntFrame(1, OCTAL_FRAME),
+			b:    IntFrame(0, HEXIDECIMAL_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: BoolFrame(true),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: BoolFrame(false),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    BoolFrame(false),
 			want: false,
 		},
 
 		// a = string
-	        {	
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: ComplexFrame(complex(0, 1)),
+		{
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: StringFrame("bar", STRING_SINGLE_QUOTE),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("bar", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: StringFrame("bar", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("bar", STRING_SINGLE_QUOTE),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: BoolFrame(true),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: BoolFrame(false),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    BoolFrame(false),
 			want: false,
 		},
 
 		// a = bool
-	        {	
-			a: BoolFrame(true),
-			b: ComplexFrame(complex(0, 1)),
-			want: true,
-		},
-	        {	
-			a: BoolFrame(false),
-			b: ComplexFrame(complex(0, 1)),
+		{
+			a:    BoolFrame(true),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: BoolFrame(true),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    BoolFrame(false),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: BoolFrame(false),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    BoolFrame(true),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: true,
 		},
 		{
-			a: BoolFrame(true),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    BoolFrame(false),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: true,
 		},
 		{
-			a: BoolFrame(false),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    BoolFrame(true),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: BoolFrame(false),
-			b: BoolFrame(false),
+			a:    BoolFrame(false),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: BoolFrame(false),
-			b: BoolFrame(true),
+			a:    BoolFrame(false),
+			b:    BoolFrame(false),
 			want: true,
 		},
 		{
-			a: BoolFrame(true),
-			b: BoolFrame(false),
+			a:    BoolFrame(false),
+			b:    BoolFrame(true),
+			want: true,
+		},
+		{
+			a:    BoolFrame(true),
+			b:    BoolFrame(false),
 			want: false,
 		},
 		{
-			a: BoolFrame(true),
-			b: BoolFrame(true),
+			a:    BoolFrame(true),
+			b:    BoolFrame(true),
 			want: true,
 		},
 	}
@@ -383,176 +383,176 @@ func TestIsLessThanOrEqual(t *testing.T) {
 }
 
 func TestIsEqual(t *testing.T) {
-	data := []struct{
-		a Frame
-		b Frame
+	data := []struct {
+		a    Frame
+		b    Frame
 		want bool
 	}{
 		// a = complex
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: ComplexFrame(complex(0, -1)),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(1, 1)),
-			b: ComplexFrame(complex(1, 1)),
+			a:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: IntFrame(1, INTEGER_FRAME),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    IntFrame(1, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(1, 0)),
-			b: IntFrame(1, INTEGER_FRAME),
+			a:    ComplexFrame(complex(1, 0), COMPLEX_FRAME),
+			b:    IntFrame(1, INTEGER_FRAME),
 			want: true,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: BoolFrame(true),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a: ComplexFrame(complex(0, 1)),
-			b: BoolFrame(false),
+			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    BoolFrame(false),
 			want: false,
 		},
 
 		// a = int
-	        {	
-			a: IntFrame(0, INTEGER_FRAME),
-			b: ComplexFrame(complex(0, 1)),
-			want: false,
-		},
-	        {	
-			a: IntFrame(1, INTEGER_FRAME),
-			b: ComplexFrame(complex(1, 0)),
-			want: true,
-		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: ComplexFrame(complex(1, 1)),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    IntFrame(1, INTEGER_FRAME),
+			b:    ComplexFrame(complex(1, 0), COMPLEX_FRAME),
 			want: true,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: IntFrame(1, HEXIDECIMAL_FRAME),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(1, INTEGER_FRAME),
-			b: IntFrame(1, HEXIDECIMAL_FRAME),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: true,
 		},
 		{
-			a: IntFrame(1, OCTAL_FRAME),
-			b: IntFrame(1, HEXIDECIMAL_FRAME),
-			want: true,
-		},
-		{
-			a: IntFrame(1, OCTAL_FRAME),
-			b: IntFrame(1, BINARY_FRAME),
-			want: true,
-		},
-		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    IntFrame(1, HEXIDECIMAL_FRAME),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: BoolFrame(true),
+			a:    IntFrame(1, INTEGER_FRAME),
+			b:    IntFrame(1, HEXIDECIMAL_FRAME),
+			want: true,
+		},
+		{
+			a:    IntFrame(1, OCTAL_FRAME),
+			b:    IntFrame(1, HEXIDECIMAL_FRAME),
+			want: true,
+		},
+		{
+			a:    IntFrame(1, OCTAL_FRAME),
+			b:    IntFrame(1, BINARY_FRAME),
+			want: true,
+		},
+		{
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: false,
 		},
 		{
-			a: IntFrame(0, INTEGER_FRAME),
-			b: BoolFrame(false),
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    BoolFrame(true),
+			want: false,
+		},
+		{
+			a:    IntFrame(0, INTEGER_FRAME),
+			b:    BoolFrame(false),
 			want: false,
 		},
 
 		// a = string
-	        {	
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: ComplexFrame(complex(0, 1)),
+		{
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: true,
 		},
 		{
-			a: StringFrame("bar", STRING_SINGLE_QUOTE),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("bar", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: StringFrame("bar", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("bar", STRING_SINGLE_QUOTE),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: BoolFrame(true),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a: StringFrame("foo", STRING_SINGLE_QUOTE),
-			b: BoolFrame(false),
+			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    BoolFrame(false),
 			want: false,
 		},
 
 		// a = bool
-	        {	
-			a: BoolFrame(true),
-			b: ComplexFrame(complex(0, 1)),
+		{
+			a:    BoolFrame(true),
+			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want: false,
 		},
 		{
-			a: BoolFrame(true),
-			b: IntFrame(0, INTEGER_FRAME),
+			a:    BoolFrame(true),
+			b:    IntFrame(0, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a: BoolFrame(true),
-			b: StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    BoolFrame(true),
+			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
 			want: false,
 		},
 		{
-			a: BoolFrame(false),
-			b: BoolFrame(false),
+			a:    BoolFrame(false),
+			b:    BoolFrame(false),
 			want: true,
 		},
 		{
-			a: BoolFrame(false),
-			b: BoolFrame(true),
+			a:    BoolFrame(false),
+			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a: BoolFrame(true),
-			b: BoolFrame(false),
+			a:    BoolFrame(true),
+			b:    BoolFrame(false),
 			want: false,
 		},
 		{
-			a: BoolFrame(true),
-			b: BoolFrame(true),
+			a:    BoolFrame(true),
+			b:    BoolFrame(true),
 			want: true,
 		},
 	}
@@ -567,4 +567,3 @@ func TestIsEqual(t *testing.T) {
 		})
 	}
 }
-

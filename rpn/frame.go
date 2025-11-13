@@ -54,6 +54,10 @@ func (f *Frame) IsComplex() bool {
 	return (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME)
 }
 
+func (f *Frame) IsPolarComplex() bool {
+	return f.ftype == POLAR_FRAME
+}
+
 func (f *Frame) IsNumber() bool {
 	return f.IsComplex() || f.IsInt()
 }
@@ -187,27 +191,6 @@ func (f *Frame) UnsafeString() string {
 	return f.str
 }
 
-// The case comes up where we have two numbers and
-// 1) If they are both ints, treat them as ints
-// 2) If one is a complex, treat both as complex
-// 3) Throw an error in other cases
-func CheckIfNumbers(a, b Frame) (bothints bool, err error) {
-	aisc := a.IsComplex()
-	bisc := b.IsComplex()
-	if aisc && bisc {
-		return false, nil
-	}
-	aisi := a.IsInt()
-	bisi := b.IsInt()
-	if aisi && bisi {
-		return true, nil
-	}
-	if (aisc || aisi) && (bisc || bisi) {
-		return false, nil
-	}
-	return false, ErrExpectedANumber
-}
-
 func BoolFrame(v bool) Frame {
 	if v {
 		return Frame{intv: 1, ftype: BOOL_FRAME}
@@ -223,12 +206,12 @@ func IntFrameCloneType(v int64, f Frame) Frame {
 	return Frame{intv: v, ftype: f.ftype}
 }
 
-func ComplexFrame(v complex128) Frame {
-	return Frame{cmplx: v, ftype: COMPLEX_FRAME}
+func ComplexFrame(v complex128, t FrameType) Frame {
+	return Frame{cmplx: v, ftype: t}
 }
 
-func PolarFrame(v complex128) Frame {
-	return Frame{cmplx: v, ftype: POLAR_FRAME}
+func ComplexFrameCloneType(v complex128, f Frame) Frame {
+	return Frame{cmplx: v, ftype: f.ftype}
 }
 
 func PolarFrame2(r, a float64) Frame {

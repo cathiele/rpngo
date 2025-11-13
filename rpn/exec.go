@@ -132,7 +132,7 @@ func (rpn *RPN) parseAndPushComplex(arg string) error {
 		}
 		v = complex(fv, 0)
 	}
-	return rpn.PushFrame(ComplexFrame(v))
+	return rpn.PushFrame(ComplexFrame(v, COMPLEX_FRAME))
 }
 
 func (rpn *RPN) parseAndPushPolar(arg string) error {

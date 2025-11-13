@@ -95,5 +95,5 @@ func Float(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(v))
+	return r.PushFrame(rpn.ComplexFrame(v, rpn.COMPLEX_FRAME))
 }

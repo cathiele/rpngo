@@ -2,7 +2,6 @@ package rpn
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 )
 
@@ -18,17 +17,17 @@ func TestIs(t *testing.T) {
 			want:  true,
 		},
 		{
-			frame: ComplexFrame(1),
+			frame: ComplexFrame(1, COMPLEX_FRAME),
 			fn:    func(f Frame) bool { return f.IsInt() },
 			want:  false,
 		},
 		{
-			frame: ComplexFrame(1),
+			frame: ComplexFrame(1, COMPLEX_FRAME),
 			fn:    func(f Frame) bool { return f.IsComplex() },
 			want:  true,
 		},
 		{
-			frame: PolarFrame(1),
+			frame: ComplexFrame(1, POLAR_FRAME),
 			fn:    func(f Frame) bool { return f.IsComplex() },
 			want:  true,
 		},
@@ -38,12 +37,12 @@ func TestIs(t *testing.T) {
 			want:  false,
 		},
 		{
-			frame: ComplexFrame(1),
+			frame: ComplexFrame(1, COMPLEX_FRAME),
 			fn:    func(f Frame) bool { return f.IsNumber() },
 			want:  true,
 		},
 		{
-			frame: PolarFrame(1),
+			frame: ComplexFrame(1, POLAR_FRAME),
 			fn:    func(f Frame) bool { return f.IsNumber() },
 			want:  true,
 		},
@@ -101,11 +100,11 @@ func TestComplex(t *testing.T) {
 		want    complex128
 	}{
 		{
-			frame: ComplexFrame(complex(1, 1)),
+			frame: ComplexFrame(complex(1, 1), COMPLEX_FRAME),
 			want:  complex(1, 1),
 		},
 		{
-			frame: PolarFrame(complex(1, 1)),
+			frame: ComplexFrame(complex(1, 1), POLAR_FRAME),
 			want:  complex(1, 1),
 		},
 		{
@@ -150,11 +149,11 @@ func TestReal(t *testing.T) {
 			want:  1,
 		},
 		{
-			frame:   ComplexFrame(complex(1, 1)),
+			frame:   ComplexFrame(complex(1, 1), COMPLEX_FRAME),
 			wantErr: ErrComplexNumberNotSupported,
 		},
 		{
-			frame:   PolarFrame(complex(1, 1)),
+			frame:   ComplexFrame(complex(1, 1), POLAR_FRAME),
 			wantErr: ErrComplexNumberNotSupported,
 		},
 		{
@@ -195,11 +194,11 @@ func TestInt(t *testing.T) {
 			want:  1,
 		},
 		{
-			frame:   ComplexFrame(complex(1, 1)),
+			frame:   ComplexFrame(complex(1, 1), COMPLEX_FRAME),
 			wantErr: ErrComplexNumberNotSupported,
 		},
 		{
-			frame:   PolarFrame(complex(1, 1)),
+			frame:   ComplexFrame(complex(1, 1), POLAR_FRAME),
 			wantErr: ErrComplexNumberNotSupported,
 		},
 		{
@@ -248,11 +247,11 @@ func TestBool(t *testing.T) {
 			wantErr: ErrExpectedABoolean,
 		},
 		{
-			frame:   ComplexFrame(1),
+			frame:   ComplexFrame(1, COMPLEX_FRAME),
 			wantErr: ErrExpectedABoolean,
 		},
 		{
-			frame:   PolarFrame(1),
+			frame:   ComplexFrame(1, POLAR_FRAME),
 			wantErr: ErrExpectedABoolean,
 		},
 	}
@@ -295,62 +294,62 @@ func TestString(t *testing.T) {
 		},
 		{
 			name:  "complex 1",
-			frame: ComplexFrame(-1),
+			frame: ComplexFrame(-1, COMPLEX_FRAME),
 			want:  "-1",
 		},
 		{
 			name:  "complex 2",
-			frame: ComplexFrame(0),
+			frame: ComplexFrame(0, COMPLEX_FRAME),
 			want:  "0",
 		},
 		{
 			name:  "complex 3",
-			frame: ComplexFrame(123),
+			frame: ComplexFrame(123, COMPLEX_FRAME),
 			want:  "123",
 		},
 		{
 			name:  "complex 4",
-			frame: ComplexFrame(complex(0, 1)),
+			frame: ComplexFrame(complex(0, 1), COMPLEX_FRAME),
 			want:  "i",
 		},
 		{
 			name:  "complex 5",
-			frame: ComplexFrame(complex(0, -1)),
+			frame: ComplexFrame(complex(0, -1), COMPLEX_FRAME),
 			want:  "-i",
 		},
 		{
 			name:  "complex 6",
-			frame: ComplexFrame(complex(12, 4)),
+			frame: ComplexFrame(complex(12, 4), COMPLEX_FRAME),
 			want:  "12+4i",
 		},
 		{
 			name:  "complex 7",
-			frame: ComplexFrame(complex(-12, -4)),
+			frame: ComplexFrame(complex(-12, -4), COMPLEX_FRAME),
 			want:  "-12-4i",
 		},
 		{
 			name:  "complex 8",
-			frame: ComplexFrame(complex(-1.2, -0.4)),
+			frame: ComplexFrame(complex(-1.2, -0.4), COMPLEX_FRAME),
 			want:  "-1.2-0.4i",
 		},
 		{
 			name:  "polar 1",
-			frame: PolarFrame(-1),
+			frame: ComplexFrame(-1, POLAR_FRAME),
 			want:  "1<3.141592653589793",
 		},
 		{
 			name:  "polar 2",
-			frame: PolarFrame(0),
+			frame: ComplexFrame(0, POLAR_FRAME),
 			want:  "0<0",
 		},
 		{
 			name:  "polar 3",
-			frame: PolarFrame(complex(0, 1)),
+			frame: ComplexFrame(complex(0, 1), POLAR_FRAME),
 			want:  "1<1.570796326794897",
 		},
 		{
 			name:  "polar 4",
-			frame: PolarFrame(complex(0, -1)),
+			frame: ComplexFrame(complex(0, -1), POLAR_FRAME),
 			want:  "1<-1.570796326794897",
 		},
 		{
@@ -395,74 +394,6 @@ func TestString(t *testing.T) {
 			got := d.frame.String(d.quote)
 			if got != d.want {
 				t.Errorf("want: %v, got: %v", d.want, got)
-			}
-		})
-	}
-}
-
-func TestCheckIfNumbers(t *testing.T) {
-	data := []struct {
-		a            Frame
-		b            Frame
-		wantBothInts bool
-		wantErr      error
-	}{
-		{
-			a:            IntFrame(1, INTEGER_FRAME),
-			b:            IntFrame(2, HEXIDECIMAL_FRAME),
-			wantBothInts: true,
-		},
-		{
-			a:            RealFrame(1),
-			b:            IntFrame(2, HEXIDECIMAL_FRAME),
-			wantBothInts: false,
-		},
-		{
-			a:            IntFrame(2, HEXIDECIMAL_FRAME),
-			b:            RealFrame(1),
-			wantBothInts: false,
-		},
-		{
-			a:            ComplexFrame(complex(1, 1)),
-			b:            RealFrame(1),
-			wantBothInts: false,
-		},
-		{
-			a:            PolarFrame(complex(1, 1)),
-			b:            RealFrame(1),
-			wantBothInts: false,
-		},
-		{
-			a:       BoolFrame(true),
-			b:       RealFrame(1),
-			wantErr: ErrExpectedANumber,
-		},
-		{
-			a:       StringFrame("foo", STRING_DOUBLE_QUOTE),
-			b:       IntFrame(1, OCTAL_FRAME),
-			wantErr: ErrExpectedANumber,
-		},
-		{
-			a:       RealFrame(1),
-			b:       BoolFrame(true),
-			wantErr: ErrExpectedANumber,
-		},
-		{
-			a:       IntFrame(1, OCTAL_FRAME),
-			b:       StringFrame("foo", STRING_DOUBLE_QUOTE),
-			wantErr: ErrExpectedANumber,
-		},
-	}
-
-	for _, d := range data {
-		name := fmt.Sprintf("%v-%v-%v-%v", d.a.String(false), d.b.String(false), d.wantBothInts, d.wantErr)
-		t.Run(name, func(t *testing.T) {
-			got, err := CheckIfNumbers(d.a, d.b)
-			if got != d.wantBothInts {
-				t.Errorf("bothints=%v want=%v", got, d.wantBothInts)
-			}
-			if !errors.Is(err, d.wantErr) {
-				t.Errorf("err=%v want=%v", err, d.wantErr)
 			}
 		})
 	}
