@@ -66,34 +66,3 @@ func Str(r *rpn.RPN) error {
 	}
 	return r.PushFrame(rpn.StringFrame(f.String(false), rpn.STRING_DOUBLE_QUOTE))
 }
-
-const FloatHelp = "Converts head element to a complex float"
-
-func Float(r *rpn.RPN) error {
-	f, err := r.PopFrame()
-	if err != nil {
-		return err
-	}
-	if f.IsBool() {
-		if f.UnsafeBool() {
-			return r.PushFrame(rpn.RealFrame(1))
-		} else {
-			return r.PushFrame(rpn.RealFrame(0))
-		}
-	}
-	if f.IsString() {
-		err := r.Exec(f.UnsafeString())
-		if err != nil {
-			return err
-		}
-		f, err = r.PopFrame()
-		if err != nil {
-			return err
-		}
-	}
-	v, err := f.Complex()
-	if err != nil {
-		return err
-	}
-	return r.PushFrame(rpn.ComplexFrame(v, rpn.COMPLEX_FRAME))
-}

@@ -442,3 +442,101 @@ func TestRound(t *testing.T) {
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
 }
+
+func TestFloat(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args: []string{"-1", "float"},
+			Want: []string{"-1"},
+		},
+		{
+			Args: []string{"0", "float"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"1", "float"},
+			Want: []string{"1"},
+		},
+		{
+			Args: []string{"3+4i", "float"},
+			Want: []string{"3+4i"},
+		},
+		{
+			Args: []string{"3.14", "float"},
+			Want: []string{"3.14"},
+		},
+		{
+			Args: []string{"-3.14", "float"},
+			Want: []string{"-3.14"},
+		},
+		{
+			Args: []string{"-2d", "float"},
+			Want: []string{"-2"},
+		},
+		{
+			Args: []string{"0d", "float"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"2d", "float"},
+			Want: []string{"2"},
+		},
+		{
+			Args: []string{"-10o", "float"},
+			Want: []string{"-8"},
+		},
+		{
+			Args: []string{"0o", "float"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"10o", "float"},
+			Want: []string{"8"},
+		},
+		{
+			Args: []string{"-10b", "float"},
+			Want: []string{"-2"},
+		},
+		{
+			Args: []string{"0b", "float"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"10b", "float"},
+			Want: []string{"2"},
+		},
+		{
+			Args: []string{"-fx", "float"},
+			Want: []string{"-15"},
+		},
+		{
+			Args: []string{"0x", "float"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"fx", "float"},
+			Want: []string{"15"},
+		},
+		{
+			Args: []string{"true", "float"},
+			Want: []string{"1"},
+		},
+		{
+			Args: []string{"false", "float"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"'5'", "float"},
+			Want: []string{"5"},
+		},
+		{
+			Args: []string{"'-5'", "float"},
+			Want: []string{"-5"},
+		},
+		{
+			Args:    []string{"'foo'", "float"},
+			WantErr: rpn.ErrSyntax,
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
