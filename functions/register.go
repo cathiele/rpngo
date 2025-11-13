@@ -80,6 +80,7 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("imag", Imag, rpn.CatType, ImagHelp)
 	r.Register("int", Int, rpn.CatType, IntHelp)
 	r.Register("oct", Oct, rpn.CatType, OctHelp)
+	r.Register("polar", Polar, rpn.CatType, PolarHelp)
 	r.Register("real", Real, rpn.CatType, RealHelp)
 	r.Register("str", Str, rpn.CatType, StrHelp)
 }

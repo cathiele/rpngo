@@ -540,3 +540,101 @@ func TestFloat(t *testing.T) {
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
 }
+
+func TestPolar(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args: []string{"-1", "polar"},
+			Want: []string{"1<3.141592653589793"},
+		},
+		{
+			Args: []string{"0", "polar"},
+			Want: []string{"0<0"},
+		},
+		{
+			Args: []string{"1", "polar"},
+			Want: []string{"1<0"},
+		},
+		{
+			Args: []string{"3+4i", "polar"},
+			Want: []string{"5<0.9272952180016122"},
+		},
+		{
+			Args: []string{"3.14", "polar"},
+			Want: []string{"3.14<0"},
+		},
+		{
+			Args: []string{"-3.14", "polar"},
+			Want: []string{"3.14<3.141592653589793"},
+		},
+		{
+			Args: []string{"-2d", "polar"},
+			Want: []string{"2<3.141592653589793"},
+		},
+		{
+			Args: []string{"0d", "polar"},
+			Want: []string{"0<0"},
+		},
+		{
+			Args: []string{"2d", "polar"},
+			Want: []string{"2<0"},
+		},
+		{
+			Args: []string{"-10o", "polar"},
+			Want: []string{"8<3.141592653589793"},
+		},
+		{
+			Args: []string{"0o", "polar"},
+			Want: []string{"0<0"},
+		},
+		{
+			Args: []string{"10o", "polar"},
+			Want: []string{"8<0"},
+		},
+		{
+			Args: []string{"-10b", "polar"},
+			Want: []string{"2<3.141592653589793"},
+		},
+		{
+			Args: []string{"0b", "polar"},
+			Want: []string{"0<0"},
+		},
+		{
+			Args: []string{"10b", "polar"},
+			Want: []string{"2<0"},
+		},
+		{
+			Args: []string{"-fx", "polar"},
+			Want: []string{"15<3.141592653589793"},
+		},
+		{
+			Args: []string{"0x", "polar"},
+			Want: []string{"0<0"},
+		},
+		{
+			Args: []string{"fx", "polar"},
+			Want: []string{"15<0"},
+		},
+		{
+			Args: []string{"true", "polar"},
+			Want: []string{"1<0"},
+		},
+		{
+			Args: []string{"false", "polar"},
+			Want: []string{"0<0"},
+		},
+		{
+			Args: []string{"'5'", "polar"},
+			Want: []string{"5<0"},
+		},
+		{
+			Args: []string{"'-5'", "polar"},
+			Want: []string{"5<3.141592653589793"},
+		},
+		{
+			Args:    []string{"'foo'", "polar"},
+			WantErr: rpn.ErrSyntax,
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}

@@ -201,6 +201,37 @@ func Rand(r *rpn.RPN) error {
 	return r.PushFrame(rpn.RealFrame(rand.Float64()))
 }
 
+const PolarHelp = "Converts head element to a complex polar"
+
+func Polar(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	if f.IsBool() {
+		if f.UnsafeBool() {
+			return r.PushFrame(rpn.PolarFrame2(1, 0))
+		} else {
+			return r.PushFrame(rpn.PolarFrame2(0, 0))
+		}
+	}
+	if f.IsString() {
+		err := r.Exec(f.UnsafeString())
+		if err != nil {
+			return err
+		}
+		f, err = r.PopFrame()
+		if err != nil {
+			return err
+		}
+	}
+	v, err := f.Complex()
+	if err != nil {
+		return err
+	}
+	return r.PushFrame(rpn.ComplexFrame(v, rpn.POLAR_FRAME))
+}
+
 const FloatHelp = "Converts head element to a complex float"
 
 func Float(r *rpn.RPN) error {
