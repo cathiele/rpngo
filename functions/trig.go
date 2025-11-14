@@ -20,11 +20,11 @@ func SetAngle(r *rpn.RPN) error {
 	}
 	switch f.UnsafeString() {
 	case "rad":
-		r.AngleUnits = rpn.ANGLE_RADIANS
+		r.AngleUnit = rpn.POLAR_RAD_FRAME
 	case "deg":
-		r.AngleUnits = rpn.ANGLE_DEGREES
+		r.AngleUnit = rpn.POLAR_DEG_FRAME
 	case "grad":
-		r.AngleUnits = rpn.ANGLE_GRADS
+		r.AngleUnit = rpn.POLAR_GRAD_FRAME
 	default:
 		return errChooseDegRadOGrad
 	}
@@ -34,13 +34,13 @@ func SetAngle(r *rpn.RPN) error {
 const GetAngleHelp = "returns currently-set angle units"
 
 func GetAngle(r *rpn.RPN) error {
-	switch r.AngleUnits {
-	case rpn.ANGLE_RADIANS:
-		return r.PushFrame(rpn.StringFrame("rad", rpn.STRING_SINGLE_QUOTE))
-	case rpn.ANGLE_DEGREES:
-		return r.PushFrame(rpn.StringFrame("deg", rpn.STRING_SINGLE_QUOTE))
-	case rpn.ANGLE_GRADS:
-		return r.PushFrame(rpn.StringFrame("grad", rpn.STRING_SINGLE_QUOTE))
+	switch r.AngleUnit {
+	case rpn.POLAR_RAD_FRAME:
+		return r.PushFrame(rpn.StringFrame("rad", rpn.STRING_SINGLEQ_FRAME))
+	case rpn.POLAR_DEG_FRAME:
+		return r.PushFrame(rpn.StringFrame("deg", rpn.STRING_SINGLEQ_FRAME))
+	case rpn.POLAR_GRAD_FRAME:
+		return r.PushFrame(rpn.StringFrame("grad", rpn.STRING_SINGLEQ_FRAME))
 	}
 	return rpn.ErrIllegalValue
 }
@@ -48,7 +48,7 @@ func GetAngle(r *rpn.RPN) error {
 const RadHelp = "sets trig / polar units to radians (calls 'rad' setangle)"
 
 func Rad(r *rpn.RPN) error {
-	if err := r.PushFrame(rpn.StringFrame("rad", rpn.STRING_SINGLE_QUOTE)); err != nil {
+	if err := r.PushFrame(rpn.StringFrame("rad", rpn.STRING_SINGLEQ_FRAME)); err != nil {
 		return err
 	}
 	return SetAngle(r)
@@ -57,7 +57,7 @@ func Rad(r *rpn.RPN) error {
 const DegHelp = "sets trig / polar units to degrees (calls 'deg' setangle)"
 
 func Deg(r *rpn.RPN) error {
-	if err := r.PushFrame(rpn.StringFrame("deg", rpn.STRING_SINGLE_QUOTE)); err != nil {
+	if err := r.PushFrame(rpn.StringFrame("deg", rpn.STRING_SINGLEQ_FRAME)); err != nil {
 		return err
 	}
 	return SetAngle(r)
@@ -66,7 +66,7 @@ func Deg(r *rpn.RPN) error {
 const GradHelp = "sets trig / polar units to grads (calls 'grad' setangle)"
 
 func Grad(r *rpn.RPN) error {
-	if err := r.PushFrame(rpn.StringFrame("grad", rpn.STRING_SINGLE_QUOTE)); err != nil {
+	if err := r.PushFrame(rpn.StringFrame("grad", rpn.STRING_SINGLEQ_FRAME)); err != nil {
 		return err
 	}
 	return SetAngle(r)
@@ -83,7 +83,7 @@ func Sin(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Sin(r.ToRadians(a)), af))
+	return r.PushFrame(rpn.ComplexFrameWithType(cmplx.Sin(r.ToRadians(a)), af.Type()))
 }
 
 const ASinHelp = "takes the inverse sine of a number"
@@ -111,7 +111,7 @@ func Cos(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Cos(r.ToRadians(a)), af))
+	return r.PushFrame(rpn.ComplexFrameWithType(cmplx.Cos(r.ToRadians(a)), af.Type()))
 }
 
 const ACosHelp = "takes the inverse cosine of a number"
@@ -139,7 +139,7 @@ func Tan(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrameCloneType(cmplx.Tan(r.ToRadians(a)), af))
+	return r.PushFrame(rpn.ComplexFrameWithType(cmplx.Tan(r.ToRadians(a)), af.Type()))
 }
 
 const ATanHelp = "takes the inverse tangent of a number"

@@ -5,24 +5,48 @@ import (
 	"strconv"
 )
 
-type FrameType uint8
+// FrameType is the combination of bitfields
+// bit 0-3 is the display type (not usable in isolation)
+// bit 4 is 1 if the type is a number, 0 otherwise (can use NUMBER_MASK)
+// bit 4-8 represent the class (can use CLASS_MASK)
+// bit 0-7 represent th type (no mask)
 
 const (
-	EMPTY_FRAME FrameType = iota
-	STRING_FRAME
-	COMPLEX_FRAME
-	POLAR_FRAME
-	BOOL_FRAME
-	INTEGER_FRAME
-	HEXIDECIMAL_FRAME
-	OCTAL_FRAME
-	BINARY_FRAME
+	CLASS_MASK  = 0xF0
+	NUMBER_MASK = 0x10
 )
 
 const (
-	STRING_SINGLE_QUOTE = iota
-	STRING_DOUBLE_QUOTE
-	STRING_BRACES
+	// & NUMBER_MASK = NUMBER_MASK
+	INTEGER_CLASS = 0x10
+	COMPLEX_CLASS = 0x30
+
+	// & NUMBER_MASK = 0x00
+	EMPTY_CLASS  = 0x00
+	STRING_CLASS = 0x20
+	BOOL_CLASS   = 0x40
+)
+
+type FrameType uint8
+
+const (
+	EMPTY_FRAME FrameType = FrameType(EMPTY_CLASS)
+
+	STRING_SINGLEQ_FRAME = STRING_CLASS
+	STRING_DOUBLEQ_FRAME = STRING_CLASS | 0x01
+	STRING_BRACE_FRAME   = STRING_CLASS | 0x02
+
+	COMPLEX_FRAME    = COMPLEX_CLASS
+	POLAR_RAD_FRAME  = COMPLEX_CLASS | 0x01
+	POLAR_DEG_FRAME  = COMPLEX_CLASS | 0x02
+	POLAR_GRAD_FRAME = COMPLEX_CLASS | 0x03
+
+	INTEGER_FRAME     = INTEGER_CLASS
+	HEXIDECIMAL_FRAME = INTEGER_CLASS | 0x01
+	OCTAL_FRAME       = INTEGER_CLASS | 0x02
+	BINARY_FRAME      = INTEGER_CLASS | 0x03
+
+	BOOL_FRAME = FrameType(BOOL_CLASS)
 )
 
 // Frame Defines a single stack frame
@@ -31,8 +55,6 @@ type Frame struct {
 	str   string
 	cmplx complex128
 	// If ftype == BOOL_FRAME, intv holds 1 or 0
-	// if ftype == STRING_FRAME, intv holds the quote type
-	// If ftype == POLAR_FRAME, intv holds AngleUnit
 	intv int64
 }
 
@@ -43,24 +65,15 @@ func (f *Frame) Annotate(s string) {
 }
 
 func (f *Frame) IsInt() bool {
-	switch f.ftype {
-	case INTEGER_FRAME, HEXIDECIMAL_FRAME, OCTAL_FRAME, BINARY_FRAME:
-		return true
-	default:
-		return false
-	}
+	return (f.ftype & CLASS_MASK) == INTEGER_CLASS
 }
 
 func (f *Frame) IsComplex() bool {
-	return (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME)
-}
-
-func (f *Frame) IsPolarComplex() bool {
-	return f.ftype == POLAR_FRAME
+	return (f.ftype & CLASS_MASK) == COMPLEX_CLASS
 }
 
 func (f *Frame) IsNumber() bool {
-	return f.IsComplex() || f.IsInt()
+	return (f.ftype & NUMBER_MASK) == NUMBER_MASK
 }
 
 func (f *Frame) IsBool() bool {
@@ -68,15 +81,15 @@ func (f *Frame) IsBool() bool {
 }
 
 func (f *Frame) IsString() bool {
-	return f.ftype == STRING_FRAME
+	return (f.ftype & CLASS_MASK) == STRING_CLASS
 }
 
-func (f *Frame) QuoteType() int {
-	return int(f.intv)
+func (f *Frame) Type() FrameType {
+	return f.ftype
 }
 
 func (f *Frame) Complex() (complex128, error) {
-	if (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME) {
+	if (f.ftype & CLASS_MASK) == COMPLEX_CLASS {
 		return f.cmplx, nil
 	}
 	if f.IsInt() {
@@ -86,14 +99,14 @@ func (f *Frame) Complex() (complex128, error) {
 }
 
 func (f *Frame) UnsafeComplex() complex128 {
-	if (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME) {
+	if (f.ftype & CLASS_MASK) == COMPLEX_CLASS {
 		return f.cmplx
 	}
 	return complex(float64(f.intv), 0)
 }
 
 func (f *Frame) Real() (float64, error) {
-	if (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME) {
+	if (f.ftype & CLASS_MASK) == COMPLEX_CLASS {
 		if imag(f.cmplx) != 0 {
 			return 0, ErrComplexNumberNotSupported
 		}
@@ -106,10 +119,10 @@ func (f *Frame) Real() (float64, error) {
 }
 
 func (f *Frame) Int() (int64, error) {
-	if f.IsInt() {
+	if (f.ftype & CLASS_MASK) == INTEGER_CLASS {
 		return f.intv, nil
 	}
-	if (f.ftype == COMPLEX_FRAME) || (f.ftype == POLAR_FRAME) {
+	if (f.ftype & CLASS_MASK) == COMPLEX_CLASS {
 		if imag(f.cmplx) != 0 {
 			return 0, ErrComplexNumberNotSupported
 		}
@@ -149,21 +162,24 @@ func (f *Frame) String(quote bool) string {
 	switch f.ftype {
 	case EMPTY_FRAME:
 		return "nil"
-	case STRING_FRAME:
+	case STRING_SINGLEQ_FRAME:
 		if quote {
-			switch f.intv {
-			case STRING_SINGLE_QUOTE:
-				return "'" + f.str + "'"
-			case STRING_DOUBLE_QUOTE:
-				return "\"" + f.str + "\""
-			case STRING_BRACES:
-				return "{" + f.str + "}"
-			}
+			return "'" + f.str + "'"
+		}
+		return f.str
+	case STRING_DOUBLEQ_FRAME:
+		if quote {
+			return "\"" + f.str + "\""
+		}
+		return f.str
+	case STRING_BRACE_FRAME:
+		if quote {
+			return "{" + f.str + "}"
 		}
 		return f.str
 	case COMPLEX_FRAME:
 		s = f.complexString()
-	case POLAR_FRAME:
+	case POLAR_RAD_FRAME, POLAR_DEG_FRAME, POLAR_GRAD_FRAME:
 		s = f.polarString()
 	case BOOL_FRAME:
 		if f.intv != 0 {
@@ -211,20 +227,20 @@ func ComplexFrame(v complex128) Frame {
 	return Frame{cmplx: v, ftype: COMPLEX_FRAME}
 }
 
-func ComplexFrameCloneType(v complex128, f Frame) Frame {
-	return Frame{cmplx: v, ftype: f.ftype, intv: f.intv}
+func ComplexFrameWithType(v complex128, t FrameType) Frame {
+	return Frame{cmplx: v, ftype: t}
 }
 
-func PolarFrame2(r, a float64, u AngleUnit) Frame {
-	return Frame{cmplx: cmplx.Rect(r, a), ftype: POLAR_FRAME, intv: int(u)}
+func PolarFrame(r, a float64, t FrameType) Frame {
+	return Frame{cmplx: cmplx.Rect(r, a), ftype: t}
 }
 
 func RealFrame(v float64) Frame {
 	return Frame{cmplx: complex(v, 0), ftype: COMPLEX_FRAME}
 }
 
-func StringFrame(v string, quoteType int) Frame {
-	return Frame{str: v, ftype: STRING_FRAME, intv: int64(quoteType)}
+func StringFrame(v string, t FrameType) Frame {
+	return Frame{str: v, ftype: t}
 }
 
 func EmptyFrame() Frame {
@@ -247,7 +263,7 @@ func (f *Frame) complexString() string {
 
 func (f *Frame) polarString() string {
 	r, a := cmplx.Polar(f.cmplx)
-	return strconv.FormatFloat(r, 'g', 16, 64) + "<" + strconv.FormatFloat(FromRadiansBase(a), 'g', 16, 64)
+	return strconv.FormatFloat(r, 'g', 16, 64) + "<" + strconv.FormatFloat(fromRadiansFloat(a, f.ftype), 'g', 16, 64)
 }
 
 func complexString(v float64) string {

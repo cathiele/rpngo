@@ -13,32 +13,32 @@ func TestIsLessThan(t *testing.T) {
 	}{
 		// a = complex
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
-			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
+			b:    ComplexFrame(complex(0, -1)),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
-			b:    ComplexFrame(complex(1, -1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
+			b:    ComplexFrame(complex(1, -1)),
 			want: true,
 		},
 		{
-			a:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
-			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(1, 1)),
+			b:    ComplexFrame(complex(0, -1)),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    ComplexFrame(complex(0, 1)),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
 			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
 			b:    BoolFrame(false),
 			want: false,
 		},
@@ -46,17 +46,17 @@ func TestIsLessThan(t *testing.T) {
 		// a = int
 		{
 			a:    IntFrame(0, INTEGER_FRAME),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: false,
 		},
 		{
 			a:    IntFrame(0, INTEGER_FRAME),
-			b:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(1, 1)),
 			want: true,
 		},
 		{
 			a:    IntFrame(1, OCTAL_FRAME),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: false,
 		},
 		{
@@ -76,7 +76,7 @@ func TestIsLessThan(t *testing.T) {
 		},
 		{
 			a:    IntFrame(0, INTEGER_FRAME),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
@@ -92,37 +92,37 @@ func TestIsLessThan(t *testing.T) {
 
 		// a = string
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			b:    IntFrame(0, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: false,
 		},
 		{
-			a:    StringFrame("bar", STRING_SINGLE_QUOTE),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("bar", STRING_SINGLEQ_FRAME),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
-			b:    StringFrame("bar", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
+			b:    StringFrame("bar", STRING_SINGLEQ_FRAME),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			b:    BoolFrame(false),
 			want: false,
 		},
@@ -130,12 +130,12 @@ func TestIsLessThan(t *testing.T) {
 		// a = bool
 		{
 			a:    BoolFrame(true),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: true,
 		},
 		{
 			a:    BoolFrame(false),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: true,
 		},
 		{
@@ -150,12 +150,12 @@ func TestIsLessThan(t *testing.T) {
 		},
 		{
 			a:    BoolFrame(true),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
 			a:    BoolFrame(false),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
@@ -199,37 +199,37 @@ func TestIsLessThanOrEqual(t *testing.T) {
 	}{
 		// a = complex
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
-			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
+			b:    ComplexFrame(complex(0, -1)),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(-1, 1), COMPLEX_FRAME),
-			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(-1, 1)),
+			b:    ComplexFrame(complex(0, -1)),
 			want: true,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
-			b:    ComplexFrame(complex(1, -1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
+			b:    ComplexFrame(complex(1, -1)),
 			want: true,
 		},
 		{
-			a:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
-			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(1, 1)),
+			b:    ComplexFrame(complex(0, -1)),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    ComplexFrame(complex(0, 1)),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
 			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
 			b:    BoolFrame(false),
 			want: false,
 		},
@@ -237,17 +237,17 @@ func TestIsLessThanOrEqual(t *testing.T) {
 		// a = int
 		{
 			a:    IntFrame(0, INTEGER_FRAME),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: false,
 		},
 		{
 			a:    IntFrame(0, INTEGER_FRAME),
-			b:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(1, 1)),
 			want: true,
 		},
 		{
 			a:    IntFrame(1, OCTAL_FRAME),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: false,
 		},
 		{
@@ -267,7 +267,7 @@ func TestIsLessThanOrEqual(t *testing.T) {
 		},
 		{
 			a:    IntFrame(0, INTEGER_FRAME),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
@@ -283,37 +283,37 @@ func TestIsLessThanOrEqual(t *testing.T) {
 
 		// a = string
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			b:    IntFrame(0, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
-			a:    StringFrame("bar", STRING_SINGLE_QUOTE),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("bar", STRING_SINGLEQ_FRAME),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
-			b:    StringFrame("bar", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
+			b:    StringFrame("bar", STRING_SINGLEQ_FRAME),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			b:    BoolFrame(false),
 			want: false,
 		},
@@ -321,12 +321,12 @@ func TestIsLessThanOrEqual(t *testing.T) {
 		// a = bool
 		{
 			a:    BoolFrame(true),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: true,
 		},
 		{
 			a:    BoolFrame(false),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: true,
 		},
 		{
@@ -341,12 +341,12 @@ func TestIsLessThanOrEqual(t *testing.T) {
 		},
 		{
 			a:    BoolFrame(true),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
 			a:    BoolFrame(false),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
@@ -390,37 +390,37 @@ func TestIsEqual(t *testing.T) {
 	}{
 		// a = complex
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
-			b:    ComplexFrame(complex(0, -1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
+			b:    ComplexFrame(complex(0, -1)),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
-			b:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(1, 1)),
+			b:    ComplexFrame(complex(1, 1)),
 			want: true,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
 			b:    IntFrame(1, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(1, 0), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(1, 0)),
 			b:    IntFrame(1, INTEGER_FRAME),
 			want: true,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    ComplexFrame(complex(0, 1)),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
 			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    ComplexFrame(complex(0, 1)),
 			b:    BoolFrame(false),
 			want: false,
 		},
@@ -428,17 +428,17 @@ func TestIsEqual(t *testing.T) {
 		// a = int
 		{
 			a:    IntFrame(0, INTEGER_FRAME),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: false,
 		},
 		{
 			a:    IntFrame(1, INTEGER_FRAME),
-			b:    ComplexFrame(complex(1, 0), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(1, 0)),
 			want: true,
 		},
 		{
 			a:    IntFrame(0, INTEGER_FRAME),
-			b:    ComplexFrame(complex(1, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(1, 1)),
 			want: false,
 		},
 		{
@@ -468,7 +468,7 @@ func TestIsEqual(t *testing.T) {
 		},
 		{
 			a:    IntFrame(0, INTEGER_FRAME),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: false,
 		},
 		{
@@ -484,37 +484,37 @@ func TestIsEqual(t *testing.T) {
 
 		// a = string
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			b:    IntFrame(0, INTEGER_FRAME),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: true,
 		},
 		{
-			a:    StringFrame("bar", STRING_SINGLE_QUOTE),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("bar", STRING_SINGLEQ_FRAME),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
-			b:    StringFrame("bar", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
+			b:    StringFrame("bar", STRING_SINGLEQ_FRAME),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			b:    BoolFrame(true),
 			want: false,
 		},
 		{
-			a:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			a:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			b:    BoolFrame(false),
 			want: false,
 		},
@@ -522,7 +522,7 @@ func TestIsEqual(t *testing.T) {
 		// a = bool
 		{
 			a:    BoolFrame(true),
-			b:    ComplexFrame(complex(0, 1), COMPLEX_FRAME),
+			b:    ComplexFrame(complex(0, 1)),
 			want: false,
 		},
 		{
@@ -532,7 +532,7 @@ func TestIsEqual(t *testing.T) {
 		},
 		{
 			a:    BoolFrame(true),
-			b:    StringFrame("foo", STRING_SINGLE_QUOTE),
+			b:    StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want: false,
 		},
 		{

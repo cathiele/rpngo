@@ -197,7 +197,7 @@ func TestHexDump(t *testing.T) {
 	r.Print = func(s string) {
 		got += s
 	}
-	err := r.PushFrame(rpn.StringFrame("Hello  World!", rpn.STRING_BRACES))
+	err := r.PushFrame(rpn.StringFrame("Hello  World!", rpn.STRING_BRACE_FRAME))
 	if err != nil {
 		t.Errorf("err=%v, want nil", err)
 	}

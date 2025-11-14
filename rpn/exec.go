@@ -57,15 +57,15 @@ func (rpn *RPN) Exec(arg string) error {
 		switch last {
 		case '"':
 			if arg[0] == '"' {
-				return rpn.PushFrame(StringFrame(arg[1:len(arg)-1], STRING_DOUBLE_QUOTE))
+				return rpn.PushFrame(StringFrame(arg[1:len(arg)-1], STRING_DOUBLEQ_FRAME))
 			}
 		case '\'':
 			if arg[0] == '\'' {
-				return rpn.PushFrame(StringFrame(arg[1:len(arg)-1], STRING_SINGLE_QUOTE))
+				return rpn.PushFrame(StringFrame(arg[1:len(arg)-1], STRING_SINGLEQ_FRAME))
 			}
 		case '}':
 			if arg[0] == '{' {
-				return rpn.PushFrame(StringFrame(arg[1:len(arg)-1], STRING_BRACES))
+				return rpn.PushFrame(StringFrame(arg[1:len(arg)-1], STRING_BRACE_FRAME))
 			}
 		case 'd':
 			return rpn.parseAndPushInt(arg[:len(arg)-1], 10, INTEGER_FRAME)
@@ -150,7 +150,7 @@ func (rpn *RPN) parseAndPushPolar(arg string) error {
 	if err != nil {
 		return err
 	}
-	return rpn.PushFrame(PolarFrame2(r, a, rpn.AngleUnit))
+	return rpn.PushFrame(PolarFrame(r, a, rpn.AngleUnit))
 
 }
 
@@ -213,7 +213,7 @@ func (r *RPN) addLabel(label string) error {
 		return ErrStackEmpty
 	}
 	f := &r.Frames[len(r.Frames)-1]
-	if f.ftype == STRING_FRAME {
+	if (f.ftype & CLASS_MASK) == STRING_CLASS {
 		return ErrCanNotAddLabelToString
 	}
 	f.str = label

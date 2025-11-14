@@ -179,7 +179,7 @@ func (pw *plotWindowCommon) getProp(name string) (rpn.Frame, error) {
 	if strings.HasPrefix(name, "fn") && (len(name) > 2) {
 		idx, err := strconv.Atoi(name[2:])
 		if (err == nil) && (idx >= 0) && (idx < len(pw.plots)) {
-			return rpn.StringFrame(strings.Join(pw.plots[idx].fn, " "), rpn.STRING_BRACES), nil
+			return rpn.StringFrame(strings.Join(pw.plots[idx].fn, " "), rpn.STRING_BRACE_FRAME), nil
 		}
 	}
 

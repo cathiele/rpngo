@@ -70,7 +70,7 @@ func (iw *InputWindow) Edit(r *rpn.RPN) error {
 		case 27: // ESC
 			tw, th := iw.txtb.Txtw.TextSize()
 			iw.txtb.RefreshArea(0, 0, tw, th)
-			return r.PushFrame(rpn.StringFrame(string(ed.buff), f.QuoteType()))
+			return r.PushFrame(rpn.StringFrame(string(ed.buff), f.Type()))
 		case key.KEY_UP:
 			ed.keyUpPressed()
 		case key.KEY_DOWN:

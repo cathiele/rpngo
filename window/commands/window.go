@@ -91,7 +91,7 @@ func (wc *WindowCommands) WDump(r *rpn.RPN) error {
 const WResetHelp = "Resets window configuration to just a single input window"
 
 func (wc *WindowCommands) WReset(r *rpn.RPN) error {
-	r.PushFrame(rpn.StringFrame("root", rpn.STRING_DOUBLE_QUOTE))
+	r.PushFrame(rpn.StringFrame("root", rpn.STRING_SINGLEQ_FRAME))
 	r.SetVariable(".wtarget")
 	r.PushFrame(rpn.BoolFrame(true))
 	r.SetVariable(".wend")

@@ -22,7 +22,7 @@ func TestSetGetProp(t *testing.T) {
 		},
 		{
 			name:       "round",
-			set:        rpn.StringFrame("hello", rpn.STRING_DOUBLE_QUOTE),
+			set:        rpn.StringFrame("hello", rpn.STRING_SINGLEQ_FRAME),
 			wantSetErr: rpn.ErrExpectedANumber,
 		},
 		{
@@ -102,7 +102,7 @@ func TestRoundedString(t *testing.T) {
 	}{
 		{
 			round: 2,
-			val:   rpn.StringFrame("hello", rpn.STRING_DOUBLE_QUOTE),
+			val:   rpn.StringFrame("hello", rpn.STRING_DOUBLEQ_FRAME),
 			want:  "\"hello\"",
 		},
 		{
@@ -152,82 +152,82 @@ func TestRoundedString(t *testing.T) {
 		},
 		{
 			round: 0,
-			val:   rpn.ComplexFrame(complex(0, pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(0, pi)),
 			want:  "3i",
 		},
 		{
 			round: 1,
-			val:   rpn.ComplexFrame(complex(0, pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(0, pi)),
 			want:  "3.1i",
 		},
 		{
 			round: 2,
-			val:   rpn.ComplexFrame(complex(0, pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(0, pi)),
 			want:  "3.14i",
 		},
 		{
 			round: 3,
-			val:   rpn.ComplexFrame(complex(0, pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(0, pi)),
 			want:  "3.142i",
 		},
 		{
 			round: 0,
-			val:   rpn.ComplexFrame(complex(0, -pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(0, -pi)),
 			want:  "-3i",
 		},
 		{
 			round: 1,
-			val:   rpn.ComplexFrame(complex(0, -pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(0, -pi)),
 			want:  "-3.1i",
 		},
 		{
 			round: 2,
-			val:   rpn.ComplexFrame(complex(0, -pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(0, -pi)),
 			want:  "-3.14i",
 		},
 		{
 			round: 3,
-			val:   rpn.ComplexFrame(complex(0, -pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(0, -pi)),
 			want:  "-3.142i",
 		},
 		{
 			round: 0,
-			val:   rpn.ComplexFrame(complex(pi, pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(pi, pi)),
 			want:  "3+3i",
 		},
 		{
 			round: 1,
-			val:   rpn.ComplexFrame(complex(pi, pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(pi, pi)),
 			want:  "3.1+3.1i",
 		},
 		{
 			round: 2,
-			val:   rpn.ComplexFrame(complex(pi, pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(pi, pi)),
 			want:  "3.14+3.14i",
 		},
 		{
 			round: 3,
-			val:   rpn.ComplexFrame(complex(pi, pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(pi, pi)),
 			want:  "3.142+3.142i",
 		},
 		{
 			round: 0,
-			val:   rpn.ComplexFrame(complex(-pi, -pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(-pi, -pi)),
 			want:  "-3-3i",
 		},
 		{
 			round: 1,
-			val:   rpn.ComplexFrame(complex(-pi, -pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(-pi, -pi)),
 			want:  "-3.1-3.1i",
 		},
 		{
 			round: 2,
-			val:   rpn.ComplexFrame(complex(-pi, -pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(-pi, -pi)),
 			want:  "-3.14-3.14i",
 		},
 		{
 			round: 3,
-			val:   rpn.ComplexFrame(complex(-pi, -pi), rpn.COMPLEX_FRAME),
+			val:   rpn.ComplexFrame(complex(-pi, -pi)),
 			want:  "-3.142-3.142i",
 		},
 	}

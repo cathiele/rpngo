@@ -23,24 +23,24 @@ func Add(r *rpn.RPN) error {
 		return err
 	}
 	if a.IsString() {
-		return r.PushFrame(rpn.StringFrame(a.String(false)+b.String(false), a.QuoteType()))
+		return r.PushFrame(rpn.StringFrame(a.String(false)+b.String(false), a.Type()))
 	}
 	if b.IsString() {
-		return r.PushFrame(rpn.StringFrame(a.String(false)+b.String(false), b.QuoteType()))
+		return r.PushFrame(rpn.StringFrame(a.String(false)+b.String(false), b.Type()))
 	}
 	if a.IsComplex() {
 		bc, err := b.Complex()
 		if err != nil {
 			return err
 		}
-		return r.PushFrame(rpn.ComplexFrameCloneType(a.UnsafeComplex()+bc, a))
+		return r.PushFrame(rpn.ComplexFrameWithType(a.UnsafeComplex()+bc, a.Type()))
 	}
 	if b.IsComplex() {
 		ac, err := a.Complex()
 		if err != nil {
 			return err
 		}
-		return r.PushFrame(rpn.ComplexFrameCloneType(ac+b.UnsafeComplex(), b))
+		return r.PushFrame(rpn.ComplexFrameWithType(ac+b.UnsafeComplex(), b.Type()))
 	}
 	ab, err := a.Int()
 	if err != nil {
@@ -65,14 +65,14 @@ func Subtract(r *rpn.RPN) error {
 		if err != nil {
 			return err
 		}
-		return r.PushFrame(rpn.ComplexFrameCloneType(a.UnsafeComplex()-bc, a))
+		return r.PushFrame(rpn.ComplexFrameWithType(a.UnsafeComplex()-bc, a.Type()))
 	}
 	if b.IsComplex() {
 		ac, err := a.Complex()
 		if err != nil {
 			return err
 		}
-		return r.PushFrame(rpn.ComplexFrameCloneType(ac-b.UnsafeComplex(), b))
+		return r.PushFrame(rpn.ComplexFrameWithType(ac-b.UnsafeComplex(), b.Type()))
 	}
 	ab, err := a.Int()
 	if err != nil {
@@ -97,14 +97,14 @@ func Multiply(r *rpn.RPN) error {
 		if err != nil {
 			return err
 		}
-		return r.PushFrame(rpn.ComplexFrameCloneType(a.UnsafeComplex()*bc, a))
+		return r.PushFrame(rpn.ComplexFrameWithType(a.UnsafeComplex()*bc, a.Type()))
 	}
 	if b.IsComplex() {
 		ac, err := a.Complex()
 		if err != nil {
 			return err
 		}
-		return r.PushFrame(rpn.ComplexFrameCloneType(ac*b.UnsafeComplex(), b))
+		return r.PushFrame(rpn.ComplexFrameWithType(ac*b.UnsafeComplex(), b.Type()))
 	}
 	ab, err := a.Int()
 	if err != nil {
@@ -132,7 +132,7 @@ func Divide(r *rpn.RPN) error {
 		if bc == 0 {
 			return rpn.ErrDivideByZero
 		}
-		return r.PushFrame(rpn.ComplexFrameCloneType(a.UnsafeComplex()/bc, a))
+		return r.PushFrame(rpn.ComplexFrameWithType(a.UnsafeComplex()/bc, a.Type()))
 	}
 	if b.IsComplex() {
 		ac, err := a.Complex()
@@ -143,7 +143,7 @@ func Divide(r *rpn.RPN) error {
 		if bc == 0 {
 			return rpn.ErrDivideByZero
 		}
-		return r.PushFrame(rpn.ComplexFrameCloneType(ac/bc, b))
+		return r.PushFrame(rpn.ComplexFrameWithType(ac/bc, b.Type()))
 	}
 	ab, err := a.Int()
 	if err != nil {
@@ -168,7 +168,7 @@ func Negate(r *rpn.RPN) error {
 	}
 	if f.IsComplex() {
 		c, _ := f.Complex()
-		return r.PushFrame(rpn.ComplexFrameCloneType(-c, f))
+		return r.PushFrame(rpn.ComplexFrameWithType(-c, f.Type()))
 	}
 	if f.IsBool() {
 		b, _ := f.Bool()
@@ -210,9 +210,9 @@ func Polar(r *rpn.RPN) error {
 	}
 	if f.IsBool() {
 		if f.UnsafeBool() {
-			return r.PushFrame(rpn.PolarFrame2(1, 0))
+			return r.PushFrame(rpn.PolarFrame(1, 0, r.AngleUnit))
 		} else {
-			return r.PushFrame(rpn.PolarFrame2(0, 0))
+			return r.PushFrame(rpn.PolarFrame(0, 0, r.AngleUnit))
 		}
 	}
 	if f.IsString() {
@@ -229,7 +229,7 @@ func Polar(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(v, rpn.POLAR_FRAME))
+	return r.PushFrame(rpn.ComplexFrameWithType(v, r.AngleUnit))
 }
 
 const FloatHelp = "Converts head element to a complex float"
@@ -260,7 +260,7 @@ func Float(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(v, rpn.COMPLEX_FRAME))
+	return r.PushFrame(rpn.ComplexFrame(v))
 }
 
 const RealHelp = "Takes the real portion of a complex number"
@@ -288,7 +288,7 @@ func Imag(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(complex(0, imag(c)), rpn.COMPLEX_FRAME))
+	return r.PushFrame(rpn.ComplexFrame(complex(0, imag(c))))
 }
 
 const TrueHelp = "Pushes a boolean true"
@@ -321,7 +321,7 @@ func Round(r *rpn.RPN) error {
 	if (b < 0) || (b > 16) {
 		return rpn.ErrIllegalValue
 	}
-	if af.IsPolarComplex() {
+	if af.IsComplex() && (af.Type() != rpn.COMPLEX_FRAME) {
 		rl, an := cmplx.Polar(a)
 		for i := 0; i < int(b); i++ {
 			rl *= 10
@@ -333,7 +333,7 @@ func Round(r *rpn.RPN) error {
 			rl /= 10
 			an /= 10
 		}
-		return r.PushFrame(rpn.PolarFrame2(rl, an))
+		return r.PushFrame(rpn.PolarFrame(rl, an, af.Type()))
 	}
 	rl := real(a)
 	im := imag(a)
@@ -347,5 +347,5 @@ func Round(r *rpn.RPN) error {
 		rl /= 10
 		im /= 10
 	}
-	return r.PushFrame(rpn.ComplexFrame(complex(rl, im), rpn.COMPLEX_FRAME))
+	return r.PushFrame(rpn.ComplexFrame(complex(rl, im)))
 }

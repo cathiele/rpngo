@@ -48,11 +48,11 @@ func (iw *InputWindow) SetProp(name string, val rpn.Frame) error {
 func (iw *InputWindow) GetProp(name string) (rpn.Frame, error) {
 	switch name {
 	case "autofn":
-		return rpn.StringFrame(strings.Join(iw.autofn, " "), rpn.STRING_BRACES), nil
+		return rpn.StringFrame(strings.Join(iw.autofn, " "), rpn.STRING_BRACE_FRAME), nil
 	case "autohist":
 		return rpn.BoolFrame(iw.gl.autoHistory), nil
 	case "histpath":
-		return rpn.StringFrame(iw.gl.histpath, rpn.STRING_SINGLE_QUOTE), nil
+		return rpn.StringFrame(iw.gl.histpath, rpn.STRING_SINGLEQ_FRAME), nil
 	case "showframes":
 		return rpn.IntFrame(int64(iw.showFrames), rpn.INTEGER_FRAME), nil
 	}

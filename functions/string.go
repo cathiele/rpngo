@@ -16,7 +16,7 @@ func Fields(r *rpn.RPN) error {
 		return rpn.ErrExpectedAString
 	}
 	fn := func(s string) error {
-		return r.PushFrame(rpn.StringFrame(s, f.QuoteType()))
+		return r.PushFrame(rpn.StringFrame(s, f.Type()))
 	}
 	return parse.Fields(f.String(false), fn)
 }

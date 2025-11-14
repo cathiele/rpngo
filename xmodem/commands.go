@@ -103,7 +103,7 @@ func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
 		case XferPackets:
 			err = sc.readPacket(r)
 		case Finished:
-			return r.PushFrame(rpn.StringFrame(sc.trimExtra(), rpn.STRING_BRACES))
+			return r.PushFrame(rpn.StringFrame(sc.trimExtra(), rpn.STRING_BRACE_FRAME))
 		}
 	}
 	return err

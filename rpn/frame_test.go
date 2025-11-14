@@ -17,17 +17,27 @@ func TestIs(t *testing.T) {
 			want:  true,
 		},
 		{
-			frame: ComplexFrame(1, COMPLEX_FRAME),
+			frame: ComplexFrame(1),
 			fn:    func(f Frame) bool { return f.IsInt() },
 			want:  false,
 		},
 		{
-			frame: ComplexFrame(1, COMPLEX_FRAME),
+			frame: ComplexFrame(1),
 			fn:    func(f Frame) bool { return f.IsComplex() },
 			want:  true,
 		},
 		{
-			frame: ComplexFrame(1, POLAR_FRAME),
+			frame: PolarFrame(1, 0, POLAR_DEG_FRAME),
+			fn:    func(f Frame) bool { return f.IsComplex() },
+			want:  true,
+		},
+		{
+			frame: PolarFrame(1, 0, POLAR_RAD_FRAME),
+			fn:    func(f Frame) bool { return f.IsComplex() },
+			want:  true,
+		},
+		{
+			frame: PolarFrame(1, 0, POLAR_GRAD_FRAME),
 			fn:    func(f Frame) bool { return f.IsComplex() },
 			want:  true,
 		},
@@ -37,12 +47,22 @@ func TestIs(t *testing.T) {
 			want:  false,
 		},
 		{
-			frame: ComplexFrame(1, COMPLEX_FRAME),
+			frame: ComplexFrame(1),
 			fn:    func(f Frame) bool { return f.IsNumber() },
 			want:  true,
 		},
 		{
-			frame: ComplexFrame(1, POLAR_FRAME),
+			frame: PolarFrame(1, 0, POLAR_DEG_FRAME),
+			fn:    func(f Frame) bool { return f.IsNumber() },
+			want:  true,
+		},
+		{
+			frame: PolarFrame(1, 0, POLAR_RAD_FRAME),
+			fn:    func(f Frame) bool { return f.IsNumber() },
+			want:  true,
+		},
+		{
+			frame: PolarFrame(1, 0, POLAR_GRAD_FRAME),
 			fn:    func(f Frame) bool { return f.IsNumber() },
 			want:  true,
 		},
@@ -72,7 +92,7 @@ func TestIs(t *testing.T) {
 			want:  false,
 		},
 		{
-			frame: StringFrame("foo", STRING_DOUBLE_QUOTE),
+			frame: StringFrame("foo", STRING_SINGLEQ_FRAME),
 			fn:    func(f Frame) bool { return f.IsString() },
 			want:  true,
 		},
@@ -100,11 +120,7 @@ func TestComplex(t *testing.T) {
 		want    complex128
 	}{
 		{
-			frame: ComplexFrame(complex(1, 1), COMPLEX_FRAME),
-			want:  complex(1, 1),
-		},
-		{
-			frame: ComplexFrame(complex(1, 1), POLAR_FRAME),
+			frame: ComplexFrame(complex(1, 1)),
 			want:  complex(1, 1),
 		},
 		{
@@ -116,7 +132,7 @@ func TestComplex(t *testing.T) {
 			wantErr: ErrExpectedANumber,
 		},
 		{
-			frame:   StringFrame("foo", STRING_DOUBLE_QUOTE),
+			frame:   StringFrame("foo", STRING_SINGLEQ_FRAME),
 			wantErr: ErrExpectedANumber,
 		},
 	}
@@ -149,11 +165,7 @@ func TestReal(t *testing.T) {
 			want:  1,
 		},
 		{
-			frame:   ComplexFrame(complex(1, 1), COMPLEX_FRAME),
-			wantErr: ErrComplexNumberNotSupported,
-		},
-		{
-			frame:   ComplexFrame(complex(1, 1), POLAR_FRAME),
+			frame:   ComplexFrame(complex(1, 1)),
 			wantErr: ErrComplexNumberNotSupported,
 		},
 		{
@@ -161,7 +173,7 @@ func TestReal(t *testing.T) {
 			wantErr: ErrExpectedANumber,
 		},
 		{
-			frame:   StringFrame("foo", STRING_DOUBLE_QUOTE),
+			frame:   StringFrame("foo", STRING_SINGLEQ_FRAME),
 			wantErr: ErrExpectedANumber,
 		},
 	}
@@ -194,11 +206,7 @@ func TestInt(t *testing.T) {
 			want:  1,
 		},
 		{
-			frame:   ComplexFrame(complex(1, 1), COMPLEX_FRAME),
-			wantErr: ErrComplexNumberNotSupported,
-		},
-		{
-			frame:   ComplexFrame(complex(1, 1), POLAR_FRAME),
+			frame:   ComplexFrame(complex(1, 1)),
 			wantErr: ErrComplexNumberNotSupported,
 		},
 		{
@@ -206,7 +214,7 @@ func TestInt(t *testing.T) {
 			wantErr: ErrExpectedANumber,
 		},
 		{
-			frame:   StringFrame("foo", STRING_DOUBLE_QUOTE),
+			frame:   StringFrame("foo", STRING_SINGLEQ_FRAME),
 			wantErr: ErrExpectedANumber,
 		},
 	}
@@ -239,7 +247,7 @@ func TestBool(t *testing.T) {
 			want:  false,
 		},
 		{
-			frame:   StringFrame("true", STRING_DOUBLE_QUOTE),
+			frame:   StringFrame("true", STRING_SINGLEQ_FRAME),
 			wantErr: ErrExpectedABoolean,
 		},
 		{
@@ -247,11 +255,7 @@ func TestBool(t *testing.T) {
 			wantErr: ErrExpectedABoolean,
 		},
 		{
-			frame:   ComplexFrame(1, COMPLEX_FRAME),
-			wantErr: ErrExpectedABoolean,
-		},
-		{
-			frame:   ComplexFrame(1, POLAR_FRAME),
+			frame:   ComplexFrame(1),
 			wantErr: ErrExpectedABoolean,
 		},
 	}
@@ -283,79 +287,54 @@ func TestString(t *testing.T) {
 		},
 		{
 			name:  "string",
-			frame: StringFrame("foo", STRING_DOUBLE_QUOTE),
+			frame: StringFrame("foo", STRING_SINGLEQ_FRAME),
 			want:  "foo",
 		},
 		{
 			name:  "quoted string",
-			frame: StringFrame("foo", STRING_DOUBLE_QUOTE),
+			frame: StringFrame("foo", STRING_DOUBLEQ_FRAME),
 			quote: true,
 			want:  "\"foo\"",
 		},
 		{
 			name:  "complex 1",
-			frame: ComplexFrame(-1, COMPLEX_FRAME),
+			frame: ComplexFrame(-1),
 			want:  "-1",
 		},
 		{
 			name:  "complex 2",
-			frame: ComplexFrame(0, COMPLEX_FRAME),
-			want:  "0",
-		},
-		{
-			name:  "complex 3",
-			frame: ComplexFrame(123, COMPLEX_FRAME),
-			want:  "123",
-		},
-		{
-			name:  "complex 4",
-			frame: ComplexFrame(complex(0, 1), COMPLEX_FRAME),
-			want:  "i",
-		},
-		{
-			name:  "complex 5",
-			frame: ComplexFrame(complex(0, -1), COMPLEX_FRAME),
+			frame: ComplexFrame(complex(0, -1)),
 			want:  "-i",
 		},
 		{
-			name:  "complex 6",
-			frame: ComplexFrame(complex(12, 4), COMPLEX_FRAME),
+			name:  "complex 3",
+			frame: ComplexFrame(complex(12, 4)),
 			want:  "12+4i",
 		},
 		{
-			name:  "complex 7",
-			frame: ComplexFrame(complex(-12, -4), COMPLEX_FRAME),
+			name:  "complex 4",
+			frame: ComplexFrame(complex(-12, -4)),
 			want:  "-12-4i",
 		},
 		{
-			name:  "complex 8",
-			frame: ComplexFrame(complex(-1.2, -0.4), COMPLEX_FRAME),
+			name:  "complex 5",
+			frame: ComplexFrame(complex(-1.2, -0.4)),
 			want:  "-1.2-0.4i",
 		},
 		{
 			name:  "polar 1",
-			frame: ComplexFrame(-1, POLAR_FRAME),
+			frame: PolarFrame(0, -1, POLAR_RAD_FRAME),
 			want:  "1<3.141592653589793",
 		},
 		{
 			name:  "polar 2",
-			frame: ComplexFrame(0, POLAR_FRAME),
-			want:  "0<0",
+			frame: PolarFrame(0, -1, POLAR_DEG_FRAME),
+			want:  "1<180",
 		},
 		{
 			name:  "polar 3",
-			frame: ComplexFrame(complex(0, 1), POLAR_FRAME),
-			want:  "1<1.570796326794897",
-		},
-		{
-			name:  "polar 4",
-			frame: ComplexFrame(complex(0, -1), POLAR_FRAME),
-			want:  "1<-1.570796326794897",
-		},
-		{
-			name:  "polar 5",
-			frame: PolarFrame2(1, 1),
-			want:  "1<1",
+			frame: PolarFrame(0, -1, POLAR_GRAD_FRAME),
+			want:  "1<200",
 		},
 		{
 			name:  "bool true",
