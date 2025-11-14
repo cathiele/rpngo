@@ -373,11 +373,11 @@ func TestImag(t *testing.T) {
 		},
 		{
 			Args: []string{"i", "imag"},
-			Want: []string{"i"},
+			Want: []string{"1"},
 		},
 		{
 			Args: []string{"2+3i", "imag"},
-			Want: []string{"3i"},
+			Want: []string{"3"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })

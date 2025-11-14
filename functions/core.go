@@ -277,7 +277,7 @@ func Real(r *rpn.RPN) error {
 	return r.PushFrame(rpn.RealFrame(real(c)))
 }
 
-const ImagHelp = "Takes the imaginary portion of a complex number"
+const ImagHelp = "Takes the imaginary portion of a complex number (as a real number)"
 
 func Imag(r *rpn.RPN) error {
 	f, err := r.PopFrame()
@@ -288,7 +288,7 @@ func Imag(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(rpn.ComplexFrame(complex(0, imag(c))))
+	return r.PushFrame(rpn.RealFrame(imag(c)))
 }
 
 const TrueHelp = "Pushes a boolean true"
