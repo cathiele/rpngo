@@ -401,95 +401,95 @@ func TestStr(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
 			Args: []string{"-1", "str"},
-			Want: []string{"\"-1\""},
+			Want: []string{"{-1}"},
 		},
 		{
 			Args: []string{"0", "str"},
-			Want: []string{"\"0\""},
+			Want: []string{"{0}"},
 		},
 		{
 			Args: []string{"1", "str"},
-			Want: []string{"\"1\""},
+			Want: []string{"{1}"},
 		},
 		{
 			Args: []string{"3+4i", "str"},
-			Want: []string{"\"3+4i\""},
+			Want: []string{"{3+4i}"},
 		},
 		{
 			Args: []string{"3.14", "str"},
-			Want: []string{"\"3.14\""},
+			Want: []string{"{3.14}"},
 		},
 		{
 			Args: []string{"-3.14", "str"},
-			Want: []string{"\"-3.14\""},
+			Want: []string{"{-3.14}"},
 		},
 		{
 			Args: []string{"-2d", "str"},
-			Want: []string{"\"-2d\""},
+			Want: []string{"{-2d}"},
 		},
 		{
 			Args: []string{"0d", "str"},
-			Want: []string{"\"0d\""},
+			Want: []string{"{0d}"},
 		},
 		{
 			Args: []string{"2d", "str"},
-			Want: []string{"\"2d\""},
+			Want: []string{"{2d}"},
 		},
 		{
 			Args: []string{"-10o", "str"},
-			Want: []string{"\"-10o\""},
+			Want: []string{"{-10o}"},
 		},
 		{
 			Args: []string{"0o", "str"},
-			Want: []string{"\"0o\""},
+			Want: []string{"{0o}"},
 		},
 		{
 			Args: []string{"10o", "str"},
-			Want: []string{"\"10o\""},
+			Want: []string{"{10o}"},
 		},
 		{
 			Args: []string{"-10b", "str"},
-			Want: []string{"\"-10b\""},
+			Want: []string{"{-10b}"},
 		},
 		{
 			Args: []string{"0b", "str"},
-			Want: []string{"\"0b\""},
+			Want: []string{"{0b}"},
 		},
 		{
 			Args: []string{"10b", "str"},
-			Want: []string{"\"10b\""},
+			Want: []string{"{10b}"},
 		},
 		{
 			Args: []string{"-fx", "str"},
-			Want: []string{"\"-fx\""},
+			Want: []string{"{-fx}"},
 		},
 		{
 			Args: []string{"0x", "str"},
-			Want: []string{"\"0x\""},
+			Want: []string{"{0x}"},
 		},
 		{
 			Args: []string{"fx", "str"},
-			Want: []string{"\"fx\""},
+			Want: []string{"{fx}"},
 		},
 		{
 			Args: []string{"true", "str"},
-			Want: []string{"\"true\""},
+			Want: []string{"{true}"},
 		},
 		{
 			Args: []string{"false", "str"},
-			Want: []string{"\"false\""},
+			Want: []string{"{false}"},
 		},
 		{
 			Args: []string{"'5'", "str"},
-			Want: []string{"\"5\""},
+			Want: []string{"{5}"},
 		},
 		{
 			Args: []string{"'-5'", "str"},
-			Want: []string{"\"-5\""},
+			Want: []string{"{-5}"},
 		},
 		{
 			Args: []string{"'foo'", "str"},
-			Want: []string{"\"foo\""},
+			Want: []string{"{foo}"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })

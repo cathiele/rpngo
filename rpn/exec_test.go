@@ -99,7 +99,7 @@ func TestExec(t *testing.T) {
 			wantFrame:  PolarFrame(1, 0, POLAR_RAD_FRAME),
 		},
 		{
-			name:       "polar 1",
+			name:       "polar 2",
 			args:       []string{"1<1"},
 			frameCount: 1,
 			wantFrame:  PolarFrame(1, 1, POLAR_RAD_FRAME),
@@ -114,19 +114,20 @@ func TestExec(t *testing.T) {
 			name:       "polar 5",
 			args:       []string{"deg", "1<90"},
 			frameCount: 1,
-			wantFrame:  PolarFrame(0, 1, POLAR_DEG_FRAME),
+			// rounding error
+			wantFrame: PolarFrame(1, 90, POLAR_DEG_FRAME),
 		},
 		{
-			name:       "polar 5",
+			name:       "polar 6",
 			args:       []string{"grad", "1<0"},
 			frameCount: 1,
 			wantFrame:  PolarFrame(1, 0, POLAR_GRAD_FRAME),
 		},
 		{
-			name:       "polar 6",
+			name:       "polar 7",
 			args:       []string{"grad", "1<100"},
 			frameCount: 1,
-			wantFrame:  PolarFrame(0, 1, POLAR_GRAD_FRAME),
+			wantFrame:  PolarFrame(1, 100, POLAR_GRAD_FRAME),
 		},
 		{
 			name:       "integer 1",

@@ -228,11 +228,20 @@ func ComplexFrame(v complex128) Frame {
 }
 
 func ComplexFrameWithType(v complex128, t FrameType) Frame {
-	return Frame{cmplx: v, ftype: t}
+	f := Frame{cmplx: v, ftype: t}
+	switch t {
+	case POLAR_DEG_FRAME:
+		f.str = "`deg"
+	case POLAR_RAD_FRAME:
+		f.str = "`rad"
+	case POLAR_GRAD_FRAME:
+		f.str = "`grad"
+	}
+	return f
 }
 
 func PolarFrame(r, a float64, t FrameType) Frame {
-	return Frame{cmplx: cmplx.Rect(r, a), ftype: t}
+	return ComplexFrameWithType(cmplx.Rect(r, toRadiansFloat(a, t)), t)
 }
 
 func RealFrame(v float64) Frame {

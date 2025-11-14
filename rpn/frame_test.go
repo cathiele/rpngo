@@ -323,18 +323,18 @@ func TestString(t *testing.T) {
 		},
 		{
 			name:  "polar 1",
-			frame: PolarFrame(0, -1, POLAR_RAD_FRAME),
-			want:  "1<3.141592653589793",
+			frame: PolarFrame(1, -1, POLAR_RAD_FRAME),
+			want:  "1<-1 `rad",
 		},
 		{
 			name:  "polar 2",
-			frame: PolarFrame(0, -1, POLAR_DEG_FRAME),
-			want:  "1<180",
+			frame: PolarFrame(1, 1, POLAR_DEG_FRAME),
+			want:  "1<1 `deg",
 		},
 		{
 			name:  "polar 3",
-			frame: PolarFrame(0, -1, POLAR_GRAD_FRAME),
-			want:  "1<200",
+			frame: PolarFrame(1, 0.1, POLAR_GRAD_FRAME),
+			want:  "1<0.1 `grad",
 		},
 		{
 			name:  "bool true",

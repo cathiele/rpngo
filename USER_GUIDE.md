@@ -136,8 +136,11 @@ simply enjoy using them now.
     4 sqrt                  # 2
     -1 sqrt                 # i
     4+i 5-2i +              # 9-i
-    i polar                 # 1<1.570796326794897
+    i polar                 # 1<1.570796326794897 `rad
+    deg i polar             # 1<90 `deg
+    deg 1<90 rad polar      # 1<1.570796326794897 `rad
     1<1.5707 float 3 round  # i
+    deg 1<90 float 3 round  # i
     2 4 min                 # 2
     2 4 max                 # 4
     4 neg                   # -4

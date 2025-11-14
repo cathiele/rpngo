@@ -1,76 +1,9 @@
 package functions
 
 import (
-	"errors"
 	"math/cmplx"
 	"mattwach/rpngo/rpn"
 )
-
-var errChooseDegRadOGrad = errors.New("choose 'deg', 'rad', or 'grad'")
-
-const SetAngleHelp = "sets angle units to 'rad', 'deg', or 'grads'"
-
-func SetAngle(r *rpn.RPN) error {
-	f, err := r.PopFrame()
-	if err != nil {
-		return err
-	}
-	if !f.IsString() {
-		return rpn.ErrExpectedAString
-	}
-	switch f.UnsafeString() {
-	case "rad":
-		r.AngleUnit = rpn.POLAR_RAD_FRAME
-	case "deg":
-		r.AngleUnit = rpn.POLAR_DEG_FRAME
-	case "grad":
-		r.AngleUnit = rpn.POLAR_GRAD_FRAME
-	default:
-		return errChooseDegRadOGrad
-	}
-	return nil
-}
-
-const GetAngleHelp = "returns currently-set angle units"
-
-func GetAngle(r *rpn.RPN) error {
-	switch r.AngleUnit {
-	case rpn.POLAR_RAD_FRAME:
-		return r.PushFrame(rpn.StringFrame("rad", rpn.STRING_SINGLEQ_FRAME))
-	case rpn.POLAR_DEG_FRAME:
-		return r.PushFrame(rpn.StringFrame("deg", rpn.STRING_SINGLEQ_FRAME))
-	case rpn.POLAR_GRAD_FRAME:
-		return r.PushFrame(rpn.StringFrame("grad", rpn.STRING_SINGLEQ_FRAME))
-	}
-	return rpn.ErrIllegalValue
-}
-
-const RadHelp = "sets trig / polar units to radians (calls 'rad' setangle)"
-
-func Rad(r *rpn.RPN) error {
-	if err := r.PushFrame(rpn.StringFrame("rad", rpn.STRING_SINGLEQ_FRAME)); err != nil {
-		return err
-	}
-	return SetAngle(r)
-}
-
-const DegHelp = "sets trig / polar units to degrees (calls 'deg' setangle)"
-
-func Deg(r *rpn.RPN) error {
-	if err := r.PushFrame(rpn.StringFrame("deg", rpn.STRING_SINGLEQ_FRAME)); err != nil {
-		return err
-	}
-	return SetAngle(r)
-}
-
-const GradHelp = "sets trig / polar units to grads (calls 'grad' setangle)"
-
-func Grad(r *rpn.RPN) error {
-	if err := r.PushFrame(rpn.StringFrame("grad", rpn.STRING_SINGLEQ_FRAME)); err != nil {
-		return err
-	}
-	return SetAngle(r)
-}
 
 const SinHelp = "takes the sine of a number"
 

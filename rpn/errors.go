@@ -6,6 +6,7 @@ var (
 	ErrCanNotDeleteInputWindow   = errors.New("can not delete input window")
 	ErrCanNotDeleteRootWindow    = errors.New("can not delete root window")
 	ErrCanNotAddLabelToString    = errors.New("can not add label to string")
+	ErrChooseDegRadOGrad         = errors.New("choose 'deg', 'rad', or 'grad'")
 	ErrComplexNumberNotSupported = errors.New("complex number not suppported")
 	ErrDivideByZero              = errors.New("divide by zero")
 	ErrExpectedABoolean          = errors.New("expected a boolean")

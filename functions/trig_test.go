@@ -5,36 +5,6 @@ import (
 	"testing"
 )
 
-func TestAngleUnits(t *testing.T) {
-	data := []rpn.UnitTestExecData{
-		{
-			Args: []string{"getangle"},
-			Want: []string{"'rad'"},
-		},
-		{
-			Args: []string{"'rad'", "setangle", "getangle"},
-			Want: []string{"'rad'"},
-		},
-		{
-			Args: []string{"'deg'", "setangle", "getangle"},
-			Want: []string{"'deg'"},
-		},
-		{
-			Args: []string{"'grad'", "setangle", "getangle"},
-			Want: []string{"'grad'"},
-		},
-		{
-			Args: []string{"'foo'", "setangle"},
-			WantErr: errChooseDegRadOGrad,
-		},
-		{
-			Args: []string{"5", "setangle"},
-			WantErr: rpn.ErrExpectedAString,
-		},
-	}
-	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
-}
-
 func TestASin(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{

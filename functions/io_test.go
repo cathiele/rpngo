@@ -180,7 +180,7 @@ func TestInput(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{
 			Args: []string{"input"},
-			Want: []string{"\"foo\""},
+			Want: []string{"{foo}"},
 		},
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) {
