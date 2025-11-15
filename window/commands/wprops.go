@@ -4,10 +4,10 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const WListPHelp = "Prints all properties / values for a window\n" +
+const wListPHelp = "Prints all properties / values for a window\n" +
 	"Example 'p1' w.listp"
 
-func (wc *WindowCommands) WListP(r *rpn.RPN) error {
+func (wc *WindowCommands) wListP(r *rpn.RPN) error {
 	wname, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -32,10 +32,10 @@ func (wc *WindowCommands) WListP(r *rpn.RPN) error {
 	return nil
 }
 
-const WGetPHelp = "Pushes the value of the given property to the stack.\n" +
+const wGetPHelp = "Pushes the value of the given property to the stack.\n" +
 	"Example: 'p1' 'minx' w.getp"
 
-func (wc *WindowCommands) WGetP(r *rpn.RPN) error {
+func (wc *WindowCommands) wGetP(r *rpn.RPN) error {
 	wname, pname, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -54,10 +54,10 @@ func (wc *WindowCommands) WGetP(r *rpn.RPN) error {
 	return r.PushFrame(f)
 }
 
-const WSetPHelp = "Sets a property on a window.\n" +
+const wSetPHelp = "Sets a property on a window.\n" +
 	"Example: 'p1' 'minx' -1 w.setp"
 
-func (wc *WindowCommands) WSetP(r *rpn.RPN) error {
+func (wc *WindowCommands) wSetP(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err

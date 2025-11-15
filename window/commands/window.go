@@ -50,27 +50,27 @@ func InitWindowCommands(
 	r.RegisterConceptHelp(conceptHelp)
 	elog.Heap("alloc: /window/commands/window.go:50: wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn}")
 	wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn} // object allocated on the heap: escapes at line 65
-	r.Register("w.columns", wc.WColumns, rpn.CatWindow, WColumnsHelp)
-	r.Register("w.del", wc.WDelete, rpn.CatWindow, WDeleteHelp)
-	r.Register("w.dump", wc.WDump, rpn.CatWindow, WDumpHelp)
-	r.Register("w.move.beg", wc.WMoveBeg, rpn.CatWindow, WMoveBegHelp)
-	r.Register("w.move.end", wc.WMoveEnd, rpn.CatWindow, WMoveEndHelp)
-	r.Register("w.new.group", wc.WNewGroup, rpn.CatWindow, WNewGroupHelp)
-	r.Register("w.new.plot", wc.WNewPlot, rpn.CatWindow, WNewPlotHelp)
-	r.Register("w.new.stack", wc.WNewStack, rpn.CatWindow, WNewStackHelp)
-	r.Register("w.new.var", wc.WNewVar, rpn.CatWindow, WNewVarHelp)
-	r.Register("w.listp", wc.WListP, rpn.CatWindow, WListPHelp)
-	r.Register("w.getp", wc.WGetP, rpn.CatWindow, WGetPHelp)
-	r.Register("w.setp", wc.WSetP, rpn.CatWindow, WSetPHelp)
-	r.Register("w.reset", wc.WReset, rpn.CatWindow, WResetHelp)
-	r.Register("w.update", wc.WUpdate, rpn.CatWindow, WUpdateHelp)
-	r.Register("w.weight", wc.WWeight, rpn.CatWindow, WWeightHelp)
+	r.Register("w.columns", wc.wColumns, rpn.CatWindow, wColumnsHelp)
+	r.Register("w.del", wc.wDelete, rpn.CatWindow, wDeleteHelp)
+	r.Register("w.dump", wc.wDump, rpn.CatWindow, wDumpHelp)
+	r.Register("w.move.beg", wc.wMoveBeg, rpn.CatWindow, wMoveBegHelp)
+	r.Register("w.move.end", wc.wMoveEnd, rpn.CatWindow, wMoveEndHelp)
+	r.Register("w.new.group", wc.wNewGroup, rpn.CatWindow, wNewGroupHelp)
+	r.Register("w.new.plot", wc.wNewPlot, rpn.CatWindow, wNewPlotHelp)
+	r.Register("w.new.stack", wc.wNewStack, rpn.CatWindow, wNewStackHelp)
+	r.Register("w.new.var", wc.wNewVar, rpn.CatWindow, wNewVarHelp)
+	r.Register("w.listp", wc.wListP, rpn.CatWindow, wListPHelp)
+	r.Register("w.getp", wc.wGetP, rpn.CatWindow, wGetPHelp)
+	r.Register("w.setp", wc.wSetP, rpn.CatWindow, wSetPHelp)
+	r.Register("w.reset", wc.wReset, rpn.CatWindow, wResetHelp)
+	r.Register("w.update", wc.wUpdate, rpn.CatWindow, wUpdateHelp)
+	r.Register("w.weight", wc.wWeight, rpn.CatWindow, wWeightHelp)
 	return &wc
 }
 
-const WUpdateHelp = "Updates the given window or window group"
+const wUpdateHelp = "Updates the given window or window group"
 
-func (wc *WindowCommands) WUpdate(r *rpn.RPN) error {
+func (wc *WindowCommands) wUpdate(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -81,16 +81,16 @@ func (wc *WindowCommands) WUpdate(r *rpn.RPN) error {
 	return wc.root.UpdateByName(r, f.UnsafeString(), true)
 }
 
-const WDumpHelp = "Dump the state of all created windows and groups"
+const wDumpHelp = "Dump the state of all created windows and groups"
 
-func (wc *WindowCommands) WDump(r *rpn.RPN) error {
+func (wc *WindowCommands) wDump(r *rpn.RPN) error {
 	wc.root.Dump(r)
 	return nil
 }
 
-const WResetHelp = "Resets window configuration to just a single input window"
+const wResetHelp = "Resets window configuration to just a single input window"
 
-func (wc *WindowCommands) WReset(r *rpn.RPN) error {
+func (wc *WindowCommands) wReset(r *rpn.RPN) error {
 	r.PushFrame(rpn.StringFrame("root", rpn.STRING_SINGLEQ_FRAME))
 	r.SetVariable(".wtarget")
 	r.PushFrame(rpn.BoolFrame(true))
@@ -107,10 +107,10 @@ func (wc *WindowCommands) WReset(r *rpn.RPN) error {
 	return nil
 }
 
-const WColumnsHelp = "Sets a window group layout to column mode\n" +
+const wColumnsHelp = "Sets a window group layout to column mode\n" +
 	"Example: 'g1' w.columns"
 
-func (wc *WindowCommands) WColumns(r *rpn.RPN) error {
+func (wc *WindowCommands) wColumns(r *rpn.RPN) error {
 	name, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -124,10 +124,10 @@ func (wc *WindowCommands) WColumns(r *rpn.RPN) error {
 	return nil
 }
 
-const WDeleteHelp = "Deletes a window or window group\n" +
+const wDeleteHelp = "Deletes a window or window group\n" +
 	"Example: 'p1' w.del"
 
-func (wc *WindowCommands) WDelete(r *rpn.RPN) error {
+func (wc *WindowCommands) wDelete(r *rpn.RPN) error {
 	name, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -138,10 +138,10 @@ func (wc *WindowCommands) WDelete(r *rpn.RPN) error {
 	return wc.root.DeleteWindowOrGroup(name.UnsafeString())
 }
 
-const WMoveBegHelp = "Moves a window or group to the beginning of a window group\n" +
+const wMoveBegHelp = "Moves a window or group to the beginning of a window group\n" +
 	"Example: 's1' 'root' w.move.beg"
 
-func (wc *WindowCommands) WMoveBeg(r *rpn.RPN) error {
+func (wc *WindowCommands) wMoveBeg(r *rpn.RPN) error {
 	src, dst, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -152,10 +152,10 @@ func (wc *WindowCommands) WMoveBeg(r *rpn.RPN) error {
 	return wc.root.MoveWindowOrGroup(src.UnsafeString(), dst.UnsafeString(), true)
 }
 
-const WMoveEndHelp = "Moves a window or group to the end of a window group\n" +
+const wMoveEndHelp = "Moves a window or group to the end of a window group\n" +
 	"Example: 's1' 'root' w.move.end"
 
-func (wc *WindowCommands) WMoveEnd(r *rpn.RPN) error {
+func (wc *WindowCommands) wMoveEnd(r *rpn.RPN) error {
 	src, dst, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -166,10 +166,10 @@ func (wc *WindowCommands) WMoveEnd(r *rpn.RPN) error {
 	return wc.root.MoveWindowOrGroup(src.UnsafeString(), dst.UnsafeString(), false)
 }
 
-const WNewGroupHelp = "Creates a new window group with the given name and\n" +
+const wNewGroupHelp = "Creates a new window group with the given name and\n" +
 	"adds it to the root window. Example: 'g1' w.new.group"
 
-func (wc *WindowCommands) WNewGroup(r *rpn.RPN) error {
+func (wc *WindowCommands) wNewGroup(r *rpn.RPN) error {
 	name, err := wc.newWindowNameFromStack(r)
 	if err != nil {
 		return err
@@ -178,10 +178,10 @@ func (wc *WindowCommands) WNewGroup(r *rpn.RPN) error {
 	return nil
 }
 
-const WNewStackHelp = "Creates a new stack window with the given name and\n" +
+const wNewStackHelp = "Creates a new stack window with the given name and\n" +
 	"adds it to the root window. Example: 's1' w.new.stack"
 
-func (wc *WindowCommands) WNewStack(r *rpn.RPN) error {
+func (wc *WindowCommands) wNewStack(r *rpn.RPN) error {
 	txtw, name, err := wc.newTextWindow(r)
 	if err != nil {
 		return err
@@ -193,10 +193,10 @@ func (wc *WindowCommands) WNewStack(r *rpn.RPN) error {
 	return nil
 }
 
-const WNewPlotHelp = "Creates a new plot window with the given name and\n" +
+const wNewPlotHelp = "Creates a new plot window with the given name and\n" +
 	"adds it to the root window. Example: 'p1' w.new.plot"
 
-func (wc *WindowCommands) WNewPlot(r *rpn.RPN) error {
+func (wc *WindowCommands) wNewPlot(r *rpn.RPN) error {
 	name, err := wc.newWindowNameFromStack(r)
 	if err != nil {
 		return err
@@ -209,10 +209,10 @@ func (wc *WindowCommands) WNewPlot(r *rpn.RPN) error {
 	return nil
 }
 
-const WNewVarHelp = "Creates a new variable window with the given name and\n" +
+const wNewVarHelp = "Creates a new variable window with the given name and\n" +
 	"adds it to the root window. Example: 'v1' w.new.var"
 
-func (wc *WindowCommands) WNewVar(r *rpn.RPN) error {
+func (wc *WindowCommands) wNewVar(r *rpn.RPN) error {
 	txtw, name, err := wc.newTextWindow(r)
 	if err != nil {
 		return err
@@ -248,11 +248,11 @@ func (wc *WindowCommands) newWindowNameFromStack(r *rpn.RPN) (string, error) {
 	return name.UnsafeString(), nil
 }
 
-const WWeightHelp = "Changes the weight of a window or window group causing it\n" +
+const wWeightHelp = "Changes the weight of a window or window group causing it\n" +
 	"to take more or less screen space. The default value is 100.\n" +
 	"Example: 's1' 20 w.weight"
 
-func (wc *WindowCommands) WWeight(r *rpn.RPN) error {
+func (wc *WindowCommands) wWeight(r *rpn.RPN) error {
 	cw, err := r.PopFrame()
 	if err != nil {
 		return err
