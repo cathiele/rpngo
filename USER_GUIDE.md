@@ -1152,6 +1152,24 @@ A simple tweak let's us load up the stack with numbers.
 
     0 x= {$x $x 1 + x= $x 100 <} for 
 
+## Trapping and creating errors
+
+Sometimes yo want to try a command and not have the program stop if there
+is an error.  The command for this is `try`:
+
+    { @do_something } { @handle_the_error } try
+
+The statement above will execute `@do_something`.  If there is an error then
+the error will be pushed in the stack (as a string) and `@handle_the_error` will
+be called.
+
+You can also create your own errors like this:
+
+    'my error message' error
+
+This can be used when handling `try` errors to rethrow the same error or some
+modified version of it.
+
 ## Filtering
 
 Filtering is a convenience command that allows some kind of for

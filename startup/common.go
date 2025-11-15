@@ -23,8 +23,8 @@ const commonStartup = `
 {$0 {min ssize 1 >} for} min=
 {$0 {max ssize 1 >} for} max=
 
-histl
-hists
+# history load/save doesn't work on tinygo with no sd card inserted
+{histl hists} {0/} try
 rad
 `
 

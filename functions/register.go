@@ -63,11 +63,13 @@ func RegisterAll(r *rpn.RPN) {
 
 	r.Register("@", exec, rpn.CatProg, execHelp)
 	r.Register("delay", delay, rpn.CatProg, delayHelp)
+	r.Register("error", errorFn, rpn.CatProg, errorHelp)
 	r.Register("for", forFn, rpn.CatProg, forHelp)
 	r.Register("if", If, rpn.CatProg, IfHelp)
 	r.Register("ifelse", ifelse, rpn.CatProg, ifelseHelp)
 	r.Register("noop", noop, rpn.CatProg, noopHelp)
 	r.Register("time", timeFn, rpn.CatProg, timeHelp)
+	r.Register("try", try, rpn.CatProg, tryHelp)
 
 	r.Register("d", dropAll, rpn.CatStack, dropAllHelp)
 
