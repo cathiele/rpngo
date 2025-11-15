@@ -5,13 +5,13 @@ import (
 	"time"
 )
 
-const DelayHelp = "Pauses for the given number of seconds"
+const delayHelp = "Pauses for the given number of seconds"
 
 var DelaySleepFn = func(t float64) {
 	time.Sleep(time.Duration(t*1000) * time.Millisecond)
 }
 
-func Delay(r *rpn.RPN) error {
+func delay(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -27,9 +27,9 @@ func Delay(r *rpn.RPN) error {
 	return nil
 }
 
-const TimeHelp = "Returns unix epoch time, assuming the clock on the hardware is calibrated."
+const timeHelp = "Returns unix epoch time, assuming the clock on the hardware is calibrated."
 
-func Time(r *rpn.RPN) error {
+func timeFn(r *rpn.RPN) error {
 	t := time.Now()
 	return r.PushFrame(rpn.RealFrame(float64(t.UnixMicro()) / 1000000))
 }

@@ -29,10 +29,10 @@ func If(r *rpn.RPN) error {
 	return nil
 }
 
-const IfElseHelp = "Pops elsev, ifv, cond. Executes ifv if cond=true, else executes elsev.\n" +
+const ifelseHelp = "Pops elsev, ifv, cond. Executes ifv if cond=true, else executes elsev.\n" +
 	"Example: 4 3 > {'a is greater than b'} {'a is less than b'} ifelse printlnx"
 
-func IfElse(r *rpn.RPN) error {
+func ifelse(r *rpn.RPN) error {
 	elsev, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -61,14 +61,14 @@ func IfElse(r *rpn.RPN) error {
 	return nil
 }
 
-const ForHelp = "Executes the head of the stack in a loop until a value < is found\n" +
+const forHelp = "Executes the head of the stack in a loop until a value < is found\n" +
 	"Example: 1 'c 1 + c 50 <' for # put 1 to 50 on the stack"
 
 // avoid allocating fields on the stack (for can be nested though)
 var forFields []string
 var forFieldsStart []int
 
-func For(r *rpn.RPN) error {
+func forFn(r *rpn.RPN) error {
 	forFieldsStart = append(forFieldsStart, len(forFields))
 	defer func() { forFieldsStart = forFieldsStart[:len(forFieldsStart)-1] }()
 	mf, err := r.PopFrame()

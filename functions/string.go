@@ -5,9 +5,9 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const FieldsHelp = "Splits a string into fields and places all fields on the stack"
+const fieldsHelp = "Splits a string into fields and places all fields on the stack"
 
-func Fields(r *rpn.RPN) error {
+func fields(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err

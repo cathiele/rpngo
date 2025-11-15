@@ -4,9 +4,9 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const GreaterThanHelp = "Returns true if a > b, false otherwise"
+const greaterThanHelp = "Returns true if a > b, false otherwise"
 
-func GreaterThan(r *rpn.RPN) error {
+func greaterThan(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -14,9 +14,9 @@ func GreaterThan(r *rpn.RPN) error {
 	return r.PushFrame(rpn.BoolFrame(!af.IsLessThanOrEqual(bf)))
 }
 
-const GreaterThanEqualHelp = "Returns true if a >= b, false otherwise"
+const greaterThanEqualHelp = "Returns true if a >= b, false otherwise"
 
-func GreaterThanEqual(r *rpn.RPN) error {
+func greaterThanEqual(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -24,9 +24,9 @@ func GreaterThanEqual(r *rpn.RPN) error {
 	return r.PushFrame(rpn.BoolFrame(!af.IsLessThan(bf)))
 }
 
-const LessThanHelp = "Returns true if a < b, false otherwise"
+const lessThanHelp = "Returns true if a < b, false otherwise"
 
-func LessThan(r *rpn.RPN) error {
+func lessThan(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -34,9 +34,9 @@ func LessThan(r *rpn.RPN) error {
 	return r.PushFrame(rpn.BoolFrame(af.IsLessThan(bf)))
 }
 
-const LessThanEqualHelp = "Returns true if a <= b, false otherwise"
+const lessThanEqualHelp = "Returns true if a <= b, false otherwise"
 
-func LessThanEqual(r *rpn.RPN) error {
+func lessThanEqual(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -44,9 +44,9 @@ func LessThanEqual(r *rpn.RPN) error {
 	return r.PushFrame(rpn.BoolFrame(af.IsLessThanOrEqual(bf)))
 }
 
-const EqualHelp = "Returns true if a = b, false otherwise (approximate)"
+const equalHelp = "Returns true if a = b, false otherwise (approximate)"
 
-func Equal(r *rpn.RPN) error {
+func equal(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -54,9 +54,9 @@ func Equal(r *rpn.RPN) error {
 	return r.PushFrame(rpn.BoolFrame(af.IsEqual(bf)))
 }
 
-const NotEqualHelp = "Returns true if a != b, false otherwise (approximate)"
+const notEqualHelp = "Returns true if a != b, false otherwise (approximate)"
 
-func NotEqual(r *rpn.RPN) error {
+func notEqual(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -64,9 +64,9 @@ func NotEqual(r *rpn.RPN) error {
 	return r.PushFrame(rpn.BoolFrame(!af.IsEqual(bf)))
 }
 
-const MinHelp = "Pops two frames and repushes the minimum value.  Pushes $1 if the frames were equal."
+const minHelp = "Pops two frames and repushes the minimum value.  Pushes $1 if the frames were equal."
 
-func Min(r *rpn.RPN) error {
+func min(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -77,9 +77,9 @@ func Min(r *rpn.RPN) error {
 	return r.PushFrame(bf)
 }
 
-const MaxHelp = "Pops two frames and repushes the maximum value.  Pushes $1 if the frames were equal."
+const maxHelp = "Pops two frames and repushes the maximum value.  Pushes $1 if the frames were equal."
 
-func Max(r *rpn.RPN) error {
+func max(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err

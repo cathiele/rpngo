@@ -4,9 +4,9 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const DropAllHelp = "Clears the stack"
+const dropAllHelp = "Clears the stack"
 
-func DropAll(r *rpn.RPN) error {
+func dropAll(r *rpn.RPN) error {
 	r.Clear()
 	return nil
 }

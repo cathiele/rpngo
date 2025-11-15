@@ -5,9 +5,9 @@ import (
 	"strconv"
 )
 
-const PrintHelp = "Prints the head element of the stack to the output window"
+const printHelp = "Prints the head element of the stack to the output window"
 
-func Print(r *rpn.RPN) error {
+func printFn(r *rpn.RPN) error {
 	f, err := r.PeekFrame(0)
 	if err != nil {
 		return err
@@ -16,9 +16,9 @@ func Print(r *rpn.RPN) error {
 	return nil
 }
 
-const PrintXHelp = "Pops head element of the stack and prints it"
+const printxHelp = "Pops head element of the stack and prints it"
 
-func PrintX(r *rpn.RPN) error {
+func printx(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -27,9 +27,9 @@ func PrintX(r *rpn.RPN) error {
 	return nil
 }
 
-const PrintSHelp = "Prints the head element of the stack plus a space"
+const printsHelp = "Prints the head element of the stack plus a space"
 
-func PrintS(r *rpn.RPN) error {
+func prints(r *rpn.RPN) error {
 	f, err := r.PeekFrame(0)
 	if err != nil {
 		return err
@@ -39,9 +39,9 @@ func PrintS(r *rpn.RPN) error {
 	return nil
 }
 
-const PrintSXHelp = "Pops head element of the stack and prints it and a space"
+const printsxHelp = "Pops head element of the stack and prints it and a space"
 
-func PrintSX(r *rpn.RPN) error {
+func printsx(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -51,9 +51,9 @@ func PrintSX(r *rpn.RPN) error {
 	return nil
 }
 
-const PrintlnHelp = "Prints the head element of the stack plus a newline"
+const printlnHelp = "Prints the head element of the stack plus a newline"
 
-func Println(r *rpn.RPN) error {
+func printlnFn(r *rpn.RPN) error {
 	f, err := r.PeekFrame(0)
 	if err != nil {
 		return err
@@ -63,9 +63,9 @@ func Println(r *rpn.RPN) error {
 	return nil
 }
 
-const PrintlnXHelp = "Pops head element of the stack and prints it and a newline"
+const printlnxHelp = "Pops head element of the stack and prints it and a newline"
 
-func PrintlnX(r *rpn.RPN) error {
+func printlnx(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -75,9 +75,9 @@ func PrintlnX(r *rpn.RPN) error {
 	return nil
 }
 
-const PrintAllHelp = "Prints the whole stack"
+const printallHelp = "Prints the whole stack"
 
-func PrintAll(r *rpn.RPN) error {
+func printall(r *rpn.RPN) error {
 	i := len(r.Frames)
 	for _, f := range r.Frames {
 		i--
@@ -86,9 +86,9 @@ func PrintAll(r *rpn.RPN) error {
 	return nil
 }
 
-const InputHelp = "Pauses for user input and pushes the result to the stack as a string"
+const inputHelp = "Pauses for user input and pushes the result to the stack as a string"
 
-func Input(r *rpn.RPN) error {
+func input(r *rpn.RPN) error {
 	str, err := r.Input(r)
 	if err != nil {
 		return err
@@ -96,9 +96,9 @@ func Input(r *rpn.RPN) error {
 	return r.PushFrame(rpn.StringFrame(str, rpn.STRING_BRACE_FRAME))
 }
 
-const HexDumpHelp = "Hex dump of the top of the stack (converted to a string)"
+const hexdumpHelp = "Hex dump of the top of the stack (converted to a string)"
 
-func HexDump(r *rpn.RPN) error {
+func hexdump(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err

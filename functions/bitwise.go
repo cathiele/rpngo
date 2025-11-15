@@ -4,33 +4,33 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const AndHelp = "Performs a logical AND operation"
+const andHelp = "Performs a logical AND operation"
 
-func And(r *rpn.RPN) error {
+func and(r *rpn.RPN) error {
 	return binaryOp(r, func(a, b int64) int64 { return a & b })
 }
 
-const OrHelp = "Performs a logical OR operation"
+const orHelp = "Performs a logical OR operation"
 
-func Or(r *rpn.RPN) error {
+func or(r *rpn.RPN) error {
 	return binaryOp(r, func(a, b int64) int64 { return a | b })
 }
 
-const XOrHelp = "Performs a logical XOR operation"
+const xorHelp = "Performs a logical XOR operation"
 
-func XOr(r *rpn.RPN) error {
+func xor(r *rpn.RPN) error {
 	return binaryOp(r, func(a, b int64) int64 { return a ^ b })
 }
 
-const ShiftLeftHelp = "Performs a logical shift left operation"
+const shiftLeftHelp = "Performs a logical shift left operation"
 
-func ShiftLeft(r *rpn.RPN) error {
+func shiftLeft(r *rpn.RPN) error {
 	return binaryOp(r, func(a, b int64) int64 { return a << b })
 }
 
-const ShiftRightHelp = "Performs a logical shift right operation"
+const shiftRightHelp = "Performs a logical shift right operation"
 
-func ShiftRight(r *rpn.RPN) error {
+func shiftRight(r *rpn.RPN) error {
 	return binaryOp(r, func(a, b int64) int64 { return a >> b })
 }
 

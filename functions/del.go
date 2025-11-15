@@ -2,9 +2,9 @@ package functions
 
 import "mattwach/rpngo/rpn"
 
-const DelHelp = "Removes up to n elements from the head of the stack."
+const delHelp = "Removes up to n elements from the head of the stack."
 
-func Del(r *rpn.RPN) error {
+func del(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err

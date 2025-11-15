@@ -5,9 +5,9 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const PowerHelp = "executes a to the power of b"
+const powerHelp = "executes a to the power of b"
 
-func Power(r *rpn.RPN) error {
+func power(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -54,9 +54,9 @@ func powInts(x, n int64) int64 {
 	return x * y * y
 }
 
-const SquareRootHelp = "takes the square root of a number"
+const sqrtHelp = "takes the square root of a number"
 
-func SquareRoot(r *rpn.RPN) error {
+func sqrt(r *rpn.RPN) error {
 	af, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -72,9 +72,9 @@ func SquareRoot(r *rpn.RPN) error {
 	return r.PushFrame(rpn.IntFrameCloneType(int64(real(a)), af))
 }
 
-const AbsHelp = "Takes the absolute value"
+const absHelp = "Takes the absolute value"
 
-func Abs(r *rpn.RPN) error {
+func abs(r *rpn.RPN) error {
 	af, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -93,9 +93,9 @@ func Abs(r *rpn.RPN) error {
 	return r.PushFrame(rpn.IntFrameCloneType(a, af))
 }
 
-const SquareHelp = "executes v * v"
+const sqHelp = "executes v * v"
 
-func Square(r *rpn.RPN) error {
+func sq(r *rpn.RPN) error {
 	a, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -111,9 +111,9 @@ func Square(r *rpn.RPN) error {
 	return r.PushFrame(rpn.IntFrameCloneType(ai*ai, a))
 }
 
-const LogHelp = "executes natural logrithm"
+const logHelp = "executes natural logrithm"
 
-func Log(r *rpn.RPN) error {
+func log(r *rpn.RPN) error {
 	a, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -128,9 +128,9 @@ func Log(r *rpn.RPN) error {
 	return r.PushFrame(rpn.ComplexFrame(cmplx.Log(ac)))
 }
 
-const Log10Help = "executes base 10 logrithm"
+const log10Help = "executes base 10 logrithm"
 
-func Log10(r *rpn.RPN) error {
+func log10(r *rpn.RPN) error {
 	a, err := r.PopFrame()
 	if err != nil {
 		return err

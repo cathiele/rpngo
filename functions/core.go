@@ -9,15 +9,15 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const NoOpHelp = "No operation. e.g. 'noop' plot will plot y = x"
+const noopHelp = "No operation. e.g. 'noop' plot will plot y = x"
 
-func NoOp(r *rpn.RPN) error {
+func noop(r *rpn.RPN) error {
 	return nil
 }
 
-const AddHelp = "Adds two numbers"
+const addHelp = "Adds two numbers"
 
-func Add(r *rpn.RPN) error {
+func add(r *rpn.RPN) error {
 	a, b, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -53,9 +53,9 @@ func Add(r *rpn.RPN) error {
 	return r.PushFrame(rpn.IntFrameCloneType(ab+bb, a))
 }
 
-const SubtractHelp = "Subtracts two numbers"
+const subtractHelp = "Subtracts two numbers"
 
-func Subtract(r *rpn.RPN) error {
+func subtract(r *rpn.RPN) error {
 	a, b, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -85,9 +85,9 @@ func Subtract(r *rpn.RPN) error {
 	return r.PushFrame(rpn.IntFrameCloneType(ab-bb, a))
 }
 
-const MultiplyHelp = "Multiplies two numbers"
+const multiplyHelp = "Multiplies two numbers"
 
-func Multiply(r *rpn.RPN) error {
+func multiply(r *rpn.RPN) error {
 	a, b, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -117,9 +117,9 @@ func Multiply(r *rpn.RPN) error {
 	return r.PushFrame(rpn.IntFrameCloneType(ab*bb, a))
 }
 
-const DivideHelp = "Divides two numbers"
+const divideHelp = "Divides two numbers"
 
-func Divide(r *rpn.RPN) error {
+func divide(r *rpn.RPN) error {
 	a, b, err := r.Pop2Frames()
 	if err != nil {
 		return err
@@ -159,9 +159,9 @@ func Divide(r *rpn.RPN) error {
 	return r.PushFrame(rpn.IntFrameCloneType(ab/bb, a))
 }
 
-const NegateHelp = "Negates the top number"
+const negateHelp = "Negates the top number"
 
-func Negate(r *rpn.RPN) error {
+func negate(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -181,10 +181,10 @@ func Negate(r *rpn.RPN) error {
 	return rpn.ErrIllegalValue
 }
 
-const ExecHelp = "Executes a string\n" +
+const execHelp = "Executes a string\n" +
 	"Example: '4 5 +' @"
 
-func Exec(r *rpn.RPN) error {
+func exec(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -195,15 +195,15 @@ func Exec(r *rpn.RPN) error {
 	return parse.Fields(f.UnsafeString(), r.Exec)
 }
 
-const RandHelp = "Pushes a random number between 0 and 1"
+const randHelp = "Pushes a random number between 0 and 1"
 
-func Rand(r *rpn.RPN) error {
+func randFn(r *rpn.RPN) error {
 	return r.PushFrame(rpn.RealFrame(rand.Float64()))
 }
 
-const PolarHelp = "Converts head element to a complex polar"
+const polarHelp = "Converts head element to a complex polar"
 
-func Polar(r *rpn.RPN) error {
+func polar(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -232,9 +232,9 @@ func Polar(r *rpn.RPN) error {
 	return r.PushFrame(rpn.ComplexFrameWithType(v, r.AngleUnit))
 }
 
-const FloatHelp = "Converts head element to a complex float"
+const floatHelp = "Converts head element to a complex float"
 
-func Float(r *rpn.RPN) error {
+func floatFn(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -263,9 +263,9 @@ func Float(r *rpn.RPN) error {
 	return r.PushFrame(rpn.ComplexFrame(v))
 }
 
-const RealHelp = "Takes the real portion of a complex number"
+const realHelp = "Takes the real portion of a complex number"
 
-func Real(r *rpn.RPN) error {
+func realFn(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -277,9 +277,9 @@ func Real(r *rpn.RPN) error {
 	return r.PushFrame(rpn.RealFrame(real(c)))
 }
 
-const ImagHelp = "Takes the imaginary portion of a complex number (as a real number)"
+const imagHelp = "Takes the imaginary portion of a complex number (as a real number)"
 
-func Imag(r *rpn.RPN) error {
+func imagFn(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -291,21 +291,21 @@ func Imag(r *rpn.RPN) error {
 	return r.PushFrame(rpn.RealFrame(imag(c)))
 }
 
-const TrueHelp = "Pushes a boolean true"
+const trueHelp = "Pushes a boolean true"
 
-func True(r *rpn.RPN) error {
+func trueFn(r *rpn.RPN) error {
 	return r.PushFrame(rpn.BoolFrame(true))
 }
 
-const FalseHelp = "Pushes a boolean false"
+const falseHelp = "Pushes a boolean false"
 
-func False(r *rpn.RPN) error {
+func falseFn(r *rpn.RPN) error {
 	return r.PushFrame(rpn.BoolFrame(false))
 }
 
-const RoundHelp = "Rounds a number to the given number of places"
+const roundHelp = "Rounds a number to the given number of places"
 
-func Round(r *rpn.RPN) error {
+func round(r *rpn.RPN) error {
 	af, bf, err := r.Pop2Frames()
 	if err != nil {
 		return err

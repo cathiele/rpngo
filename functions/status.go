@@ -5,9 +5,9 @@ import (
 	"runtime"
 )
 
-const HeapStatsHelp = "Pushes annotated memory heap stats to the stack"
+const heapstatsHelp = "Pushes annotated memory heap stats to the stack"
 
-func HeapStats(r *rpn.RPN) error {
+func heapstats(r *rpn.RPN) error {
 	var ms runtime.MemStats
 	runtime.ReadMemStats(&ms)
 

@@ -201,7 +201,7 @@ func TestHexDump(t *testing.T) {
 	if err != nil {
 		t.Errorf("err=%v, want nil", err)
 	}
-	err = HexDump(&r)
+	err = hexdump(&r)
 	if err != nil {
 		t.Errorf("err=%v, want nil", err)
 	}

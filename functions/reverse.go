@@ -2,9 +2,9 @@ package functions
 
 import "mattwach/rpngo/rpn"
 
-const ReverseHelp = "Reverses the stack"
+const reverseHelp = "Reverses the stack"
 
-func Reverse(r *rpn.RPN) error {
+func reverse(r *rpn.RPN) error {
 	if len(r.Frames) <= 1 {
 		return nil
 	}

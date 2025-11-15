@@ -2,9 +2,9 @@ package functions
 
 import "mattwach/rpngo/rpn"
 
-const KeepHelp = "Keeps up to n elements from the head of the stack."
+const keepHelp = "Keeps up to n elements from the head of the stack."
 
-func Keep(r *rpn.RPN) error {
+func keep(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err

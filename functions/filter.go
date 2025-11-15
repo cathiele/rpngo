@@ -6,7 +6,7 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const FilterHelp = "Copies each value from the bottom to the top of the stack " +
+const filterHelp = "Copies each value from the bottom to the top of the stack " +
 	"to the top of the stack.  Calling filter function after each one.  Discards the " +
 	"original values, leaving only the new ones.\n" +
 	"\n" +
@@ -16,7 +16,7 @@ const FilterHelp = "Copies each value from the bottom to the top of the stack " 
 	"\n" +
 	"See Also: filterm, filtern, filtermn"
 
-func Filter(r *rpn.RPN) error {
+func filter(r *rpn.RPN) error {
 	fn, err := r.PopFrame()
 	if err != nil {
 		return err

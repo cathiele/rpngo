@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-const SortHelp = "Sorts values on the stack.  Uses the " +
+const sortHelp = "Sorts values on the stack.  Uses the " +
 	"< conditional as the baseline for sorting."
 
 type sortInterface struct {
@@ -24,7 +24,7 @@ func (si *sortInterface) Swap(i, j int) {
 	si.data[i], si.data[j] = si.data[j], si.data[i]
 }
 
-func Sort(r *rpn.RPN) error {
+func sortFn(r *rpn.RPN) error {
 	if len(r.Frames) == 0 {
 		return nil
 	}

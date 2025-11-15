@@ -33,33 +33,33 @@ func convert(r *rpn.RPN, t rpn.FrameType) error {
 	return r.PushFrame(rpn.IntFrame(v, t))
 }
 
-const IntHelp = "Converts head element to an integer number"
+const intHelp = "Converts head element to an integer number"
 
-func Int(r *rpn.RPN) error {
+func intFn(r *rpn.RPN) error {
 	return convert(r, rpn.INTEGER_FRAME)
 }
 
-const HexHelp = "Converts head element to a hexidecimal number"
+const hexHelp = "Converts head element to a hexidecimal number"
 
-func Hex(r *rpn.RPN) error {
+func hex(r *rpn.RPN) error {
 	return convert(r, rpn.HEXIDECIMAL_FRAME)
 }
 
-const OctHelp = "Converts head element to an octal number"
+const octHelp = "Converts head element to an octal number"
 
-func Oct(r *rpn.RPN) error {
+func oct(r *rpn.RPN) error {
 	return convert(r, rpn.OCTAL_FRAME)
 }
 
-const BinHelp = "Converts head element to a binary number"
+const binHelp = "Converts head element to a binary number"
 
-func Bin(r *rpn.RPN) error {
+func bin(r *rpn.RPN) error {
 	return convert(r, rpn.BINARY_FRAME)
 }
 
-const StrHelp = "Converts head element to a string"
+const strHelp = "Converts head element to a string"
 
-func Str(r *rpn.RPN) error {
+func str(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
