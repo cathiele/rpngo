@@ -37,11 +37,11 @@ const (
 	HIGHLIGHT_COMMENT
 )
 
-const EditHelp = "Invokes an editor on the head value of the stack. " +
+const editHelp = "Invokes an editor on the head value of the stack. " +
 	"Press ESC to push edits back to the stack.  The pushed value " +
 	"will always be a string (but can be evaluated with @ if needed)."
 
-func (iw *InputWindow) Edit(r *rpn.RPN) error {
+func (iw *InputWindow) edit(r *rpn.RPN) error {
 	var f rpn.Frame
 	var err error
 	var ed editor

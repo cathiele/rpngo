@@ -37,9 +37,9 @@ func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, fs 
 	iw.showFrames = 1
 	r.Print = iw.Print
 	r.Input = iw.Input
-	r.Register("edit", iw.Edit, rpn.CatProg, EditHelp)
-	r.Register("histl", iw.gl.HistLoad, rpn.CatStatus, HistLoadHelp)
-	r.Register("hists", iw.gl.HistSave, rpn.CatStatus, HistSaveHelp)
+	r.Register("edit", iw.edit, rpn.CatProg, editHelp)
+	r.Register("histl", iw.gl.histLoad, rpn.CatStatus, histLoadHelp)
+	r.Register("hists", iw.gl.histSave, rpn.CatStatus, histSaveHelp)
 }
 
 func (iw *InputWindow) Print(msg string) {

@@ -62,9 +62,9 @@ func initGetLine(input Input, txtb *window.TextBuffer, fs fileops.FileOpsDriver)
 	return gl
 }
 
-const HistLoadHelp = "Loads in-memory history from 'histpath' (an input window property)"
+const histLoadHelp = "Loads in-memory history from 'histpath' (an input window property)"
 
-func (gl *getLine) HistLoad(r *rpn.RPN) error {
+func (gl *getLine) histLoad(r *rpn.RPN) error {
 	if gl.autoHistory {
 		return errDisableAutoHistoryFirst
 	}
@@ -96,9 +96,9 @@ func (gl *getLine) loadHistory() error {
 	return nil
 }
 
-const HistSaveHelp = "Saves in-memory history to 'histpath' (an input window property)"
+const histSaveHelp = "Saves in-memory history to 'histpath' (an input window property)"
 
-func (gl *getLine) HistSave(r *rpn.RPN) error {
+func (gl *getLine) histSave(r *rpn.RPN) error {
 	if gl.autoHistory {
 		return errDisableAutoHistoryFirst
 	}
