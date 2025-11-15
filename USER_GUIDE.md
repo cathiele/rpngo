@@ -179,6 +179,8 @@ will contain the value at the top of the stack.  For example:
 'animate_sin.rpn' load edit
 ```
 
+![ncurses editor](img/ncurses_editor.png)
+
 The editor is currently only supports basic features:
 
 - arrow key, page up, page down, home, end navigation
