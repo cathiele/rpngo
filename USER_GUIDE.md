@@ -313,24 +313,16 @@ are covered in more detail in upcoming sections:
 - `.wend`, `.wtarget`, `.wweight` These can be used to control
   how a new window is created. The concept is covered later.
 
-### Viewing Variables
-
-You can use `vlist` to list all assigned variables. There is also a special
-window view that can list variables that is described later.
-
 ### Number Bases
 
 Many type of numbers are supported
 
-    50       # floating point (actually a 5+0i complex)
-    50+i     # complex number
-    50d      # Integer
-    32x      # Hexidecimal
-
-### Viewing Variables
-
-You can use `vlist` to list all assigned variables. There is also a special
-window view that can list variables that is described later.
+    50         # floating point (actually a 5+0i complex)
+    50+i       # complex number
+    50<1       # polar complex (default is radians)
+    deg 50<90  # You can use degrees too.
+    50d        # Integer
+    32x        # Hexidecimal
     62o      # octal
     110010b  # binary
 
@@ -339,22 +331,13 @@ Most operations can us a mix of these types, using the following rules:
     # Any number type mixed with float results in a float
     12.4 5d +  ->  17.4
 
-### Viewing Variables
-
-You can use `vlist` to list all assigned variables. There is also a special
-window view that can list variables that is described later.
 
     # Two integer types combined takes the base of the left term
     32x 50d +  ->  64x
 
 You can also convert between types using `hex`, `bin`, `oct`, `float`, `real`,
-`imag`, and `str`. You can convert from a string to a type by executing
-
-### Viewing Variables
-
-You can use `vlist` to list all assigned variables. There is also a special
-window view that can list variables that is described later.
-it with `@`
+`imag`, 'polar', 'abs', 'phase', and `str`. You can convert from a string to
+a type by executing it with `@`
 
     "54x" @  ->  54x
 
@@ -384,9 +367,6 @@ You can also compare different types, which is in support of `sort` and
     1+i 2 <        # true: This is mathmatically wrong (can't really compare complex)
                    #       but we need it for programming. < only
                    #       compares real parts and ignores complex parts
-
-The final rule may be changed in the future (to an error), if a compelling
-usecase can be presented.
 
 Conditionals are an essential part of programming, which we will cover
 with examples later.
