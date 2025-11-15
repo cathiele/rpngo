@@ -44,6 +44,8 @@ go build
 ./rpn
 ```
 
+![ncurses build](img/ncurses_build.png)
+
 ### Microcontrollers using TinyGo (Raspberry Pi Pico and Pico2 tested as working)
 
 You'll need to [install TinyGo](https://tinygo.org/getting-started/install/).
