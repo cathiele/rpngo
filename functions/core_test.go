@@ -424,6 +424,18 @@ func TestRound(t *testing.T) {
 			Want: []string{"-1.24"},
 		},
 		{
+			Args: []string{"1.234<2.348", "2", "round"},
+			Want: []string{"1.23<2.35 `rad"},
+		},
+		{
+			Args: []string{"deg", "1.234<2.348", "2", "round"},
+			Want: []string{"1.23<2.35 `deg"},
+		},
+		{
+			Args: []string{"grad", "1.234<2.34", "2", "round"},
+			Want: []string{"1.23<2.34 `grad"},
+		},
+		{
 			Args:    []string{"-1.235", "i", "round"},
 			WantErr: rpn.ErrComplexNumberNotSupported,
 		},

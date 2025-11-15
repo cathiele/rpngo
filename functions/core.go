@@ -346,6 +346,7 @@ func round(r *rpn.RPN) error {
 	}
 	if af.IsComplex() && (af.Type() != rpn.COMPLEX_FRAME) {
 		rl, an := cmplx.Polar(a)
+		an = rpn.FromRadiansFloat(an, af.Type())
 		for i := 0; i < int(b); i++ {
 			rl *= 10
 			an *= 10
