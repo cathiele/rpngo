@@ -254,6 +254,9 @@ func (sc *XmodemCommands) readPacket(r *rpn.RPN) error {
 		if err := sc.readPacketData(r); err != nil {
 			return err
 		}
+		if sc.state == Finished {
+			return nil
+		}
 
 		if err := sc.validatePacket(); err != nil {
 			return sc.nakWith(r, err)
