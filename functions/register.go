@@ -79,6 +79,7 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("imag", imagFn, rpn.CatType, imagHelp)
 	r.Register("int", intFn, rpn.CatType, intHelp)
 	r.Register("oct", oct, rpn.CatType, octHelp)
+	r.Register("phase", phase, rpn.CatType, phaseHelp)
 	r.Register("polar", polar, rpn.CatType, polarHelp)
 	r.Register("real", realFn, rpn.CatType, realHelp)
 	r.Register("str", str, rpn.CatType, strHelp)

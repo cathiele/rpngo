@@ -75,7 +75,7 @@ func (r *RPN) FromRadians(rad complex128, t Frame) Frame {
 	}
 }
 
-func fromRadiansFloat(rad float64, t FrameType) float64 {
+func FromRadiansFloat(rad float64, t FrameType) float64 {
 	switch t {
 	case POLAR_DEG_FRAME:
 		return rad * 57.29577951308232

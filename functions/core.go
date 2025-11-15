@@ -232,6 +232,29 @@ func polar(r *rpn.RPN) error {
 	return r.PushFrame(rpn.ComplexFrameWithType(v, r.AngleUnit))
 }
 
+const phaseHelp = "Returns the polar angle of a number as a real (use abs for magnitude)"
+
+func phase(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	c, err := f.Complex()
+	if err != nil {
+		return err
+	}
+	p := rpn.RealFrame(rpn.FromRadiansFloat(cmplx.Phase(c), r.AngleUnit))
+	switch r.AngleUnit {
+	case rpn.POLAR_RAD_FRAME:
+		p.Annotate("`rad")
+	case rpn.POLAR_DEG_FRAME:
+		p.Annotate("`deg")
+	case rpn.POLAR_GRAD_FRAME:
+		p.Annotate("`grad")
+	}
+	return r.PushFrame(p)
+}
+
 const floatHelp = "Converts head element to a complex float"
 
 func floatFn(r *rpn.RPN) error {

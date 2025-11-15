@@ -272,7 +272,7 @@ func (f *Frame) complexString() string {
 
 func (f *Frame) polarString() string {
 	r, a := cmplx.Polar(f.cmplx)
-	return strconv.FormatFloat(r, 'g', 16, 64) + "<" + strconv.FormatFloat(fromRadiansFloat(a, f.ftype), 'g', 16, 64)
+	return strconv.FormatFloat(r, 'g', 16, 64) + "<" + strconv.FormatFloat(FromRadiansFloat(a, f.ftype), 'g', 16, 64)
 }
 
 func complexString(v float64) string {

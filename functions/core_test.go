@@ -638,3 +638,33 @@ func TestPolar(t *testing.T) {
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
 }
+
+func TestPhase(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"phase"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args: []string{"1d", "phase"},
+			Want: []string{"0 `rad"},
+		},
+		{
+			Args:    []string{"'foo'", "imag"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+		{
+			Args: []string{"1", "phase"},
+			Want: []string{"0 `rad"},
+		},
+		{
+			Args: []string{"deg", "i", "phase"},
+			Want: []string{"90 `deg"},
+		},
+		{
+			Args: []string{"grad", "i", "phase"},
+			Want: []string{"100 `grad"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
