@@ -5,10 +5,10 @@ import (
 	"mattwach/rpngo/rpn"
 )
 
-const SourceHelp = "Loads the given path and executes commands within it.\n" +
+const sourceHelp = "Loads the given path and executes commands within it.\n" +
 	"Example: 'myfile.txt' source"
 
-func (fo *FileOps) Source(r *rpn.RPN) error {
+func (fo *FileOps) source(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err

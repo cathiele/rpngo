@@ -32,9 +32,9 @@ func (fo *FileOps) InitAndRegister(r *rpn.RPN, maxFileSize int, driver FileOpsDr
 	fo.register(r)
 }
 
-const FormatHelp = "Formats an SD card. For safety, must provide a single \"YES\" string argument. Not suported on PCs"
+const formatHelp = "Formats an SD card. For safety, must provide a single \"YES\" string argument. Not suported on PCs"
 
-func (fo *FileOps) Format(r *rpn.RPN) error {
+func (fo *FileOps) format(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -45,9 +45,9 @@ func (fo *FileOps) Format(r *rpn.RPN) error {
 	return fo.driver.Format()
 }
 
-const LoadHelp = "Loads the given filename and places it on the stack as a string variable"
+const loadHelp = "Loads the given filename and places it on the stack as a string variable"
 
-func (fo *FileOps) Load(r *rpn.RPN) error {
+func (fo *FileOps) load(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -70,9 +70,9 @@ func (fo *FileOps) Load(r *rpn.RPN) error {
 	return r.PushFrame(rpn.StringFrame(string(data), rpn.STRING_SINGLEQ_FRAME))
 }
 
-const SaveHelp = "Uses $0 as the filename to save the contents of $1  Both are popped from the stack.  A '\\n' character is added.  Use append if this is not wanted."
+const saveHelp = "Uses $0 as the filename to save the contents of $1  Both are popped from the stack.  A '\\n' character is added.  Use append if this is not wanted."
 
-func (fo *FileOps) Save(r *rpn.RPN) error {
+func (fo *FileOps) save(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -88,9 +88,9 @@ func (fo *FileOps) Save(r *rpn.RPN) error {
 	return fo.driver.WriteFile(path, []byte(data.String(false)))
 }
 
-const AppendHelp = "Uses $0 as the filename to append the contents of $1  Both are popped from the stack.  No '\\n' character is added."
+const appendHelp = "Uses $0 as the filename to append the contents of $1  Both are popped from the stack.  No '\\n' character is added."
 
-func (fo *FileOps) Append(r *rpn.RPN) error {
+func (fo *FileOps) append(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -106,9 +106,9 @@ func (fo *FileOps) Append(r *rpn.RPN) error {
 	return fo.driver.AppendToFile(path, []byte(data.String(false)))
 }
 
-const ChangeDirHelp = "Change the working directory"
+const cdHelp = "Change the working directory"
 
-func (fo *FileOps) ChangeDir(r *rpn.RPN) error {
+func (fo *FileOps) cd(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -123,7 +123,7 @@ func (fo *FileOps) ChangeDir(r *rpn.RPN) error {
 	return fo.driver.Chdir(path)
 }
 
-const ShellHelp = `Executes a string as a shell command.
+const shellHelp = `Executes a string as a shell command.
 
 There are many ways to execute a shell command and the following special
 variables control the behavior:
@@ -137,7 +137,7 @@ variables control the behavior:
 The exit code of the shell command is set to the variable $rc.
 `
 
-func (fo *FileOps) Shell(r *rpn.RPN) error {
+func (fo *FileOps) shell(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err

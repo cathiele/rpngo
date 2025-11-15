@@ -3,12 +3,12 @@ package fileops
 import "mattwach/rpngo/rpn"
 
 func (fo *FileOps) register(r *rpn.RPN) {
-	r.Register(".", fo.Source, rpn.CatIO, SourceHelp)
-	r.Register("append", fo.Append, rpn.CatIO, AppendHelp)
-	r.Register("cd", fo.ChangeDir, rpn.CatIO, ChangeDirHelp)
-	r.Register("format", fo.Format, rpn.CatIO, FormatHelp)
-	r.Register("load", fo.Load, rpn.CatIO, LoadHelp)
-	r.Register("save", fo.Save, rpn.CatIO, SaveHelp)
-	r.Register("source", fo.Source, rpn.CatIO, SourceHelp)
-	r.Register("sh", fo.Shell, rpn.CatIO, ShellHelp)
+	r.Register(".", fo.source, rpn.CatIO, sourceHelp)
+	r.Register("append", fo.append, rpn.CatIO, appendHelp)
+	r.Register("cd", fo.cd, rpn.CatIO, cdHelp)
+	r.Register("format", fo.format, rpn.CatIO, formatHelp)
+	r.Register("load", fo.load, rpn.CatIO, loadHelp)
+	r.Register("save", fo.save, rpn.CatIO, saveHelp)
+	r.Register("source", fo.source, rpn.CatIO, sourceHelp)
+	r.Register("sh", fo.shell, rpn.CatIO, shellHelp)
 }
