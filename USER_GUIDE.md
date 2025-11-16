@@ -1060,7 +1060,7 @@ at the top of the stack.
 The directions here are the same as the previous section, but you type this
 in screen instead:
 
-    exec !! sx bounce_ball.rpn
+    exec !! rx -c myfile.rpn
 
 and on the calculator:
 

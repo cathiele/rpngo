@@ -124,7 +124,9 @@ func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
 		case InitialHandshake:
 			b, err := sc.serial.ReadByte()
 			if err == nil {
-				if b == 'C' {
+				//r.Print("hs: ")
+				//r.Println(strconv.Itoa(int(b)))
+				if b == C {
 					sc.state = XferPackets
 				}
 			}
@@ -156,37 +158,46 @@ func (sc *XmodemCommands) trimExtra() string {
 
 func (sc *XmodemCommands) writePacket(r *rpn.RPN) error {
 	lastPacket := sc.buildWritePacket()
+	//r.PushFrame(rpn.StringFrame(string(sc.packet[0:133]), rpn.STRING_BRACE_FRAME))
+	//r.Exec("hexdump")
 
-	for _, b := range sc.packet {
+	for i, b := range sc.packet {
 		err := sc.serial.WriteByte(b)
 		if err != nil {
 			return err
 		}
-		_, err = sc.serial.ReadByte()
+		b, err = sc.serial.ReadByte()
 		if err == nil {
+			//r.Print("er: ")
+			//r.Print(strconv.Itoa(int(b)))
+			//r.Print(" i: ")
+			//r.Println(strconv.Itoa(int(i)))
 			// not expecting a byte yet
 			return sc.writeRetry(errEarlyReceiverResponse)
 		}
 	}
+	//r.Println("psent")
 
-	if err := sc.waitForAck(); err != nil {
+	if err := sc.waitForAck(r); err != nil {
+		//r.Println("retry")
 		return sc.writeRetry(err)
 	}
 
 	if lastPacket {
-		return sc.sendEOT()
+		//r.Println("eot")
+		return sc.sendEOT(r)
 	}
 
 	return nil
 }
 
-func (sc *XmodemCommands) sendEOT() error {
+func (sc *XmodemCommands) sendEOT(r *rpn.RPN) error {
 	for {
 		err := sc.serial.WriteByte(EOT)
 		if err != nil {
 			return err
 		}
-		err = sc.waitForAck()
+		err = sc.waitForAck(r)
 		if err == nil {
 			sc.state = Finished
 			return nil
@@ -198,19 +209,24 @@ func (sc *XmodemCommands) sendEOT() error {
 	}
 }
 
-func (sc *XmodemCommands) waitForAck() error {
+func (sc *XmodemCommands) waitForAck(r *rpn.RPN) error {
+	//r.Println("wfa")
 	deadline := time.Now().Add(3 * time.Second)
 	for {
 		c, err := sc.serial.ReadByte()
 		if err == nil {
 			switch c {
 			case ACK:
+				//r.Println("ack")
 				sc.attemptsLeft = handshakeAttempt
 				sc.nextPacketId++
 				return nil
 			case NAK:
+				//r.Println("nak")
 				return errNakReceived
 			default:
+				//r.Print("ueb: ")
+				//r.Println(strconv.Itoa(int(c)))
 				return errUnexpectedByteReceived
 			}
 		}
