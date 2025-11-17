@@ -3,6 +3,7 @@ package xmodem
 import (
 	"errors"
 	"mattwach/rpngo/rpn"
+	"strconv"
 	"time"
 )
 
@@ -40,25 +41,6 @@ type XmodemCommands struct {
 	buff         []byte
 }
 
-/*
-func (sc *XmodemCommands) debugDump(r *rpn.RPN, err error) {
-	r.Print("err: ")
-	r.Println(err.Error())
-	r.Println(fmt.Sprintf(
-		"atmp-left: %v idx: %v state: %v nextId: %v len(buff): %v",
-		sc.attemptsLeft,
-		sc.idx,
-		sc.state,
-		sc.nextPacketId,
-		len(sc.buff),
-	))
-
-	r.Println(fmt.Sprintf("phead: %02x %02x %02x", sc.packet[0], sc.packet[1], sc.packet[2]))
-	r.Println(fmt.Sprintf("packet[3:16]: %v", string(sc.packet[3:16])))
-	r.Println(fmt.Sprintf("packet-crc: %02x %02x", sc.packet[131], sc.packet[132]))
-}
-*/
-
 const handshakeAttempt = 10
 
 func (sc *XmodemCommands) InitAndRegister(r *rpn.RPN, serial Serial) {
@@ -93,6 +75,7 @@ func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
 	sc.nextPacketId = 0x01
 	sc.buff = make([]byte, 0, 128)
 	var err error
+	r.Println("rx: init")
 	for err == nil {
 		switch sc.state {
 		case InitialHandshake:
@@ -119,14 +102,14 @@ func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
 	sc.attemptsLeft = handshakeAttempt
 	sc.nextPacketId = 0x01
 	sc.deadline = time.Now().Add(60 * time.Second)
+	r.Println("sx: wait for receiver")
 	for err == nil {
 		switch sc.state {
 		case InitialHandshake:
 			b, err := sc.serial.ReadByte()
 			if err == nil {
-				//r.Print("hs: ")
-				//r.Println(strconv.Itoa(int(b)))
 				if b == C {
+					r.Println("sx: xfer start")
 					sc.state = XferPackets
 				}
 			}
@@ -157,34 +140,27 @@ func (sc *XmodemCommands) trimExtra() string {
 }
 
 func (sc *XmodemCommands) writePacket(r *rpn.RPN) error {
+	r.Print("sc write (")
+	r.Print(strconv.Itoa(int(sc.nextPacketId)))
+	r.Print(") ")
 	lastPacket := sc.buildWritePacket()
-	//r.PushFrame(rpn.StringFrame(string(sc.packet[0:133]), rpn.STRING_BRACE_FRAME))
-	//r.Exec("hexdump")
-
-	for i, b := range sc.packet {
+	for _, b := range sc.packet {
 		err := sc.serial.WriteByte(b)
 		if err != nil {
+			r.Println(err.Error())
 			return err
 		}
 		b, err = sc.serial.ReadByte()
 		if err == nil {
-			//r.Print("er: ")
-			//r.Print(strconv.Itoa(int(b)))
-			//r.Print(" i: ")
-			//r.Println(strconv.Itoa(int(i)))
-			// not expecting a byte yet
-			return sc.writeRetry(errEarlyReceiverResponse)
+			return sc.writeRetry(r, errEarlyReceiverResponse)
 		}
 	}
-	//r.Println("psent")
 
 	if err := sc.waitForAck(r); err != nil {
-		//r.Println("retry")
-		return sc.writeRetry(err)
+		return sc.writeRetry(r, err)
 	}
 
 	if lastPacket {
-		//r.Println("eot")
 		return sc.sendEOT(r)
 	}
 
@@ -192,6 +168,7 @@ func (sc *XmodemCommands) writePacket(r *rpn.RPN) error {
 }
 
 func (sc *XmodemCommands) sendEOT(r *rpn.RPN) error {
+	r.Print("sx: EOT ")
 	for {
 		err := sc.serial.WriteByte(EOT)
 		if err != nil {
@@ -202,7 +179,7 @@ func (sc *XmodemCommands) sendEOT(r *rpn.RPN) error {
 			sc.state = Finished
 			return nil
 		}
-		err = sc.writeRetry(err)
+		err = sc.writeRetry(r, err)
 		if err != nil {
 			return err
 		}
@@ -210,23 +187,19 @@ func (sc *XmodemCommands) sendEOT(r *rpn.RPN) error {
 }
 
 func (sc *XmodemCommands) waitForAck(r *rpn.RPN) error {
-	//r.Println("wfa")
 	deadline := time.Now().Add(3 * time.Second)
 	for {
 		c, err := sc.serial.ReadByte()
 		if err == nil {
 			switch c {
 			case ACK:
-				//r.Println("ack")
 				sc.attemptsLeft = handshakeAttempt
 				sc.nextPacketId++
+				r.Println("ACK")
 				return nil
 			case NAK:
-				//r.Println("nak")
 				return errNakReceived
 			default:
-				//r.Print("ueb: ")
-				//r.Println(strconv.Itoa(int(c)))
 				return errUnexpectedByteReceived
 			}
 		}
@@ -257,7 +230,9 @@ func (sc *XmodemCommands) buildWritePacket() bool {
 	return lastPacket
 }
 
-func (sc *XmodemCommands) writeRetry(err error) error {
+func (sc *XmodemCommands) writeRetry(r *rpn.RPN, err error) error {
+	r.Println(err.Error())
+
 	sc.attemptsLeft--
 	if sc.attemptsLeft <= 0 {
 		return err
@@ -271,6 +246,7 @@ func (sc *XmodemCommands) readPacket(r *rpn.RPN) error {
 			return err
 		}
 		if sc.state == Finished {
+			r.Println("rx: finished")
 			return nil
 		}
 
@@ -278,10 +254,15 @@ func (sc *XmodemCommands) readPacket(r *rpn.RPN) error {
 			return sc.nakWith(r, err)
 		}
 
+		r.Print("rx: recv (")
+		r.Print(strconv.Itoa(int(sc.nextPacketId)))
+		r.Print(") ")
+
 		if sc.packet[1] == sc.nextPacketId {
 			sc.nextPacketId++
 			sc.attemptsLeft = handshakeAttempt
 			sc.buff = append(sc.buff, sc.packet[3:131]...)
+			r.Println(strconv.Itoa(len(sc.buff)))
 			if sc.state == InitialHandshake {
 				if sc.packet[0] != SOH {
 					return errInvalidInitialPacket
@@ -291,10 +272,12 @@ func (sc *XmodemCommands) readPacket(r *rpn.RPN) error {
 			return sc.serial.WriteByte(ACK)
 		} else if sc.packet[1] == (sc.nextPacketId - 1) {
 			// sender might have not received our previous ack
+			r.Println("repeat")
 			if err := sc.serial.WriteByte(ACK); err != nil {
 				return err
 			}
 		} else {
+			r.Println("bad id")
 			return errIncorrectPacketId
 		}
 	}
@@ -342,7 +325,8 @@ func (sc *XmodemCommands) readPacketData(r *rpn.RPN) error {
 }
 
 func (sc *XmodemCommands) nakWith(r *rpn.RPN, err error) error {
-	//sc.debugDump(r, err)
+	r.Print("rx: NAK ")
+	r.Println(err.Error())
 	sc.serial.WriteByte(NAK)
 	sc.attemptsLeft--
 	if sc.attemptsLeft <= 0 {
