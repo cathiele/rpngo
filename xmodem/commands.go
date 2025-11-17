@@ -13,6 +13,7 @@ var (
 	errEndOfTransmission      = errors.New("end of transmission")
 	errIncorrectPacketId      = errors.New("incorrect packet id")
 	errIncorrectPacketIdSum   = errors.New("incorrect packet id sum")
+	errInitSerial             = errors.New("please init serial with: true serial")
 	errInvalidInitialPacket   = errors.New("invalid initial packet type")
 	errReadTimeout            = errors.New("read timeout")
 	errNakReceived            = errors.New("nak received")
@@ -49,6 +50,10 @@ func (sc *XmodemCommands) InitAndRegister(r *rpn.RPN, serial Serial) {
 	r.Register("sx", sc.xmodemWrite, rpn.CatIO, xmodemWriteHelp)
 }
 
+func (sc *XmodemCommands) SetSerial(serial Serial) {
+	sc.serial = serial
+}
+
 const xmodemReadHelp = "Attempts to read data using the xmodem protocal to the top of the stack."
 
 type readState uint8
@@ -70,6 +75,9 @@ const (
 )
 
 func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
+	if sc.serial == nil {
+		return errInitSerial
+	}
 	sc.state = InitialHandshake
 	sc.attemptsLeft = handshakeAttempt
 	sc.nextPacketId = 0x01
@@ -93,6 +101,9 @@ func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
 }
 
 func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
+	if sc.serial == nil {
+		return errInitSerial
+	}
 	s, err := r.PopFrame()
 	if err != nil {
 		return err

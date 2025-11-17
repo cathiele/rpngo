@@ -1040,6 +1040,10 @@ Then start screen with the following option:
 
     screen /dev/ttyACM0 115200
 
+If you are using a PicoCalc, you may need to enable serial communications with
+
+    true serial
+
 I'm assuming the serial device on my PC and yours will be the same, which could
 be incorrect.  I'm also assuming you want to send a file named `bounce_ball.rpn`;
 change the name to the file you actually want to send.

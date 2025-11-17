@@ -8,8 +8,11 @@ import (
 	"mattwach/rpngo/elog"
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/xmodem"
 	"time"
 )
+
+var xmodemCommands xmodem.XmodemCommands
 
 type picoCalcIO struct {
 	serial        serial.Serial
@@ -18,13 +21,14 @@ type picoCalcIO struct {
 	originalPrint func(string)
 }
 
-func (gi *picoCalcIO) Init() {
+func (gi *picoCalcIO) Init(r *rpn.RPN) {
 	gi.screen.Init()
 	if err := gi.keyboard.Init(); err != nil {
 		elog.Print("failed to init keyboard: ", err.Error())
 	}
 	// avoid using the UART by-default becuase it has a 15% perf penalty
 	gi.serial.Init(nil)
+	xmodemCommands.InitAndRegister(r, nil)
 }
 
 func (gi *picoCalcIO) GetChar() (key.Key, error) {
@@ -73,5 +77,6 @@ func (gi *picoCalcIO) Serial(r *rpn.RPN) error {
 	gi.serial.Init(machine.Serial)
 	gi.originalPrint = r.Print
 	r.Print = gi.Print
+	xmodemCommands.SetSerial(&gi.serial)
 	return nil
 }

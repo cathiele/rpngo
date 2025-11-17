@@ -75,7 +75,6 @@ func (ic *interruptCheck) delaySleepFn(t float64) {
 
 func main() {
 	time.Sleep(200 * time.Millisecond)
-	picocalc.Init()
 	// This only seeems to work for panics I throw and not errors
 	// like array out of bounds.
 	defer func() {
@@ -102,6 +101,7 @@ func newPixelPlotWindow() (window.WindowWithProps, error) {
 
 func run() error {
 	rpnInst.Init(maxStackDepth)
+	picocalc.Init(&rpnInst)
 	functions.RegisterAll(&rpnInst)
 	rpnInst.Register("serial", picocalc.Serial, rpn.CatIO, SerialHelp)
 	_ = fileOpsDriver.Init()
