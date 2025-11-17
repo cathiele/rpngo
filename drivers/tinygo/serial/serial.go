@@ -7,6 +7,7 @@ package serial
 import (
 	"machine"
 	"mattwach/rpngo/key"
+	"mattwach/rpngo/rpn"
 	"time"
 )
 
@@ -40,7 +41,7 @@ func (sc *Serial) Init(serial machine.Serialer) {
 	sc.Serial = serial
 }
 
-func (sc *Serial) Open(path string) error {
+func (sc *Serial) Open(r *rpn.RPN) error {
 	return nil
 }
 

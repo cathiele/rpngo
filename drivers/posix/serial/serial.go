@@ -1,10 +1,9 @@
-//go:build !pico && !pico2
-
 package serial
 
 import (
 	"errors"
 	"fmt"
+	"mattwach/rpngo/rpn"
 	"os"
 )
 
@@ -24,15 +23,18 @@ type Serial struct {
 	rdata *readData
 }
 
-func (sc *Serial) Open(path string) error {
-	if path == "" {
-		return errSerialPortNeedsToBeSet
-	}
+func (sc *Serial) Open(r *rpn.RPN) error {
 	if sc.f != nil {
 		return fmt.Errorf("serial file is already open: v", sc.f.Name())
 	}
-	var err error
-	sc.f, err = os.OpenFile(path, os.O_RDWR|os.O_SYNC, 0666)
+	f, err := r.GetVariable(".serial")
+	if err != nil {
+		return err
+	}
+	if !f.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	sc.f, err = os.OpenFile(f.UnsafeString(), os.O_RDWR|os.O_SYNC, 0666)
 	if err != nil {
 		return err
 	}

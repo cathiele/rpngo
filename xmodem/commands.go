@@ -25,7 +25,7 @@ var (
 )
 
 type Serial interface {
-	Open(path string) error
+	Open(r *rpn.RPN) error
 	Close() error
 	ReadByte() (byte, error) // Non-blocking
 	WriteByte(c byte) error
@@ -78,6 +78,10 @@ func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
 	if sc.serial == nil {
 		return errInitSerial
 	}
+	if err := sc.serial.Open(r); err != nil {
+		return err
+	}
+	defer sc.serial.Close()
 	sc.state = InitialHandshake
 	sc.attemptsLeft = handshakeAttempt
 	sc.nextPacketId = 0x01
@@ -104,6 +108,10 @@ func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
 	if sc.serial == nil {
 		return errInitSerial
 	}
+	if err := sc.serial.Open(r); err != nil {
+		return err
+	}
+	defer sc.serial.Close()
 	s, err := r.PopFrame()
 	if err != nil {
 		return err

@@ -7,6 +7,7 @@ import (
 	"log"
 	"mattwach/rpngo/drivers/curses"
 	"mattwach/rpngo/drivers/posix/fs"
+	"mattwach/rpngo/drivers/posix/serial"
 	"mattwach/rpngo/fileops"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/rpn"
@@ -15,6 +16,7 @@ import (
 	"mattwach/rpngo/window/commands"
 	"mattwach/rpngo/window/input"
 	"mattwach/rpngo/window/plotwin"
+	"mattwach/rpngo/xmodem"
 	"os"
 	"os/signal"
 )
@@ -36,6 +38,8 @@ func run() error {
 	functions.RegisterAll(&r)
 	var fo fileops.FileOps
 	fo.InitAndRegister(&r, 65536, &fs.FileOpsDriver{})
+	var xm xmodem.XmodemCommands
+	xm.InitAndRegister(&r, &serial.Serial{})
 
 	if len(os.Args) > 1 {
 		return cli(&r)
