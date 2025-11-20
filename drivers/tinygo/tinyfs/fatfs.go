@@ -8,8 +8,9 @@ import (
 )
 
 func (fo *FileOpsDriver) initFS(sd sdcard.Device) {
-	fo.fs = fatfs.New(&sd)
-	fo.fs.Configure(&fatfs.Config{
+	fs := fatfs.New(&sd)
+	fs.Configure(&fatfs.Config{
 		SectorSize: 512,
 	})
+	fo.fs = fs
 }

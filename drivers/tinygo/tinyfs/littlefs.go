@@ -1,4 +1,4 @@
-//go:build pico || pico2
+//go:build littlefs
 
 package tinyfs
 

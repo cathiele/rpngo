@@ -1,6 +1,9 @@
 # RPNGO USERS GUIDE
 
-## Build
+This document walks through various features of the RPNGO RPN calculator. I
+mostly explain in terms of examples that you can try yourself.
+
+## Building The Calculator
 
 You'll first need to [install golang](https://go.dev/doc/install).
 
@@ -62,26 +65,33 @@ ili9341 LCD, using serial for communication
 
 ```
 cd bin/tinygo/ili9341
-# check the command
-make -n flash
-# if looks ok, execute
+# build for pico2 with littlefs
+make build
+# build for pico2 with fatfs
+FS=fatfs make build
+# build for pico with littlefs
+TARGET=pico make build
+# build for pico with fatfs
+TARGET=pico FS=fatfs make build
+# flash instead of build (applies to all examples above)
 make flash
 ```
 
 PicoCalc
 
-The default config assumes you have a rp2350 (Pico2) installed.
-You can change the target in `Makefile` to `pico` if you have
-an original Pico installed instead.
-
 ```
 cd bin/tinygo/picocalc
-# check the command
-make -n flash
-# if looks ok, execute
-make flash
+# All of the build/flash options are the same as ili9341 above
+make build
 ```
 
+#### littlefs or fatfs?
+
+According to the [tinyfs library page](https://github.com/tinygo-org/tinyfs)
+`littlefs` is more stable. On the other
+hand `fatfs` is convenient in that your PC can read and write that format
+with little trouble.  I tried both and found that `fatfs` initially works, but
+starts throwing errors after a few commands.
 
 ### Build Everything and Run Unit Tests
 
@@ -787,9 +797,10 @@ This is how `plot` works.
 
 - It pushes a range of values to the stack (from `minv` to `maxv` with `steps`
   divisions)
-- After pushing a single value, it calls the argument to `plot`. In the example above
+  - After pushing a single value, it calls the argument to `plot`. In the example above
   that would be `sq` or "square the value"
-- The value left on the stack is used as the `y` coordinate.
+  - After executing the plot function (`sq`), if pops the result for the stack and
+    uses the value as a y-coordinate.
 
 Let's add a second plot:
 
@@ -834,8 +845,8 @@ get what we want, we adjust `minv` and `maxv`
 
 ![ncurses plot 3](img/ncurses_plot3.png)
 
-Still not great because the `x * x` plot has a y range that is crushing the
-range of sin. This can be addressed by setting `miny` and `maxy` manually
+Still not ideal because the `sq` plot has a y range that is crushing the
+range of `sin`. This can be addressed by setting `miny` and `maxy` manually
 instead of relying on `autoy`:
 
     'p' 'miny' -1.1 w.setp
@@ -931,11 +942,10 @@ if you want.  Here, we plot `sin` and `cos` using the low-level `w.setp` method:
 
 ## File Operations
 
-> File operations work well on PC platforms are are still experimental in TinyGO due to
-the current (10/2025) instability of the `tinyfs` library. You can use file operations
-in TinyGO, but don't use an SD card with critical data on it and be ready for the
-calculator to start returning errors on file operations (or even hanging) while
-executing the commands.
+> File operations work well on PC platforms but are still experimental in TinyGO due to
+the current (10/2025) [instability](https://github.com/tinygo-org/tinygo/issues/3460)
+of the [`tinyfs` library](https://github.com/tinygo-org/tinyfs). You can use file operations
+in TinyGO, but don't assume it will always work as expected.
 
 ### Shell commands
 
