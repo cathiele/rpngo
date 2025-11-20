@@ -4,13 +4,13 @@
 
 You'll first need to [install golang](https://go.dev/doc/install).
 
-There is a `bin/` directory that contains various different configurations of `rpngo` for
-PCs and for microcontrollers. Here is an overview:
+There is a `bin/` directory that contains various different configurations of
+`rpngo` for PCs and for microcontrollers. Here is an overview:
 
-- `bin/minimal/rpn` - The most basic version.  Parses `args` and exits.
+- `bin/minimal/rpn` - A minimal PC version.  Parses `args` and exits.
 - `bin/ncurses/rpn` - Uses [`ncurses`](https://en.wikipedia.org/wiki/Ncurses) to
   support multiple view windows and even text-based plotting
-- `bin/tinygo/serialonly` - A minimal build for  microcontrollers that uses
+- `bin/tinygo/serialonly` - A minimal TinyGo build for  microcontrollers that uses
   serial communication only.
 - `bin/tinygo/ili9341` - A full-featured TinyGo microcontroller build that uses
    USB serial for input, and a ili9341 color LCD for output.
@@ -51,7 +51,7 @@ go build
 You'll need to [install TinyGo](https://tinygo.org/getting-started/install/).
 
 Minimal. Tested on Pico and Pico2.  Other chips may need some configuration
-changes. Chipe with low resources (like atmega328p) probably won't work:
+changes. Chips with low resources (like Atmega328p) likely won't work:
 
 ```
 cd bin/tinygo/serialonly
@@ -70,7 +70,7 @@ make flash
 
 PicoCalc
 
-The default assumed you have a rp2350 (Pico2) installed.
+The default config assumes you have a rp2350 (Pico2) installed.
 You can change the target in `Makefile` to `pico` if you have
 an original Pico installed instead.
 
@@ -130,46 +130,53 @@ simply enjoy using them now.
 
 ## Base Features
 
+Assume the stack is empty at the start of each line.
+
+                            # result
     2 4 +                   # 6
     2 4 -                   # -2
     2 4 *                   # 8
     2 4 /                   # 0.5
+    2 4 min                 # 2
+    2 4 max                 # 4
+    4 neg                   # -4
+    -4 abs                  # 4
+
+## Scientific
+
+                            # result
+    2 4 **                  # 16
     4 sq                    # 16
     4 sqrt                  # 2
     -1 sqrt                 # i
+    3.14159 3 round         # 3.142
     4+i 5-2i +              # 9-i
     i polar                 # 1<1.570796326794897 `rad
     deg i polar             # 1<90 `deg
     deg 1<90 rad polar      # 1<1.570796326794897 `rad
     1<1.5707 float 3 round  # i
     deg 1<90 float 3 round  # i
-    2 4 min                 # 2
-    2 4 max                 # 4
-    4 neg                   # -4
-    -4 abs                  # 4
-    3.14159 3 round         # 3.142
-
-## Scientific
-
-    2 4 **       # 16
-    3.14 sin     # 0.001592652916
-    3.14 cos     # -0.9999987317
-    3.14 tan     # -0.001592654936
-    5 log        # 1.609437912
-    10 log10     # 1
-    deg 180 sin  # 0
+    3.14 sin                # 0.001592652916
+    deg 90 sin              # 1
+    grad 100 sin            # 1
+    deg 1 asin              # 90 `deg
+    3.14 cos                # -0.9999987317
+    3.14 tan                # -0.001592654936
+    5 log                   # 1.609437912
+    10 log10                # 1
+    deg 180 sin             # 0
 
 ### User Interface
 
 The experience is similar to most terminals:
 
-- Left, right, insert, backspace, home, and end all work like you would expect
-- Press up and down arrows to scroll through command history
-- Ctrl-C to cancel a running program
-- Ctrl-D to exit the program
-- Press "ESC" or "page up" to enter scrolling mode where you can
-  use page up, page down, up arrow and down arrow to view text
-  that has scrolled off the top of the window. "ESC" or scrolling
+- `Left`, `right`, `ins`, `del`, `backspace`, `home`, and `end` all work like you would expect
+- Press `up` and `down` to visit command history
+- `Ctrl-C` to cancel a running program
+- `Ctrl-D` to exit the program (PC only)
+- Press `esc` or `page up` to enter scrolling mode where you can
+  use `page up`, `page down`, `up` and `down` to view text
+  that has scrolled off the top of the window. Pressing `esc` or scrolling
   down far enough exits this mode.
 
 Type `edit` to enter a full-panel multi-line editor.  The window
@@ -181,16 +188,16 @@ will contain the value at the top of the stack.  For example:
 
 ![ncurses editor](img/ncurses_editor.png)
 
-The editor is currently only supports basic features:
+The editor only supports basic features right now:
 
-- arrow key, page up, page down, home, end navigation
-- insert, replace, backspace, delete
+- arrow key, `page up`, `page down`, `home`, `end` navigation
+- `ins`, `backspace`, `delete`
 - syntax highlighting
 
-While editing, press "ESC" to keep your changes (which will be
-at the top of the stack) or "Ctrl-c" to exit without changing the
+While editing, press `ESC` to keep your changes (which will be
+at the top of the stack) or `Ctrl-c` to exit without changing the
 value.  If you happen to want to save your work permanently, exit with
-"ESC", then type something like:
+`esc`, then type something like:
 
 ```
 'my_file.txt' save
@@ -202,23 +209,28 @@ an SD Card.
 
 ### Stack Shifts
 
-You can move values around the stack.
+You can move values around the stack.  Below, assume that the stack
+from one line carries to the next line.
 
-    10 20 30   # put 10 20 30 on th stack
-    1>         # now the stack is 10 30 20
-    1<         # back to 10 20 30
-    2>         # now the stack is 20 30 10
-    2<         # back to 10 20 30
-    $2 2<      # now it's 10 10 20 30
+               # stack will contain
+    10 20 30   # 10 20 30
+    1>         # 10 30 20
+    1<         # 10 20 30
+    2>         # 20 30 10
+    2<         # 10 20 30
+    $2 2<      # 10 10 20 30
 
 ### Stack Deletions
 
-    10 20 30         # put 10 20 30 on the stack
-    1/               # now the stack is 10 30
-    0/               # now the stack is 10
-    d                # emptys all values from the stack
-    10 20 30 2 del   # delete 2 values from the stack (leaving 10)
-    10 20 30 2 keep  # keep 2 values from the stack (leaving 20 30)
+Below, assume that the stack from one line carries to the next line.
+
+                        # stack will contain
+    10 20 30            # 10 20 30
+    1/                  # 10 30
+    0/                  # 10
+    10 20 30 40 d       # <empty>
+    10 20 30 40 2 del   # 10 20
+    10 20 30 40 2 keep  # 30 40
 
 
 ### Using Variables
@@ -226,7 +238,8 @@ You can move values around the stack.
 You can define and use variables.  Most build variants will define some
 variables, such as `$pi`, on startup.
 
-    5 a=
+            # stack will contain
+    5 a=    # <empty>
     2 $a +  # 7
 
 Variables that start with a `.` are hidden by default in the variable window
@@ -237,8 +250,9 @@ There are also special variables, `$0`, `$1`, etc, which represent values on
 stack. `$0` represents the value at the top of the stack. If the stack
 is empty, then using `$0` results in an error.  e.g.
 
-    5 sq    # squares the number 5
-    5 $0 *  # also squares the number 5
+            # result (assume stack is empty on each line)
+    5 sq    # 25
+    5 $0 *  # 25
 
 ### Viewing Variables
 
@@ -258,32 +272,16 @@ purposes:
 Here is the demo:
 
 ```
-   # push 5 to the variable x
-   5 x<  # x is now [5]
-
-   # push 4 to x
-   4 x<  # x is now [5, 4]
-
-   # What if we use $x now?
-   $x    # well get 4
-
-   # What about this
-   $$x   # 4, then 5 will be pushed to the stack
-
-   # Pop an X value
-   x>    # 4 is pushed to the stack, x is now [5]
-
-   # Pop another one
-   x>    # 5 is pushed to the stack, x no longer exsits
-
-   # Push the whole stack to x
-   d 1 2 3 x<<  # x will be [1, 2, 3]
-
-   # Pop the whole x (similar to $$x, but removes x)
-   x>>  # 1, 2, 3 on the stack, x no longer exists
-
-   # What about this
-   d 1 2 3 x<< x/  # x is deleted, use x> to only pop one value
+           # x value   |  stack
+   5 x<    # 5         |  <empty>
+   4 x<    # 5 4       |  <empty>
+   $x      # 5 4       |  4
+   $$x     # 5 4       |  4 5 4
+   x>      # 5         |  4 5 4 4
+   x>      # <deleted> |  4 5 4 4 5
+   x<<     # 4 5 4 4 5 |  <empty>
+   x>>     # <deleted> |  4 5 4 4 5
+   x<< x/  # <deleted> |  <empty>
 ```
 
 Note that using variables as stacks can create memory pressure on microcontrollers
@@ -293,19 +291,16 @@ if it's pushed too far.
 
 Variables that start with a `.` are generally considered special. Although
 you can create dot variables yourself, doing so might create
-unintended conflicts now or in the future. The current
+unintended conflicts or confusion. The current
 list of variables is briefly described here. Many of these
 are covered in more detail in upcoming sections:
 
 - `.f1`, `.f2`, `.f3`... These define macros that will be executed
   when the corresponding function key is pressed
 - `.init` The startup script defines this by-convention to
-  make the initilization code (located in `$HOME/.rpngo`)
-  viewable. If the user provides a custom `.rpngo`, this
-  may not be defined.
+  contain the initilization code (located in `$HOME/.rpngo`)
 - `.plotinit` If the user asks for a plot (e.g. `'sin' plot`) and
-  no plot window exists, this macro is used to create one.
-  The user can customize this macro as-needed
+  no plot window exists, this customizable macro is used to create one.
 - `.plotwin` The name of the plot window to create. This will
   usually be set to `p`.
 - `.serial` The path of the serial device to use on PCs (e.g.
@@ -320,19 +315,19 @@ Many type of numbers are supported
     50         # floating point (actually a 5+0i complex)
     50+i       # complex number
     50<1       # polar complex (default is radians)
-    deg 50<90  # You can use degrees too.
+    deg 50<90  # You can use degrees for the angle.
     50d        # Integer
     32x        # Hexidecimal
-    62o      # octal
-    110010b  # binary
+    62o        # octal
+    110010b    # binary
 
-Most operations can us a mix of these types, using the following rules:
+Most operations can use a mix of these types, using the following rules:
 
     # Any number type mixed with float results in a float
     12.4 5d +  ->  17.4
 
 
-    # Two integer types combined takes the base of the left term
+    # Two integer types combined takes the base of the most left term
     32x 50d +  ->  64x
 
 You can also convert between types using `hex`, `bin`, `oct`, `float`, `real`,
@@ -364,9 +359,8 @@ You can also compare different types, which is in support of `sort` and
     "bar" "foo" <  # true
     1 1d =         # true: you can compare floats and integers
     1 1+i =        # false
-    1+i 2 <        # true: This is mathmatically wrong (can't really compare complex)
-                   #       but we need it for programming. < only
-                   #       compares real parts and ignores complex parts
+    1+i 2 <        # true: Only the real part is compared which is
+                   #       incorrect math but useful when sorting.
 
 Conditionals are an essential part of programming, which we will cover
 with examples later.
@@ -393,8 +387,7 @@ Which do you find easier to read?
 
 ### Macros
 
-You can define a string as a macro, here is one for the area of a circle (`$pi
-* r * r / 2`), given the radius:
+You can define a string as a macro, here is one for the area of a circle, given the radius:
 
     {sq $pi * 2 /} carea=
     5 @carea -> 39.26990817
@@ -468,9 +461,6 @@ want an input window and two separate plot windows, you
 can do it. You might also have two stack windows with
 different configuration options set.  Whatever you want.
 
-These options need a means to create windows and put
-them in the position and size you want.
-
 For example, say we want the following:
 
 ```
@@ -490,12 +480,12 @@ For example, say we want the following:
 +------------------+---------------+
 ```
 
-How do we do it?
-
 The `rpngo` window system works a bit like html tables. You have a 'root'
-window (like a table) that can either contain `1xn` or `nx1` children.
+window that can contain children as rows or columns.
 Each child can either be a window (input, stack, etc) or a window
-group with the same rules as the root group.
+group that can contain it's own children.  You can make a big tree
+of window groups if you want, but usually just one or two is all you'll
+need.
 
 Let get on with how you would create the layout above.  First, lets reset
 everything:
@@ -612,15 +602,14 @@ and finally the vars window. We have two options here. We can either add the var
 window to the root window, then move it to `g` or create it in `g` to begin with.
 If we just say:
 
-    $.warget
+    $.wtarget
 
 It will say
 
     'root'
 
 We can change this "special" variable to alter the behavior of `w.new.*` commands.
-Note there is also `w.beg` and `w.weight` for controlling placement and size.
-Let's not worry about that yet:
+Note there is also `$.wend` and `$.wweight` for controlling placement and size, but's not use those yet:
 
     'g' .warget=
     'v' w.new.var
@@ -644,10 +633,10 @@ and we are done
 +------------------+---------------+
 ```
 
-OK, one more things.  Say we want to change some sizes above.
+Say you want to change some sizes above.
 Window and group "weights" are used to do this. Each window and group
-above is assigned a default weight of 100.  Weights are shared
-amongst siblings in a group to decide how much space each one gets.
+above is assigned a default weight of `$.wweight` (usually 100)
+Weights are shared amongst siblings in a group to decide how much space each one gets.
 
 For example, ley's change the weight of window group 'g' from 100
 to 200.
@@ -690,9 +679,8 @@ inspection. Let's try it:
 
     .wtarget=g .wend=true .wweight=100d
  
-We might want to set `$.wtarget` back (or push/pop it with `.wtarget<` and `.wtarget>`,
-but note that `w.reset` also sets `$.wtarget` back to `root` and most window
-management macros start with `w.reset` anyway.
+Note that `w.reset` will change `.wtarget`, `.wend`, and `.wweight`
+to default values thus is a good first command when building a layout.
 
 ## Programmable Function Keys
 
@@ -718,54 +706,46 @@ and so on.
 ## Window Properties
 
 Each of the four window types (input, stack, variable, plot) have customizable
-properties.  We'll start with common commands, then explore details (expect
-for plot, which we cover later).
+properties.  You can list properties for a window with `w.listp`
 
 ### Input Window Properties
 
-You can list properties for a window with `w.listp`
 
     'i' w.listp
 
        autofn: {}
+       autohist: true
+       histpath: '/home/mattwach/.rpngo_history'
        showframes: 1d
 
 These are what the input properties do:
 
 - `autofn` Executes the given code before showing a prompt.  This can be used to
   track memory usage, print a custom message, update a graph, or anything you want.
-- `autohist` If enabled, the history file is updated after every entered command.
+- `autohist` If enabled, the history file is updated after every
+   entered command. The `histl` and `hists` function can be used to
+   load and save history manually.
 - `histpath` Te path to load history from and save it to.  This is `$HOME/.rpngo_history`
-  by default. Changing th path can be usedful when combined with `histl` and `hists`.
-- `showframes` How much of the stack to copy to the input window after each
-  entered command. More or less stack in the history has it's trade-offs and is
-  personal preference.
+  by default.
+- `showframes` How much of the stack to print to the input window after each
+  entered command.
 
 Here is an example of setting properties:
 
-    0 cmd=
-    'i' 'autofn' {$cmd 1 + print cmd=} w.setp
+    'i' 'showframes' 0 w.setp
 
-Now w have an `autocmd` property set in the input window that will print an
-incrementing command number every time you press enter.  Only one more
-property command to cover:
-
-    'i' 'autofn' w.getp
-
-This copies the property value to the stack. It can be useful if you
-want to use a property value in a program.
+This will turn off printing the stack in the input window (If you
+prefer just using the dedicated stack window instead).
 
 #### History
 
-History is set to be automatic on PC. History is manual by default
-on microcontrollers (mostly because of slow write speeds and elevated
-power usage).  For micorcontroller it is suggeted to bind `hists` to
-a function key for quick save ability. You can take further contol as needed:
+History is set to be automatic on PC (`autohist` is `true`). `autohist` is `false` by default
+on microcontrollers because of slow write speeds and elevated
+power usage.  You can change this behavior by customizing the startup 
+file (e.g. `$HOME/.rpngo`)
 
-Use the `autohist` and `histpath` input window properties to determine
-if history is automatic or manual and what the path should be.
-
-Use `histl` and `hists` to load and save history (`to histpath`) manually.
+For microcontrollers, it is suggeted to bind `hists` to
+a function key for quick save ability.
 
 ### Stack Window Properties
 
@@ -787,7 +767,7 @@ represents no rounding).
 - `showdot`: If true, then variable names that start with a `.` (such as
   `.wtarget`) will also be shown.
 - `multiline`: If true, then string that expand multiple lines will
-  show all of these lines in the window (assuming there is space).
+  consume multiple lines in the variable window.
 
 ## Plotting
 
@@ -807,9 +787,9 @@ This is how `plot` works.
 
 - It pushes a range of values to the stack (from `minv` to `maxv` with `steps`
   divisions)
-- After pushing a value, it calls the argument to `plot`. In the example above
+- After pushing a single value, it calls the argument to `plot`. In the example above
   that would be `sq` or "square the value"
-- The result of this calculation is used as the `y` coordinate.
+- The value left on the stack is used as the `y` coordinate.
 
 Let's add a second plot:
 
@@ -854,7 +834,7 @@ get what we want, we adjust `minv` and `maxv`
 
 ![ncurses plot 3](img/ncurses_plot3.png)
 
-Still not great because the `x * x` plot has a range that is crushing the
+Still not great because the `x * x` plot has a y range that is crushing the
 range of sin. This can be addressed by setting `miny` and `maxy` manually
 instead of relying on `autoy`:
 
@@ -864,12 +844,12 @@ instead of relying on `autoy`:
 
 ![ncurses plot 4](img/ncurses_plot4.png)
 
-Looking better now.  To end the demo, we'll add a parametric plot
+To end the demo, we'll add a parametric plot
 of a circle.  For parametric plots, we don't just leave `y` on the
 stack but instead leave both `x` and `y`.  Lets draw a circle,
 who's parametric equation is `x = cos t, y = sin y`:
 
-  '$0 cos 1> sin' pplot
+    {$0 cos 1> sin} pplot
 
 ![ncurses plot 4](img/ncurses_plot5.png)
 
@@ -909,8 +889,7 @@ Now we can look at each property. All can be changed with `w.setp`:
   color, you can set these
 - `fn*`: Plot functions. You can set these to change the plotted function. You
   can set to an empty string to nullify a plot.
-- `minv`, `maxv`, `steps`: Determines the range of points that will be sent to the
-  plot.
+- `minv`, `maxv`, `steps`: Determines the range of points that will be sent to each plot.
 - `minx`, `miny`, `maxx`, `maxy`: The area the plot window covers.  If these are
   set, the corresponding `autox` or `autoy` will be set to `false` (and can be reset
   to `true` later if you want).
