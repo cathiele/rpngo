@@ -50,24 +50,24 @@ func InitPlotCommands(
 
 	elog.Heap("alloc: /window/plotwin/command.go:48: pc := PlotCommands{root: root, screen: screen, addPlotFn: addPlotFn}")
 	pc := PlotCommands{root: root, screen: screen} // object allocated on the heap: escapes at line 50
-	r.Register("plot", pc.Plot, rpn.CatPlot, PlotHelp)
-	r.Register("pplot", pc.PPlot, rpn.CatPlot, PPlotHelp)
+	r.Register("plot", pc.plot, rpn.CatPlot, plotHelp)
+	r.Register("pplot", pc.pplot, rpn.CatPlot, pplotHelp)
 	return &pc
 }
 
-const PlotHelp = "Run a value from $plot.min to $plot.max with $plot.steps\n" +
+const plotHelp = "Run a value from $plot.min to $plot.max with $plot.steps\n" +
 	"executing the provided string and plotting to the window $.plotwin\n" +
 	"Example (y = x * x): 'c *' plot"
 
-func (pc *PlotCommands) Plot(r *rpn.RPN) error {
+func (pc *PlotCommands) plot(r *rpn.RPN) error {
 	return pc.plotInternal(r, false)
 }
 
-const PPlotHelp = "Run a value from $plot.min to $plot.max with $plot.steps\n" +
+const pplotHelp = "Run a value from $plot.min to $plot.max with $plot.steps\n" +
 	"executing the provided string and plotting (x, y) to the window $.plotwin\n" +
 	"Example (arc): 'c sin sw cos"
 
-func (wc *PlotCommands) PPlot(r *rpn.RPN) error {
+func (wc *PlotCommands) pplot(r *rpn.RPN) error {
 	return wc.plotInternal(r, true)
 }
 
@@ -82,7 +82,7 @@ func (pc *PlotCommands) plotInternal(r *rpn.RPN, isParametric bool) error {
 	// a quick check to make sure there will not be a parsing error after
 	// adding the new plot.  Also checks for plto that already exist.
 	elog.Heap("alloc: window/plotwin/command.go:84: var fields []string")
-	var fields []string  // object allocated on the heap: escapes at line 89
+	var fields []string // object allocated on the heap: escapes at line 89
 	addField := func(t string) error {
 		fields = append(fields, t)
 		return nil
