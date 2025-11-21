@@ -1,7 +1,6 @@
 package main
 
 import (
-	"machine"
 	"mattwach/rpngo/drivers/tinygo/picocalc/i2ckbd"
 	"mattwach/rpngo/drivers/tinygo/picocalc/ili948x"
 	"mattwach/rpngo/drivers/tinygo/serial"
@@ -27,8 +26,11 @@ func (gi *picoCalcIO) Init(r *rpn.RPN) {
 		elog.Print("failed to init keyboard: ", err.Error())
 	}
 	// avoid using the UART by-default becuase it has a 15% perf penalty
-	gi.serial.Init(nil)
-	xmodemCommands.InitAndRegister(r, nil)
+	gi.serial.Init(false)
+	gi.originalPrint = r.Print
+	r.Print = gi.Print
+	xmodemCommands.InitAndRegister(r, &gi.serial)
+	rpnInst.Register("serial", gi.serialFn, rpn.CatIO, serialHelp)
 }
 
 func (gi *picoCalcIO) GetChar() (key.Key, error) {
@@ -46,7 +48,7 @@ func (gi *picoCalcIO) GetChar() (key.Key, error) {
 }
 
 func (gi *picoCalcIO) Print(str string) {
-	if gi.serial.Serial != nil {
+	if gi.serial.Enabled {
 		for _, c := range str {
 			_ = gi.serial.WriteByte(byte(c))
 		}
@@ -54,9 +56,9 @@ func (gi *picoCalcIO) Print(str string) {
 	gi.originalPrint(str)
 }
 
-const SerialHelp = "If true, enables serial communications with a host PC."
+const serialHelp = "If true, enables serial communications with a host PC."
 
-func (gi *picoCalcIO) Serial(r *rpn.RPN) error {
+func (gi *picoCalcIO) serialFn(r *rpn.RPN) error {
 	f, err := r.PopFrame()
 	if err != nil {
 		return err
@@ -65,18 +67,6 @@ func (gi *picoCalcIO) Serial(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
-	if !enabled {
-		if gi.serial.Serial != nil {
-			return rpn.ErrNotSupported
-		}
-		return nil
-	}
-	if gi.serial.Serial != nil {
-		return nil
-	}
-	gi.serial.Init(machine.Serial)
-	gi.originalPrint = r.Print
-	r.Print = gi.Print
-	xmodemCommands.SetSerial(&gi.serial)
+	gi.serial.Enabled = enabled
 	return nil
 }

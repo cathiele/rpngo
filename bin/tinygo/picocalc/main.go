@@ -103,7 +103,6 @@ func run() error {
 	rpnInst.Init(maxStackDepth)
 	picocalc.Init(&rpnInst)
 	functions.RegisterAll(&rpnInst)
-	rpnInst.Register("serial", picocalc.Serial, rpn.CatIO, SerialHelp)
 	_ = fileOpsDriver.Init()
 	fileOps.InitAndRegister(&rpnInst, 65536, &fileOpsDriver)
 	err := buildUI()

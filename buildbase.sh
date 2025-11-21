@@ -4,6 +4,6 @@ set -x
 cd bin
 base=$(pwd)
 cd $base/ncurses/rpn && go build
-cd $base/tinygo/picocalc && tinygo build -target pico2
+cd $base/tinygo/picocalc && make build
 
 
