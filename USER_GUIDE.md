@@ -958,7 +958,7 @@ Use the `sh` command to perform shell operations:
 ![sh lcd](img/sh_command_lcd.png)
 
 On PCs, you can call any shell command. In TinyGo, only a small set of commands
-('ls', 'rm', 'pwd') has been implemented.
+(`ls`, `rm`, `pwd`) have been implemented.
 
 There are also special variables that can be set to support
 various shell usecases:
@@ -987,7 +987,16 @@ various shell usecases:
 
     'hello world' 'hello.txt' save  # save "hello world" to a file
 
-### Serial communications between PC and PicoCalc
+### Format
+
+When using `littlefs` in tinygo, you can use the `format` command to
+initialie the SD Card:
+
+    'YES' format
+
+The `YES` argument is intended to resist accidently running the command.
+
+## Serial communications between PC and PicoCalc
 
 Serial communications are off-by-defualt on the PicoCalc becuase of a
 performance penalty of having them enabled.  For example, printing
@@ -1004,18 +1013,18 @@ or some other serial communications software to send and
 receive information from the PicoCalc using it's USB-C interface.
 
 Note that, due to limitations of the PicoCalc UART (which is an
-actual RP2040/TP2350 UART connected to the STM helper chip), TinyGo,
+actual RP2040/TP2350 UART connected to the STM32 helper chip), TinyGo,
 and the limitations of LCD screen updates, block transfers to the
 PicoCalc have been observed to drop data. It is thus suggested
-that this path is only used for interactive usecases.  To transfer
-larger amounts of data, use the XMODEM commands described below.
+that this path is only used for interactive usecases.  The XMODEM commands
+described below can work-around these data losses (just like the good old days).
 
 ### XMODEM send and receive
 
 What is old is new.  It's possible to send and receive data from rpngo on
 microcontrollers using the XMODEM protocol.  XMODEM was chosen because the
 PicoCalc UART via TinyGo loses bytes now and then and XMODEM is the least
-complicated well-supported way to get around that problem.
+complicated widely-supported way to get around that problem.
 
 #### Send a file to RPNGO using sx
 
@@ -1079,10 +1088,10 @@ options).
 
 ## The startup file
 
-A file named `$HOME/.rpngo` will be created if it does not yet exist using the
-data files in the `startup/` source folder.  You can edit this file
-in order to customize the calculator at startup. Here are some thing you
-might want to configure:
+On PC, A file named `$HOME/.rpngo` will be created if it does not yet exist
+using the data files in the `startup/` source folder.  You can edit this file in
+order to customize the calculator at startup. Here are some thing you might want
+to configure:
 
 - The default window layout
 - How to create the plot window
@@ -1095,9 +1104,13 @@ might want to configure:
 If you delete or renaem the file, a new one with default properties will
 be created.
 
+On microcontrollers, this file is instead built into the code in the `startup/`
+folder due to the lack of assurance that a SD card will be available - it's
+an area that could use more development.
+
 ## Programming
 
-RPNGO provides support for simple programming. It's not going to replace
+RPNGO provides support for simple programming. It's not going to compete with
 your favorite programming language for general work, but will allow
 you to customize the calculator and mold it's functionality to meet
 your usecase.
@@ -1145,24 +1158,6 @@ A simple tweak let's us load up the stack with numbers.
 
     0 x= {$x $x 1 + x= $x 100 <} for 
 
-## Trapping and creating errors
-
-Sometimes yo want to try a command and not have the program stop if there
-is an error.  The command for this is `try`:
-
-    { @do_something } { @handle_the_error } try
-
-The statement above will execute `@do_something`.  If there is an error then
-the error will be pushed in the stack (as a string) and `@handle_the_error` will
-be called.
-
-You can also create your own errors like this:
-
-    'my error message' error
-
-This can be used when handling `try` errors to rethrow the same error or some
-modified version of it.
-
 ## Filtering
 
 Filtering is a convenience command that allows some kind of for
@@ -1190,16 +1185,14 @@ In addition to transforming every value, the `filter` command can filter values:
 
     {$0 50 >= {0/} if} filter  # remove numbers >= 50
 
-Note that `del`, `keep` and variable pushes (e.g. `x<<`, 'x>>`) can be combined
+Note that `del`, `keep` and variable pushes (e.g. `x<<`, `x>>`) can be combined
 to filter a subset of values:
 
-    {
-      st== $$st            # snapshot stack
-      5 keep {2 *} filter  # filter 5 values
-      doubled<<            # store those
-      st>> 5 del           # restore stack, remove 5 values
-      doubled>>            # sub in doubled values
-    } double5=
+    st== $$st            # snapshot stack into $st
+    5 keep {2 *} filter  # filter 5 values
+    doubled<<            # store those
+    st>> 5 del           # restore stack, remove 5 values
+    doubled>>            # sub in doubled values
 
 This can be applied to other functions (`sort`, `reverse`, etc) as well and
 has endless possible tweaks (for example, use a variable instead of a
@@ -1221,6 +1214,26 @@ are followed (strings > numbers > boolean):
 Reverse a stack with `reverse`
 
     1 2 3 4 reverse  # is now 4 3 2 1
+
+
+## Trapping and creating errors
+
+Sometimes yo want to try a command and not have the program stop if there
+is an error.  The command for this is `try`:
+
+    { @do_something } { @handle_the_error } try
+
+The statement above will execute `@do_something`.  If there is an error then
+the error will be pushed in the stack (as a string) and `@handle_the_error` will
+be called.
+
+You can also create your own errors like this:
+
+    'my error message' error
+
+This can be used when handling `try` errors to rethrow the same error or some
+modified version of it.
+
 
 
 ### Other Programming Notes
@@ -1408,9 +1421,13 @@ Try it with
 
 ```
     {0 {+ ssize 1 >} for `sum} sum=
+```
 
+```
     {ssize n< @sum n> / `mean} mean=
+```
 
+```
     {
       ssize sn<
       svals==
@@ -1421,11 +1438,14 @@ Try it with
       `stddev
       smean/
     } stddev=
+```
 
+```
     {$0 {min ssize 1 >} for `min} min=
-
     {$0 {max ssize 1 >} for `max} max=
+```
 
+```
     {
       int p<
       sort reverse
@@ -1435,7 +1455,9 @@ Try it with
     } percent=
 
     {50 @percent `median} median=
+```
 
+```
     {
       vals==
       $$vals @sum statv<
