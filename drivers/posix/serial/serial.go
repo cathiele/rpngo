@@ -3,11 +3,13 @@ package serial
 import (
 	"errors"
 	"fmt"
+	"log"
 	"mattwach/rpngo/rpn"
 	"os"
 )
 
 var (
+	errNoData                 = errors.New("no data")
 	errSerialPortNotOpen      = errors.New("serial port not open")
 	errSerialPortNeedsToBeSet = errors.New("$.serial needs to be set (e.g. /dev/ttyAMC0)")
 )
@@ -36,12 +38,15 @@ func (sc *Serial) Open(r *rpn.RPN) error {
 	}
 	sc.f, err = os.OpenFile(f.UnsafeString(), os.O_RDWR|os.O_SYNC, 0666)
 	if err != nil {
+		log.Printf("sopen err %v", err)
 		return err
 	}
+	log.Print("sopen ok")
 	return nil
 }
 
 func (sc *Serial) Close() error {
+	log.Printf("sclose")
 	if sc.f == nil {
 		return errSerialPortNotOpen
 	}
@@ -68,25 +73,33 @@ func (sc *Serial) ReadByte() (byte, error) {
 			done: make(chan bool),
 		}
 		go func() {
+			log.Print("rdata loop enter")
 			for {
-				_, err := sc.f.Read(readbuff)
+				count, err := sc.f.Read(readbuff)
 				if err != nil {
+					log.Printf("rb err=%v", err)
 					sc.rdata.err <- err
 					break
 				}
-				sc.rdata.read <- readbuff[0]
+				if count > 0 {
+					log.Printf("rb got=%v %c", readbuff[0], readbuff[0])
+					sc.rdata.read <- readbuff[0]
+				}
 			}
+			log.Print("rdata loop exit")
 			sc.rdata.done <- true
 		}()
 	}
 
 	select {
 	case rd := <-sc.rdata.read:
+		log.Printf("rbr byte: %v %c", rd, rd)
 		return rd, nil
 	case err := <-sc.rdata.err:
+		log.Printf("rbr err=%v", err)
 		return 0, err
 	default:
-		return 0, nil
+		return 0, errNoData
 	}
 }
 

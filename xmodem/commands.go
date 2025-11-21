@@ -59,7 +59,8 @@ const xmodemReadHelp = "Attempts to read data using the xmodem protocal to the t
 type readState uint8
 
 const (
-	InitialHandshake readState = iota
+	FlushReadBuffer readState = iota
+	InitialHandshake
 	XferPackets
 	Finished
 )
@@ -82,7 +83,7 @@ func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
 		return err
 	}
 	defer sc.serial.Close()
-	sc.state = InitialHandshake
+	sc.state = FlushReadBuffer
 	sc.attemptsLeft = handshakeAttempt
 	sc.nextPacketId = 0x01
 	sc.buff = make([]byte, 0, 128)
@@ -90,13 +91,21 @@ func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
 	r.Println("rx: init")
 	for err == nil {
 		switch sc.state {
+		case FlushReadBuffer:
+			sc.flushReadBuffer()
 		case InitialHandshake:
 			err = sc.serial.WriteByte(C)
 			if err == nil {
 				err = sc.readPacket(r)
+				if err != nil {
+					err = sc.nakWith(r, "first packet", err)
+				}
 			}
 		case XferPackets:
 			err = sc.readPacket(r)
+			if err != nil {
+				err = sc.nakWith(r, "packet", err)
+			}
 		case Finished:
 			return r.PushFrame(rpn.StringFrame(sc.trimExtra(), rpn.STRING_BRACE_FRAME))
 		}
@@ -117,13 +126,15 @@ func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
 		return err
 	}
 	sc.buff = []byte(s.String(false))
-	sc.state = InitialHandshake
+	sc.state = FlushReadBuffer
 	sc.attemptsLeft = handshakeAttempt
 	sc.nextPacketId = 0x01
 	sc.deadline = time.Now().Add(60 * time.Second)
 	r.Println("sx: wait for receiver")
 	for err == nil {
 		switch sc.state {
+		case FlushReadBuffer:
+			sc.flushReadBuffer()
 		case InitialHandshake:
 			b, err := sc.serial.ReadByte()
 			if err == nil {
@@ -142,6 +153,21 @@ func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
 		}
 	}
 	return err
+}
+
+// Try to pull characters from the read buffer until it goes silent
+// for 1 second.
+func (sc *XmodemCommands) flushReadBuffer() {
+	deadline := time.Now().Add(1 * time.Second)
+	for {
+		b, err := sc.serial.ReadByte()
+		if (err == nil) && (b != 'C') {
+			deadline = time.Now().Add(1 * time.Second)
+		} else if time.Now().After(deadline) {
+			sc.state = InitialHandshake
+			return
+		}
+	}
 }
 
 func (sc *XmodemCommands) trimExtra() string {
@@ -171,12 +197,12 @@ func (sc *XmodemCommands) writePacket(r *rpn.RPN) error {
 		}
 		b, err = sc.serial.ReadByte()
 		if err == nil {
-			return sc.writeRetry(r, errEarlyReceiverResponse)
+			return sc.reduceAttempts(r, "read byte "+string(b), errEarlyReceiverResponse)
 		}
 	}
 
 	if err := sc.waitForAck(r); err != nil {
-		return sc.writeRetry(r, err)
+		return sc.reduceAttempts(r, "wait ACK", err)
 	}
 
 	if lastPacket {
@@ -198,7 +224,7 @@ func (sc *XmodemCommands) sendEOT(r *rpn.RPN) error {
 			sc.state = Finished
 			return nil
 		}
-		err = sc.writeRetry(r, err)
+		err = sc.reduceAttempts(r, "EOT", err)
 		if err != nil {
 			return err
 		}
@@ -219,7 +245,7 @@ func (sc *XmodemCommands) waitForAck(r *rpn.RPN) error {
 			case NAK:
 				return errNakReceived
 			default:
-				return errUnexpectedByteReceived
+				return errors.New("got " + string(c))
 			}
 		}
 		if time.Now().After(deadline) {
@@ -249,16 +275,6 @@ func (sc *XmodemCommands) buildWritePacket() bool {
 	return lastPacket
 }
 
-func (sc *XmodemCommands) writeRetry(r *rpn.RPN, err error) error {
-	r.Println(err.Error())
-
-	sc.attemptsLeft--
-	if sc.attemptsLeft <= 0 {
-		return err
-	}
-	return nil
-}
-
 func (sc *XmodemCommands) readPacket(r *rpn.RPN) error {
 	for {
 		if err := sc.readPacketData(r); err != nil {
@@ -270,7 +286,7 @@ func (sc *XmodemCommands) readPacket(r *rpn.RPN) error {
 		}
 
 		if err := sc.validatePacket(); err != nil {
-			return sc.nakWith(r, err)
+			return err
 		}
 
 		r.Print("rx: recv (")
@@ -313,7 +329,7 @@ func (sc *XmodemCommands) readPacketData(r *rpn.RPN) error {
 	sc.idx = 0
 	for sc.idx < len(sc.packet) {
 		if time.Now().After(sc.deadline) {
-			return sc.nakWith(r, errReadTimeout)
+			return errReadTimeout
 		}
 		// read in bursts so we are not checking the timer on every byte
 		for n := 0; n < 1024; n++ {
@@ -343,15 +359,22 @@ func (sc *XmodemCommands) readPacketData(r *rpn.RPN) error {
 	return nil
 }
 
-func (sc *XmodemCommands) nakWith(r *rpn.RPN, err error) error {
-	r.Print("rx: NAK ")
-	r.Println(err.Error())
-	sc.serial.WriteByte(NAK)
+func (sc *XmodemCommands) reduceAttempts(r *rpn.RPN, ctx string, err error) error {
 	sc.attemptsLeft--
+	r.Print(ctx)
+	r.Print(": ")
+	r.Print(err.Error())
+	r.Print(" attemptsLeft: ")
+	r.Println(strconv.Itoa(sc.attemptsLeft))
 	if sc.attemptsLeft <= 0 {
 		return err
 	}
 	return nil
+}
+
+func (sc *XmodemCommands) nakWith(r *rpn.RPN, ctx string, err error) error {
+	sc.serial.WriteByte(NAK)
+	return sc.reduceAttempts(r, ctx+" NAK ", err)
 }
 
 func (sc *XmodemCommands) validatePacket() error {
