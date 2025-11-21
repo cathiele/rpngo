@@ -138,6 +138,8 @@ func buildUI() error {
 		return err
 	}
 	inputWin.Init(&picocalc, txtw, &rpnInst, &fileOpsDriver, scrollbytes)
+	// This has to happen after inut register, which also updates rpnInst.Print
+	picocalc.RegisterPrint(&rpnInst)
 	root.AddWindowChildToRoot(&inputWin, "i", 100)
 	return nil
 }

@@ -25,12 +25,14 @@ func (gi *picoCalcIO) Init(r *rpn.RPN) {
 	if err := gi.keyboard.Init(); err != nil {
 		elog.Print("failed to init keyboard: ", err.Error())
 	}
-	// avoid using the UART by-default becuase it has a 15% perf penalty
-	gi.serial.Init(false)
-	gi.originalPrint = r.Print
-	r.Print = gi.Print
+	gi.serial.Init(true)
 	xmodemCommands.InitAndRegister(r, &gi.serial)
 	rpnInst.Register("serial", gi.serialFn, rpn.CatIO, serialHelp)
+}
+
+func (gi *picoCalcIO) RegisterPrint(r *rpn.RPN) {
+	gi.originalPrint = r.Print
+	r.Print = gi.Print
 }
 
 func (gi *picoCalcIO) GetChar() (key.Key, error) {

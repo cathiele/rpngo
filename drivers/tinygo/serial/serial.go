@@ -35,6 +35,7 @@ type Serial struct {
 func (sc *Serial) Init(enable bool) {
 	sc.state = NORMAL
 	sc.ignoreUntil = time.Now().Add(time.Second)
+	sc.Enabled = enable
 }
 
 func (sc *Serial) Open(r *rpn.RPN) error {
