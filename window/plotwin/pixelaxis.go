@@ -66,7 +66,15 @@ func (pw *PixelPlotWindow) drawVerticalTickMarks(wx, ww, wh int) {
 
 func (pw *PixelPlotWindow) drawVerticalTick(wx, ww, wh int, y float64) {
 	wy, _ := pw.common.transformY(y, wh)
-	pw.pixw.HLine(wx-tickLength, wy, tickLength*2)
+	x0 := wx - tickLength
+	if x0 < 0 {
+		x0 = 0
+	}
+	x1 := wx + tickLength
+	if x1 >= ww {
+		x1 = ww - 1
+	}
+	pw.pixw.HLine(x0, wy, x1-x0)
 	s := strconv.FormatFloat(y, 'g', 2, 64)
 	lx := wx + horizTextOffset
 	ly := wy + fontCharHeight/2
@@ -115,7 +123,15 @@ func (pw *PixelPlotWindow) drawHorizontalTickMarks(wy, ww, wh int) {
 
 func (pw *PixelPlotWindow) drawHorizontalTick(x float64, wy, ww, wh int) {
 	wx, _ := pw.common.transformX(x, ww)
-	pw.pixw.VLine(wx, wy-tickLength, tickLength*2)
+	y0 := wy - tickLength
+	if y0 < 0 {
+		y0 = 0
+	}
+	y1 := wy + tickLength
+	if y1 >= wh {
+		y1 = wh - 1
+	}
+	pw.pixw.VLine(wx, y0, y1-y0)
 	s := strconv.FormatFloat(x, 'g', 2, 64)
 	lx := wx - len(s)*fontCharWidth/2
 	ly := wy + vertTextOffset
