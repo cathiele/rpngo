@@ -176,6 +176,7 @@ func disableEcho(r *rpn.RPN) echostate {
 	if err != nil {
 		return ECHO_ERROR
 	}
+	restoreEcho(r, ECHO_FALSE)
 	if en {
 		return ECHO_TRUE
 	}
