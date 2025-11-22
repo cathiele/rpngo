@@ -42,6 +42,14 @@ type XmodemCommands struct {
 	buff         []byte
 }
 
+type echostate int
+
+const (
+	ECHO_ERROR echostate = iota
+	ECHO_FALSE
+	ECHO_TRUE
+)
+
 const handshakeAttempt = 10
 
 func (sc *XmodemCommands) InitAndRegister(r *rpn.RPN, serial Serial) {
@@ -83,6 +91,8 @@ func (sc *XmodemCommands) xmodemRead(r *rpn.RPN) error {
 		return err
 	}
 	defer sc.serial.Close()
+	st := disableEcho(r)
+	defer restoreEcho(r, st)
 	sc.state = FlushReadBuffer
 	sc.attemptsLeft = handshakeAttempt
 	sc.nextPacketId = 0x01
@@ -125,6 +135,8 @@ func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
+	st := disableEcho(r)
+	defer restoreEcho(r, st)
 	sc.buff = []byte(s.String(false))
 	sc.state = FlushReadBuffer
 	sc.attemptsLeft = handshakeAttempt
@@ -153,6 +165,31 @@ func (sc *XmodemCommands) xmodemWrite(r *rpn.RPN) error {
 		}
 	}
 	return err
+}
+
+func disableEcho(r *rpn.RPN) echostate {
+	f, err := r.GetVariable(".echo")
+	if err != nil {
+		return ECHO_ERROR
+	}
+	en, err := f.Bool()
+	if err != nil {
+		return ECHO_ERROR
+	}
+	if en {
+		return ECHO_TRUE
+	}
+	return ECHO_FALSE
+}
+
+func restoreEcho(r *rpn.RPN, es echostate) {
+	if es == ECHO_ERROR {
+		return
+	}
+	if err := r.PushFrame(rpn.BoolFrame(es == ECHO_TRUE)); err != nil {
+		return
+	}
+	r.SetVariable(".echo")
 }
 
 // Try to pull characters from the read buffer until it goes silent
