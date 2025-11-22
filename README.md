@@ -1,6 +1,6 @@
 # RPNGO
 
-This page is a summary.  See the full [User's Guide here](USERS_GUIDE.md)
+This page is a summary.  See the full [User's Guide here](USER_GUIDE.md)
 
 This project is implements a programmable RPN graphing calculator using golang
 and TinyGO.
