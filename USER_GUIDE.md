@@ -305,6 +305,8 @@ unintended conflicts or confusion. The current
 list of variables is briefly described here. Many of these
 are covered in more detail in upcoming sections:
 
+- `.echo` If `true` on PicoCalc, then printed output will also
+  be sent to the serial port (readable by a computer).
 - `.f1`, `.f2`, `.f3`... These define macros that will be executed
   when the corresponding function key is pressed
 - `.init` The startup script defines this by-convention to
@@ -998,17 +1000,19 @@ The `YES` argument is intended to resist accidently running the command.
 
 ## Serial communications between PC and PicoCalc
 
-Serial communications are off-by-defualt on the PicoCalc becuase of a
-performance penalty of having them enabled.  For example, printing
-can get throttled by the 115200 buad rate of the UART.  They can be
-enabled by issuing this command on the PicoCalc:
+Serial is always enabled in the PicoCalc and ili9341 builds.
+If the code produces log messages or a panic, it will be written
+there.  
 
-    true serial
+The result of commands that print to the input window
+will also be sent to the serial port by default.  You can control
+if the Pico sends you characters by setting the `.echo` variable to `true`
+or anything else (including deleted), to disable the printing.
 
 If you want them on all of the time, you can add the above
 line to `startup/lcd320.go`.
 
-Once-enabled, you can use `tinygo monitor`, `screen`, `minicom`
+You can use `tinygo monitor`, `screen`, `minicom`
 or some other serial communications software to send and
 receive information from the PicoCalc using it's USB-C interface.
 

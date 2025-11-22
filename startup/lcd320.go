@@ -47,4 +47,6 @@ const defaultConfig = commonStartup + `
   $.plotwin w.new.plot
   .wend> 0/ .wweight> 0/
 } .plotinit=
+
+true .echo=
 `

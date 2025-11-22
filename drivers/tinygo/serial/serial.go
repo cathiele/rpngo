@@ -29,13 +29,11 @@ type Serial struct {
 	state       TermState
 	ignoreUntil time.Time
 	escTimeout  time.Time
-	Enabled     bool
 }
 
 func (sc *Serial) Init(enable bool) {
 	sc.state = NORMAL
 	sc.ignoreUntil = time.Now().Add(time.Second)
-	sc.Enabled = enable
 }
 
 func (sc *Serial) Open(r *rpn.RPN) error {
@@ -47,23 +45,14 @@ func (sc *Serial) Close() error {
 }
 
 func (sc *Serial) ReadByte() (byte, error) {
-	if !sc.Enabled {
-		return 0, nil
-	}
 	return machine.Serial.ReadByte()
 }
 
 func (sc *Serial) WriteByte(c byte) error {
-	if !sc.Enabled {
-		return nil
-	}
 	return machine.Serial.WriteByte(c)
 }
 
 func (sc *Serial) GetChar() key.Key {
-	if !sc.Enabled {
-		return 0
-	}
 	c, err := machine.Serial.ReadByte()
 	if err != nil {
 		if (sc.state == ESC) && time.Now().After(sc.escTimeout) {

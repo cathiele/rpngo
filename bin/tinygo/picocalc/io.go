@@ -18,6 +18,7 @@ type picoCalcIO struct {
 	keyboard      i2ckbd.I2CKbd
 	screen        ili948x.Ili948xScreen
 	originalPrint func(string)
+	rpnInst       *rpn.RPN
 }
 
 func (gi *picoCalcIO) Init(r *rpn.RPN) {
@@ -26,13 +27,13 @@ func (gi *picoCalcIO) Init(r *rpn.RPN) {
 		elog.Print("failed to init keyboard: ", err.Error())
 	}
 	gi.serial.Init(true)
+	gi.rpnInst = r
 	xmodemCommands.InitAndRegister(r, &gi.serial)
-	rpnInst.Register("serial", gi.serialFn, rpn.CatIO, serialHelp)
 }
 
-func (gi *picoCalcIO) RegisterPrint(r *rpn.RPN) {
-	gi.originalPrint = r.Print
-	r.Print = gi.Print
+func (gi *picoCalcIO) RegisterPrint() {
+	gi.originalPrint = gi.rpnInst.Print
+	rpnInst.Print = gi.Print
 }
 
 func (gi *picoCalcIO) GetChar() (key.Key, error) {
@@ -50,25 +51,19 @@ func (gi *picoCalcIO) GetChar() (key.Key, error) {
 }
 
 func (gi *picoCalcIO) Print(str string) {
-	if gi.serial.Enabled {
-		for _, c := range str {
-			_ = gi.serial.WriteByte(byte(c))
-		}
-	}
 	gi.originalPrint(str)
-}
-
-const serialHelp = "If true, enables serial communications with a host PC."
-
-func (gi *picoCalcIO) serialFn(r *rpn.RPN) error {
-	f, err := r.PopFrame()
+	f, err := gi.rpnInst.GetVariable(".echo")
 	if err != nil {
-		return err
+		return
 	}
 	enabled, err := f.Bool()
 	if err != nil {
-		return err
+		return
 	}
-	gi.serial.Enabled = enabled
-	return nil
+	if !enabled {
+		return
+	}
+	for _, c := range str {
+		_ = gi.serial.WriteByte(byte(c))
+	}
 }
