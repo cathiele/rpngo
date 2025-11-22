@@ -33,7 +33,7 @@ wanted a modern calculator that worked in a similar-but-modernized way. I then
 discovered the PicoCalc, an $80 platform for making your own retro computer /
 calculator:
 
-![PicoCalc and HP-48](img/picocalc_and_hp48.png)
+![PicoCalc and HP-48](img/picocalc_and_hp48.jpg)
 
 The calculator ships with Micro Basic, Python, LISP and an NES emulator -
 plenty to experiment with right there! But I wanted to do something lower-level

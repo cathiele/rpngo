@@ -33,6 +33,8 @@ go build
 
 ncurses version 
 
+![ncurses build](img/ncurses_build.png)
+
 You need have `libncurses-dev` installed.  In Ubuntu/Debian, the command is:
 
 ```
@@ -47,7 +49,6 @@ go build
 ./rpn
 ```
 
-![ncurses build](img/ncurses_build.png)
 
 ### Microcontrollers using TinyGo (Raspberry Pi Pico and Pico2 tested as working)
 
@@ -62,6 +63,8 @@ tinygo build -target=pico
 ```
 
 ili9341 LCD, using serial for communication
+
+![ili9341](img/ili9341.jpg)
 
 ```
 cd bin/tinygo/ili9341
@@ -78,6 +81,8 @@ make flash
 ```
 
 PicoCalc
+
+![picocalc](img/running_on_picocalc.jpg)
 
 ```
 cd bin/tinygo/picocalc
