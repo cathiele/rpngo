@@ -9,6 +9,7 @@ import (
 )
 
 type Curses struct {
+	root      *goncurses.Window
 	border    *goncurses.Window
 	window    *goncurses.Window
 	rgbToPair map[uint32]int16 // maps color,color values to a pair.
@@ -19,7 +20,7 @@ type Curses struct {
 }
 
 func Init() (*Curses, error) {
-	window, err := goncurses.Init()
+	root, err := goncurses.Init()
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +30,8 @@ func Init() (*Curses, error) {
 	goncurses.Echo(false)
 	goncurses.Cursor(0)
 	tw := &Curses{
-		window:    window,
+		root:      root,
+		window:    root,
 		rgbToPair: make(map[uint32]int16),
 	}
 	return tw, nil
@@ -37,6 +39,7 @@ func Init() (*Curses, error) {
 
 func (c *Curses) NewTextWindow() (window.TextWindow, error) {
 	tw := &Curses{
+		root: c.root,
 		rgbToPair: c.rgbToPair,
 	}
 	return tw, nil
@@ -55,9 +58,22 @@ func (c *Curses) ShowBorder(screenw, screenh int) error {
 		return err
 	}
 	c.border.AttrSet(ch)
-	if err := c.border.Border('|', '|', '-', '-', '+', '+', '+', '+'); err != nil {
-		return err
+	// only draw lines if these lines would not be on the edge
+	bh, bw := c.border.MaxYX()
+	wy, wx := c.window.YX()
+
+	if wy > 0 {
+		c.border.HLine(0, 0, '-', bw) 
 	}
+
+	if wx > 0 {
+		c.border.VLine(0, 0, '|', bh) 
+	}
+
+	if (wx > 0) && (wy > 0) {
+		c.border.MoveAddChar(0, 0, '+') 
+	}
+
 	c.border.Refresh()
 	ch, err = c.colorPairFor(window.White)
 	if err != nil {
@@ -101,11 +117,31 @@ func (c *Curses) ResizeWindow(x, y, w, h int) error {
 		}
 	}
 	var err error
+	screenh, screenw := c.root.MaxYX()
+	if (x + w) < screenw {
+		w--
+	}
+	if (y + h) < screenh {
+		h--
+	}
 	c.border, err = goncurses.NewWindow(h, w, y, x)
 	if err != nil {
 		return err
 	}
-	c.window, err = goncurses.NewWindow(h-2, w-2, y+1, x+1)
+
+
+	// If the window touches the screen edge, there is no reason to
+	// have a border there
+	if x > 0 {
+		x++
+		w--
+	}
+	if y > 0 {
+		y++
+		h--
+	}
+
+	c.window, err = goncurses.NewWindow(h, w, y, x)
 	if err != nil {
 		return err
 	}
