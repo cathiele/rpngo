@@ -3,14 +3,14 @@
 This document walks through various features of the RPNGO RPN calculator. I
 mostly explain in terms of examples that you can try yourself.
 
-## Building The Calculator
+## Building RPNGO
 
 You'll first need to [install golang](https://go.dev/doc/install).
 
 There is a `bin/` directory that contains various different configurations of
 `rpngo` for PCs and for microcontrollers. Here is an overview:
 
-- `bin/minimal/rpn` - A minimal PC version.  Parses `args` and exits.
+- `bin/minimal/rpn` - A minimal PC (or Raspberry Pi)  version.  Parses `args` and exits.
 - `bin/ncurses/rpn` - Uses [`ncurses`](https://en.wikipedia.org/wiki/Ncurses) to
   support multiple view windows and even text-based plotting
 - `bin/tinygo/serialonly` - A minimal TinyGo build for  microcontrollers that uses
@@ -110,9 +110,6 @@ make all
 
 ## RPN Introduction
 
-This "users guide" will take the format of being mostly working examples.
-Let's start with the basics.
-
 RPN is an old and proven way to do calculations that is popular in engineering
 fields.  Much has been written on the subject. You can [read more here](
 https://en.wikipedia.org/wiki/Reverse_Polish_notation)
@@ -145,7 +142,7 @@ simply enjoy using them now.
 
 ## Base Features
 
-Assume the stack is empty at the start of each line.
+Examples below assume the stack is empty at the start of each line.
 
                             # result
     2 4 +                   # 6
@@ -202,6 +199,8 @@ will contain the value at the top of the stack.  For example:
 ```
 
 ![ncurses editor](img/ncurses_editor.png)
+
+![picocalc editor](img/picocalc_editor.jpg)
 
 The editor only supports basic features right now:
 
@@ -262,8 +261,7 @@ Variables that start with a `.` are hidden by default in the variable window
 settings.
 
 There are also special variables, `$0`, `$1`, etc, which represent values on
-stack. `$0` represents the value at the top of the stack. If the stack
-is empty, then using `$0` results in an error.  e.g.
+stack. `$0` represents the value at the top of the stack:
 
             # result (assume stack is empty on each line)
     5 sq    # 25
@@ -302,6 +300,8 @@ Here is the demo:
 Note that using variables as stacks can create memory pressure on microcontrollers
 if it's pushed too far.
 
+![stack vars on picocalc](img/picocalc_stack_vars.jpg)
+
 ### Special variables
 
 Variables that start with a `.` are generally considered special. Although
@@ -329,7 +329,7 @@ are covered in more detail in upcoming sections:
 
 Many type of numbers are supported
 
-    50         # floating point (actually a 5+0i complex)
+    50         # floating point (internally a 5+0i complex)
     50+i       # complex number
     50<1       # polar complex (default is radians)
     deg 50<90  # You can use degrees for the angle.
@@ -342,7 +342,6 @@ Most operations can use a mix of these types, using the following rules:
 
     # Any number type mixed with float results in a float
     12.4 5d +  ->  17.4
-
 
     # Two integer types combined takes the base of the most left term
     32x 50d +  ->  64x
@@ -368,8 +367,7 @@ Boolean values include `true` and `false`.  Conditionals return a boolean:
     false neg  #  true
     true neg   #  false
 
-You can also compare different types, which is in support of `sort` and
-`sortn`:
+You can also compare different types, which is in support of `sort`:
 
     true 1 <       # true: booleans are always less than numbers
     1 "foo" <      # true: numbers are always less than strings
@@ -625,30 +623,16 @@ It will say
 
     'root'
 
-We can change this "special" variable to alter the behavior of `w.new.*` commands.
-Note there is also `$.wend` and `$.wweight` for controlling placement and size, but's not use those yet:
+We can change this "special" variable to alter the behavior of `w.new.*`
+commands.  Note there is also `$.wend` and `$.wweight` for controlling placement
+and size, but let's not use those yet:
 
     'g' .warget=
     'v' w.new.var
 
 and we are done
 
-```
-+------------------+---------------+
-|                  |               |
-|                  |               |
-|                  |               |
-|   Input (i)      |  STACK (s)    |
-|                  |               |
-|                  |               |
-+------------------+               |
-|                  |               |
-|                  |               |
-|   Vars (v)       |               |
-|                  |               |
-|                  |               |
-+------------------+---------------+
-```
+![picocalc window layout 1](img/picocalc_window_layout1.jpg)
 
 Say you want to change some sizes above.
 Window and group "weights" are used to do this. Each window and group
@@ -662,26 +646,7 @@ to 200.
 
 Things will shift as so:
 
-```
-+----------------------+-----------+
-|                      |           |
-|                      |           |
-|                      |           |
-|   Input (i)          | STACK (s) |
-|                      |           |
-|                      |           |
-+----------------------+           |
-|                      |           |
-|                      |           |
-|   Vars (v)           |           |
-|                      |           |
-|                      |           |
-+----------------------+-----------+
-```
-
-A "real example":
-
-![window layout](img/window_layout.png)
+![picocalc window layout 1](img/picocalc_window_layout1.jpg)
 
 There is a command, `w.dump` that will output the current layout for
 inspection. Let's try it:
@@ -756,13 +721,16 @@ prefer just using the dedicated stack window instead).
 
 #### History
 
-History is set to be automatic on PC (`autohist` is `true`). `autohist` is `false` by default
-on microcontrollers because of slow write speeds and elevated
-power usage.  You can change this behavior by customizing the startup 
-file (e.g. `$HOME/.rpngo`)
+Command history is always enabled in memory and can be optionally saved/restored
+to disk.
 
-For microcontrollers, it is suggeted to bind `hists` to
-a function key for quick save ability.
+History is set to save automatically on PC (`autohist` is `true`). `autohist` is
+`false` by default on microcontrollers because of slow write speeds and elevated
+power usage.  You can change this behavior by customizing the startup file (e.g.
+`$HOME/.rpngo`)
+
+For microcontrollers, it is suggested to bind `hists` to a function key for
+quick save ability.
 
 ### Stack Window Properties
 
@@ -802,7 +770,7 @@ And this on an LCD display:
 
 This is how `plot` works.
 
-- It pushes a range of values to the stack (from `minv` to `maxv` with `steps`
+- A range of values is pushed to the stack (from `minv` to `maxv` with `steps`
   divisions)
   - After pushing a single value, it calls the argument to `plot`. In the example above
   that would be `sq` or "square the value"
@@ -997,7 +965,7 @@ various shell usecases:
 ### Format
 
 When using `littlefs` in tinygo, you can use the `format` command to
-initialie the SD Card:
+initialize the SD Card:
 
     'YES' format
 
@@ -1014,19 +982,16 @@ will also be sent to the serial port by default.  You can control
 if the Pico sends you characters by setting the `.echo` variable to `true`
 or anything else (including deleted), to disable the printing.
 
-If you want them on all of the time, you can add the above
-line to `startup/lcd320.go`.
+You can change startup behavior by editing `startup/lcd320.go`.
 
 You can use `tinygo monitor`, `screen`, `minicom`
 or some other serial communications software to send and
 receive information from the PicoCalc using it's USB-C interface.
 
-Note that, due to limitations of the PicoCalc UART (which is an
-actual RP2040/TP2350 UART connected to the STM32 helper chip), TinyGo,
-and the limitations of LCD screen updates, block transfers to the
-PicoCalc have been observed to drop data. It is thus suggested
-that this path is only used for interactive usecases.  The XMODEM commands
-described below can work-around these data losses (just like the good old days).
+Note that, due to limitations of the PicoCalc UART (which is a RP2040/RP2350
+UART connected to the STM32 helper chip), TinyGo, and the limitations of LCD
+screen updates, block transfers to the PicoCalc have been observed to drop data,
+it is suggested that the XMODEM protocol (described next) be used to send files.
 
 ### XMODEM send and receive
 
@@ -1045,17 +1010,14 @@ installation:
 
 Then start screen with the following option:
 
-    screen /dev/ttyACM0 115200
-
-If you are using a PicoCalc, you may need to enable serial communications with
-
-    true serial
+    screen /dev/ttyUSB0 115200
 
 I'm assuming the serial device on my PC and yours will be the same, which could
-be incorrect.  I'm also assuming you want to send a file named `bounce_ball.rpn`;
-change the name to the file you actually want to send.
+be incorrect. You can verify it is correcy by typing a few characters into
+the screen window and see if they appear on the calculator.
 
-Next type `Ctrl-A`, `:` and type this at the prompt:
+Let's assume for this example that you want to send a file named
+`bounce_ball.rpn`.  In `screen`, type `Ctrl-A`, `:` and type this at the prompt:
 
     exec !! sx bounce_ball.rpn
 
@@ -1069,19 +1031,20 @@ at the top of the stack.
 #### Receive a file from RPNGO using rx
 
 The directions here are the same as the previous section, but you type this
-in screen instead:
-
-    exec !! rx -c myfile.rpn
-
-and on the calculator:
+in the calculator first:
 
     sx
 
-The calculator will send the top of the stack via xmodem
+An then, in `screen`:
+
+    exec !! rx -c myfile.rpn
+
+The `-c` option indicates 16-bit CRC which is the only protocol RPNGO
+supports.
 
 #### Send and receive from another RPNGO instance
 
-Sending from one calculator to another should be possible
+Sending from one calculator to another should is possible
 by using `sx` on one and `rx` on the other. To get it to work
 between PC and a microcontroller, you'll want to confirm that
 the `$.serial` variable is set correctly on the PC. You'll
@@ -1185,10 +1148,10 @@ We can also use `filter`, which manages some of the work for us
 
 The `filter` command does this:
 
-1. Takes each value on the stack
-2. Copies to it the top
-3. Calls it's argument.
-4. Removes the original values
+1. Takes each value on the stack and
+  - Copies to it the top of the stack
+  - Calls the provided filter argument.
+2. Removes the original stack values
 
 In addition to transforming every value, the `filter` command can filter values:
 
@@ -1254,7 +1217,7 @@ to make you aware in case you have not read it all.
   Note that `$foo @` has the same result as `@foo`.
 - `print`, `println`, `printx`, `printlnx`:  Prints the head of the stack
   The `x` versions also remove the stack element.
-- `prints`, `prints`: Prints with a space after
+- `prints`, `printsx`: Prints with a space after
 - `load`, `save`: Loads and saves values to disk
 - `.`, `source`: The same as `load @`.
 - `noop`: Does nothing. This is sometimes useful as a placeholder.
@@ -1298,6 +1261,8 @@ Run it with
 - Next is a loop which asks the user for a guess, then uses three
   `if` statements to feedback a message.  Finally, a check
   to see if the `for` loop should exit.
+
+![number guess](img/number_guess.png)
 
 ### Animated Plot
 
@@ -1486,3 +1451,5 @@ There are a number of different functions above that separately calculate
 `sum`, `min`, `max`, `mean`, `stddev`, `10th percentile`, `median`, `90th percentile`,
 and finally one wrap-up function called `stats` that calculates all of the above
 on a given set of numbers.  Try to understand them individually.
+
+![stats](img/stats.png)
