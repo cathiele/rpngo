@@ -20,7 +20,7 @@ And a PicoCalc:
 
 ## Why
 
-I've been writing code professionally and for fun for many decades and in 20+
+I've been writing code professionally and for fun for many decades in 20+
 languages. Of those languages, my favorites are golang for PC utilities
 and tools and C for microcontroller projects.  What about golang on microcontrollers?
 
@@ -28,10 +28,10 @@ I decided to give TinyGO a try and see. Later in this doc, I talk about my views
 on TinyGO so far (TLDR: I think it's fun to use and great for experimental work
 but is not yet ready for more serious efforts).
 
-Why an RPN calculator? We'll I spent my early days on an HP-48G user and wanted
-a modern calculator that worked in a similar-but-modernized way. I then
-discovered the [PicoCalc](https://www.clockworkpi.com/picocalc), an $80 platform
-for making your own retro computer / calculator:
+Why an RPN calculator? We'll I spent my early days on an HP-48G user and
+wanted a modern calculator that worked in a similar-but-modernized way. I then
+discovered the PicoCalc, an $80 platform for making your own retro computer /
+calculator:
 
 ![PicoCalc and HP-48](img/picocalc_and_hp48.jpg)
 
@@ -43,7 +43,7 @@ and work directly with the hardware.
 
 A quick list of things the calculator can do:
 
-- Regular and scientific calculator operations (e.g. `+`, `-`, `sqrt`, 'sin`, ...)
+- All regular and scientific calculator operations (e.g. `+`, `-`, `sqrt`, 'sin`, ...)
 - Working with the following number formats: complex, integer, binary, octal, hexidecimal
 - Bitwise and logical operations
 - Working with string data
@@ -80,10 +80,9 @@ Memory management issues form the biggest problem areas for TinyGo.
 
 Memory is usually a precious resource on a microcontroller,
 with a couple hundred kilobytes considered a generous offering.
-As a quick refresher, there are usually 4 types of memory the CPU can
-use direct addressing with:
+As a quick refresher, there are usually 4 types of directly accessible memory:
 
-- *Read only*: Data and code stored in flash memory.
+- *Read only*: Data and code stored in flash memory
 - *Static*: Globally-defined structures
 - *Stack*: Memory that holds small local variables for functions
 - *Heap*: General purpose memory that can be used when the above choices don't work well.
@@ -91,7 +90,7 @@ use direct addressing with:
   and do not know what kind of programs the user will send your way `:)`
 
 In classic C/C++, all 4 of these are explicitly user controlled.  In many
-embedded applications, heap memory can be avoided entirely.  In cases where it
+embedded applications heap memory can be avoided entirely.  In cases where it
 is needed, the `malloc()` and `new` calls can return a null pointer if they
 fail, giving the program more options than just crashing.
 
@@ -132,10 +131,9 @@ While I was working on TinyGO: I saw many signs of a not-quite mature product:
 - Using the default compile flag `--sceduler=cores` caused hangs when garbage
 collection is run.  Switching to the previous `--scheduler=tasks` fixes it
 but only runs on one core.
-- Performance Pico2 seems to jump around as an apparent side effect to making
-small changes that should not be directly related. Additionally, I don't know of
-available tooling to assist digging into it further (e.g. profiling tools)
-- The TinyFS library (needed for SD card file access) is a bit unstable.
+- Performance is surprisingly worse on Pico2 than Pico for my project and I don't
+have tooling to assist digging into it further (e.g. profiling tools)
+- TinyFS is unstable with FAT filesystems
 
 I'l end by saying that it's amazing that it works as well as it does and it's
 by no means trivial to implement something like TinyGo. But regardless of

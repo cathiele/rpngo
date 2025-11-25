@@ -198,7 +198,7 @@ will contain the value at the top of the stack.  For example:
 'animate_sin.rpn' load edit
 ```
 
-![ncurses editor](img/ncurses_editor.png)
+![ncurses editor](img/editor_on_pc.png)
 
 ![picocalc editor](img/picocalc_editor.jpg)
 
@@ -646,7 +646,7 @@ to 200.
 
 Things will shift as so:
 
-![picocalc window layout 1](img/picocalc_window_layout1.jpg)
+![picocalc window layout 1](img/picocalc_window_layout2.jpg)
 
 There is a command, `w.dump` that will output the current layout for
 inspection. Let's try it:
@@ -841,7 +841,7 @@ who's parametric equation is `x = cos t, y = sin y`:
 
 and on an LCD build:
 
-![lcd plot 4](img/lcd_plot2.png)
+![lcd plot 4](img/lcd_plot2.jpg)
 
 Let's see how properties changed:
 
@@ -930,7 +930,7 @@ Use the `sh` command to perform shell operations:
 
 ![sh ncurses](img/sh_command_ncurses.png)
 
-![sh lcd](img/sh_command_lcd.png)
+![sh lcd](img/sh_command_lcd.jpg)
 
 On PCs, you can call any shell command. In TinyGo, only a small set of commands
 (`ls`, `rm`, `pwd`) have been implemented.
@@ -1378,7 +1378,7 @@ Try it with
     'sq' plot
     'sq' @dydx
 
-![derivative plot](derivative_plot.jpg)
+![derivative plot](img/derivative_plot.jpg)
 
 - Snapshot the argument into `$dydx.fn` so we can call it multiple
   times later.
