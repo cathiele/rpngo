@@ -15,7 +15,8 @@ var (
 	errEmptyArgument          = errors.New("empty argument")
 	errOnlyOnePathIsSupported = errors.New("only one path is supported")
 	errPathIsRequired         = errors.New("path is required")
-	errUnknownCommand         = errors.New("unknown command")
+	errExpectedTwoPaths       = errors.New("expected two paths")
+	errUnknownCommand         = errors.New("unknown command. cat, cp, ls, mv, pwd, and rm are supported")
 )
 
 // This file implements a very basic shell that implements a minimal
@@ -34,8 +35,14 @@ func (fo *FileOpsDriver) Shell(args []string, stdin io.Reader) (string, error) {
 	var val string
 	var err error
 	switch args[0] {
+	case "cat":
+		val, err = fo.cat(args[1:])
+	case "cp":
+		err = fo.cp(args[1:])
 	case "ls":
 		val, err = fo.ls(args[1:])
+	case "mv":
+		err = fo.mv(args[1:])
 	case "pwd":
 		val, err = fo.getpwd(args[1:])
 	case "rm":
@@ -96,6 +103,53 @@ func (fo *FileOpsDriver) rm(args []string) error {
 		}
 	}
 	return nil
+}
+
+func (fo *FileOpsDriver) cat(args []string) (string, error) {
+	if len(args) != 1 {
+		return "", errPathIsRequired
+	}
+	bytes, err := fo.ReadFile(args[0])
+	return string(bytes), err
+}
+
+func (fo *FileOpsDriver) cp(args []string) error {
+	if len(args) != 2 {
+		return errExpectedTwoPaths
+	}
+	dst, err := fo.dstPathForCopy(args[1])
+	if err != nil {
+		return err
+	}
+	data, err := fo.ReadFile(args[0])
+	if err != nil {
+		return err
+	}
+	return fo.WriteFile(dst, data)
+}
+
+func (fo *FileOpsDriver) mv(args []string) error {
+	if len(args) != 2 {
+		return errExpectedTwoPaths
+	}
+	dst, err := fo.dstPathForCopy(args[1])
+	if err != nil {
+		return err
+	}
+	src := absPath(fo.pwd, args[0], true, false)
+	return fo.fs.Rename(src, dst)
+}
+
+func (fo *FileOpsDriver) dstPathForCopy(p string) (string, error) {
+	dst := absPath(fo.pwd, p, true, false)
+	dstSt, err := fo.fs.Stat(dst)
+	if err == nil {
+		// the path exists
+		if dstSt.IsDir() {
+			dst = dst + "/" + basePath(p)
+		}
+	}
+	return dst, nil
 }
 
 func (fo *FileOpsDriver) rmPath(path string) error { // object allocated on the heap: escapes at line 111

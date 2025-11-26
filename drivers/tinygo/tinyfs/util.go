@@ -35,6 +35,19 @@ func absPath(pwd string, path string, leadingSlash bool, trailingSlash bool) str
 	return path
 }
 
+func basePath(p string) string {
+	slashIdx := -1
+	for i, c := range p {
+		if c == '/' {
+			slashIdx = i
+		}
+	}
+	if slashIdx < 0 {
+		return p
+	}
+	return p[slashIdx+1:]
+}
+
 func addLeadingSlash(p string) string {
 	if p[0] == '/' {
 		return p

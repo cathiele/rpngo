@@ -920,13 +920,22 @@ if you want.  Here, we plot `sin` and `cos` using the low-level `w.setp` method:
 > File operations work well on PC platforms but are still experimental in
 TinyGO.  This is possibly due to the current (11/2025)
 [instability](https://github.com/tinygo-org/tinygo/issues/3460) of the [`tinyfs`
-library](https://github.com/tinygo-org/tinyfs). You can use file operations in
-TinyGO, but don't assume it will always work as expected.  My 11/2025 observations:
+library](https://github.com/tinygo-org/tinyfs).
 
 - PC: Seems to always work
-- tinygo + fatfs: Fails to access the card after a few operations
-- tinygo + rp2040 + littlefs: Seems to work fine at first but hangs after a lot of heap operations
-- tinygo + rp2350 + littlefs: Like the 2040 but it also can not delete files
+- tinygo + internal flash + littlefs: Seems to work but not stress tested.  Loading new firmware
+  will require a reformat.
+- tinygo + sdcard + fatfs: Fails to access the card after a few operations
+
+### Format
+
+When using `littlefs` in tinygo, you must use the `format` command to
+initialize the internal flash memory before it will allow storing files:
+
+    'YES' format
+
+The `YES` argument is intended to resist accidently running the command.
+
 
 ### Shell commands
 
@@ -939,7 +948,7 @@ Use the `sh` command to perform shell operations:
 ![sh lcd](img/sh_command_lcd.jpg)
 
 On PCs, you can call any shell command. In TinyGo, only a small set of commands
-(`ls`, `rm`, `pwd`) have been implemented.
+(`cat`, `cp`, `ls`, `mv`, `rm`, `pwd`) have been implemented.
 
 There are also special variables that can be set to support
 various shell usecases:
@@ -968,15 +977,6 @@ various shell usecases:
 
     'hello world' 'hello.txt' save  # save "hello world" to a file
 
-### Format
-
-When using `littlefs` in tinygo, you can use the `format` command to
-initialize the SD Card:
-
-    'YES' format
-
-The `YES` argument is intended to resist accidently running the command.
-
 ## Serial communications between PC and PicoCalc
 
 Serial is always enabled in the PicoCalc and ili9341 builds.
@@ -988,7 +988,8 @@ will also be sent to the serial port by default.  You can control
 if the Pico sends you characters by setting the `.echo` variable to `true`
 or anything else (including deleted), to disable the printing.
 
-You can change startup behavior by editing `startup/lcd320.go`.
+You can change startup behavior by editing `startup/lcd320.go` or
+`.rpngo` in flash storage.
 
 You can use `tinygo monitor`, `screen`, `minicom`
 or some other serial communications software to send and
@@ -1082,9 +1083,10 @@ to configure:
 If you delete or renaem the file, a new one with default properties will
 be created.
 
-On microcontrollers, this file is instead built into the code in the `startup/`
-folder due to the lack of assurance that a SD card will be available - it's
-an area that could use more development.
+On microcontrollers, this file is placed in the root directory.  I using the
+default `littlefs` internal flash configuration, you must format this
+area after loading firmware with `"YES" format` or the `.rpngo` file will
+not save and you will get the default one defined in `startup/lcd320.go`. 
 
 ## Programming
 
