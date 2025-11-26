@@ -79,7 +79,7 @@ func run() error {
 	}
 	_ = commands.InitWindowCommands(&rpnInst, &root, &screen, newPixelPlotWindow)
 	_ = plotwin.InitPlotCommands(&rpnInst, &root, &screen)
-	starterr := startup.Startup(&rpnInst, nil)
+	starterr := startup.Startup(&rpnInst, &fileOpsDriver)
 	w, h := screen.ScreenSize()
 	if err := root.Update(&rpnInst, w, h, true); err != nil {
 		return err
