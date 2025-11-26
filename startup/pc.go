@@ -31,5 +31,4 @@ const defaultConfig = commonStartup + `
 '$.plotwin w.new.plot' .plotinit=
 
 '/dev/ttyACM0' .serial=
-'i' 'autohist' true w.setp
 `
