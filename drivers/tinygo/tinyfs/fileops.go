@@ -8,7 +8,6 @@ import (
 	"mattwach/rpngo/elog"
 	"os"
 
-	"tinygo.org/x/drivers/sdcard"
 	"tinygo.org/x/tinyfs"
 )
 
@@ -33,13 +32,12 @@ type FileOpsDriver struct {
 
 func (fo *FileOpsDriver) Init() error {
 	fo.mounted = false
-	elog.Heap("alloc: /drivers/tinygo/tinyfs/fileops.go:34: sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin)")
-	sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin) // object allocated on the heap: escapes at line 39
-	fo.initErr = sd.Configure()
+	var bd tinyfs.BlockDevice
+	bd, fo.initErr = blockDevice()
 	if fo.initErr != nil {
 		return fo.initErr
 	}
-	fo.initFS(sd)
+	fo.initFS(bd)
 	return fo.initErr
 }
 

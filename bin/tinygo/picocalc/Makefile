@@ -1,12 +1,13 @@
 FS ?= littlefs
-TARGET ?= pico2
+BLOCKDEV ?= machineflash
+TARGET ?= pico
 
 build:
-	tinygo build -tags=$(FS) -target=$(TARGET) -scheduler=tasks -serial=uart -o a.uf2
+	tinygo build -tags=$(FS),$(BLOCKDEV) -target=$(TARGET) -scheduler=tasks -serial=uart -o a.uf2
 
 flash:
-	tinygo flash -tags=$(FS) -target=$(TARGET) -serial=uart -scheduler=tasks
+	tinygo flash -tags=$(FS),$(BLOCKDEV) -target=$(TARGET) -serial=uart -scheduler=tasks
 	
 
 allocs:
-	tinygo build -tags=$(FS) -target=$(TARGET) -serial=uart -print-allocs='.*' 2>&1
+	tinygo build -tags=$(FS),$(BLOCKDEV) -target=$(TARGET) -serial=uart -print-allocs='.*' 2>&1

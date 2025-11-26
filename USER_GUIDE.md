@@ -68,14 +68,14 @@ ili9341 LCD, using serial for communication
 
 ```
 cd bin/tinygo/ili9341
-# build for pico2 with littlefs
+# build for pico with internal littlefs
 make build
-# build for pico2 with fatfs
-FS=fatfs make build
-# build for pico with littlefs
-TARGET=pico make build
-# build for pico with fatfs
-TARGET=pico FS=fatfs make build
+# build for pico with sdcard fatfs (unstable/experimental)
+FS=fatfs BLOCKEV=sdflash make build
+# build for pico2 with littlefs
+TARGET=pico2 make build
+# build for pico2 with sdcard fatfs
+TARGET=pico2 BLOCKDEV=sdflash FS=fatfs make build
 # flash instead of build (applies to all examples above)
 make flash
 ```
