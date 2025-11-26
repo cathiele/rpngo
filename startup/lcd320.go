@@ -21,14 +21,6 @@ const defaultConfig = commonStartup + `
 {@.plotinit} .f4=
 { hists 'command history saved to' printsx 'i' 'histpath' w.getp printlnx } .f5=
 
-'i' 'autofn'
-{
-  heapstats
-  2> 1024d / float 'a:' printx printx 'k f:'
-  printx float printx
-  0/ 0/
-} w.setp 
-
 {
   time t1=
   0 x=

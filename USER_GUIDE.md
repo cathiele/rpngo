@@ -917,10 +917,16 @@ if you want.  Here, we plot `sin` and `cos` using the low-level `w.setp` method:
 
 ## File Operations
 
-> File operations work well on PC platforms but are still experimental in TinyGO due to
-the current (10/2025) [instability](https://github.com/tinygo-org/tinygo/issues/3460)
-of the [`tinyfs` library](https://github.com/tinygo-org/tinyfs). You can use file operations
-in TinyGO, but don't assume it will always work as expected.
+> File operations work well on PC platforms but are still experimental in
+TinyGO.  This is possibly due to the current (11/2025)
+[instability](https://github.com/tinygo-org/tinygo/issues/3460) of the [`tinyfs`
+library](https://github.com/tinygo-org/tinyfs). You can use file operations in
+TinyGO, but don't assume it will always work as expected.  My 11/2025 observations:
+
+- PC: Seems to always work
+- tinygo + fatfs: Fails to access the card after a few operations
+- tinygo + rp2040 + littlefs: Seems to work fine at first but hangs after a lot of heap operations
+- tinygo + rp2350 + littlefs: Like the 2040 but it also can not delete files
 
 ### Shell commands
 
