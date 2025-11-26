@@ -84,15 +84,15 @@ func (fo *FileOpsDriver) ReadFile(path string) ([]byte, error) {
 		return nil, err
 	}
 	apath := absPath(fo.pwd, path, true, false)
+	sz, err := fo.FileSize(apath)
+	if err != nil {
+		return nil, err
+	}
 	f, err := fo.fs.Open(apath)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	sz, err := fo.FileSize(apath)
-	if err != nil {
-		return nil, err
-	}
 	elog.Heap("alloc: /drivers/tinygo/tinyfs/fileops.go:71: data := make([]byte, sz)")
 	data := make([]byte, sz) // object allocated on the heap: size is not constant
 	totalRead := 0
