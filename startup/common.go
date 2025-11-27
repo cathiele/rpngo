@@ -24,7 +24,8 @@ const commonStartup = `
 {$0 {max ssize 1 >} for} max=
 
 # history load/save doesn't work on tinygo unless the media is formatted
-{histl hists 'i' 'autohist' true w.setp} {0/} try
+{histl} {0/} try
+{hists 'i' 'autohist' true w.setp} {0/} try
 rad
 `
 
