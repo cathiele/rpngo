@@ -1067,7 +1067,7 @@ options).
 
 #### Send multiple files
 
-The usual way to send multiple files is using YMODEM or ZMODEM ut
+The usual way to send multiple files is using YMODEM or ZMODEM but
 RPNGO does not have them implemented at the time of writing.
 
 There is, however a shell script that will allow you to send
@@ -1084,7 +1084,9 @@ a "program" that defines each file and saves it.  Thus you send the
     rx
     @
 
-and it will create a set of files, just like YMODEM would.
+and it will create a set of files, just like YMODEM would (check with
+`'ls -l' sh`). Note that you need to have working/formatted storage
+for this to work (see the "Format" section above).
 
 ## The startup file
 
