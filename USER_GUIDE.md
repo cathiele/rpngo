@@ -1065,6 +1065,27 @@ that the serial port be configured correctly in `main.go`
 on both devices (e.g. this is a bit more advanced than other
 options).
 
+#### Send multiple files
+
+The usual way to send multiple files is using YMODEM or ZMODEM ut
+RPNGO does not have them implemented at the time of writing.
+
+There is, however a shell script that will allow you to send
+multiple files in the `examples/` directory named `make_xmodem_file.sh`:
+
+You can run it like this:
+
+    ./make_xmodem_file.sh *.rpn > out.txt
+
+Where `*.rpn` is the list of files you want to send.  This creates
+a "program" that defines each file and saves it.  Thus you send the
+`out.txt` file to the calculator, then receive and execute it:
+
+    rx
+    @
+
+and it will create a set of files, just like YMODEM would.
+
 ## The startup file
 
 On PC, A file named `$HOME/.rpngo` will be created if it does not yet exist
