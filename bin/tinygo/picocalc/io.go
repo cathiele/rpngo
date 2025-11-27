@@ -67,3 +67,14 @@ func (gi *picoCalcIO) Print(str string) {
 		_ = gi.serial.WriteByte(byte(c))
 	}
 }
+
+func (gi *picoCalcIO) ctrlDown() bool {
+	for i := 0; i < 5; i++ {
+		gi.keyboard.GetChar()
+		if gi.keyboard.CtrlDown {
+			return true
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	return false
+}

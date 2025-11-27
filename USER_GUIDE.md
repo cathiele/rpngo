@@ -1103,8 +1103,11 @@ to configure:
 - Actions to perform on every command entered
 - Serial port echo (on microcontrollers)
 
-If you delete or renaem the file, a new one with default properties will
+If you delete or rename the file, a new one with default properties will
 be created.
+
+On the PicoCalc, you can hold down the `ctrl` key while powering on caclulator
+to skp th startup script (safe mode).
 
 On microcontrollers, this file is placed in the root directory.  I using the
 default `littlefs` internal flash configuration, you must format this

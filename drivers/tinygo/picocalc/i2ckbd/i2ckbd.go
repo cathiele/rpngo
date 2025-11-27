@@ -50,8 +50,8 @@ type I2CKbd struct {
 	i2c      *machine.I2C
 	write    []byte
 	read     []byte
-	altDown  bool
-	ctrlDown bool
+	AltDown  bool
+	CtrlDown bool
 }
 
 // Init initialized the i2c driver.  It may be necessary to add the ability to
@@ -97,10 +97,10 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 	k := kbd.read[1]
 	switch k {
 	case ALT_KEY:
-		kbd.altDown = true
+		kbd.AltDown = true
 		return 0, nil
 	case CTRL_KEY:
-		kbd.ctrlDown = true
+		kbd.CtrlDown = true
 		return 0, nil
 	case F1_KEY:
 		return kbd.ifNoModifiers(key.KEY_F1)
@@ -127,12 +127,12 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 	case RIGHT_KEY:
 		return kbd.ifNoModifiers(key.KEY_RIGHT)
 	case UP_KEY:
-		if kbd.ctrlDown || kbd.altDown {
+		if kbd.CtrlDown || kbd.AltDown {
 			return key.KEY_PAGEUP, nil
 		}
 		return key.KEY_UP, nil
 	case DOWN_KEY:
-		if kbd.ctrlDown || kbd.altDown {
+		if kbd.CtrlDown || kbd.AltDown {
 			return key.KEY_PAGEDOWN, nil
 		}
 		return key.KEY_DOWN, nil
@@ -149,7 +149,7 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 	case ESC_KEY:
 		return kbd.ifNoModifiers(27)
 	case 'c':
-		if kbd.ctrlDown && !kbd.altDown {
+		if kbd.CtrlDown && !kbd.AltDown {
 			return key.KEY_BREAK, nil
 		}
 	}
@@ -164,11 +164,11 @@ func (kbd *I2CKbd) keyHeld() (key.Key, error) {
 	switch kbd.read[1] {
 	case ALT_KEY:
 		// likely not needed, but doesn't hurt anything either
-		kbd.altDown = true
+		kbd.AltDown = true
 		return 0, nil
 	case CTRL_KEY:
 		// likely not needed, but doesn't hurt anything either
-		kbd.ctrlDown = true
+		kbd.CtrlDown = true
 		return 0, nil
 	default:
 		return 0, nil
@@ -179,10 +179,10 @@ func (kbd *I2CKbd) keyHeld() (key.Key, error) {
 func (kbd *I2CKbd) keyUp() (key.Key, error) {
 	switch kbd.read[1] {
 	case ALT_KEY:
-		kbd.altDown = false
+		kbd.AltDown = false
 		return 0, nil
 	case CTRL_KEY:
-		kbd.ctrlDown = false
+		kbd.CtrlDown = false
 		return 0, nil
 	default:
 		return 0, nil
@@ -192,7 +192,7 @@ func (kbd *I2CKbd) keyUp() (key.Key, error) {
 // Covers the common path where we only want to report a key
 // if no other modifiers are held down.
 func (kbd *I2CKbd) ifNoModifiers(k key.Key) (key.Key, error) {
-	if kbd.ctrlDown || kbd.altDown {
+	if kbd.CtrlDown || kbd.AltDown {
 		return 0, nil
 	}
 	return k, nil
