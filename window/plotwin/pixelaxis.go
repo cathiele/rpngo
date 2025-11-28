@@ -29,8 +29,8 @@ func (pw *PixelPlotWindow) drawVerticalAxis(w, h int) {
 
 const fontCharWidth = 8
 const fontCharHeight = 12
-const minPixelVerticalSpacing = 3 * fontCharHeight
-const maxPixelVerticalSpacing = 6 * fontCharHeight
+const minPixelVerticalSpacing = 2 * fontCharHeight
+const maxPixelVerticalSpacing = 4 * fontCharHeight
 const tickLength = 4
 const horizTextOffset = 10
 const vertTextOffset = 20
@@ -92,7 +92,7 @@ func (pw *PixelPlotWindow) drawHorizontalAxis(w, h int) {
 }
 
 const minPixelHorizontalSpacing = 5 * fontCharWidth
-const maxPixelHorizontalSpacing = 10 * fontCharWidth
+const maxPixelHorizontalSpacing = 8 * fontCharWidth
 
 func (pw *PixelPlotWindow) drawHorizontalTickMarks(wy, ww, wh int) {
 	xr := pw.common.maxx - pw.common.minx // units
