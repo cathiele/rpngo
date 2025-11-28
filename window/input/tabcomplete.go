@@ -59,17 +59,17 @@ func (gl *getLine) findStartOfWord(idx int) int {
 	startIdx := idx - 1
 	for {
 		if startIdx <= 0 {
-			startIdx = 0
-			break
+			return 0
 		}
 		lastChar := gl.line[startIdx]
 		switch lastChar {
-		case '@', '$', '{', ' ', '\'', '"':
-			break
+		case '@', '$', '{', '\'', '"':
+			return startIdx
+		case ' ':
+			return startIdx + 1
 		}
 		startIdx--
 	}
-	return startIdx
 }
 
 func (gl *getLine) findNewWord(r *rpn.RPN, word string) string {
