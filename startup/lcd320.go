@@ -19,7 +19,6 @@ const defaultConfig = commonStartup + `
   'v' w.new.var
 } .f3=
 {@.plotinit} .f4=
-{ hists 'command history saved to' printsx 'i' 'histpath' w.getp printlnx } .f5=
 
 {
   time t1=
