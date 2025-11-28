@@ -105,9 +105,12 @@ func (f *Frame) UnsafeComplex() complex128 {
 	return complex(float64(f.intv), 0)
 }
 
+const complexTolerance = 1e-10
+
 func (f *Frame) Real() (float64, error) {
 	if (f.ftype & CLASS_MASK) == COMPLEX_CLASS {
-		if imag(f.cmplx) != 0 {
+		i := imag(f.cmplx)
+		if (i != 0) && ((i < -complexTolerance) || (i > complexTolerance)) {
 			return 0, ErrComplexNumberNotSupported
 		}
 		return real(f.cmplx), nil
