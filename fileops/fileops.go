@@ -17,6 +17,7 @@ type FileOpsDriver interface {
 	ReadFile(path string) ([]byte, error)
 	WriteFile(path string, data []byte) error
 	AppendToFile(path string, data []byte) error
+	ListFiles(path string, lst []string) ([]string, error)
 	Chdir(path string) error
 	Shell(args []string, stdin io.Reader) (string, error)
 }

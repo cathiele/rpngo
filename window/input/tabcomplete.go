@@ -56,13 +56,15 @@ func (gl *getLine) tabComplete(r *rpn.RPN, idx int) int {
 }
 
 func (gl *getLine) findStartOfWord(idx int) int {
-	startIdx := idx
+	startIdx := idx - 1
 	for {
-		if startIdx == 0 {
+		if startIdx <= 0 {
+			startIdx = 0
 			break
 		}
-		lastChar := gl.line[startIdx-1]
-		if (lastChar == ' ') || (lastChar == '\'') || (lastChar == '"') {
+		lastChar := gl.line[startIdx]
+		switch lastChar {
+		case '@', '$', '{', ' ', '\'', '"':
 			break
 		}
 		startIdx--
@@ -73,15 +75,22 @@ func (gl *getLine) findStartOfWord(idx int) int {
 func (gl *getLine) findNewWord(r *rpn.RPN, word string) string {
 	var wordList []string
 	var varPrefix string
-	if word[0] == '$' {
+	switch word[0] {
+	case '$':
 		varPrefix = "$"
 		word = word[1:]
 		wordList = gl.allVariableNames(r)
-	} else if word[0] == '@' {
+	case '@':
 		varPrefix = "@"
 		word = word[1:]
 		wordList = gl.allStringVariables(r)
-	} else {
+	case '\'', '{', '"':
+		varPrefix = word[:1]
+		word = word[1:]
+		wordList = gl.allStringVariables(r)
+		gl.getFileList()
+		wordList = gl.fileList
+	default:
 		wordList = r.AllFunctionNames()
 	}
 
@@ -124,4 +133,11 @@ func (gl *getLine) allStringVariables(r *rpn.RPN) []string {
 	r.IterateAllVariables(fn)
 	sort.Strings(wordList)
 	return wordList
+}
+
+func (gl *getLine) getFileList() {
+	if len(gl.fileList) > 0 {
+		return
+	}
+	gl.fileList, _ = gl.fs.ListFiles(".", gl.fileList)
 }

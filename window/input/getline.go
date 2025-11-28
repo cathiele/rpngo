@@ -38,6 +38,8 @@ type getLine struct {
 	// scrolling mode without losing the current line contents.
 	names []string
 	line  []byte
+	// cached list of files for tab complete
+	fileList []string
 }
 
 const histFile = ".rpngo_history"
@@ -57,6 +59,7 @@ func initGetLine(input Input, txtb *window.TextBuffer, fs fileops.FileOpsDriver)
 		historyCount: 0,
 		histpath:     histpath,
 		fs:           fs,
+		fileList:     make([]string, 0, 16),
 		names:        make([]string, 0, 16), // object allocated on the heap: escapes at line 48
 	}
 	return gl
@@ -127,6 +130,7 @@ func (gl *getLine) get(r *rpn.RPN) (string, error) {
 	gl.txtb.Cursor(true)
 	defer gl.txtb.Cursor(false)
 	gl.line = gl.line[:0]
+	gl.fileList = gl.fileList[:0]
 	idx := 0
 	// how many steps back into history, with 0 being not in history
 	arrowKeyIdx := 0

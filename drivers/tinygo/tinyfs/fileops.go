@@ -153,3 +153,24 @@ func (fo *FileOpsDriver) Chdir(path string) error {
 	fo.pwd = newPath
 	return nil
 }
+
+func (fo *FileOpsDriver) ListFiles(path string, lst []string) ([]string, error) {
+	path = absPath(fo.pwd, path, true, false)
+	dir, err := fo.fs.Open(path)
+	if err != nil {
+		return lst, err
+	}
+	defer dir.Close()
+	infos, err := dir.Readdir(0)
+	if err != nil {
+		return lst, err
+	}
+	for _, info := range infos {
+		name := info.Name()
+		if info.IsDir() {
+			name += "/"
+		}
+		lst = append(lst, name)
+	}
+	return lst, nil
+}

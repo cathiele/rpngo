@@ -40,3 +40,21 @@ func (fo *FileOpsDriver) Chdir(path string) error {
 func (fo *FileOpsDriver) Format() error {
 	return rpn.ErrNotSupported
 }
+
+func (fo *FileOpsDriver) ListFiles(dir string, lst []string) ([]string, error) {
+	// Read the directory contents
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		name := entry.Name()
+		if entry.IsDir() {
+			name += "/"
+		}
+		lst = append(lst, name)
+	}
+
+	return lst, nil
+}
