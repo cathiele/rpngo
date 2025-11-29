@@ -269,7 +269,7 @@ stack. `$0` represents the value at the top of the stack:
 
 ### Viewing Variables
 
-You can use `vlist` to list all assigned variables. There is also a special
+You can use `v.list` to list all assigned variables. There is also a special
 window view that can list variables that is described later.
 
 ### Variables Can Be Stacks
@@ -915,7 +915,9 @@ if you want.  Here, we plot `sin` and `cos` using the low-level `w.setp` method:
   is calculated and `false` otherwise. Some plot functions, especially
   those that use variables, might need this information.
 
-## Window Properties snapshot
+## Window Snapshot
+
+### Properties Snapshot
 
 You can "snapshot" the properties of any window with `w.snapshot`.  Here I'll create
 a plot, then snapshot the plot.
@@ -955,8 +957,55 @@ This string can be executed, saved to disk, assigned to a variable, etc.
 It will recreate the plot as is.  Note that this command does not
 create a plot window so you need to have one aleady created.
 
-You can snapshot not just the plot window but other windows too (
-input, varaible, and stack)
+### Group Snapshot
+
+You can also give `w.snapshot` the name of a window group and it will
+create the commands that create all child gropus and child windows, as well
+as their properties.  Here is a simple example:
+
+First let's setup a window with a stack on the top and input window on the
+bottom:
+
+```
+w.reset
+'s' w.new.stack
+'s' 'root' w.move.beg
+'i' 20 w.weight
+'i' 'showframes' 0 w.setp
+```
+
+We can then take a snapshot of the current window.
+
+```
+'root' w.snapshot
+```
+
+Will result in this string on the stack:
+
+```
+'s' w.new.stack
+'s' 'round' -1d w.setp
+'i' 20 w.weight
+'i' 'root' w.move.end
+'i' 'autofn' {} w.setp
+'i' 'autohist' true w.setp
+'i' 'histpath' '/home/mattwach/.rpngo_history' w.setp
+'i' 'showframes' 0d w.setp
+```
+
+Much coud be done with this string (set to a variable, save it, send it
+via XMODEM, etc).  Let's save it to a variable, then restore.
+
+```
+snap=
+w.reset
+@snap
+```
+
+Note the need for `w.reset`.  Also note that this does not save the state
+of the stack or variables (including special window variables).  There
+are dedicated commands for those (`s.snapshot`, `v.snapshot.`)
+There is also a `snapshot` command that snapshots everything.
 
 ## File Operations
 
@@ -1216,7 +1265,7 @@ with multiple stack values.
 As an example, say you want to multiply every value on the stack by 2.
 A for loop can be used:
 
-    {{2 * vals< ssize 0 >} for vals>> reverse} double=
+    {{2 * vals< s.size 0 >} for vals>> reverse} double=
     1 2 3 @double  # results in 2 4 6 on the stack
 
 We can also use `filter`, which manages some of the work for us
@@ -1471,16 +1520,16 @@ Try it with
 ### A Set of Statistics
 
 ```
-    {0 {+ ssize 1 >} for `sum} sum=
+    {0 {+ s.size 1 >} for `sum} sum=
 ```
 
 ```
-    {ssize n< @sum n> / `mean} mean=
+    {s.size n< @sum n> / `mean} mean=
 ```
 
 ```
     {
-      ssize sn<
+      s.size sn<
       svals==
       $$svals @mean smean<
       svals>> {$smean - sq} filter
@@ -1492,15 +1541,15 @@ Try it with
 ```
 
 ```
-    {$0 {min ssize 1 >} for `min} min=
-    {$0 {max ssize 1 >} for `max} max=
+    {$0 {min s.size 1 >} for `min} min=
+    {$0 {max s.size 1 >} for `max} max=
 ```
 
 ```
     {
       int p<
       sort reverse
-      ssize $p * 100d / float '>' + @
+      s.size $p * 100d / float '>' + @
       1 keep
       "`" p> float 'th-percent' + + @
     } percent=

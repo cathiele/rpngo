@@ -109,7 +109,7 @@ func (wge *windowGroupEntry) appendWeight(buff []byte) []byte {
 	buff = append(buff, []byte(wge.name)...)
 	buff = append(buff, []byte("' ")...)
 	buff = append(buff, []byte(strconv.Itoa(wge.weight))...)
-	buff = append(buff, []byte("' w.weight\n")...)
+	buff = append(buff, []byte(" w.weight\n")...)
 	return buff
 }
 

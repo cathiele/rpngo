@@ -192,15 +192,15 @@ func TestInsertFrame(t *testing.T) {
 func TestStackSize(t *testing.T) {
 	data := []UnitTestExecData{
 		{
-			Args: []string{"ssize"},
+			Args: []string{"s.size"},
 			Want: []string{"0d"},
 		},
 		{
-			Args: []string{"1", "ssize"},
+			Args: []string{"1", "s.size"},
 			Want: []string{"1", "1d"},
 		},
 		{
-			Args: []string{"1", "2", "ssize"},
+			Args: []string{"1", "2", "s.size"},
 			Want: []string{"1", "2", "2d"},
 		},
 	}

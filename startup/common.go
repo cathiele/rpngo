@@ -18,10 +18,10 @@ const commonStartup = `
 # (-b +/- sqrt(b*b - 4*a*c)) / (2 * a)
 {$2 * 4 * $1 sq - neg sqrt 1> neg $0 $2 - $3 2 * / 3< + 1> 2 * /} quad=
 
-{0 {+ ssize 1 >} for} sum=
-{ssize n< 0 {+ ssize 1 >} for n> /} mean=
-{$0 {min ssize 1 >} for} min=
-{$0 {max ssize 1 >} for} max=
+{0 {+ s.size 1 >} for} sum=
+{s.size n< 0 {+ s.size 1 >} for n> /} mean=
+{$0 {min s.size 1 >} for} min=
+{$0 {max s.size 1 >} for} max=
 
 # history load/save doesn't work on tinygo unless the media is formatted
 {histl} {0/} try

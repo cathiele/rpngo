@@ -1,9 +1,9 @@
-    {0 {+ ssize 1 >} for `sum} sum=
+    {0 {+ s.size 1 >} for `sum} sum=
 
-    {ssize n< @sum n> / `mean} mean=
+    {s.size n< @sum n> / `mean} mean=
 
     {
-      ssize sn<
+      s.size sn<
       svals==
       $$svals @mean smean<
       svals>> {$smean - sq} filter
@@ -13,14 +13,14 @@
       smean/
     } stddev=
 
-    {$0 {min ssize 1 >} for `min} min=
+    {$0 {min s.size 1 >} for `min} min=
 
-    {$0 {max ssize 1 >} for `max} max=
+    {$0 {max s.size 1 >} for `max} max=
 
     {
       int p<
       sort reverse
-      ssize $p * 100d / float '>' + @
+      s.size $p * 100d / float '>' + @
       1 keep
       "`" p> float 'th-percent' + + @
     } percent=

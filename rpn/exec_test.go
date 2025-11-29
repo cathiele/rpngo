@@ -245,7 +245,7 @@ func TestExec(t *testing.T) {
 		},
 		{
 			name:       "some fn",
-			args:       []string{"ssize"},
+			args:       []string{"s.size"},
 			frameCount: 1,
 			wantFrame:  IntFrame(0, INTEGER_FRAME),
 		},
@@ -311,7 +311,7 @@ func TestExec(t *testing.T) {
 		},
 		{
 			name: "help one",
-			args: []string{"vlist?"},
+			args: []string{"v.list?"},
 		},
 		{
 			name:    "help unknown",

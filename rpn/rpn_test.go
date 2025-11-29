@@ -5,7 +5,7 @@ import "testing"
 func TestInit(t *testing.T) {
 	var r RPN
 	r.Init(256)
-	err := r.ExecSlice([]string{"11", "22", "33", "ssize"})
+	err := r.ExecSlice([]string{"11", "22", "33", "s.size"})
 	if err != nil {
 		t.Fatalf("r.Exec() err=%v", err)
 	}
@@ -53,13 +53,13 @@ func TestAllFunctionNames(t *testing.T) {
 	names := r.AllFunctionNames()
 	var found bool
 	for _, n := range names {
-		if n == "ssize" {
+		if n == "s.size" {
 			found = true
 			break
 		}
 	}
 	if !found {
-		t.Errorf("AllFunctionNames() did not contain ssize")
+		t.Errorf("AllFunctionNames() did not contain s.size")
 	}
 }
 
