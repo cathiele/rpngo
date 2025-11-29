@@ -75,3 +75,36 @@ func (wc *WindowCommands) wSetP(r *rpn.RPN) error {
 	}
 	return w.SetProp(pname.UnsafeString(), f)
 }
+
+const wSnapshotHelp = "Creates a set of commands that will restore window properties"
+
+func (wc *WindowCommands) wSnapshot(r *rpn.RPN) error {
+	wname, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	if !wname.IsString() {
+		return rpn.ErrExpectedAString
+	}
+	w := wc.root.FindWindow(wname.UnsafeString())
+	if w == nil {
+		return rpn.ErrNotFound
+	}
+	buff := make([]byte, 0, 128)
+	wnameb := []byte(wname.UnsafeString())
+	for _, p := range w.ListProps() {
+		f, err := w.GetProp(p)
+		if err != nil {
+			// unexpected
+			return err
+		}
+		buff = append(buff, '\'')
+		buff = append(buff, wnameb...)
+		buff = append(buff, []byte("' '")...)
+		buff = append(buff, []byte(p)...)
+		buff = append(buff, []byte("' ")...)
+		buff = append(buff, []byte(f.String(true))...)
+		buff = append(buff, []byte(" w.setp\n")...)
+	}
+	return r.PushFrame(rpn.StringFrame(string(buff), rpn.STRING_BRACE_FRAME))
+}

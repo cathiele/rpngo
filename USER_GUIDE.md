@@ -754,6 +754,7 @@ represents no rounding).
 - `multiline`: If true, then string that expand multiple lines will
   consume multiple lines in the variable window.
 
+
 ## Plotting
 
 Let's plot `x * x`:
@@ -914,6 +915,48 @@ if you want.  Here, we plot `sin` and `cos` using the low-level `w.setp` method:
   is calculated and `false` otherwise. Some plot functions, especially
   those that use variables, might need this information.
 
+## Window Properties snapshot
+
+You can "snapshot" the properties of any window with `w.snapshot`.  Here I'll create
+a plot, then snapshot the plot.
+
+```
+'sin' plot
+'cos' plot
+'p' 'minv' -3.14 w.setp           
+'p' 'maxv' 3.14 w.setp
+
+'p' w.snapshot
+```
+
+Will result in 2 plots and this string on the stack:
+
+```
+{'p' 'minv' -3.14 w.setp  
+'p' 'maxv' 3.14 w.setp    
+'p' 'minx' -3.14 w.setp
+'p' 'maxx' 3.139999999999986 w.setp
+'p' 'miny' -1.399998478073047 w.setp
+'p' 'maxy' 1.399999746345508 w.setp
+'p' 'numplots' 2d w.setp
+'p' 'steps' 250d w.setp
+'p' 'autox' true w.setp
+'p' 'autoy' true w.setp
+'p' 'color0' 0d w.setp
+'p' 'parametric0' false w.setp
+'p' 'fn0' {sin} w.setp
+'p' 'color1' 1d w.setp
+'p' 'parametric1' false w.setp
+'p' 'fn1' {cos} w.setp
+}
+```
+
+This string can be executed, saved to disk, assigned to a variable, etc.
+It will recreate the plot as is.  Note that this command does not
+create a plot window so you need to have one aleady created.
+
+You can snapshot not just the plot window but other windows too (
+input, varaible, and stack)
 
 ## File Operations
 

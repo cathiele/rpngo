@@ -3,7 +3,6 @@ package plotwin
 import (
 	"mattwach/rpngo/elog"
 	"mattwach/rpngo/rpn"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -186,7 +185,7 @@ func (pw *plotWindowCommon) getProp(name string) (rpn.Frame, error) {
 	return rpn.Frame{}, rpn.ErrUnknownProperty
 }
 
-var props = []string{"autox", "autoy", "minv", "maxv", "minx", "maxx", "miny", "maxy", "numplots", "steps"}
+var props = []string{"minv", "maxv", "minx", "maxx", "miny", "maxy", "numplots", "steps", "autox", "autoy"}
 
 func (pw *plotWindowCommon) ListProps() []string {
 	elog.Heap("alloc: window/plotwin/props.go:191: wprops := make([]string, len(props)+len(pw.plots)*3)")
@@ -202,6 +201,5 @@ func (pw *plotWindowCommon) ListProps() []string {
 		wprops[j] = "fn" + plotid
 		j++
 	}
-	sort.Strings(wprops)
 	return wprops
 }

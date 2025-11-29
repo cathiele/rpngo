@@ -63,6 +63,7 @@ func InitWindowCommands(
 	r.Register("w.getp", wc.wGetP, rpn.CatWindow, wGetPHelp)
 	r.Register("w.setp", wc.wSetP, rpn.CatWindow, wSetPHelp)
 	r.Register("w.reset", wc.wReset, rpn.CatWindow, wResetHelp)
+	r.Register("w.snapshot", wc.wSnapshot, rpn.CatWindow, wSnapshotHelp)
 	r.Register("w.update", wc.wUpdate, rpn.CatWindow, wUpdateHelp)
 	r.Register("w.weight", wc.wWeight, rpn.CatWindow, wWeightHelp)
 	return &wc
