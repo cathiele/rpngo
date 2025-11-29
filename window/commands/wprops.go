@@ -2,6 +2,7 @@ package commands
 
 import (
 	"mattwach/rpngo/rpn"
+	"mattwach/rpngo/window"
 )
 
 const wListPHelp = "Prints all properties / values for a window\n" +
@@ -86,25 +87,19 @@ func (wc *WindowCommands) wSnapshot(r *rpn.RPN) error {
 	if !wname.IsString() {
 		return rpn.ErrExpectedAString
 	}
-	w := wc.root.FindWindow(wname.UnsafeString())
-	if w == nil {
-		return rpn.ErrNotFound
-	}
 	buff := make([]byte, 0, 128)
-	wnameb := []byte(wname.UnsafeString())
-	for _, p := range w.ListProps() {
-		f, err := w.GetProp(p)
+	w := wc.root.FindWindow(wname.UnsafeString())
+	if w != nil {
+		buff, err = window.SnapshotProps(buff, w, wname.UnsafeString())
+	} else {
+		wg, err := wc.root.FindwindowGroup(wname.UnsafeString())
 		if err != nil {
-			// unexpected
 			return err
 		}
-		buff = append(buff, '\'')
-		buff = append(buff, wnameb...)
-		buff = append(buff, []byte("' '")...)
-		buff = append(buff, []byte(p)...)
-		buff = append(buff, []byte("' ")...)
-		buff = append(buff, []byte(f.String(true))...)
-		buff = append(buff, []byte(" w.setp\n")...)
+		buff, err = wg.Snapshot(buff, r, wname.UnsafeString())
+	}
+	if err != nil {
+		return err
 	}
 	return r.PushFrame(rpn.StringFrame(string(buff), rpn.STRING_BRACE_FRAME))
 }

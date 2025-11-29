@@ -51,6 +51,95 @@ type windowGroup struct {
 	children []*windowGroupEntry
 }
 
+// Generates commands that would be needed to recreate the group
+func (wg *windowGroup) Snapshot(buff []byte, r *rpn.RPN, name string) ([]byte, error) {
+	if wg.isColumn {
+		buff = append(buff, '\'')
+		buff = append(buff, []byte(name)...)
+		buff = append(buff, []byte("' w.columns\n")...)
+	}
+	for _, c := range wg.children {
+		var err error
+		if buff, err = c.snapshot(buff, r, name); err != nil {
+			return nil, err
+		}
+	}
+	return buff, nil
+}
+
+func (wge *windowGroupEntry) snapshot(buff []byte, r *rpn.RPN, parent string) ([]byte, error) {
+	if wge.group != nil {
+		return wge.snapshotGroup(buff, r, parent)
+	}
+	return wge.snapshotWindow(buff, r, parent)
+}
+
+func (wge *windowGroupEntry) snapshotGroup(buff []byte, r *rpn.RPN, parent string) ([]byte, error) {
+	buff = append(buff, '\'')
+	buff = append(buff, []byte(wge.name)...)
+	buff = append(buff, []byte("' w.new.group\n")...)
+	buff = wge.appendWeight(buff)
+	if parent != "root" {
+		buff = wge.moveToEnd(buff, parent)
+	}
+	return wge.group.Snapshot(buff, r, wge.name)
+}
+
+func (wge *windowGroupEntry) snapshotWindow(buff []byte, r *rpn.RPN, parent string) ([]byte, error) {
+	if wge.window.Type() != "input" {
+		buff = append(buff, '\'')
+		buff = append(buff, []byte(wge.name)...)
+		buff = append(buff, []byte("' w.new.")...)
+		buff = append(buff, []byte(wge.window.Type())...)
+		buff = append(buff, '\n')
+	}
+	buff = wge.appendWeight(buff)
+	if (parent != "root") || (wge.window.Type() == "input") {
+		buff = wge.moveToEnd(buff, parent)
+	}
+	return SnapshotProps(buff, wge.window, wge.name)
+}
+
+func (wge *windowGroupEntry) appendWeight(buff []byte) []byte {
+	if wge.weight == 100 {
+		// it's the default value
+		return buff
+	}
+	buff = append(buff, '\'')
+	buff = append(buff, []byte(wge.name)...)
+	buff = append(buff, []byte("' ")...)
+	buff = append(buff, []byte(strconv.Itoa(wge.weight))...)
+	buff = append(buff, []byte("' w.weight\n")...)
+	return buff
+}
+
+func (wge *windowGroupEntry) moveToEnd(buff []byte, parent string) []byte {
+	buff = append(buff, '\'')
+	buff = append(buff, []byte(wge.name)...)
+	buff = append(buff, []byte("' '")...)
+	buff = append(buff, []byte(parent)...)
+	buff = append(buff, []byte("' w.move.end\n")...)
+	return buff
+}
+
+func SnapshotProps(buff []byte, w WindowWithProps, name string) ([]byte, error) {
+	for _, p := range w.ListProps() {
+		f, err := w.GetProp(p)
+		if err != nil {
+			// unexpected
+			return nil, err
+		}
+		buff = append(buff, '\'')
+		buff = append(buff, []byte(name)...)
+		buff = append(buff, []byte("' '")...)
+		buff = append(buff, []byte(p)...)
+		buff = append(buff, []byte("' ")...)
+		buff = append(buff, []byte(f.String(true))...)
+		buff = append(buff, []byte(" w.setp\n")...)
+	}
+	return buff, nil
+}
+
 func (wg *windowGroup) removeChild(c *windowGroupEntry) {
 	idx := -1
 	for i, rc := range wg.children {
