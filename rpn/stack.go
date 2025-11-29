@@ -82,3 +82,17 @@ const stackSizeHelp = "Pushes the current stack size to the stack (non-inclusive
 func stackSize(r *RPN) error {
 	return r.PushFrame(IntFrame(int64(len(r.Frames)), INTEGER_FRAME))
 }
+
+const stackSnapshotHelp = "Creates a string that contains a snapshot of the stack"
+
+func stackSnapshot(r *RPN) error {
+	if len(r.Frames) == 0 {
+		return r.PushFrame(StringFrame("", STRING_BRACE_FRAME))
+	}
+	buff := make([]byte, 0, 5*len(r.Frames))
+	for _, f := range r.Frames {
+		buff = append(buff, []byte(f.String(true))...)
+		buff = append(buff, '\n')
+	}
+	return r.PushFrame(StringFrame(string(buff), STRING_BRACE_FRAME))
+}

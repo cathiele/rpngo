@@ -42,6 +42,7 @@ func (r *RPN) Init(maxStackDepth int) {
 
 func (r *RPN) registerCore() {
 	r.Register("s.size", stackSize, CatStack, stackSizeHelp)
+	r.Register("s.snapshot", stackSnapshot, CatStack, stackSnapshotHelp)
 	r.Register("v.list", listVariables, CatVariables, listVariablesHelp)
 	r.Register("deg", deg, CatEng, degHelp)
 	r.Register("getangle", getAngle, CatEng, getAngleHelp)

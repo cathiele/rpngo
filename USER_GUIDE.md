@@ -1003,9 +1003,24 @@ w.reset
 ```
 
 Note the need for `w.reset`.  Also note that this does not save the state
-of the stack or variables (including special window variables).  There
-are dedicated commands for those (`s.snapshot`, `v.snapshot.`)
-There is also a `snapshot` command that snapshots everything.
+of the stack or variables (including special window variables).
+
+## General Snapshot
+
+In addition to `w.snapshot` there is:
+
+- `s.snapshot`: Creates a string that snapshots the stack
+- `v.snapshot`: Creates a string that snapshots variables
+- `snapshot`: Creates a string that clears the calculator state, then
+  applies `s.snapshot`, `v.snapshot` and `w.snapshot` results.
+
+Note that snapshot commands will convert complex numbers from rpngo's internal
+format (a 128-bit binary) to a string. This conversion will sometimes undergo
+floating point rounding errors that will cause a recovered snapshot to be
+slightly different from the original.
+
+By-default, the `F5` key will call `snapshot` and save it to disk and
+`F10` will load a saved snapshot.
 
 ## File Operations
 
