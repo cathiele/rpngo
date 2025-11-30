@@ -289,3 +289,58 @@ func (r *RPN) execVariableAsMacro(name string) error {
 	}
 	return nil
 }
+
+const varSnapshotHelp = "Creates a string that defines current variables"
+
+func varSnapshot(r *RPN) error {
+	if len(r.variables) == 0 {
+		return r.PushFrame(StringFrame("", STRING_BRACE_FRAME))
+	}
+	buff := make([]byte, 0, 5*len(r.Frames))
+	buff = r.VarSnapshot(buff)
+	return r.PushFrame(StringFrame(string(buff), STRING_BRACE_FRAME))
+}
+
+func (r *RPN) VarSnapshot(buff []byte) []byte {
+	for name, vals := range r.variables {
+		buff = r.snapshotOneVar(buff, name, vals)
+	}
+	return buff
+}
+
+func (r *RPN) snapshotOneVar(buff []byte, name string, vals []Frame) []byte {
+	for i, v := range vals {
+		buff = append(buff, []byte(v.String(true))...)
+		buff = append(buff, ' ')
+		buff = append(buff, []byte(name)...)
+		if i == 0 {
+			buff = append(buff, '=')
+		} else {
+			buff = append(buff, '<')
+		}
+		buff = append(buff, '\n')
+	}
+	return buff
+}
+
+const varClearHelp = "Clears all variables that do not start with a ."
+
+func varClear(r *RPN) error {
+	var delnames []string
+	for name := range r.variables {
+		if (len(name) > 0) && (name[0] != '.') {
+			delnames = append(delnames, name)
+		}
+	}
+	for _, name := range delnames {
+		delete(r.variables, name)
+	}
+	return nil
+}
+
+const varClearAllHelp = "Clears all variables (including . ones)"
+
+func varClearAll(r *RPN) error {
+	r.variables = make(map[string][]Frame)
+	return nil
+}
