@@ -121,6 +121,9 @@ func (fo *FileOps) cd(r *rpn.RPN) error {
 	if err != nil {
 		return err
 	}
+	if path == "" {
+		path, _ = HomeDir()
+	}
 	return fo.driver.Chdir(path)
 }
 

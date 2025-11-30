@@ -23,6 +23,10 @@ const commonStartup = `
 {$0 {min s.size 1 >} for} min=
 {$0 {max s.size 1 >} for} max=
 
+# snapshot save and load
+{'' cd snapshot '.rpngo_snaphot' save 'snapshot saved to .rpngo_snapshot' printlnx} .f5=
+{'' cd '.rpngo_snaphot' . 'snapshot loaded from .rpngo_snapshot' printlnx} .f10=
+
 # history load/save doesn't work on tinygo unless the media is formatted
 {histl} {0/} try
 {hists 'i' 'autohist' true w.setp} {0/} try

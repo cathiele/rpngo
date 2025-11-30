@@ -4,19 +4,19 @@ package startup
 
 const defaultConfig = commonStartup + `
 # Create and layout windows
-"
-'g' w.new.group
-'g' w.columns
-'i' 'g' w.move.end
-'i' 25 w.weight
-'g2' w.new.group
-'g2' 25 w.weight
-'g2' w.columns
-'g2' .wtarget=
-'s' w.new.stack
-'v' w.new.var
-'g' .wtarget=
-" .init=
+{
+  'g' w.new.group
+  'g' w.columns
+  'i' 'g' w.move.end
+  'i' 25 w.weight
+  'g2' w.new.group
+  'g2' 25 w.weight
+  'g2' w.columns
+  'g2' .wtarget=
+  's' w.new.stack
+  'v' w.new.var
+  'g' .wtarget=
+} .init=
 
 @.init
 
