@@ -205,7 +205,9 @@ func (r *RPN) convert(arg string) error {
 	if err != nil {
 		return err
 	}
-	return r.PushFrame(RealFrame(newv))
+	newf := RealFrame(newv)
+	newf.Annotate("`" + parts[1])
+	return r.PushFrame(newf)
 }
 
 func (r *RPN) addLabel(label string) error {

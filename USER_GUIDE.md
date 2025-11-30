@@ -445,16 +445,16 @@ not define any variables (which can be fun little puzzles to solve).
 You can convert between several unit types, some examples:
 
     5 km>mi
-    3.106855961
+    3.106855961 `mi
 
     60 mi/h>m/s
-    26.8224
+    26.8224 `m/s
 
     10 liter>m*m*m
-    0.01
+    0.01 `m*m*m
 
     1 megabyte>bits
-    8388608
+    8388608 `bits
 
 See all possible conversions with
 
