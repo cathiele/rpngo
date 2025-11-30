@@ -90,9 +90,14 @@ func stackSnapshot(r *RPN) error {
 		return r.PushFrame(StringFrame("", STRING_BRACE_FRAME))
 	}
 	buff := make([]byte, 0, 5*len(r.Frames))
+	buff = r.StackSnapshot(buff)
+	return r.PushFrame(StringFrame(string(buff), STRING_BRACE_FRAME))
+}
+
+func (r *RPN) StackSnapshot(buff []byte) []byte {
 	for _, f := range r.Frames {
 		buff = append(buff, []byte(f.String(true))...)
 		buff = append(buff, '\n')
 	}
-	return r.PushFrame(StringFrame(string(buff), STRING_BRACE_FRAME))
+	return buff
 }
