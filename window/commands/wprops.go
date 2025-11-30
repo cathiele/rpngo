@@ -2,7 +2,6 @@ package commands
 
 import (
 	"mattwach/rpngo/rpn"
-	"mattwach/rpngo/window"
 )
 
 const wListPHelp = "Prints all properties / values for a window\n" +
@@ -88,16 +87,7 @@ func (wc *WindowCommands) wSnapshot(r *rpn.RPN) error {
 		return rpn.ErrExpectedAString
 	}
 	buff := make([]byte, 0, 128)
-	w := wc.root.FindWindow(wname.UnsafeString())
-	if w != nil {
-		buff, err = window.SnapshotProps(buff, w, wname.UnsafeString())
-	} else {
-		wg, err := wc.root.FindwindowGroup(wname.UnsafeString())
-		if err != nil {
-			return err
-		}
-		buff, err = wg.Snapshot(buff, r, wname.UnsafeString())
-	}
+	buff, err = wc.root.Snapshot(buff, wname.UnsafeString())
 	if err != nil {
 		return err
 	}

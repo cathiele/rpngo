@@ -52,7 +52,7 @@ type windowGroup struct {
 }
 
 // Generates commands that would be needed to recreate the group
-func (wg *windowGroup) Snapshot(buff []byte, r *rpn.RPN, name string) ([]byte, error) {
+func (wg *windowGroup) snapshot(buff []byte, name string) ([]byte, error) {
 	if wg.isColumn {
 		buff = append(buff, '\'')
 		buff = append(buff, []byte(name)...)
@@ -60,21 +60,21 @@ func (wg *windowGroup) Snapshot(buff []byte, r *rpn.RPN, name string) ([]byte, e
 	}
 	for _, c := range wg.children {
 		var err error
-		if buff, err = c.snapshot(buff, r, name); err != nil {
+		if buff, err = c.snapshot(buff, name); err != nil {
 			return nil, err
 		}
 	}
 	return buff, nil
 }
 
-func (wge *windowGroupEntry) snapshot(buff []byte, r *rpn.RPN, parent string) ([]byte, error) {
+func (wge *windowGroupEntry) snapshot(buff []byte, parent string) ([]byte, error) {
 	if wge.group != nil {
-		return wge.snapshotGroup(buff, r, parent)
+		return wge.snapshotGroup(buff, parent)
 	}
-	return wge.snapshotWindow(buff, r, parent)
+	return wge.snapshotWindow(buff, parent)
 }
 
-func (wge *windowGroupEntry) snapshotGroup(buff []byte, r *rpn.RPN, parent string) ([]byte, error) {
+func (wge *windowGroupEntry) snapshotGroup(buff []byte, parent string) ([]byte, error) {
 	buff = append(buff, '\'')
 	buff = append(buff, []byte(wge.name)...)
 	buff = append(buff, []byte("' w.new.group\n")...)
@@ -82,10 +82,10 @@ func (wge *windowGroupEntry) snapshotGroup(buff []byte, r *rpn.RPN, parent strin
 	if parent != "root" {
 		buff = wge.moveToEnd(buff, parent)
 	}
-	return wge.group.Snapshot(buff, r, wge.name)
+	return wge.group.snapshot(buff, wge.name)
 }
 
-func (wge *windowGroupEntry) snapshotWindow(buff []byte, r *rpn.RPN, parent string) ([]byte, error) {
+func (wge *windowGroupEntry) snapshotWindow(buff []byte, parent string) ([]byte, error) {
 	if wge.window.Type() != "input" {
 		buff = append(buff, '\'')
 		buff = append(buff, []byte(wge.name)...)
