@@ -91,6 +91,11 @@ func bgColor(c window.ColorChar) pixel.RGB565BE {
 }
 
 func (tw *Ili9341TxtW) DrawChar(tx, ty int, r window.ColorChar) {
+	c := r & 0xFF
+	if (c < 32) || (c > 127) {
+		// a possibly-unprintable character that might cause a crash in Draw().
+		r = window.Magenta | '.'
+	}
 	if r != tw.lastr {
 		tw.lastr = r
 		tw.image.Image.FillSolidColor(bgColor(r))
