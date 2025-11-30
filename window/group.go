@@ -52,29 +52,26 @@ type windowGroup struct {
 }
 
 // Generates commands that would be needed to recreate the group
-func (wg *windowGroup) snapshot(buff []byte, name string) ([]byte, error) {
+func (wg *windowGroup) snapshot(buff []byte, name string) []byte {
 	if wg.isColumn {
 		buff = append(buff, '\'')
 		buff = append(buff, []byte(name)...)
 		buff = append(buff, []byte("' w.columns\n")...)
 	}
 	for _, c := range wg.children {
-		var err error
-		if buff, err = c.snapshot(buff, name); err != nil {
-			return nil, err
-		}
+		buff = c.snapshot(buff, name)
 	}
-	return buff, nil
+	return buff
 }
 
-func (wge *windowGroupEntry) snapshot(buff []byte, parent string) ([]byte, error) {
+func (wge *windowGroupEntry) snapshot(buff []byte, parent string) []byte {
 	if wge.group != nil {
 		return wge.snapshotGroup(buff, parent)
 	}
 	return wge.snapshotWindow(buff, parent)
 }
 
-func (wge *windowGroupEntry) snapshotGroup(buff []byte, parent string) ([]byte, error) {
+func (wge *windowGroupEntry) snapshotGroup(buff []byte, parent string) []byte {
 	buff = append(buff, '\'')
 	buff = append(buff, []byte(wge.name)...)
 	buff = append(buff, []byte("' w.new.group\n")...)
@@ -85,7 +82,7 @@ func (wge *windowGroupEntry) snapshotGroup(buff []byte, parent string) ([]byte, 
 	return wge.group.snapshot(buff, wge.name)
 }
 
-func (wge *windowGroupEntry) snapshotWindow(buff []byte, parent string) ([]byte, error) {
+func (wge *windowGroupEntry) snapshotWindow(buff []byte, parent string) []byte {
 	if wge.window.Type() != "input" {
 		buff = append(buff, '\'')
 		buff = append(buff, []byte(wge.name)...)
@@ -122,13 +119,9 @@ func (wge *windowGroupEntry) moveToEnd(buff []byte, parent string) []byte {
 	return buff
 }
 
-func SnapshotProps(buff []byte, w WindowWithProps, name string) ([]byte, error) {
+func SnapshotProps(buff []byte, w WindowWithProps, name string) []byte {
 	for _, p := range w.ListProps() {
-		f, err := w.GetProp(p)
-		if err != nil {
-			// unexpected
-			return nil, err
-		}
+		f, _ := w.GetProp(p)
 		buff = append(buff, '\'')
 		buff = append(buff, []byte(name)...)
 		buff = append(buff, []byte("' '")...)
@@ -137,7 +130,7 @@ func SnapshotProps(buff []byte, w WindowWithProps, name string) ([]byte, error) 
 		buff = append(buff, []byte(f.String(true))...)
 		buff = append(buff, []byte(" w.setp\n")...)
 	}
-	return buff, nil
+	return buff
 }
 
 func (wg *windowGroup) removeChild(c *windowGroupEntry) {

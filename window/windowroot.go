@@ -255,13 +255,13 @@ func (wr *WindowRoot) Snapshot(buff []byte, name string) ([]byte, error) {
 	w := wr.FindWindow(name)
 	var err error
 	if w != nil {
-		buff, err = SnapshotProps(buff, w, name)
+		buff = SnapshotProps(buff, w, name)
 	} else {
 		wg, err := wr.FindwindowGroup(name)
 		if err != nil {
 			return nil, err
 		}
-		buff, err = wg.snapshot(buff, name)
+		buff = wg.snapshot(buff, name)
 	}
 	return buff, err
 }

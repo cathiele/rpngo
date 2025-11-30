@@ -93,3 +93,14 @@ func (wc *WindowCommands) wSnapshot(r *rpn.RPN) error {
 	}
 	return r.PushFrame(rpn.StringFrame(string(buff), rpn.STRING_BRACE_FRAME))
 }
+
+const snapshotHelp = "Generates a string that will restore the current state of the calculator"
+
+func (wc *WindowCommands) snapshot(r *rpn.RPN) error {
+	buff := make([]byte, 0, 256)
+	buff = append(buff, []byte("d\nv.clearall\nw.reset\n")...)
+	buff, _ = wc.root.Snapshot(buff, "root")
+	buff = r.VarSnapshot(buff)
+	buff = r.StackSnapshot(buff)
+	return r.PushFrame(rpn.StringFrame(string(buff), rpn.STRING_BRACE_FRAME))
+}

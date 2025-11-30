@@ -50,6 +50,7 @@ func InitWindowCommands(
 	r.RegisterConceptHelp(conceptHelp)
 	elog.Heap("alloc: /window/commands/window.go:50: wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn}")
 	wc := WindowCommands{root: root, screen: screen, newPlotWindowFn: newPlotWindowFn} // object allocated on the heap: escapes at line 65
+	r.Register("snapshot", wc.snapshot, rpn.CatIO, snapshotHelp)
 	r.Register("w.columns", wc.wColumns, rpn.CatWindow, wColumnsHelp)
 	r.Register("w.del", wc.wDelete, rpn.CatWindow, wDeleteHelp)
 	r.Register("w.dump", wc.wDump, rpn.CatWindow, wDumpHelp)

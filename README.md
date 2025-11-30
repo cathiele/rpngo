@@ -55,6 +55,7 @@ A quick list of things the calculator can do:
 - Custmizable keyboard shortcuts
 - Disk and serial IO (still experimental on TinyGO)
 - Build in editor
+- Snapshot / restore calculator state
 
 ## Non-implemented (as of 11/2025)
 
