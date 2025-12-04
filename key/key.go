@@ -30,4 +30,11 @@ const (
 	KEY_F10
 	KEY_F11
 	KEY_F12
+	// Keys pressed with shift held
+	KEY_SUP
+	KEY_SDOWN
+	KEY_SLEFT
+	KEY_SRIGHT
+	KEY_SHOME
+	KEY_SEND
 )
