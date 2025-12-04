@@ -2,8 +2,6 @@
 package curses
 
 import (
-        "log"
-
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/window"
 
@@ -191,7 +189,6 @@ func (c *Curses) GetChar() (key.Key, error) {
 		return 0, nil
 	}
 	ch := c.window.GetChar()
-	log.Printf("key: %02x", ch)
 	k, ok := charMap[ch]
 	if ok {
 		return k, nil
