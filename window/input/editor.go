@@ -442,6 +442,10 @@ func (ed *editor) removeSelection() {
 }
 
 func (ed *editor) backspacePressed() {
+	if ed.selIdx >= 0 {
+		ed.removeSelection()
+		return
+	}
 	if ed.cIdx <= 0 {
 		return
 	}
@@ -450,6 +454,10 @@ func (ed *editor) backspacePressed() {
 }
 
 func (ed *editor) delPressed() {
+	if ed.selIdx >= 0 {
+		ed.removeSelection()
+		return
+	}
 	if ed.cIdx < 0 {
 		return
 	}
