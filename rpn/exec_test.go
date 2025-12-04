@@ -303,7 +303,7 @@ func TestExec(t *testing.T) {
 			name:       "conversion (parse check only)",
 			args:       []string{"0", "mi>km"},
 			frameCount: 1,
-			wantFrame:  ComplexFrame(0),
+			wantFrame:  Frame{ftype: COMPLEX_FRAME, str: "`km"},
 		},
 		{
 			name: "help all",
