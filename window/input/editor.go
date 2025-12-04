@@ -22,6 +22,8 @@ type editor struct {
 
 	// current character index
 	cIdx int
+	// select Index active if > 0.  This might be to the cursor or from the cursor
+	selIdx int
 
 	replaceMode bool
 }
@@ -52,6 +54,7 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 		}
 		ed = editor{buff: []byte(f.String(false)), ulIdx: 0}
 	}
+	ed.selIdx = -1
 	ed.txtb.Init(iw.txtb.Txtw, 0)
 	for {
 		//ed.debugDump()
@@ -66,6 +69,8 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 		if err != nil {
 			return err
 		}
+		clearSel := true
+		selAnchorIdx := ed.cIdx
 		switch c {
 		case 27: // ESC
 			tw, th := iw.txtb.Txtw.TextSize()
@@ -93,12 +98,35 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 			ed.endPressed()
 		case key.KEY_INS:
 			ed.replaceMode = !ed.replaceMode
+		case key.KEY_SUP:
+			clearSel = false
+			ed.keyUpPressed()
+		case key.KEY_SDOWN:
+			clearSel = false
+			ed.keyDownPressed()
+		case key.KEY_SLEFT:
+			clearSel = false
+			ed.keyLeftPressed()
+		case key.KEY_SRIGHT:
+			clearSel = false
+			ed.keyRightPressed()
+		case key.KEY_SHOME:
+			clearSel = false
+			ed.homePressed()
+		case key.KEY_SEND:
+			clearSel = false
+			ed.endPressed()
 		case '\n':
 			ed.insertOrReplaceChar(byte(c))
 		default:
 			if (c >= ' ') && (c <= 127) {
 				ed.insertOrReplaceChar(byte(c))
 			}
+		}
+		if clearSel {
+			ed.selIdx = -1
+		} else if ed.selIdx < 0 {
+			ed.selIdx = selAnchorIdx
 		}
 	}
 }
@@ -119,10 +147,19 @@ func (ed *editor) renderDisplay() {
 	ed.txtb.Cursor(false)
 	x := 0
 	y := 0
+	sbegIdx := 0
+	sendIdx := 0
+	if ed.selIdx >= 0 {
+		sbegIdx = ed.cIdx
+		sendIdx = ed.selIdx
+		if sbegIdx > sendIdx {
+			sbegIdx, sendIdx = sendIdx, sbegIdx
+		}
+	}
 	tw, th := ed.txtb.Txtw.TextSize()
 	var col window.ColorChar
 	var skip bool
-	for _, c := range ed.buff[ed.ulIdx:] {
+	for i, c := range ed.buff[ed.ulIdx:] {
 		if !skip {
 			hs, col = checkHighlightState(hs, c)
 		}
@@ -132,6 +169,10 @@ func (ed *editor) renderDisplay() {
 			y++
 		}
 		if y < th {
+			idx := ed.ulIdx + i
+			if (idx >= sbegIdx) && (idx < sendIdx) {
+				col |= 0x0100 // blue background
+			}
 			if c == '\n' {
 				ed.txtb.DrawChar(x, y, window.Cyan|window.ColorChar('.'))
 				ed.clearScreenToEndOfLine(x+1, y)
