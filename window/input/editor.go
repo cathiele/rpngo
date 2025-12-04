@@ -409,6 +409,9 @@ func (ed *editor) keyRightPressed() {
 }
 
 func (ed *editor) insertOrReplaceChar(c byte) {
+	if ed.selIdx >= 0 {
+		ed.removeSelection()
+	}
 	if ed.replaceMode && (ed.cIdx < len(ed.buff)) && (c == '\n') {
 		ed.keyDownPressed()
 		ed.homePressed()
@@ -421,6 +424,21 @@ func (ed *editor) insertOrReplaceChar(c byte) {
 		ed.buff[ed.cIdx] = c
 	}
 	ed.keyRightPressed()
+}
+
+func (ed *editor) removeSelection() {
+	beg := ed.cIdx
+	end := ed.selIdx
+	if beg > end {
+		beg, end = end, beg
+		// need to do it this way to preserve the x, y of the cursor
+		for ed.cIdx > beg {
+			ed.keyLeftPressed()
+		}
+	}
+	copy(ed.buff[beg:], ed.buff[end:])
+	ed.buff = ed.buff[:len(ed.buff)-end+beg]
+	ed.selIdx = -1
 }
 
 func (ed *editor) backspacePressed() {
