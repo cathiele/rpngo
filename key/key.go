@@ -37,4 +37,10 @@ const (
 	KEY_SRIGHT
 	KEY_SHOME
 	KEY_SEND
+	// editing
+	KEY_CUT
+	KEY_COPY
+	KEY_PASTE
+	KEY_SAVE
+	KEY_QUIT
 )

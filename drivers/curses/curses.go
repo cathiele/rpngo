@@ -2,8 +2,6 @@
 package curses
 
 import (
-        "log"
-
 	"mattwach/rpngo/key"
 	"mattwach/rpngo/window"
 
@@ -19,6 +17,9 @@ type Curses struct {
 	// redrawing the border causes the contents of the input window
 	// to be wiped, thus we only want to do it if needed.
 	borderChanged bool
+	// set to true if ESC was detected.  This is needed to support
+	// KEY_CUT, KEY_COPY, etc
+	escPressed bool
 }
 
 func Init() (*Curses, error) {
@@ -191,12 +192,36 @@ func (c *Curses) GetChar() (key.Key, error) {
 		return 0, nil
 	}
 	ch := c.window.GetChar()
-	log.Printf("key: %02x", ch)
+	if c.escPressed {
+		return c.getCharWithEscPressed(byte(ch))
+	}
+	if ch == 27 {
+		c.escPressed = true
+		return 0, nil
+	}
 	k, ok := charMap[ch]
 	if ok {
 		return k, nil
 	}
 	return key.Key(ch), nil
+}
+
+func (c *Curses) getCharWithEscPressed(ch byte) (key.Key, error) {
+	c.escPressed = false
+	switch ch {
+	case 'c':
+		return key.KEY_COPY, nil
+	case 'q':
+		return key.KEY_QUIT, nil
+	case 'x':
+		return key.KEY_CUT, nil
+	case 'v':
+		return key.KEY_PASTE, nil
+	case 's', 'w':
+		return key.KEY_SAVE, nil
+	}
+
+	return 0, nil
 }
 
 func (c *Curses) Erase() {

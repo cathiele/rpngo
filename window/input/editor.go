@@ -9,6 +9,7 @@ import (
 // Provides a UI for editing a multiline string
 type editor struct {
 	buff []byte
+	clipboard []byte
 	txtb window.TextBuffer
 	// Problem statement:
 	//
@@ -56,13 +57,17 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 	}
 	ed.selIdx = -1
 	ed.txtb.Init(iw.txtb.Txtw, 0)
+
+	quit := func() error {
+		tw, th := iw.txtb.Txtw.TextSize()
+		iw.txtb.RefreshArea(0, 0, tw, th)
+		return r.PushFrame(f)
+	}
+
 	for {
 		//ed.debugDump()
 		if r.Interrupt() {
-			tw, th := iw.txtb.Txtw.TextSize()
-			iw.txtb.RefreshArea(0, 0, tw, th)
-			r.PushFrame(f)
-			return nil
+			return quit()
 		}
 		ed.renderDisplay()
 		c, err := iw.input.GetChar()
@@ -72,10 +77,10 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 		clearSel := true
 		selAnchorIdx := ed.cIdx
 		switch c {
-		case 27: // ESC
-			tw, th := iw.txtb.Txtw.TextSize()
-			iw.txtb.RefreshArea(0, 0, tw, th)
-			return r.PushFrame(rpn.StringFrame(string(ed.buff), f.Type()))
+		case 27, key.KEY_QUIT: // ESC
+			return quit()
+		case key.KEY_SAVE:
+			f = rpn.StringFrame(string(ed.buff), f.Type())
 		case key.KEY_UP:
 			ed.keyUpPressed()
 		case key.KEY_DOWN:
@@ -98,6 +103,10 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 			ed.endPressed()
 		case key.KEY_INS:
 			ed.replaceMode = !ed.replaceMode
+		case key.KEY_COPY:
+			ed.copySelection()
+		case key.KEY_PASTE:
+			ed.paste()
 		case key.KEY_SUP:
 			clearSel = false
 			ed.keyUpPressed()
@@ -123,10 +132,12 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 				ed.insertOrReplaceChar(byte(c))
 			}
 		}
-		if clearSel {
-			ed.selIdx = -1
-		} else if ed.selIdx < 0 {
-			ed.selIdx = selAnchorIdx
+		if c != 0 {
+			if clearSel {
+				ed.selIdx = -1
+			} else if ed.selIdx < 0 {
+				ed.selIdx = selAnchorIdx
+			}
 		}
 	}
 }
@@ -439,6 +450,43 @@ func (ed *editor) removeSelection() {
 	copy(ed.buff[beg:], ed.buff[end:])
 	ed.buff = ed.buff[:len(ed.buff)-end+beg]
 	ed.selIdx = -1
+}
+
+func (ed *editor) copySelection() {
+	if ed.selIdx < 0 {
+		return
+	}
+	beg := ed.cIdx
+	end := ed.selIdx
+	if beg > end {
+		beg, end = end, beg
+	}
+	if beg == end {
+		return
+	}
+	if cap(ed.clipboard) < (end - beg) {
+		ed.clipboard = make([]byte, end-beg)
+	}
+	copy(ed.clipboard, ed.buff[beg:end])
+	ed.clipboard = ed.clipboard[:end-beg]
+}
+
+func (ed *editor) paste() {
+	if len(ed.clipboard) == 0 {
+		return
+	}
+	if ed.selIdx >= 0 {
+		ed.removeSelection()
+	}
+	// allocate space if needed
+	ed.buff = append(ed.buff, ed.clipboard...)
+	// make a gap
+	copy(ed.buff[ed.cIdx+len(ed.clipboard):], ed.buff[ed.cIdx:])
+	// fill the gap
+	copy(ed.buff[ed.cIdx:], ed.clipboard)
+	for i := 0; i < len(ed.clipboard); i++ {
+		ed.keyRightPressed()
+	}
 }
 
 func (ed *editor) backspacePressed() {
