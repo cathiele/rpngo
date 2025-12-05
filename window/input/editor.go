@@ -548,7 +548,10 @@ func (ed *editor) removeSelection() {
 	beg := ed.cIdx
 	end := ed.selIdx
 	if beg > end {
-		beg, end = end, beg
+		beg, end = end, beg+1
+		if end > len(ed.buff) {
+			end = len(ed.buff)
+		}
 		// need to do it this way to preserve the x, y of the cursor
 		for ed.cIdx > beg {
 			ed.keyLeftPressed()
@@ -567,7 +570,10 @@ func (ed *editor) copySelection() {
 	beg := ed.cIdx
 	end := ed.selIdx
 	if beg > end {
-		beg, end = end, beg
+		beg, end = end, beg+1
+		if end > len(ed.buff) {
+			end = len(ed.buff)
+		}
 	}
 	if beg == end {
 		return
