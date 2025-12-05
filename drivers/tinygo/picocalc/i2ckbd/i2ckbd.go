@@ -4,6 +4,7 @@ package i2ckbd
 
 import (
 	"fmt"
+	"log"
 	"machine"
 	"mattwach/rpngo/key"
 )
@@ -80,29 +81,32 @@ func (kbd *I2CKbd) GetChar() (key.Key, error) {
 	if (kbd.read[0] == 0) && (kbd.read[1] == 0) {
 		return 0, nil
 	}
+	var k key.Key
 	switch kbd.read[0] {
 	case 0x01:
-		return kbd.keyDown()
+		k = kbd.keyDown()
 	case 0x02:
 		kbd.keyHeld()
 	case 0x03:
 		kbd.keyUp()
 	default:
-		return 0, fmt.Errorf("unknown key response: %v", kbd.read[0])
+		err = fmt.Errorf("unknown key response: %v", kbd.read[0])
 	}
-	return 0, nil
+	log.Printf("read[0]: %02x read[1]: %02x ctrlDown: %v altDown: %v k: %02x",
+		kbd.read[0], kbd.read[1], kbd.CtrlDown, kbd.AltDown, k)
+	return k, nil
 }
 
 // called when a key is depressed
-func (kbd *I2CKbd) keyDown() (key.Key, error) {
+func (kbd *I2CKbd) keyDown() key.Key {
 	k := kbd.read[1]
 	switch k {
 	case ALT_KEY:
 		kbd.AltDown = true
-		return 0, nil
+		return 0
 	case CTRL_KEY:
 		kbd.CtrlDown = true
-		return 0, nil
+		return 0
 	case F1_KEY:
 		return kbd.ifNoModifiers(key.KEY_F1)
 	case F2_KEY:
@@ -125,30 +129,30 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 		return kbd.ifNoModifiers(key.KEY_F10)
 	case LEFT_KEY:
 		if kbd.AltDown {
-			return key.KEY_SLEFT, nil
+			return key.KEY_SLEFT
 		}
 		return kbd.ifNoModifiers(key.KEY_LEFT)
 	case RIGHT_KEY:
 		if kbd.AltDown {
-			return key.KEY_SRIGHT, nil
+			return key.KEY_SRIGHT
 		}
 		return kbd.ifNoModifiers(key.KEY_RIGHT)
 	case UP_KEY:
 		if kbd.AltDown {
-			return key.KEY_SUP, nil
+			return key.KEY_SUP
 		}
 		if kbd.CtrlDown {
-			return key.KEY_PAGEUP, nil
+			return key.KEY_PAGEUP
 		}
-		return key.KEY_UP, nil
+		return key.KEY_UP
 	case DOWN_KEY:
 		if kbd.AltDown {
-			return key.KEY_SDOWN, nil
+			return key.KEY_SDOWN
 		}
 		if kbd.CtrlDown {
-			return key.KEY_PAGEDOWN, nil
+			return key.KEY_PAGEDOWN
 		}
-		return key.KEY_DOWN, nil
+		return key.KEY_DOWN
 	case BACKSPACE_KEY:
 		return kbd.ifNoModifiers(key.KEY_BACKSPACE)
 	case DEL_KEY:
@@ -157,49 +161,49 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 		return kbd.ifNoModifiers(key.KEY_INS)
 	case END_KEY:
 		if kbd.AltDown {
-			return key.KEY_SEND, nil
+			return key.KEY_SEND
 		}
 		return kbd.ifNoModifiers(key.KEY_END)
 	case HOME_KEY:
 		if kbd.AltDown {
-			return key.KEY_SHOME, nil
+			return key.KEY_SHOME
 		}
 		return kbd.ifNoModifiers(key.KEY_HOME)
 	case ESC_KEY:
 		return kbd.ifNoModifiers(27)
 	case 'C':
 		if kbd.AltDown {
-			return key.KEY_COPY, nil
+			return key.KEY_COPY
 		}
 	case 'H':
 		if kbd.AltDown {
-			return key.KEY_HELP, nil
+			return key.KEY_HELP
 		}
 	case 'Q':
 		if kbd.AltDown {
-			return key.KEY_QUIT, nil
+			return key.KEY_QUIT
 		}
 	case 'S':
 		if kbd.AltDown {
-			return key.KEY_SAVE, nil
+			return key.KEY_SAVE
 		}
 	case 'V':
 		if kbd.AltDown {
-			return key.KEY_PASTE, nil
+			return key.KEY_PASTE
 		}
 	case 'X':
 		if kbd.AltDown {
-			return key.KEY_CUT, nil
+			return key.KEY_CUT
 		}
 	case 'c':
 		if kbd.CtrlDown {
-			return key.KEY_BREAK, nil
+			return key.KEY_BREAK
 		}
 	}
 	if k < 0x80 {
 		return kbd.ifNoModifiers(key.Key(k))
 	}
-	return 0, nil
+	return 0
 }
 
 // Sometimes called when a key is held.  Usually just for modifier keys.
@@ -226,9 +230,9 @@ func (kbd *I2CKbd) keyUp() {
 
 // Covers the common path where we only want to report a key
 // if no other modifiers are held down.
-func (kbd *I2CKbd) ifNoModifiers(k key.Key) (key.Key, error) {
+func (kbd *I2CKbd) ifNoModifiers(k key.Key) key.Key {
 	if kbd.CtrlDown || kbd.AltDown {
-		return 0, nil
+		return 0
 	}
-	return k, nil
+	return k
 }
