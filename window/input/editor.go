@@ -262,7 +262,7 @@ func (ed *editor) renderDisplay() {
 		}
 		if y < th {
 			idx := ed.ulIdx + i
-			if (idx >= sbegIdx) && (idx < sendIdx) {
+			if (idx >= sbegIdx) && (idx <= sendIdx) {
 				col |= 0x0100 // blue background
 			}
 			if c == '\n' {
@@ -550,7 +550,7 @@ func (ed *editor) removeSelection() {
 	beg := ed.cIdx
 	end := ed.selIdx
 	if beg > end {
-		beg, end = end, beg+1
+		beg, end = end, beg
 		if end > len(ed.buff) {
 			end = len(ed.buff)
 		}
@@ -559,6 +559,7 @@ func (ed *editor) removeSelection() {
 			ed.keyLeftPressed()
 		}
 	}
+	end++
 	ed.changed = true
 	copy(ed.buff[beg:], ed.buff[end:])
 	ed.buff = ed.buff[:len(ed.buff)-end+beg]
@@ -572,11 +573,12 @@ func (ed *editor) copySelection() {
 	beg := ed.cIdx
 	end := ed.selIdx
 	if beg > end {
-		beg, end = end, beg+1
+		beg, end = end, beg
 		if end > len(ed.buff) {
 			end = len(ed.buff)
 		}
 	}
+	end++
 	if beg == end {
 		return
 	}
