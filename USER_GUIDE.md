@@ -198,6 +198,15 @@ will contain the value at the top of the stack.  For example:
 'animate_sin.rpn' load edit
 ```
 
+You can also edit a file directly with `editf`
+
+```
+'animate_sin.rpn' editf
+```
+
+A different between `edit` and `editf` is that `edit` pushes the result to the stack
+while `editf` saves it back to the original file.
+
 ![ncurses editor](img/editor_on_pc.png)
 
 ![picocalc editor](img/picocalc_editor.jpg)
@@ -207,6 +216,10 @@ The editor only supports basic features right now:
 - arrow key, `page up`, `page down`, `home`, `end` navigation
 - `ins`, `backspace`, `delete`
 - syntax highlighting
+- cut (`alt-x`), copy (`alt-c`), paste (`alt-v`). Use the `shift` key with arrows, `home`, and `end`
+  to make a selection.
+- save with `alt-s`
+- exit the editor with `alt-q`
 
 While editing, press `ESC` to keep your changes (which will be
 at the top of the stack) or `Ctrl-c` to exit without changing the

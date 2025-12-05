@@ -44,9 +44,7 @@ const (
 	HIGHLIGHT_COMMENT
 )
 
-const editHelp = "Invokes an editor on the head value of the stack. " +
-	"Press ESC to push edits back to the stack.  The pushed value " +
-	"will always be a string (but can be evaluated with @ if needed)."
+const editHelp = "Invokes an editor on the head value of the stack. "
 
 func (iw *InputWindow) edit(r *rpn.RPN) error {
 	var f rpn.Frame
@@ -57,12 +55,51 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 		if err != nil {
 			return err
 		}
-		ed = editor{
-			buff:    []byte(f.String(false)),
-			ulIdx:   0,
-			message: "Press Alt-H For Help",
-		}
+		ed.buff = []byte(f.String(false))
 	}
+
+	save := func(buff []byte) error {
+		f = rpn.StringFrame(string(ed.buff), f.Type())
+		return nil
+	}
+
+	if err := ed.edit(r, iw, save); err != nil {
+		return err
+	}
+	if len(f.UnsafeString()) == 0 {
+		return nil
+	}
+	return r.PushFrame(f)
+}
+
+const editFileHelp = "Loads the head value of the stack as a file, and invokes the editor."
+
+func (iw *InputWindow) editFile(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	if !f.IsString() {
+		return rpn.ErrExpectedAString
+	}
+
+	var ed editor
+	ed.buff, err = iw.gl.fs.ReadFile(f.UnsafeString())
+
+	if err != nil {
+		return err
+	}
+
+	save := func(buff []byte) error {
+		return iw.gl.fs.WriteFile(f.UnsafeString(), buff)
+	}
+
+	return ed.edit(r, iw, save)
+}
+
+func (ed *editor) edit(r *rpn.RPN, iw *InputWindow, save func([]byte) error) error {
+
+	ed.message = "Press Alt-H For Help"
 	ed.selIdx = -1
 	ed.txtb.Init(iw.txtb.Txtw, 0)
 
@@ -74,7 +111,6 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 		}
 		tw, th := iw.txtb.Txtw.TextSize()
 		iw.txtb.RefreshArea(0, 0, tw, th)
-		r.PushFrame(f)
 		return true
 	}
 
@@ -100,9 +136,14 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 		case key.KEY_HELP:
 			ed.showHelp()
 		case key.KEY_SAVE:
-			f = rpn.StringFrame(string(ed.buff), f.Type())
-			ed.changed = false
-			ed.message = "Saved"
+			err = save(ed.buff)
+			if err != nil {
+				ed.message = "Save failed: " + err.Error()
+				err = nil
+			} else {
+				ed.changed = false
+				ed.message = "Saved"
+			}
 		case key.KEY_UP:
 			ed.keyUpPressed()
 		case key.KEY_DOWN:

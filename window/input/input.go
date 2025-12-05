@@ -38,6 +38,7 @@ func (iw *InputWindow) Init(input Input, txtw window.TextWindow, r *rpn.RPN, fs 
 	r.Print = iw.Print
 	r.Input = iw.Input
 	r.Register("edit", iw.edit, rpn.CatProg, editHelp)
+	r.Register("editf", iw.editFile, rpn.CatProg, editFileHelp)
 	r.Register("histl", iw.gl.histLoad, rpn.CatStatus, histLoadHelp)
 	r.Register("hists", iw.gl.histSave, rpn.CatStatus, histSaveHelp)
 }
