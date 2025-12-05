@@ -344,3 +344,17 @@ func varClearAll(r *RPN) error {
 	r.variables = make(map[string][]Frame)
 	return nil
 }
+
+const varExistsHelp = "Returns true if the variable name is defined."
+
+func varExists(r *RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	if !f.IsString() {
+		return ErrExpectedAString
+	}
+	_, ok := r.variables[f.UnsafeString()]
+	return r.PushFrame(BoolFrame(ok))
+}

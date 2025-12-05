@@ -306,3 +306,21 @@ func TestExecVariableAsMacro(t *testing.T) {
 	}
 	UnitTestExecAll(t, data, nil)
 }
+
+func TestVarExists(t *testing.T) {
+	data := []UnitTestExecData{
+		{
+			Args:    []string{"v.exists"},
+			WantErr: ErrStackEmpty,
+		},
+		{
+			Args: []string{"'x'", "v.exists"},
+			Want: []string{"false"},
+		},
+		{
+			Args: []string{"5", "x=", "'x'", "v.exists"},
+			Want: []string{"true"},
+		},
+	}
+	UnitTestExecAll(t, data, nil)
+}
