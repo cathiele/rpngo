@@ -562,6 +562,9 @@ func (ed *editor) insertOrReplaceChar(c byte) {
 }
 
 func (ed *editor) removeSelection() {
+	if ed.selIdx < 0 {
+		return
+	}
 	beg := ed.cIdx
 	end := ed.selIdx
 	if beg > end {
