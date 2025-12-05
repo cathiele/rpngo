@@ -1,0 +1,15 @@
+1 a=
+{
+  $0 cos $a *
+  1> sin sq 1 +
+  /
+} fx=
+{
+  $0 $0 sin 1> cos * $a *
+  1> sin sq 1 +
+  /
+} fy=
+{$0 @fx 1> @fy} pplot
+'p' 'minv' 0 w.setp
+'p' 'maxv' 6.29 w.setp
+
