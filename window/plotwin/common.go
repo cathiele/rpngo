@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const maxSteps = 50000
+const maxSteps = 500000
 const maxPlotCount = 32
 
 type PointStats struct {
