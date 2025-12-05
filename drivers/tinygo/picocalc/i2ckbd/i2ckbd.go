@@ -4,7 +4,6 @@ package i2ckbd
 
 import (
 	"fmt"
-	"log"
 	"machine"
 	"mattwach/rpngo/key"
 )
@@ -92,8 +91,6 @@ func (kbd *I2CKbd) GetChar() (key.Key, error) {
 	default:
 		err = fmt.Errorf("unknown key response: %v", kbd.read[0])
 	}
-	log.Printf("read[0]: %02x read[1]: %02x ctrlDown: %v altDown: %v k: %v",
-		kbd.read[0], kbd.read[1], kbd.CtrlDown, kbd.AltDown, k)
 	return k, nil
 }
 
