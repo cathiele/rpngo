@@ -740,8 +740,11 @@ Command history is always enabled in memory and can be optionally saved/restored
 to disk.
 
 History is set to save automatically on PC (`autohist` is `true`). `autohist` is
-`false` by default on microcontrollers because of slow write speeds and elevated
-power usage.  You can change this behavior by customizing the startup file (e.g.
+`false` by default on microcontrollers because memory fragmentation of
+repeatedly appending to the history file can create premature out of memory
+situations (due to the low RAM of the PI Pico).
+
+You can change this behavior by customizing the startup file (e.g.
 `$HOME/.rpngo`)
 
 For microcontrollers, it is suggested to bind `hists` to a function key for
