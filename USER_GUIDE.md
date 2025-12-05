@@ -216,7 +216,9 @@ The editor only supports basic features right now:
 - arrow key, `page up`, `page down`, `home`, `end` navigation
 - `ins`, `backspace`, `delete`
 - syntax highlighting
-- cut (`alt-x`), copy (`alt-c`), paste (`alt-v`). Use the `shift` key with arrows, `home`, and `end`
+- cut (`alt-x`), copy (`alt-c`), paste (`alt-v`).
+- On PC, use the `shift` key with arrows, `home`, and `end`
+- On PicoCalc (due to a hardware limitaton), use the `alt` key with arrows, `home`, and `end`
   to make a selection.
 - save with `alt-s`
 - exit the editor with `alt-q`

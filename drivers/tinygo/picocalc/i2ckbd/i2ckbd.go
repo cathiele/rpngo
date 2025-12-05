@@ -84,12 +84,13 @@ func (kbd *I2CKbd) GetChar() (key.Key, error) {
 	case 0x01:
 		return kbd.keyDown()
 	case 0x02:
-		return kbd.keyHeld()
+		kbd.keyHeld()
 	case 0x03:
-		return kbd.keyUp()
+		kbd.keyUp()
 	default:
 		return 0, fmt.Errorf("unknown key response: %v", kbd.read[0])
 	}
+	return 0, nil
 }
 
 // called when a key is depressed
@@ -166,32 +167,33 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 		return kbd.ifNoModifiers(key.KEY_HOME)
 	case ESC_KEY:
 		return kbd.ifNoModifiers(27)
-	case 'c':
+	case 'C':
 		if kbd.AltDown {
 			return key.KEY_COPY, nil
 		}
-		if kbd.CtrlDown {
-			return key.KEY_BREAK, nil
-		}
-	case 'h':
+	case 'H':
 		if kbd.AltDown {
 			return key.KEY_HELP, nil
 		}
-	case 'q':
+	case 'Q':
 		if kbd.AltDown {
 			return key.KEY_QUIT, nil
 		}
-	case 's':
+	case 'S':
 		if kbd.AltDown {
 			return key.KEY_SAVE, nil
 		}
-	case 'v':
+	case 'V':
 		if kbd.AltDown {
 			return key.KEY_PASTE, nil
 		}
-	case 'x':
+	case 'X':
 		if kbd.AltDown {
 			return key.KEY_CUT, nil
+		}
+	case 'c':
+		if kbd.CtrlDown {
+			return key.KEY_BREAK, nil
 		}
 	}
 	if k < 0x80 {
@@ -201,32 +203,24 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 }
 
 // Sometimes called when a key is held.  Usually just for modifier keys.
-func (kbd *I2CKbd) keyHeld() (key.Key, error) {
+func (kbd *I2CKbd) keyHeld() {
 	switch kbd.read[1] {
 	case ALT_KEY:
 		// likely not needed, but doesn't hurt anything either
 		kbd.AltDown = true
-		return 0, nil
 	case CTRL_KEY:
 		// likely not needed, but doesn't hurt anything either
 		kbd.CtrlDown = true
-		return 0, nil
-	default:
-		return 0, nil
 	}
 }
 
 // Called when a key is released.  We mostly don't care outside of modifier keys
-func (kbd *I2CKbd) keyUp() (key.Key, error) {
+func (kbd *I2CKbd) keyUp() {
 	switch kbd.read[1] {
 	case ALT_KEY:
 		kbd.AltDown = false
-		return 0, nil
 	case CTRL_KEY:
 		kbd.CtrlDown = false
-		return 0, nil
-	default:
-		return 0, nil
 	}
 }
 
