@@ -235,14 +235,10 @@ func (ed *editor) renderDisplay() {
 	ed.txtb.Cursor(false)
 	x := 0
 	y := 0
-	sbegIdx := 0
-	sendIdx := 0
-	if ed.selIdx >= 0 {
-		sbegIdx = ed.cIdx
-		sendIdx = ed.selIdx
-		if sbegIdx > sendIdx {
-			sbegIdx, sendIdx = sendIdx, sbegIdx
-		}
+	sbegIdx := ed.cIdx
+	sendIdx := ed.selIdx
+	if sbegIdx > sendIdx {
+		sbegIdx, sendIdx = sendIdx, sbegIdx
 	}
 	tw, th := ed.txtb.Txtw.TextSize()
 	var col window.ColorChar
@@ -258,7 +254,7 @@ func (ed *editor) renderDisplay() {
 		}
 		if y < th {
 			idx := ed.ulIdx + i
-			if (idx >= sbegIdx) && (idx <= sendIdx) {
+			if (ed.selIdx >= 0) && (idx >= sbegIdx) && (idx <= sendIdx) {
 				col |= 0x0100 // blue background
 			}
 			if c == '\n' {
