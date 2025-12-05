@@ -8,9 +8,9 @@ import (
 
 // Provides a UI for editing a multiline string
 type editor struct {
-	buff []byte
+	buff      []byte
 	clipboard []byte
-	txtb window.TextBuffer
+	txtb      window.TextBuffer
 	// Problem statement:
 	//
 	// - We have a buffer of bytes with possible \n
@@ -25,6 +25,9 @@ type editor struct {
 	cIdx int
 	// select Index active if > 0.  This might be to the cursor or from the cursor
 	selIdx int
+
+	// if message is set, it will be shown until the user presses any key
+	message string
 
 	replaceMode bool
 }
@@ -53,7 +56,11 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 		if err != nil {
 			return err
 		}
-		ed = editor{buff: []byte(f.String(false)), ulIdx: 0}
+		ed = editor{
+			buff:    []byte(f.String(false)),
+			ulIdx:   0,
+			message: "Press Alt-H For Help",
+		}
 	}
 	ed.selIdx = -1
 	ed.txtb.Init(iw.txtb.Txtw, 0)
@@ -199,9 +206,35 @@ func (ed *editor) renderDisplay() {
 		}
 	}
 	ed.clearScreenToBottomRightCorner(x, y)
+	if ed.message != "" {
+		ed.showMessage()
+	}
 	// update changed characters
 	ed.txtb.Update()
 	ed.txtb.Cursor(true)
+}
+
+func (ed *editor) showMessage() {
+	tw, th := ed.txtb.Txtw.TextSize()
+	x := tw - 1
+	y := th - 1
+	for i := len(ed.message) - 1; i >= 0; i-- {
+		c := ed.message[i]
+		if c == '\n' {
+			x = 0
+		} else {
+			ed.txtb.DrawChar(x, y, window.Yellow|window.ColorChar(c))
+		}
+		x--
+		if x < 0 {
+			x = tw - 1
+			y--
+			if y < 0 {
+				break
+			}
+		}
+	}
+	ed.message = ""
 }
 
 func checkHighlightState(hs HighlightState, c byte) (HighlightState, window.ColorChar) {
