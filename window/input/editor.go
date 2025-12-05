@@ -84,11 +84,7 @@ func (iw *InputWindow) editFile(r *rpn.RPN) error {
 	}
 
 	var ed editor
-	ed.buff, err = iw.gl.fs.ReadFile(f.UnsafeString())
-
-	if err != nil {
-		return err
-	}
+	ed.buff, _ = iw.gl.fs.ReadFile(f.UnsafeString())
 
 	save := func(buff []byte) error {
 		return iw.gl.fs.WriteFile(f.UnsafeString(), buff)
