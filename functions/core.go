@@ -373,3 +373,24 @@ func round(r *rpn.RPN) error {
 	}
 	return r.PushFrame(rpn.ComplexFrame(complex(rl, im)))
 }
+
+const fracHelp = "Returns the fractional parts of a number"
+
+func frac(r *rpn.RPN) error {
+	f, err := r.PopFrame()
+	if err != nil {
+		return err
+	}
+	if f.IsComplex() {
+		c := f.UnsafeComplex()
+		rl := real(c)
+		rl = rl - math.Trunc(rl)
+		i := imag(c)
+		i = i - math.Trunc(i)
+		return r.PushFrame(rpn.ComplexFrameWithType(complex(rl, i), f.Type()))
+	}
+	if f.IsNumber() {
+		return r.PushFrame(rpn.IntFrameCloneType(0, f))
+	}
+	return rpn.ErrExpectedANumber
+}

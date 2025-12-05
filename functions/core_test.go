@@ -680,3 +680,69 @@ func TestPhase(t *testing.T) {
 	}
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
 }
+
+func TestFrac(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"frac"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args:    []string{"'foo'", "frac"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+		{
+			Args: []string{"1", "frac"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"1.2", "frac"},
+			Want: []string{"0.2"},
+		},
+		{
+			Args: []string{"1.8", "frac"},
+			Want: []string{"0.8"},
+		},
+		{
+			Args: []string{"-1", "frac"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"-1.2", "frac"},
+			Want: []string{"-0.2"},
+		},
+		{
+			Args: []string{"-1.8", "frac"},
+			Want: []string{"-0.8"},
+		},
+		{
+			Args: []string{"1+i", "frac"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"1.2+1.5i", "frac"},
+			Want: []string{"0.2+0.5i"},
+		},
+		{
+			Args: []string{"1.8+1.8i", "frac"},
+			Want: []string{"0.8+0.8i"},
+		},
+		{
+			Args: []string{"-1-i", "frac"},
+			Want: []string{"0"},
+		},
+		{
+			Args: []string{"-1.2-1.5i", "frac"},
+			Want: []string{"-0.2-0.5i"},
+		},
+		{
+			Args: []string{"-1.8-1.8i", "frac"},
+			Want: []string{"-0.8-0.8i"},
+		},
+		{
+			Args: []string{"1x", "frac"},
+			Want: []string{"0x"},
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
