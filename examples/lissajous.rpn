@@ -1,0 +1,36 @@
+'a' v.exists neg {5d a=} if
+'b' v.exists neg {4d b=} if
+'delta' v.exists neg {$pi 2 / delta=} if
+'stepmult' v.exists neg {1000d stepmult=} if
+
+0d cycles=
+{
+  $cycles 1d + cycles=
+  $cycles $a %
+  $cycles $b %
+  + 0 !=
+} for
+
+{
+  $0
+  $a * $delta + sin
+  1>
+  $b * sin
+} pplot
+
+'p' 'minx' -1.1 w.setp
+'p' 'maxx' 1.1 w.setp
+'p' 'miny' -1.1 w.setp
+'p' 'maxy' 1.1 w.setp
+'p' 'minv' 0 w.setp
+'p' 'maxv' $cycles $pi 2 * * w.setp
+'p' 'steps' $stepmult $cycles * w.setp
+
+'root' w.update
+
+'using:' printlnx
+'  $a=' printx $a printlnx
+'  $b=' printx $b printlnx
+'  $delta=' printx $delta printlnx
+'will need ' printx $cycles printx ' cycles' printlnx
+
