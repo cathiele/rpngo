@@ -6,6 +6,7 @@ package main
 
 import (
 	"machine"
+	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/functions"
 	"mattwach/rpngo/parse"
 	"mattwach/rpngo/rpn"
@@ -18,6 +19,7 @@ var r rpn.RPN
 func main() {
 	time.Sleep(2 * time.Second)
 	r.Init(256)
+	tinygo.Register(&r)
 	functions.RegisterAll(&r)
 
 	print("Type ? for help or topic? for more detailed help")

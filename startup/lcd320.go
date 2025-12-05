@@ -13,11 +13,7 @@ const defaultConfig = commonStartup + `
 
 {hists 'history saved' printlnx} .f5=
 
-{
-  w.reset
-  'root' w.columns
-  'v' w.new.var
-} .f6=
+{reset} .f6=
 
 {
   time t1=

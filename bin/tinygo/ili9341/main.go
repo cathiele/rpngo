@@ -6,6 +6,7 @@ package main
 
 import (
 	"errors"
+	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/ili9341"
 	"mattwach/rpngo/drivers/tinygo/serial"
@@ -55,6 +56,7 @@ func run() error {
 
 	elog.Print("Started")
 	rpnInst.Init(maxStackDepth)
+	tinygo.Register(&rpnInst)
 	functions.RegisterAll(&rpnInst)
 	_ = fileOpsDriver.Init()
 	fileOps.InitAndRegister(&rpnInst, 65536, &fileOpsDriver)

@@ -20,7 +20,15 @@ const commonStartup = `
 
 {w.reset @.init} .f1=
 {w.reset} .f2=
-{w.reset @.plotinit} .f3=
+{w.reset @.init @.plotinit} .f3=
+
+{
+  w.reset
+  'root' w.columns
+  'v' w.new.var 'v'
+  'showdot'
+  true w.setp
+} .f7=
 
 # snapshot save and load
 {'' cd snapshot '.rpngo_snaphot' save 'snapshot saved to .rpngo_snapshot' printlnx} .f4=

@@ -21,14 +21,6 @@ const defaultConfig = commonStartup + `
 @.init
 
 {
-  w.reset
-  'root' w.columns
-  'v' w.new.var 'v'
-  'showdot'
-  true w.setp
-} .f5=
-
-{
   time t1=
   0 x= {$x 1 + x= $x 3000000 <} for
   time $t1 - 3000000 1> /

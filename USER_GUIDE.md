@@ -340,6 +340,21 @@ are covered in more detail in upcoming sections:
 - `.wend`, `.wtarget`, `.wweight` These can be used to control
   how a new window is created. The concept is covered later.
 
+Function keys are already setup in the `.rpngo` startup script.
+You can customize them as needed.
+
+- `.f1` Sets the window layout to the default poweron state
+- `.f2` Shows only an input window
+- `.f3` Shows the default plot window
+- `.f4` Saves a snapshot
+- `.f7` Shows variables in a split view
+- `.f9` Restores the snapashot saved by `.f4`
+
+On Picocalc, the following are also defined:
+
+- `.f5` Saves command history
+- `.f6` Resets the calculator 
+
 ### Number Bases
 
 Many type of numbers are supported
@@ -475,6 +490,13 @@ See all possible conversions with
 
     conversions?
 
+## Reset
+
+The tinygo implementation provides a `reset` command that should have the
+same effect as turning the calculator off and on. Due to the limited
+memory of the Pi Pico, some operations cause the memory to be exausted. If
+you run into a case like this while working, you can consider strategically
+resetting the calculator.
 
 ## Window Layout
 
@@ -679,26 +701,11 @@ inspection. Let's try it:
 Note that `w.reset` will change `.wtarget`, `.wend`, and `.wweight`
 to default values thus is a good first command when building a layout.
 
-## Programmable Function Keys
+### Consider function keys
 
-Configuring windows like above is flexible but cumbersome.  For everyday use,
-there are variables like `.f1`, `.f2` that invoke when you
-press the corresponding F key.  I like to set these to change window
-layouts.  For example:
-
-```
-# Input and stack window
-{
-  w.reset
-  's' w.new.stack
-  's' 30 w.weight
-} .f1=
-
-# Just one big input window
-{w.reset} .f2=
-```
-
-and so on.
+As described earlier, you can define `$.f1` to `$.f12` to execute macro
+when a given function key is pressed. Using these can allow you to
+change to window layouts you like with a single button press.
 
 ## Window Properties
 

@@ -12,4 +12,9 @@
 {$0 @fx 1> @fy} pplot
 'p' 'minv' 0 w.setp
 'p' 'maxv' 6.29 w.setp
+'p' 'minx' -1.1 w.setp
+'p' 'maxx' 1.1 w.setp
+'p' 'miny' -0.5 w.setp
+'p' 'maxy' 0.5 w.setp
+'p' 'steps' 1024 w.setp
 

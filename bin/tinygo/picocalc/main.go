@@ -6,6 +6,7 @@ package main
 
 import (
 	"errors"
+	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/tinyfs"
 	"mattwach/rpngo/fileops"
@@ -102,6 +103,7 @@ func newPixelPlotWindow() (window.WindowWithProps, error) {
 func run() error {
 	rpnInst.Init(maxStackDepth)
 	picocalc.Init(&rpnInst)
+	tinygo.Register(&rpnInst)
 	functions.RegisterAll(&rpnInst)
 	_ = fileOpsDriver.Init()
 	fileOps.InitAndRegister(&rpnInst, 65536, &fileOpsDriver)
