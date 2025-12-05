@@ -11,14 +11,13 @@ const defaultConfig = commonStartup + `
 
 @.init
 
-{w.reset @.init} .f1=
-{w.reset} .f2=
+{hists} .f5=
+
 {
   w.reset
   'root' w.columns
   'v' w.new.var
-} .f3=
-{@.plotinit} .f4=
+} .f6=
 
 {
   time t1=
@@ -29,8 +28,6 @@ const defaultConfig = commonStartup + `
   heapstats
 } benchmark=
 
-# Plot defaults
-'p' .plotwin=
 {
   w.reset
   false .wend<
@@ -38,6 +35,9 @@ const defaultConfig = commonStartup + `
   $.plotwin w.new.plot
   .wend> 0/ .wweight> 0/
 } .plotinit=
+
+# history load/save doesn't work on tinygo unless the media is formatted
+{histl} {0/} try
 
 true .echo=
 `

@@ -20,15 +20,25 @@ const defaultConfig = commonStartup + `
 
 @.init
 
-'w.reset @.init' .f1=
-'w.reset "root" w.columns "i" 30 w.weight' .f2=
-'w.reset "root" w.columns "v" w.new.var "v" "showdot" true w.setp' .f3=
+{
+  w.reset
+  'root' w.columns
+  'v' w.new.var 'v'
+  'showdot'
+  true w.setp
+} .f5=
 
-'time t1= 0 x= "$x 1 + x= $x 3000000 <" for time $t1 - 3000000 1> /' benchmark=
+{
+  time t1=
+  0 x= {$x 1 + x= $x 3000000 <} for
+  time $t1 - 3000000 1> /
+} benchmark=
 
-# Plot defaults
-'p' .plotwin=
-'$.plotwin w.new.plot' .plotinit=
+{$.plotwin w.new.plot} .plotinit=
+
+{histl} {0/} try
+hists
+'i' 'autohist' true w.setp
 
 '/dev/ttyACM0' .serial=
 `

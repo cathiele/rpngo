@@ -18,18 +18,15 @@ const commonStartup = `
 # (-b +/- sqrt(b*b - 4*a*c)) / (2 * a)
 {$2 * 4 * $1 sq - neg sqrt 1> neg $0 $2 - $3 2 * / 3< + 1> 2 * /} quad=
 
-{0 {+ s.size 1 >} for} sum=
-{s.size n< 0 {+ s.size 1 >} for n> /} mean=
-{$0 {min s.size 1 >} for} min=
-{$0 {max s.size 1 >} for} max=
+{w.reset @.init} .f1=
+{w.reset} .f2=
+{w.reset @.plotinit} .f3=
 
 # snapshot save and load
-{'' cd snapshot '.rpngo_snaphot' save 'snapshot saved to .rpngo_snapshot' printlnx} .f5=
-{'' cd '.rpngo_snaphot' . 'snapshot loaded from .rpngo_snapshot' printlnx} .f10=
+{'' cd snapshot '.rpngo_snaphot' save 'snapshot saved to .rpngo_snapshot' printlnx} .f4=
+{'' cd '.rpngo_snaphot' . 'snapshot loaded from .rpngo_snapshot' printlnx} .f9=
 
-# history load/save doesn't work on tinygo unless the media is formatted
-{histl} {0/} try
-{hists 'i' 'autohist' true w.setp} {0/} try
+'p' .plotwin=
 rad
 `
 
