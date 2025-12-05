@@ -43,4 +43,5 @@ const (
 	KEY_PASTE
 	KEY_SAVE
 	KEY_QUIT
+	KEY_HELP
 )

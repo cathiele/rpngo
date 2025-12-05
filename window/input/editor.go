@@ -86,6 +86,8 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 		switch c {
 		case 27, key.KEY_QUIT: // ESC
 			return quit()
+		case key.KEY_HELP:
+			ed.showHelp()
 		case key.KEY_SAVE:
 			f = rpn.StringFrame(string(ed.buff), f.Type())
 			ed.message = "Saved"
@@ -165,6 +167,17 @@ func (ed *editor) debugDump() {
 	}
 }
 */
+
+func (ed *editor) showHelp() {
+	ed.message = ("Alt-C |  Copy\n" +
+		"Alt-X |   Cut\n" +
+		"Alt-V | Paste\n" +
+		"Alt-S |  Save\n" +
+		"Alt-Q |  Quit\n" +
+		"Shift-Arrow | Select\n" +
+		"Shift-End   | Select\n" +
+		"Shift-Home  | Select")
+}
 
 func (ed *editor) renderDisplay() {
 	var hs HighlightState = HIGHLIGHT_NORMAL

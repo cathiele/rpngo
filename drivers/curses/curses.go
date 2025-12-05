@@ -42,7 +42,7 @@ func Init() (*Curses, error) {
 
 func (c *Curses) NewTextWindow() (window.TextWindow, error) {
 	tw := &Curses{
-		root: c.root,
+		root:      c.root,
 		rgbToPair: c.rgbToPair,
 	}
 	return tw, nil
@@ -66,15 +66,15 @@ func (c *Curses) ShowBorder(screenw, screenh int) error {
 	wy, wx := c.window.YX()
 
 	if wy > 0 {
-		c.border.HLine(0, 0, '-', bw) 
+		c.border.HLine(0, 0, '-', bw)
 	}
 
 	if wx > 0 {
-		c.border.VLine(0, 0, '|', bh) 
+		c.border.VLine(0, 0, '|', bh)
 	}
 
 	if (wx > 0) && (wy > 0) {
-		c.border.MoveAddChar(0, 0, '+') 
+		c.border.MoveAddChar(0, 0, '+')
 	}
 
 	c.border.Refresh()
@@ -131,7 +131,6 @@ func (c *Curses) ResizeWindow(x, y, w, h int) error {
 	if err != nil {
 		return err
 	}
-
 
 	// If the window touches the screen edge, there is no reason to
 	// have a border there
@@ -211,6 +210,8 @@ func (c *Curses) getCharWithEscPressed(ch byte) (key.Key, error) {
 	switch ch {
 	case 'c':
 		return key.KEY_COPY, nil
+	case 'h':
+		return key.KEY_HELP, nil
 	case 'q':
 		return key.KEY_QUIT, nil
 	case 'x':
