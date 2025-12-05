@@ -88,6 +88,7 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 			return quit()
 		case key.KEY_SAVE:
 			f = rpn.StringFrame(string(ed.buff), f.Type())
+			ed.message = "Saved"
 		case key.KEY_UP:
 			ed.keyUpPressed()
 		case key.KEY_DOWN:
@@ -110,8 +111,13 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 			ed.endPressed()
 		case key.KEY_INS:
 			ed.replaceMode = !ed.replaceMode
+		case key.KEY_CUT:
+			ed.copySelection()
+			ed.removeSelection()
+			ed.message = "Cut"
 		case key.KEY_COPY:
 			ed.copySelection()
+			ed.message = "Copied"
 		case key.KEY_PASTE:
 			ed.paste()
 		case key.KEY_SUP:
