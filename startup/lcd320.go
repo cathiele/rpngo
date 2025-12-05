@@ -11,7 +11,7 @@ const defaultConfig = commonStartup + `
 
 @.init
 
-{hists} .f5=
+{hists 'history saved' printlnx} .f5=
 
 {
   w.reset
