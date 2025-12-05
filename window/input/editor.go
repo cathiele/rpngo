@@ -126,6 +126,10 @@ func (ed *editor) edit(r *rpn.RPN, iw *InputWindow, save func([]byte) error) err
 		if err != nil {
 			return err
 		}
+		if c == 0 {
+			// ignore
+			continue
+		}
 		clearSel := true
 		selAnchorIdx := ed.cIdx
 		switch c {
@@ -200,12 +204,10 @@ func (ed *editor) edit(r *rpn.RPN, iw *InputWindow, save func([]byte) error) err
 				ed.insertOrReplaceChar(byte(c))
 			}
 		}
-		if c != 0 {
-			if clearSel {
-				ed.selIdx = -1
-			} else if ed.selIdx < 0 {
-				ed.selIdx = selAnchorIdx
-			}
+		if clearSel {
+			ed.selIdx = -1
+		} else if ed.selIdx < 0 {
+			ed.selIdx = selAnchorIdx
 		}
 	}
 }
