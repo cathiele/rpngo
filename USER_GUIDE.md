@@ -498,6 +498,11 @@ memory of the Pi Pico, some operations cause the memory to be exausted. If
 you run into a case like this while working, you can consider strategically
 resetting the calculator.
 
+Te PicoCalc also uses a watchdog timer of three seconds and will atomatically reset
+the calculator if it panics or runs out of memory. If you have a USB serial
+connected to the serial device (using `tinygo monitor`, `screen`, `minicom`, etc),
+you will usually see the error message output there.
+
 ## Window Layout
 
 The `rpngo` program supports several window types:

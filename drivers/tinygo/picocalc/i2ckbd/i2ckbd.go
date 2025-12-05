@@ -69,10 +69,8 @@ func (kbd *I2CKbd) Init() error {
 
 // GetChar returns a keppress using the key driver codes.  Returns zero if
 // nothing was pressed (which will be most of the time).
-//
-// You need to call this often.  Calling it in a gorouting seems like a good
-// plan, but should be done after the basics are fully sorted.
 func (kbd *I2CKbd) GetChar() (key.Key, error) {
+	machine.Watchdog.Update()
 	err := kbd.i2c.Tx(i2cKbdAddr, kbd.write, kbd.read)
 	if err != nil {
 		return 0, err

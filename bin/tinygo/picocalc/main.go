@@ -6,6 +6,7 @@ package main
 
 import (
 	"errors"
+	"machine"
 	"mattwach/rpngo/bin/tinygo"
 	"mattwach/rpngo/drivers/pixelwinbuffer"
 	"mattwach/rpngo/drivers/tinygo/tinyfs"
@@ -101,6 +102,12 @@ func newPixelPlotWindow() (window.WindowWithProps, error) {
 }
 
 func run() error {
+	if err := machine.Watchdog.Configure(machine.WatchdogConfig{TimeoutMillis: 3000}); err != nil {
+		panic(err)
+	}
+	if err := machine.Watchdog.Start(); err != nil {
+		panic(err)
+	}
 	rpnInst.Init(maxStackDepth)
 	picocalc.Init(&rpnInst)
 	tinygo.Register(&rpnInst)
