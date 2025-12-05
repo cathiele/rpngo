@@ -30,6 +30,7 @@ type editor struct {
 	message string
 
 	replaceMode bool
+	changed     bool
 }
 
 type HighlightState uint8
@@ -65,16 +66,24 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 	ed.selIdx = -1
 	ed.txtb.Init(iw.txtb.Txtw, 0)
 
-	quit := func() error {
+	quit := func() bool {
+		if ed.changed {
+			ed.changed = false
+			ed.message = "Not Saved\nRepeat To Exit Anyway"
+			return false
+		}
 		tw, th := iw.txtb.Txtw.TextSize()
 		iw.txtb.RefreshArea(0, 0, tw, th)
-		return r.PushFrame(f)
+		r.PushFrame(f)
+		return true
 	}
 
 	for {
 		//ed.debugDump()
 		if r.Interrupt() {
-			return quit()
+			if quit() {
+				return nil
+			}
 		}
 		ed.renderDisplay()
 		c, err := iw.input.GetChar()
@@ -85,7 +94,9 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 		selAnchorIdx := ed.cIdx
 		switch c {
 		case 27, key.KEY_QUIT: // ESC
-			return quit()
+			if quit() {
+				return nil
+			}
 		case key.KEY_HELP:
 			ed.showHelp()
 		case key.KEY_SAVE:
@@ -480,10 +491,12 @@ func (ed *editor) insertOrReplaceChar(c byte) {
 		ed.homePressed()
 		return
 	} else if !ed.replaceMode || (ed.cIdx >= len(ed.buff)) || (ed.buff[ed.cIdx] == '\n') {
+		ed.changed = true
 		ed.buff = append(ed.buff, 0)
 		copy(ed.buff[ed.cIdx+1:], ed.buff[ed.cIdx:])
 		ed.buff[ed.cIdx] = c
 	} else {
+		ed.changed = true
 		ed.buff[ed.cIdx] = c
 	}
 	ed.keyRightPressed()
@@ -499,6 +512,7 @@ func (ed *editor) removeSelection() {
 			ed.keyLeftPressed()
 		}
 	}
+	ed.changed = true
 	copy(ed.buff[beg:], ed.buff[end:])
 	ed.buff = ed.buff[:len(ed.buff)-end+beg]
 	ed.selIdx = -1
@@ -530,6 +544,7 @@ func (ed *editor) paste() {
 	if ed.selIdx >= 0 {
 		ed.removeSelection()
 	}
+	ed.changed = true
 	// allocate space if needed
 	ed.buff = append(ed.buff, ed.clipboard...)
 	// make a gap
@@ -561,6 +576,7 @@ func (ed *editor) delPressed() {
 	if ed.cIdx < 0 {
 		return
 	}
+	ed.changed = true
 	copy(ed.buff[ed.cIdx:], ed.buff[ed.cIdx+1:])
 	ed.buff = ed.buff[:len(ed.buff)-1]
 }
