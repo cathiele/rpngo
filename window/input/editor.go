@@ -369,7 +369,7 @@ func checkHighlightState(hs HighlightState, c byte) (HighlightState, window.Colo
 		if c == '\n' {
 			hs = HIGHLIGHT_NORMAL
 		}
-		col = window.Blue
+		col = window.Magenta
 	}
 	return hs, col
 }
