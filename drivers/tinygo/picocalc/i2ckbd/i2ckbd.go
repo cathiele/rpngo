@@ -123,16 +123,28 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 	case F10_KEY:
 		return kbd.ifNoModifiers(key.KEY_F10)
 	case LEFT_KEY:
+		if kbd.AltDown {
+			return key.KEY_SLEFT, nil
+		}
 		return kbd.ifNoModifiers(key.KEY_LEFT)
 	case RIGHT_KEY:
+		if kbd.AltDown {
+			return key.KEY_SRIGHT, nil
+		}
 		return kbd.ifNoModifiers(key.KEY_RIGHT)
 	case UP_KEY:
-		if kbd.CtrlDown || kbd.AltDown {
+		if kbd.AltDown {
+			return key.KEY_SUP, nil
+		}
+		if kbd.CtrlDown {
 			return key.KEY_PAGEUP, nil
 		}
 		return key.KEY_UP, nil
 	case DOWN_KEY:
-		if kbd.CtrlDown || kbd.AltDown {
+		if kbd.AltDown {
+			return key.KEY_SDOWN, nil
+		}
+		if kbd.CtrlDown {
 			return key.KEY_PAGEDOWN, nil
 		}
 		return key.KEY_DOWN, nil
@@ -143,14 +155,43 @@ func (kbd *I2CKbd) keyDown() (key.Key, error) {
 	case INS_KEY:
 		return kbd.ifNoModifiers(key.KEY_INS)
 	case END_KEY:
+		if kbd.AltDown {
+			return key.KEY_SEND, nil
+		}
 		return kbd.ifNoModifiers(key.KEY_END)
 	case HOME_KEY:
+		if kbd.AltDown {
+			return key.KEY_SHOME, nil
+		}
 		return kbd.ifNoModifiers(key.KEY_HOME)
 	case ESC_KEY:
 		return kbd.ifNoModifiers(27)
 	case 'c':
-		if kbd.CtrlDown && !kbd.AltDown {
+		if kbd.AltDown {
+			return key.KEY_COPY, nil
+		}
+		if kbd.CtrlDown {
 			return key.KEY_BREAK, nil
+		}
+	case 'h':
+		if kbd.AltDown {
+			return key.KEY_HELP, nil
+		}
+	case 'q':
+		if kbd.AltDown {
+			return key.KEY_QUIT, nil
+		}
+	case 's':
+		if kbd.AltDown {
+			return key.KEY_SAVE, nil
+		}
+	case 'v':
+		if kbd.AltDown {
+			return key.KEY_PASTE, nil
+		}
+	case 'x':
+		if kbd.AltDown {
+			return key.KEY_CUT, nil
 		}
 	}
 	if k < 0x80 {
