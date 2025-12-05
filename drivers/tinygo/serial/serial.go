@@ -17,6 +17,7 @@ const (
 	NORMAL TermState = iota
 	ESC
 	ARROW
+	SHIFTARROW
 	PAGEUP
 	PAGEDOWN
 )
@@ -80,15 +81,28 @@ func (sc *Serial) GetChar() key.Key {
 			return key.Key(c)
 		}
 	case ESC:
+		sc.state = NORMAL
 		switch c {
 		case '[':
 			sc.state = ARROW
-		default:
-			sc.state = NORMAL
+		case 'c':
+			return key.KEY_COPY
+		case 'h':
+			return key.KEY_HELP
+		case 'q':
+			return key.KEY_QUIT
+		case 's':
+			return key.KEY_SAVE
+		case 'v':
+			return key.KEY_PASTE
+		case 'x':
+			return key.KEY_CUT
 		}
 	case ARROW:
 		sc.state = NORMAL
 		switch c {
+		case 27:
+			sc.state = SHIFTARROW
 		case 'A':
 			return key.KEY_UP
 		case 'B':
@@ -101,6 +115,18 @@ func (sc *Serial) GetChar() key.Key {
 			sc.state = PAGEUP
 		case '6':
 			sc.state = PAGEDOWN
+		}
+	case SHIFTARROW:
+		sc.state = NORMAL
+		switch c {
+		case 'A':
+			return key.KEY_SUP
+		case 'B':
+			return key.KEY_SDOWN
+		case 'C':
+			return key.KEY_SRIGHT
+		case 'D':
+			return key.KEY_SLEFT
 		}
 	case PAGEUP:
 		sc.state = NORMAL
