@@ -246,6 +246,72 @@ func TestDivide(t *testing.T) {
 	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
 }
 
+func TestMod(t *testing.T) {
+	data := []rpn.UnitTestExecData{
+		{
+			Args:    []string{"%"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args:    []string{"1", "%"},
+			WantErr: rpn.ErrStackEmpty,
+		},
+		{
+			Args:    []string{"1", "true", "%"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+		{
+			Args:    []string{"true", "1", "%"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+		{
+			Args: []string{"5", "2", "%"},
+			Want: []string{"1d"},
+		},
+		{
+			Args: []string{"5", "2d", "%"},
+			Want: []string{"1d"},
+		},
+		{
+			Args: []string{"5d", "2", "%"},
+			Want: []string{"1d"},
+		},
+		{
+			Args: []string{"5d", "2d", "%"},
+			Want: []string{"1d"},
+		},
+		{
+			Args:    []string{"5", "0", "%"},
+			WantErr: rpn.ErrDivideByZero,
+		},
+		{
+			Args:    []string{"5d", "0d", "%"},
+			WantErr: rpn.ErrDivideByZero,
+		},
+		{
+			Args:    []string{"5", "0d", "%"},
+			WantErr: rpn.ErrDivideByZero,
+		},
+		{
+			Args:    []string{"5d", "0", "%"},
+			WantErr: rpn.ErrDivideByZero,
+		},
+		{
+			Args:    []string{"'foo'", "7", "%"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+		{
+			Args:    []string{"7", "'foo'", "%"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+		{
+			Args:    []string{"\"foo\"", "'bar'", "%"},
+			WantErr: rpn.ErrExpectedANumber,
+		},
+	}
+	rpn.UnitTestExecAll(t, data, func(r *rpn.RPN) { RegisterAll(r) })
+}
+
 func TestNegate(t *testing.T) {
 	data := []rpn.UnitTestExecData{
 		{

@@ -24,6 +24,7 @@ func RegisterAll(r *rpn.RPN) {
 	r.Register("*", multiply, rpn.CatCore, multiplyHelp)
 	r.Register("/", divide, rpn.CatCore, divideHelp)
 	r.Register("+", add, rpn.CatCore, addHelp)
+	r.Register("%", mod, rpn.CatCore, modHelp)
 	r.Register("false", falseFn, rpn.CatCore, falseHelp)
 	r.Register("frac", frac, rpn.CatCore, fracHelp)
 	r.Register("min", min, rpn.CatCore, minHelp)

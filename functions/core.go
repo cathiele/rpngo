@@ -394,3 +394,27 @@ func frac(r *rpn.RPN) error {
 	}
 	return rpn.ErrExpectedANumber
 }
+
+const modHelp = "Returns the modulus of two integers"
+
+func mod(r *rpn.RPN) error {
+	af, bf, err := r.Pop2Frames()
+	if err != nil {
+		return err
+	}
+	a, err := af.Int()
+	if err != nil {
+		return err
+	}
+	b, err := bf.Int()
+	if err != nil {
+		return err
+	}
+	if b == 0 {
+		return rpn.ErrDivideByZero
+	}
+	if af.IsInt() {
+		return r.PushFrame(rpn.IntFrameCloneType(a%b, af))
+	}
+	return r.PushFrame(rpn.IntFrame(a%b, rpn.INTEGER_FRAME))
+}

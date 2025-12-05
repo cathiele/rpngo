@@ -14,6 +14,7 @@ var (
 	ErrExpectedANumber           = errors.New("expected a number")
 	ErrExpectedAPositiveNumber   = errors.New("expected a positive number")
 	ErrExpectedAString           = errors.New("expected a string")
+	ErrExpectedAnInteger         = errors.New("expected an integer")
 	ErrIllegalName               = errors.New("illegal name")
 	ErrIllegalValue              = errors.New("illegal value")
 	ErrIllegalWindowOperation    = errors.New("illegal window operation")
