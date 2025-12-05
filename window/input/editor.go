@@ -235,7 +235,7 @@ func (ed *editor) showHelp() {
 }
 
 func (ed *editor) renderDisplay() {
-	var hs HighlightState = HIGHLIGHT_NORMAL
+	var hs HighlightState = ed.initialHighlightState()
 	ed.txtb.Cursor(false)
 	x := 0
 	y := 0
@@ -286,6 +286,25 @@ func (ed *editor) renderDisplay() {
 	// update changed characters
 	ed.txtb.Update()
 	ed.txtb.Cursor(true)
+}
+
+// limit the maximum highlight lookback for performance
+const maxHighlightLookback = 8192
+
+func (ed *editor) initialHighlightState() HighlightState {
+	var hs HighlightState = HIGHLIGHT_NORMAL
+	skip := false
+	startIdx := ed.ulIdx - maxHighlightLookback
+	if startIdx < 0 {
+		startIdx = 0
+	}
+	for _, c := range ed.buff[startIdx:ed.ulIdx] {
+		if !skip {
+			hs, _ = checkHighlightState(hs, c)
+		}
+		skip = !skip && (c == '\\')
+	}
+	return hs
 }
 
 func (ed *editor) showMessage() {
