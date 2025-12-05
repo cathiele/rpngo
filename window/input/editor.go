@@ -101,6 +101,7 @@ func (iw *InputWindow) edit(r *rpn.RPN) error {
 			ed.showHelp()
 		case key.KEY_SAVE:
 			f = rpn.StringFrame(string(ed.buff), f.Type())
+			ed.changed = false
 			ed.message = "Saved"
 		case key.KEY_UP:
 			ed.keyUpPressed()
