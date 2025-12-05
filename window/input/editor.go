@@ -341,7 +341,7 @@ func checkHighlightState(hs HighlightState, c byte) (HighlightState, window.Colo
 			col = window.Yellow
 		case '#':
 			hs = HIGHLIGHT_COMMENT
-			col = window.Blue
+			col = window.Magenta
 		default:
 			col = window.White
 		}
