@@ -1,6 +1,7 @@
 package plotwin
 
 import (
+	"errors"
 	"fmt"
 	"mattwach/rpngo/elog"
 	"mattwach/rpngo/parse"
@@ -173,6 +174,10 @@ func (pw *plotWindowCommon) addPoints(r *rpn.RPN, plot Plot, steps uint32, fn fu
 			return err
 		}
 		if err := r.ExecSlice(plot.fn); err != nil {
+			if errors.Is(err, rpn.ErrDivideByZero) {
+				// just skip this point
+				continue
+			}
 			return err
 		}
 		if t0 {
