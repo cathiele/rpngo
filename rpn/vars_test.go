@@ -314,6 +314,10 @@ func TestVarExists(t *testing.T) {
 			WantErr: ErrStackEmpty,
 		},
 		{
+			Args:    []string{"5", "v.exists"},
+			WantErr: ErrExpectedAString,
+		},
+		{
 			Args: []string{"'x'", "v.exists"},
 			Want: []string{"false"},
 		},

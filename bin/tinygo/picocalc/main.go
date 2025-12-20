@@ -50,7 +50,8 @@ const breakExecCountTrigger = 8192
 
 type interruptCheck struct {
 	calls       uint32
-	origSleepFn func(float64)
+	callInc     uint32
+	origSleepFn func(*rpn.RPN, float64) error
 }
 
 // Initialize this after the keyboard is ready to read, just in case.
@@ -58,10 +59,11 @@ func (ic *interruptCheck) Init() {
 	ic.origSleepFn = functions.DelaySleepFn
 	functions.DelaySleepFn = ic.delaySleepFn
 	rpnInst.Interrupt = ic.checkForInterrupt
+	ic.callInc = 1
 }
 
 func (ic *interruptCheck) checkForInterrupt() bool {
-	ic.calls++
+	ic.calls += ic.callInc
 	if ic.calls < breakExecCountTrigger {
 		return false
 	}
@@ -70,9 +72,12 @@ func (ic *interruptCheck) checkForInterrupt() bool {
 	return k == key.KEY_BREAK
 }
 
-func (ic *interruptCheck) delaySleepFn(t float64) {
-	ic.calls += uint32(t * float64(breakExecCountTrigger*4))
-	ic.origSleepFn(t)
+func (ic *interruptCheck) delaySleepFn(r *rpn.RPN, t float64) error {
+	oldInc := ic.callInc
+	ic.callInc = breakExecCountTrigger
+	err := ic.origSleepFn(r, t)
+	ic.callInc = oldInc
+	return err
 }
 
 func main() {
