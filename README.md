@@ -5,6 +5,10 @@ This page is a summary.  See the full [User's Guide here](USER_GUIDE.md)
 This project is implements a programmable RPN graphing calculator using golang
 and TinyGO.
 
+A video on the project:
+
+[![video](img/PicoCalcTinyGoTitle.jpg)](https://youtu.be/soIBxg42fis)
+
 It can be run on regular PCs (including Raspberry Pi):
 
 ![regular pc](img/running_on_pc.png)
@@ -32,8 +36,6 @@ Why an RPN calculator? We'll I spent my early days on an HP-48G user and
 wanted a modern calculator that worked in a similar-but-modernized way. I then
 discovered the PicoCalc, an $80 platform for making your own retro computer /
 calculator:
-
-![PicoCalc and HP-48](img/picocalc_and_hp48.jpg)
 
 The calculator ships with Micro Basic, Python, LISP and an NES emulator -
 plenty to experiment with right there! But I wanted to do something lower-level
