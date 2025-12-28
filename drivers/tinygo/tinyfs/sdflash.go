@@ -12,8 +12,9 @@ import (
 func blockDevice() (tinyfs.BlockDevice, error) {
 	elog.Heap("alloc: /drivers/tinygo/tinyfs/fileops.go:34: sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin)")
 	sd := sdcard.New(spi, sckPin, sdoPin, sdiPin, csPin) // object allocated on the heap: escapes at line 39
-	if err := sd.Configure(); err != nil {
+	err := sd.Configure()
+	if err != nil {
 		return nil, err
 	}
-	return sd, err
+	return &sd, err
 }
