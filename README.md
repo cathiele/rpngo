@@ -2,6 +2,8 @@
 
 This page is a summary.  See the full [User's Guide here](USER_GUIDE.md)
 
+If you don't want to build yourself, check the [releases sidebar in github](https://github.com/mattwach/rpngo/releases/tag/picocalc).
+
 This project is implements a programmable RPN graphing calculator using golang
 and TinyGO.
 
