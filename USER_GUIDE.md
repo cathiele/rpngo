@@ -1163,7 +1163,7 @@ the screen window and see if they appear on the calculator.
 Let's assume for this example that you want to send a file named
 `bounce_ball.rpn`.  In `screen`, type `Ctrl-A`, `:` and type this at the prompt:
 
-    exec !! sx bounce_ball.rpn
+    exec !! sx -X bounce_ball.rpn
 
 and on the calculator:
 
