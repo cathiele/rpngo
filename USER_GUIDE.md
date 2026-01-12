@@ -1169,7 +1169,9 @@ and on the calculator:
 
     rx
 
-If everyting worked, you will have the contents of the file as a string
+> Note: on some systems the `sx` command may instead be `lrzsz-sx`
+
+If everything worked, you will have the contents of the file as a string
 at the top of the stack.
 
 #### Receive a file from RPNGO using rx
