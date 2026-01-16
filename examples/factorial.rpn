@@ -1,0 +1,6 @@
+{
+  x< $x
+  {$x 1 <= {false} {$x 1 - x= $x * true} ifelse} for
+  x> 0/
+} factorial=
+
