@@ -82,7 +82,7 @@ func (ic *interruptCheck) delaySleepFn(r *rpn.RPN, t float64) error {
 }
 
 func main() {
-	// Enable interrupts when using UF2 Loader (bootloader) interrups are disabled when main is called
+	// Enable interrupts. When using UF2 Loader (bootloader) interrupts are disabled when main is called
 	arm.EnableInterrupts(0)
 
 	time.Sleep(200 * time.Millisecond)
